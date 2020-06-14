@@ -6,7 +6,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/pioneers/PieCentral.git"
+    "url": "https://github.com/pioneers/dawn.git"
   },
   "main": "build/main.js",
   "scripts": {
