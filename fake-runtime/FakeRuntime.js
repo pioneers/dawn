@@ -10,9 +10,13 @@ const dgram = require('dgram');
 const net = require('net');
 const protobuf = require('protobufjs');
 
-const DawnData = (new protobuf.Root()).loadSync('../ansible-protos/ansible.proto', { keepCase: true }).lookupType('DawnData');
-const RuntimeData = (new protobuf.Root()).loadSync('../ansible-protos/runtime.proto', { keepCase: true }).lookupType('RuntimeData');
-const Notification = (new protobuf.Root()).loadSync('../ansible-protos/notification.proto', { keepCase: true }).lookupType('Notification');
+/**
+ * TODO: Fake Runtime is currently broken because it still relies on the old protobufs and
+ * Ansible now uses the new protobufs. Fix by porting Fake Runtime over to new protos.
+ */
+const DawnData = (new protobuf.Root()).loadSync('old-protos/ansible.proto', { keepCase: true }).lookupType('DawnData');
+const RuntimeData = (new protobuf.Root()).loadSync('old-protos/runtime.proto', { keepCase: true }).lookupType('RuntimeData');
+const Notification = (new protobuf.Root()).loadSync('old-protos/notification.proto', { keepCase: true }).lookupType('Notification');
 
 const TCPPORT = 1234;
 const SENDPORT = 1235;
