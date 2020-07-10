@@ -305,7 +305,6 @@ function* ansibleSaga() {
 }
 
 const gamepadsState = state => ({
-  studentCodeStatus: state.info.studentCodeStatus,
   gamepads: state.gamepads.gamepads,
 });
 
@@ -555,6 +554,13 @@ function timestampBounceback() {
   ipcRenderer.send('TIMESTAMP_SEND');
 }
 
+function* exportRunMode() {
+  const stateSlice = yield select(state => ({
+    studentCodeStatus: state.info.studentCodeStatus
+  }));
+  ipcRenderer.send('EXPORT_RUN_MODE', stateSlice);
+}
+
 
 /**
  * The root saga combines all the other sagas together into one.
@@ -571,6 +577,7 @@ export default function* rootSaga() {
     takeEvery('UPLOAD_CODE', uploadStudentCode),
     takeEvery('TOGGLE_FIELD_CONTROL', handleFieldControl),
     takeEvery('TIMESTAMP_CHECK', timestampBounceback),
+    takeEvery('EXPORT_RUN_MODE', exportRunMode),
     fork(runtimeHeartbeat),
     fork(ansibleGamepads),
     fork(ansibleSaga),
