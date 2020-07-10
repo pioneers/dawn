@@ -6,56 +6,58 @@ import _ from 'lodash';
 
 import RendererBridge from '../RendererBridge';
 import { updateConsole } from '../../renderer/actions/ConsoleActions';
-import {
-  ansibleDisconnect,
-  infoPerMessage,
-  updateCodeStatus,
-} from '../../renderer/actions/InfoActions';
+import { ansibleDisconnect } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
-import { robotState, Logger, defaults } from '../../renderer/utils/utils';
-import FCObject from './FieldControl';
+import { Logger, defaults } from '../../renderer/utils/utils';
 
-const DawnData = (new protobuf.Root()).loadSync(`${__dirname}/ansible.proto`, { keepCase: true }).lookupType('DawnData');
-const { StudentCodeStatus } = DawnData;
+/**
+ * UDP Recv (Runtime -> Dawn)
+ * Device Data Array (sensors), device.proto
+ */
+const RecvDeviceProto = (new protobuf.Root()).loadSync('protos/device.proto', { keepCase: true }).lookupType('Device');
 
-const RuntimeData = (new protobuf.Root()).loadSync(`${__dirname}/runtime.proto`, { keepCase: true }).lookupType('RuntimeData');
-const Notification = (new protobuf.Root()).loadSync(`${__dirname}/notification.proto`, { keepCase: true }).lookupType('Notification');
+/**
+ * UDP Send (Dawn -> Runtime)
+ * Gamepad Data, gamepad.proto
+ */
+const SendGamepadProto = (new protobuf.Root()).loadSync('protos/gamepad.proto', { keepCase: true }).lookupType('GpState');
+
+/**
+ * TCP Recv (Runtime -> Dawn)
+ * Challenge Data (output values), text.proto
+ * Log Data (console), text.proto
+ */
+const RecvChallengeProto = (new protobuf.Root()).loadSync('protos/text.proto', { keepCase: true }).lookupType('Text');
+const { RecvLogProto } = RecvChallengeProto;
+
+/**
+ * TCP Send (Dawn -> Runtime)
+ * Run Mode Data (TELEOP, ESTOP), run_mode.proto
+ * Device Data Array (preference filter), device.proto
+ * Challenge Data (input values), text.proto
+ * Position Data, start_pos.proto
+ */
+const SendModeProto = (new protobuf.Root()).loadSync('protos/run_mode.proto', { keepCase: true }).lookupType('RunMode');
+const { SendDeviceProto } = RecvDeviceProto;
+const { SendChallengeProto } = RecvChallengeProto;
+const SendPosProto = (new protobuf.Root()).loadSync('protos/start_pos.proto', { keepCase: true }).lookupType('StartPos');
 
 const LISTEN_PORT = 1235;
 const SEND_PORT = 1236;
 const TCP_PORT = 1234;
 
-function buildProto(data) {
-  let status = null;
-  switch (data.studentCodeStatus) {
-    case robotState.TELEOP:
-      status = StudentCodeStatus.TELEOP;
-      break;
-    case robotState.AUTONOMOUS:
-      status = StudentCodeStatus.AUTONOMOUS;
-      break;
-    case robotState.ESTOP:
-      status = StudentCodeStatus.ESTOP;
-      break;
-    default:
-      status = StudentCodeStatus.IDLE;
-  }
-
+function buildGamepadProto(data) {
   const gamepads = _.map(_.toArray(data.gamepads), (gamepad) => {
     const axes = _.toArray(gamepad.axes);
     const buttons = _.map(_.toArray(gamepad.buttons), Boolean);
-    return DawnData.Gamepad.create({
-      index: gamepad.index,
+    return SendGamepadProto.create({
+      connected: gamepad.index,
       axes,
       buttons,
     });
   });
 
-  return DawnData.create({
-    student_code_status: status,
-    gamepads,
-    team_color: (FCObject.stationNumber < 2) ? DawnData.TeamColor.BLUE : DawnData.TeamColor.GOLD,
-  });
+  return SendGamepadProto.create({ gamepads });
 }
 
 class ListenSocket {
@@ -63,29 +65,16 @@ class ListenSocket {
     this.logger = logger;
     this.statusUpdateTimeout = 0;
     this.socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
-    this.studentCodeStatusListener = this.studentCodeStatusListener.bind(this);
     this.close = this.close.bind(this);
-    /*
-     * Runtime message handler. Sends robot state to store.info
-     * and raw sensor array to peripheral reducer
+
+    /**
+     * Runtime UDP Message Handler.
+     * Sends raw sensor array to peripheral reducer.
      */
     this.socket.on('message', (msg) => {
       try {
-        const {
-          robot_state: stateRobot,
-          sensor_data: sensorData,
-        } = RuntimeData.decode(msg);
-        this.logger.debug(`Dawn received UDP with state ${stateRobot}`);
-        RendererBridge.reduxDispatch(infoPerMessage(stateRobot));
-        if (stateRobot === RuntimeData.State.STUDENT_STOPPED) {
-          if (this.statusUpdateTimeout > 0) {
-            this.statusUpdateTimeout -= 1;
-          } else {
-            this.statusUpdateTimeout = 0;
-            RendererBridge.reduxDispatch(updateCodeStatus(robotState.IDLE));
-          }
-        }
-        this.logger.debug(JSON.stringify(sensorData));
+        const sensorData = RecvDeviceProto.decode(msg).devices;
+        this.logger.debug(`Dawn received UDP with data ${JSON.stringify(sensorData)}`);
         RendererBridge.reduxDispatch(updatePeripherals(sensorData));
       } catch (err) {
         this.logger.log('Error decoding UDP');
@@ -106,19 +95,10 @@ class ListenSocket {
     this.socket.bind(LISTEN_PORT, () => {
       this.logger.log(`UDP Bound to ${LISTEN_PORT}`);
     });
-    ipcMain.on('studentCodeStatus', this.studentCodeStatusListener);
-  }
-
-  studentCodeStatusListener(event, { studentCodeStatus }) {
-    if (studentCodeStatus === StudentCodeStatus.TELEOP ||
-    studentCodeStatus === StudentCodeStatus.AUTONOMOUS) {
-      this.statusUpdateTimeout = 5;
-    }
   }
 
   close() {
     this.socket.close();
-    ipcMain.removeListener('studentCodeStatus', this.studentCodeStatusListener);
   }
 }
 
@@ -155,7 +135,7 @@ class SendSocket {
    * or when 100 ms has passed (with 50 ms cooldown)
    */
   sendGamepadMessages(event, data) {
-    const message = DawnData.encode(buildProto(data)).finish();
+    const message = SendGamepadProto.encode(buildGamepadProto(data)).finish();
     this.logger.debug(`Dawn sent UDP to ${this.runtimeIP}`);
     this.socket.send(message, SEND_PORT, this.runtimeIP);
   }
@@ -173,8 +153,10 @@ class SendSocket {
 
 class TCPSocket {
   constructor(socket, logger) {
-    this.requestTimestamp = this.requestTimestamp.bind(this);
-    this.sendFieldControl = this.sendFieldControl.bind(this);
+    this.sendRunMode = this.sendRunMode.bind(this);
+    this.sendDevicePreferences = this.sendDevicePreferences.bind(this);
+    this.sendChallengeInputs = this.sendChallengeInputs.bind(this);
+    this.sendRobotStartPos = this.sendRobotStartPos.bind(this);
     this.close = this.close.bind(this);
 
     this.logger = logger;
@@ -185,51 +167,55 @@ class TCPSocket {
       this.logger.log('Runtime disconnected');
     });
 
-    this.socket.on('data', (data) => {
-      const decoded = Notification.decode(data);
-      this.logger.log(`Dawn received TCP Packet ${decoded.header}`);
-
-      switch (decoded.header) {
-        case Notification.Type.CONSOLE_LOGGING:
-          RendererBridge.reduxDispatch(updateConsole(decoded.console_output));
-          break;
-        case Notification.Type.TIMESTAMP_UP:
-          this.logger.log(`TIMESTAMP: ${_.toArray(decoded.timestamps)}`);
-          break;
-      }
-    });
-
-    /*
-     * IPC Connection with Editor.js' upload()
-     * When Runtime responds back with confirmation,
-     * notifyChange sends received signal (see tcp, received variables)
+    /**
+     * Runtime TCP Message Handler.
+     * TODO: Distinguish between challenge outputs and console logs
+     * when using payload to update console
      */
-    ipcMain.on('TIMESTAMP_SEND', this.requestTimestamp);
+    this.socket.on('data', (data) => {
+      const decoded = RecvLogProto.decode(data);
+      this.logger.log('Dawn received TCP Packet');
+
+      // TODO: Challenge vs console logs
+      RendererBridge.reduxDispatch(updateConsole(decoded.payload));
+    });
+
+    /**
+     * IPC Connection with sagas.js' exportRunMode()
+     * TODO: Figure out cadence of sending run mode to Runtime
+     */
+    ipcMain.on('EXPORT_RUN_MODE', this.sendRunMode);
   }
 
-  requestTimestamp() {
-    const TIME = Date.now() / 1000.0;
-    const message = Notification.encode(Notification.create({
-      header: Notification.Type.TIMESTAMP_DOWN,
-      timestamps: [TIME],
-    })).finish();
-
+  sendRunMode(event, data) {
+    const mode = data.studentCodeStatus;
+    const message = SendModeProto.encode(mode).finish();
     this.socket.write(message, () => {
-      this.logger.log(`Timestamp Requested: ${TIME}`);
+      this.logger.log(`Run Mode message sent: ${mode}`);
     });
   }
 
-  sendFieldControl(data) {
-    const rawMsg = {
-      header: Notification.Type.GAMECODE_TRANSMISSION,
-      gamecode_solutions: data.solutions,
-      gamecodes: data.codes,
-      rfids: data.rfids,
-    };
-    const message = Notification.encode(Notification.create(rawMsg)).finish();
-
+  sendDevicePreferences(event, data) {
+    // TODO: Get device preference filter from UI components, then sagas
+    const message = SendDeviceProto.encode(data).finish();
     this.socket.write(message, () => {
-      this.logger.log(`FC Message Sent: ${rawMsg}`);
+      this.logger.log(`Device preferences sent: ${data}`);
+    });
+  }
+
+  sendChallengeInputs(event, data) {
+    // TODO: Get challenge inputs from UI components, then sagas
+    const message = SendChallengeProto.encode(data).finish();
+    this.socket.write(message, () => {
+      this.logger.log(`Challenge inputs sent: ${data}`);
+    });
+  }
+
+  sendRobotStartPos(event, data) {
+    // TODO: Get start pos from sagas
+    const message = SendPosProto.encode(data).finish();
+    this.socket.write(message, () => {
+      this.logger.log(`Start position sent: ${data}`);
     });
   }
 
