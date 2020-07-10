@@ -561,7 +561,6 @@ function* exportRunMode() {
   ipcRenderer.send('EXPORT_RUN_MODE', stateSlice);
 }
 
-
 /**
  * The root saga combines all the other sagas together into one.
  */

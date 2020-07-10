@@ -14,7 +14,7 @@ import { Logger, defaults } from '../../renderer/utils/utils';
  * UDP Recv (Runtime -> Dawn)
  * Device Data Array (sensors), device.proto
  */
-const RecvDeviceProto = (new protobuf.Root()).loadSync('protos/device.proto', { keepCase: true }).lookupType('Device');
+const RecvDeviceProto = (new protobuf.Root()).loadSync('protos/device.proto', { keepCase: true }).lookupType('DevData');
 
 /**
  * UDP Send (Dawn -> Runtime)
@@ -73,6 +73,7 @@ class ListenSocket {
      */
     this.socket.on('message', (msg) => {
       try {
+        console.log(msg);
         const sensorData = RecvDeviceProto.decode(msg).devices;
         this.logger.debug(`Dawn received UDP with data ${JSON.stringify(sensorData)}`);
         RendererBridge.reduxDispatch(updatePeripherals(sensorData));
