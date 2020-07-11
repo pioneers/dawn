@@ -1,4 +1,4 @@
-import { ActionTypes } from '../constants/Constants';
+import { ActionTypes } from '../consts/Constants';
 
 export const updateTimer = msg => ({
   type: ActionTypes.UPDATE_TIMER,
