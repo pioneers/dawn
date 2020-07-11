@@ -1,10 +1,10 @@
 {
-    "compilerOptions": {
-        "allowJs": true,
-        "target": "ES5",
-        "outDir": "./dist"
-    },
-        "include": [
-            "./main/networking"
-        ],
+  "compilerOptions": {
+    "allowJs": true,
+    "target": "ES5",
+    "outDir": "./dist"
+  },
+  "include": [
+    "./main/networking"
+  ]
 }

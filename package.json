@@ -59,6 +59,7 @@
   },
   "dependencies": {
     "@types/node": "^14.0.14",
+    "@types/seedrandom": "^2.4.28",
     "brace": "0.11.0",
     "bufferutil": "4.0.1",
     "create-react-class": "15.6.2",
@@ -87,6 +88,7 @@
     "socket.io-client": "^2.0.4",
     "ssh2": "0.5.5",
     "superagent": "3.8.2",
+    "typescript": "^3.9.6",
     "utf-8-validate": "4.0.0",
     "ws": "4.0.0"
   }

@@ -18,20 +18,20 @@ const modules = {
 
 export default [
   {
-    entry: './renderer/index.js',
+    entry: './renderer/index.tsx',
     devtool: 'cheap-module-eval-source-map',
     output: {
       path: path.join(__dirname, 'build'),
-      filename: 'bundle.js',
+      filename: 'bundle.ts',
     },
     target: 'electron-renderer',
     module: modules,
   },
   {
-    entry: './main/main-process.js',
+    entry: './main/main-process.ts',
     output: {
       path: path.join(__dirname, 'build'),
-      filename: 'main.js',
+      filename: 'main.ts',
     },
     target: 'electron-main',
     node: {
