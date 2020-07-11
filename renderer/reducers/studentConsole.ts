@@ -1,6 +1,14 @@
 /**
  * Reducer for console state data
  */
+import * as consts from '../consts';
+
+interface ConsoleState {
+  showConsole: boolean;
+  consoleData: string[];
+  disableScroll: boolean;
+  consoleUnread: boolean;
+}
 
 const initialState = {
   showConsole: false,
@@ -9,9 +17,9 @@ const initialState = {
   consoleUnread: false,
 };
 
-const studentConsole = (state = initialState, action) => {
+const studentConsole = (state: ConsoleState = initialState, action) => {
   switch (action.type) {
-    case 'UPDATE_CONSOLE':
+    case consts.ConsoleActionsTypes.UPDATE_CONSOLE:
       return {
         ...state,
         consoleData: [
@@ -20,18 +28,18 @@ const studentConsole = (state = initialState, action) => {
         ],
         consoleUnread: !state.showConsole,
       };
-    case 'CLEAR_CONSOLE':
+    case consts.ConsoleActionsTypes.CLEAR_CONSOLE:
       return {
         ...state,
         consoleData: [],
       };
-    case 'TOGGLE_CONSOLE':
+    case consts.ConsoleActionsTypes.TOGGLE_CONSOLE:
       return {
         ...state,
         showConsole: !state.showConsole,
         consoleUnread: false,
       };
-    case 'TOGGLE_SCROLL':
+    case consts.ConsoleActionsTypes.TOGGLE_SCROLL:
       return {
         ...state,
         disableScroll: !state.disableScroll,
