@@ -1,4 +1,11 @@
-import { PeripheralTypes } from '../constants/Constants';
+import * as consts from '../consts';
+
+interface PeripheralState{
+  peripheralList: object,
+  batterySafety: boolean,
+  batteryLevel: number,
+  runtimeVersion: string
+}
 
 const initialPeripheralState = {
   peripheralList: {},
@@ -16,14 +23,14 @@ function getParams(peripheral) {
   return res;
 }
 
-const peripherals = (state = initialPeripheralState, action) => {
+const peripherals = (state: PeripheralState = initialPeripheralState, action) => {
   const nextState = Object.assign({}, state);
   const nextPeripherals = nextState.peripheralList;
   switch (action.type) {
-    case 'UPDATE_PERIPHERALS': {
+    case consts.PeripheralActionsTypes.UPDATE_PERIPHERALS: {
       const keys = [];
       action.peripherals.forEach((peripheral) => {
-        if (peripheral.device_type === PeripheralTypes.BatteryBuzzer) {
+        if (peripheral.device_type === consts.PeripheralTypes.BatteryBuzzer) {
           const batteryParams = getParams(peripheral);
           if (batteryParams.is_unsafe !== undefined) {
             nextState.batterySafety = batteryParams.is_unsafe;
@@ -50,7 +57,7 @@ const peripherals = (state = initialPeripheralState, action) => {
       return nextState;
     }
     // Note: This is not being used since NameEdit is still broken
-    case 'PERIPHERAL_RENAME': {
+    case consts.PeripheralActionsTypes.PERIPHERAL_RENAME: {
       nextPeripherals[action.id].name = action.name;
       return nextState;
     }
