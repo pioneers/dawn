@@ -1,4 +1,19 @@
-import { ActionTypes } from '../constants/Constants';
+import * as consts from '../consts';
+
+interface FieldState{
+  stationNumber: number,
+  bridgeAddress: string,
+  fieldControl: boolean,
+  rTeamNumber: number,
+  rTeamName: string,
+  heart: boolean,
+  masterStatus: boolean,
+  mMatchNumber: number,
+  mTeamNumbers: number[],
+  mTeamNames: string[],
+  teamNumber: number,
+  teamColor: string,
+}
 
 const initialFieldState = {
   stationNumber: 4,
@@ -15,32 +30,32 @@ const initialFieldState = {
   teamColor: 'Unknown',
 };
 
-const fieldStore = (state = initialFieldState, action) => {
+const fieldStore = (state: FieldState = initialFieldState, action) => {
   switch (action.type) {
-    case ActionTypes.UPDATE_FC_CONFIG:
+    case consts.FieldActionsTypes.UPDATE_FC_CONFIG:
       return {
         ...state,
         stationNumber: action.stationNumber,
         bridgeAddress: action.bridgeAddress,
       };
-    case ActionTypes.FIELD_CONTROL:
+    case consts.FieldActionsTypes.FIELD_CONTROL:
       return {
         ...state,
         fieldControl: action.fieldControl,
       };
-    case ActionTypes.UPDATE_HEART:
+    case consts.FieldActionsTypes.UPDATE_HEART:
       return {
         ...state,
         heart: !state.heart,
       };
-    case ActionTypes.UPDATE_MASTER:
+    case consts.FieldActionsTypes.UPDATE_MASTER:
       return {
         ...state,
         masterStatus: true,
         blueMaster: action.blueMaster,
         goldMaster: action.goldMaster,
       };
-    case ActionTypes.UPDATE_MATCH:
+    case consts.FieldActionsTypes.UPDATE_MATCH:
       return {
         ...state,
         mMatchNumber: action.matchNumber,

@@ -2,8 +2,8 @@ import * as consts from '../../consts';
 
 export interface EditorActions{
     editorUpdate: (newVal: string) => {
-        type: consts.EditorActionsTypes.EDITOR_UPDATE,
-        code: string
+        type: consts.EditorActionsTypes.UPDATE_EDITOR,
+        code: string,
     }
 
     openFileSucceeded: (data: string, filepath: string) => {
@@ -15,7 +15,7 @@ export interface EditorActions{
     saveFileSucceeded: (data: string, filepath: string) => {
         type: consts.EditorActionsTypes.SAVE_FILE_SUCCEEDED,
         code: string,
-        filepath: string
+        filepath: string,
     }
 
     openFile: () => {

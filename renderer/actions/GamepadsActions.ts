@@ -4,5 +4,5 @@ import { GamepadsActions } from './types';
 
 export const updateGamepads: GamepadsActions['updateGamepads'] = (gamepads: string) => ({
   type: consts.GamepadsActionsTypes.UPDATE_GAMEPADS,
-  gamepads
+  gamepads,
 });

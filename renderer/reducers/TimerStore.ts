@@ -1,4 +1,12 @@
-import { ActionTypes } from '../constants/Constants';
+import * as consts from '../consts';
+
+interface TimerState {
+  timestamp: number,
+  timeLeft: number,
+  computedTime: number,
+  totalTime: number,
+
+};
 
 const initialTimerState = {
   timestamp: 0,
@@ -8,9 +16,9 @@ const initialTimerState = {
 
 };
 
-const TimerStore = (state = initialTimerState, action) => {
+const TimerStore = (state: TimerState = initialTimerState, action) => {
   switch (action.type) {
-    case ActionTypes.UPDATE_TIMER:
+    case consts.FieldActionsTypes.UPDATE_TIMER:
       return {
         ...state,
         timestamp: Date.now(),

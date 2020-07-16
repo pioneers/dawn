@@ -2,7 +2,7 @@ import * as consts from '../consts';
 import { EditorActions } from './types';
 
 export const editorUpdate: EditorActions['editorUpdate'] = (newVal: string) => ({
-    type: consts.EditorActionsTypes.EDITOR_UPDATE,
+    type: consts.EditorActionsTypes.UPDATE_EDITOR,
     code: newVal
 })
 
@@ -15,7 +15,7 @@ export const openFileSucceeded: EditorActions['openFileSucceeded'] = (data: stri
 export const saveFileSucceeded: EditorActions['saveFileSucceeded'] = (data: string, filepath: string) => ({
     type: consts.EditorActionsTypes.SAVE_FILE_SUCCEEDED,
     code: data,
-    filepath
+    filepath,
 })
 
 export const openFile: EditorActions['openFile'] = () => ({
@@ -37,7 +37,7 @@ export const deleteFile: EditorActions['deleteFile'] = () => ({
 });
 
 export const createNewFile: EditorActions['createNewFile'] = () => ({
-    type: consts.EditorActionsTypes.CREATE_NEW_FILE
+    type: consts.EditorActionsTypes.CREATE_NEW_FILE,
 });
 
 export const downloadCode: EditorActions['downloadCode'] = () => ({

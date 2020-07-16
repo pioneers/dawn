@@ -3,7 +3,7 @@ import { PeripheralActions } from './types';
 
 export const updatePeripherals : PeripheralActions['updatePeripherals'] = (sensors: string) => ({
     type: consts.PeripheralActionsTypes.UPDATE_PERIPHERALS,
-    peripherals: sensors
+    peripherals: sensors,
 });
 
 export const peripheralRename : PeripheralActions['peripheralRename'] = (uid: number, newname: string) => ({

@@ -17,7 +17,7 @@ const defaultEditorState = {
 
 const editor = (state : EditorState = defaultEditorState, action) => {
   switch (action.type) {
-    case consts.EditorActionsTypes.EDITOR_UPDATE:
+    case consts.EditorActionsTypes.UPDATE_EDITOR:
       return {
         ...state,
         editorCode: action.code,
