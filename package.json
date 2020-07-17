@@ -4,14 +4,15 @@
   "description": "Frontend for PIE Robotics System",
   "license": "Apache-2.0",
   "private": true,
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/pioneers/dawn.git"
   },
   "main": "build/main.js",
   "scripts": {
-    "start": "better-npm-run start",
-    "build": "better-npm-run build",
+    "start": "electron build/main.js",
+    "build": "tsc --build",
     "lint": "eslint .",
     "watch": "webpack --mode development --watch --progress",
     "test": "mocha --require babel-core/register --recursive renderer/**/test/*.test.js",
@@ -20,13 +21,13 @@
   },
   "betterScripts": {
     "start": {
-      "command": "cp ../ansible-protos/*.proto ./build && electron build/main.js",
+      "command": "cp ./protos/*.proto ./build && electron build/main.js",
       "env": {
         "NODE_ENV": "development"
       }
     },
     "build": {
-      "command": "mkdir -p ./build && cp ../ansible-protos/*.proto ./build && webpack --mode production --progress",
+      "command": "mkdir -p ./build && cp ./protos/*.proto ./build && webpack --mode production --progress",
       "env": {
         "NODE_ENV": "production"
       }
