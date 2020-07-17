@@ -1,5 +1,5 @@
-const minimist = require('minimist');
-const packager = require('electron-packager');
+import minimist from 'minimist';
+import packager from 'electron-packager';
 const path = require('path');
 const { exec } = require('child_process');
 const { promisify } = require('util');
