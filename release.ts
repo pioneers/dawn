@@ -1,19 +1,17 @@
 import minimist from 'minimist';
-import packager from 'electron-packager';
-const path = require('path');
-const { exec } = require('child_process');
-const { promisify } = require('util');
+import packager, { Options } from 'electron-packager';
+import path from 'path';
+import { exec } from 'child_process';
 
-/* General release command: 'node release.js'
- * For a specific target: 'node release.js --platform=... --arch=...'
+/* General release command: 'node release.ts'
+ * For a specific target: 'node release.ts --platform=... --arch=...'
  */
-function pack(platform, arch) {
-  const packageOptions = {
+async function pack(platform: string, arch: string) {
+  const packageOptions: Options = {
     dir: __dirname, // source dir
     name: 'dawn',
     icon: './icons/pieicon',
     asar: true,
-    packageManager: 'yarn',
     out: path.resolve('..'), // build in the parent dir
   };
 
@@ -26,23 +24,22 @@ function pack(platform, arch) {
     packageOptions.arch = arch;
   }
 
-  packager(packageOptions)
-    .then(appPaths => Promise.all(appPaths.map(appPath => {
-      if (appPath === true) {
-        return;
-      }
-      console.log(`Zipping ${appPath}`);
-      return promisify(exec)(`cd .. && zip -r ${appPath}.zip ${path.basename(appPath)}`);
-    })))
-    .catch(err => {
-      console.log(err);
-    });
+  const appPaths: string[] = await packager(packageOptions);
+
+  Promise.all(appPaths.map((appPath: string) => {
+    console.log(`Zipping ${appPath}`);
+    
+    return new Promise((resolve) => {
+      exec(`cd .. && zip -r ${appPath}.zip ${path.basename(appPath)}`, (err, stdout, stderr) => {
+        resolve(err ? stdout : stderr);
+      })
+    })
+  }));
 }
 
-function main() {
+async function main() {
   const argv = minimist(process.argv.slice(2));
-  pack(argv.platform, argv.arch);
-  console.log('Packaging Done');
+  await pack(argv.platform, argv.arch);
 }
 
-main();
+main().then(() => console.log('Packaging Done'));
