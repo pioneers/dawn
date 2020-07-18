@@ -121,16 +121,14 @@ class SendSocket {
       this.logger.log('UDP sending closed');
     });
 
-    ipcMain.on('stateUpdate', this.sendGamepadMessages);
-
-    /*
-     * IPC Connection with ConfigBox.js' saveChanges()
-     * Receives new IP Address to send messages to.
+    /**
+     * UDP Send Socket IPC Connections
      */
+    ipcMain.on('stateUpdate', this.sendGamepadMessages);
     ipcMain.on('ipAddress', this.ipAddressListener);
   }
 
-  /*
+  /**
    * IPC Connection with sagas.js' ansibleGamepads()
    * Sends messages when Gamepad information changes
    * or when 100 ms has passed (with 50 ms cooldown)
@@ -141,6 +139,10 @@ class SendSocket {
     this.socket.send(message, SEND_PORT, this.runtimeIP);
   }
 
+  /**
+   * IPC Connection with ConfigBox.js' saveChanges()
+   * Receives new IP Address to send messages to.
+   */
   ipAddressListener(event, { ipAddress }) {
     this.runtimeIP = ipAddress;
   }
@@ -180,14 +182,16 @@ class TCPSocket {
       // TODO: Challenge vs console logs
       RendererBridge.reduxDispatch(updateConsole(decoded.payload));
     });
-
     /**
-     * IPC Connection with sagas.js' exportRunMode()
-     * TODO: Figure out cadence of sending run mode to Runtime
+     * TCP Socket IPC Connections
      */
-    ipcMain.on('EXPORT_RUN_MODE', this.sendRunMode);
+    ipcMain.on('runModeUpdate', this.sendRunMode);
   }
 
+  /**
+   * IPC Connection with sagas.js' exportRunMode()
+   * Receives new run mode to send to Runtime
+   */
   sendRunMode(event, data) {
     const mode = data.studentCodeStatus;
     const message = SendModeProto.encode(mode).finish();
@@ -222,6 +226,7 @@ class TCPSocket {
 
   close() {
     this.socket.end();
+    this.ipcMain.removeListener('EXPORT_RUN_MODE', this.sendRunMode);
   }
 }
 

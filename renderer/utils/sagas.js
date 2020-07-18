@@ -262,6 +262,7 @@ function* ansibleGamepads() {
       if (_.some(newGamepads) || Date.now() - timestamp > 100) {
         timestamp = Date.now();
         yield put({ type: 'UPDATE_MAIN_PROCESS' });
+        yield put({ type: 'EXPORT_RUN_MODE' });
       }
     }
 
@@ -554,11 +555,14 @@ function timestampBounceback() {
   ipcRenderer.send('TIMESTAMP_SEND');
 }
 
+/**
+ * Sends run mode status upon each main process update.
+ */
 function* exportRunMode() {
   const stateSlice = yield select(state => ({
-    studentCodeStatus: state.info.studentCodeStatus
+    studentCodeStatus: state.info.studentCodeStatus,
   }));
-  ipcRenderer.send('EXPORT_RUN_MODE', stateSlice);
+  ipcRenderer.send('runModeUpdate', stateSlice);
 }
 
 /**

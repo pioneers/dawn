@@ -66,13 +66,13 @@ const info = (state = initialInfoState, action) => {
       };
     case ActionTypes.UPDATE_ROBOT: {
       const stateChange = (action.autonomous) ? robotState.AUTONOMOUS : robotState.TELEOP;
-      ipcRenderer.send('studentCodeStatus', { studentCodeStatus: (!action.enabled) ? robotState.IDLE : stateChange });
+      const codeStatus = (!action.enabled) ? robotState.IDLE : stateChange;
       return {
         ...state,
         fieldControlDirective: stateChange,
         fieldControlActivity: action.enabled,
         // eslint-disable-next-line no-nested-ternary
-        studentCodeStatus: (!action.enabled) ? robotState.IDLE : stateChange,
+        studentCodeStatus: codeStatus,
       };
     }
     default:
