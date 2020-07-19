@@ -42,10 +42,72 @@ const { SendDeviceProto } = RecvDeviceProto;
 const { SendChallengeProto } = RecvChallengeProto;
 const SendPosProto = (new protobuf.Root()).loadSync('protos/start_pos.proto', { keepCase: true }).lookupType('StartPos');
 
+/**
+ * Define port constants.
+ */
 const LISTEN_PORT = 1235;
 const SEND_PORT = 1236;
 const TCP_PORT = 1234;
 
+/**
+ * Define message ID constants, 
+ * each of which are 8 bit.
+ */
+const DEVICE_DATA_TYPE = new Uint8Array([1])[0];
+const RUN_MODE_TYPE = new Uint8Array([2])[0];
+const START_POS_TYPE = new Uint8Array([3])[0];
+const CHALLENGE_DATA_TYPE = new Uint8Array([4])[0];
+const LOG_TYPE = new Uint8Array([5])[0];
+
+/**
+ * Unpack TCP packet header from payload
+ * as sent from Runtime.
+ */
+function readPacket(data) {
+  const buf = Buffer.from(data);
+  const header = buf.slice(0, 3);
+  const msgType = new Uint8Array(header)[0];
+  const msgLength = new Uint16Array(header.slice(1))[0];
+  const load = buf.slice(3);
+
+  return {
+    messageType: msgType,
+    messageLength: msgLength,
+    payload: load,
+  };
+}
+
+/**
+ * Create TCP packet header and prepend to
+ * payload to send to Runtime.
+ */
+function createPacket(payload, messageType) {
+  let encodedPayload;
+  switch (messageType) {
+    case DEVICE_DATA_TYPE:
+      encodedPayload = SendDeviceProto.encode(payload).finish();
+      break;
+    case RUN_MODE_TYPE:
+      encodedPayload = SendModeProto.encode(payload).finish();
+      break;
+    case START_POS_TYPE:
+      encodedPayload = SendPosProto.encode(payload).finish();
+      break;
+    case CHALLENGE_DATA_TYPE:
+      encodedPayload = SendChallengeProto.encode(payload).finish();
+      break;
+  }
+  const msgLength = new Uint16Array([Buffer.byteLength(encodedPayload)])[0];
+
+  const msgTypeArr = new Uint8Array([messageType]);
+  const msgLengthArr = new Uint8Array([msgLength]);
+  const encodedPayloadArr = new Uint8Array(encodedPayload);
+  return Buffer.concat([msgTypeArr, msgLengthArr, encodedPayloadArr], msgLength);
+}
+
+/**
+ * Create gamepad data according to protobuf.
+ */
 function buildGamepadProto(data) {
   const gamepads = _.map(_.toArray(data.gamepads), (gamepad) => {
     const axes = _.toArray(gamepad.axes);
@@ -73,7 +135,6 @@ class ListenSocket {
      */
     this.socket.on('message', (msg) => {
       try {
-        console.log(msg);
         const sensorData = RecvDeviceProto.decode(msg).devices;
         this.logger.debug(`Dawn received UDP with data ${JSON.stringify(sensorData)}`);
         RendererBridge.reduxDispatch(updatePeripherals(sensorData));
@@ -176,11 +237,20 @@ class TCPSocket {
      * when using payload to update console
      */
     this.socket.on('data', (data) => {
-      const decoded = RecvLogProto.decode(data);
-      this.logger.log('Dawn received TCP Packet');
+      const message = readPacket(data);
+      this.logger.log(`Dawn received TCP Packet ${message.messageType}`);
+      let decoded;
 
-      // TODO: Challenge vs console logs
-      RendererBridge.reduxDispatch(updateConsole(decoded.payload));
+      switch (message.messageType) {
+        case LOG_TYPE:
+          decoded = RecvLogProto.decode(message.payload);
+          RendererBridge.reduxDispatch(updateConsole(decoded.payload));
+          break;
+        case CHALLENGE_DATA_TYPE:
+          decoded = RecvChallengeProto.decode(message.payload);
+          // TODO: Dispatch challenge outputs to redux
+          break;
+      }
     });
     /**
      * TCP Socket IPC Connections
@@ -194,39 +264,39 @@ class TCPSocket {
    */
   sendRunMode(event, data) {
     const mode = data.studentCodeStatus;
-    const message = SendModeProto.encode(mode).finish();
+    const message = createPacket(mode, RUN_MODE_TYPE);
     this.socket.write(message, () => {
-      this.logger.log(`Run Mode message sent: ${mode}`);
+      this.logger.debug(`Run Mode message sent: ${mode}`);
     });
   }
 
   sendDevicePreferences(event, data) {
     // TODO: Get device preference filter from UI components, then sagas
-    const message = SendDeviceProto.encode(data).finish();
+    const message = createPacket(data, DEVICE_DATA_TYPE);
     this.socket.write(message, () => {
-      this.logger.log(`Device preferences sent: ${data}`);
+      this.logger.debug(`Device preferences sent: ${data}`);
     });
   }
 
   sendChallengeInputs(event, data) {
     // TODO: Get challenge inputs from UI components, then sagas
-    const message = SendChallengeProto.encode(data).finish();
+    const message = createPacket(data, CHALLENGE_DATA_TYPE);
     this.socket.write(message, () => {
-      this.logger.log(`Challenge inputs sent: ${data}`);
+      this.logger.debug(`Challenge inputs sent: ${data}`);
     });
   }
 
   sendRobotStartPos(event, data) {
     // TODO: Get start pos from sagas
-    const message = SendPosProto.encode(data).finish();
+    const message = createPacket(data, START_POS_TYPE);
     this.socket.write(message, () => {
-      this.logger.log(`Start position sent: ${data}`);
+      this.logger.debug(`Start position sent: ${data}`);
     });
   }
 
   close() {
     this.socket.end();
-    this.ipcMain.removeListener('EXPORT_RUN_MODE', this.sendRunMode);
+    this.ipcMain.removeListener('runModeUpdate', this.sendRunMode);
   }
 }
 
