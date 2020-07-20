@@ -1,10 +1,13 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "target": "ES5",
-    "outDir": "./dist"
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react",
+    "target": "ES6",
+    "moduleResolution": "node",
+    "outDir": "./build"
   },
-  "include": [
-    "./main/networking"
+  "exclude": [
+    "./main/networking" // exclude temporarily until new protos are added
   ]
 }

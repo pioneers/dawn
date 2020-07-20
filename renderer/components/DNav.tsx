@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import {
@@ -14,7 +14,12 @@ import TooltipButton from './TooltipButton';
 import { VERSION } from '../constants/Constants';
 import { runtimeState } from '../utils/utils';
 
-class DNavComponent extends React.Component {
+interface State {
+  showUpdateModal: boolean;
+  showConfigModal: boolean;
+}
+
+class DNavComponent extends Component<{}, State> {
   constructor(props) {
     super(props);
     this.toggleUpdateModal = this.toggleUpdateModal.bind(this);
