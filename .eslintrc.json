@@ -1,6 +1,6 @@
 {
   "root": true,
-  "extends": "airbnb",
+  "extends": ["airbnb", "plugin:@typescript-eslint/recommended", "plugin:@typescript-eslint/recommended"],
   "globals": {
     "VERSION": true,
     "io": true
@@ -9,9 +9,18 @@
     "browser": true,
     "mocha": true
   },
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
   "parserOptions": {
     "ecmaFeatures": {
       "experimentalObjectRestSpread": true
+    }
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      }
     }
   },
   "rules": {
@@ -25,6 +34,7 @@
     "no-restricted-syntax": "off",
     "no-underscore-dangle": "off",
     "default-case": "off",
-    "react/jsx-closing-tag-location": "off"
+    "react/jsx-closing-tag-location": "off",
+    "import/extensions": "off"
   }
 }
