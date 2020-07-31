@@ -14,7 +14,7 @@ import TooltipButton from './TooltipButton';
 import { VERSION } from '../constants/Constants';
 import { runtimeState } from '../utils/utils';
 
-class DNavComponent extends React.Component {  
+class DNavComponent extends React.Component {
   constructor(props) {
     super(props);
     this.toggleUpdateModal = this.toggleUpdateModal.bind(this);
