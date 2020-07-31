@@ -1,13 +1,34 @@
 {
   "compilerOptions": {
+    "incremental": true,
     "allowJs": true,
+    "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "jsx": "react",
     "target": "ES6",
     "moduleResolution": "node",
-    "outDir": "./build"
+    "esModuleInterop": true,
+    "noErrorTruncation": true,
+    "noUnusedParameters": true,
+    "strictPropertyInitialization": false,
+    "suppressImplicitAnyIndexErrors": true,
+    "noUnusedLocals": true,
+    "skipLibCheck": true,
+    "outDir": "./build",
+    "strict": true,
+    "experimentalDecorators": true,
+    "lib": [
+      "es2017",
+      "dom"
+    ],
+    "plugins": [
+      {
+        "name": "typescript-styled-plugin"
+      }
+    ]
   },
   "exclude": [
-    "./main/networking" // exclude temporarily until new protos are added
+    "./main/networking", // exclude temporarily until new protos are added,
+    "node_modules"
   ]
 }
