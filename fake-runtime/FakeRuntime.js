@@ -59,9 +59,9 @@ const sensor = (name, type, params, uid) => ({
 
 const param = (name, type, value) => ({ // eslint-disable-line no-shadow
   name,
-  float_value: type === 'float' ? value : undefined,
-  int_value: type === 'int' ? value : undefined,
-  bool_value: type === 'bool' ? value : undefined,
+  fval: type === 'float' ? value : undefined,
+  ival: type === 'int' ? value : undefined,
+  bval: type === 'bool' ? value : undefined,
 });
 const print = (output) => {
   console.log(`Fake Runtime: ${output}`);

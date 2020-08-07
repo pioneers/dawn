@@ -28,8 +28,8 @@ const filter = new Set([PeripheralTypes.TeamFlag]);
 const handleAccordion = (array) => {
   const peripheralGroups = {};
 
-  // console.log('accordion');
-  // console.log(array);
+  console.log('accordion');
+  console.log(array);
 
   array.filter(p => !filter.has(p.name)).forEach((p) => {
     if (!(p.type in peripheralGroups)) {
@@ -37,11 +37,11 @@ const handleAccordion = (array) => {
     }
     peripheralGroups[p.name].push(p);
   });
-  // console.log('filter');
-  // console.log(array);
+  console.log('filter');
+  console.log(array);
 
-  // console.log('group');
-  // console.log(peripheralGroups);
+  console.log('group');
+  console.log(peripheralGroups);
 
   return (
     _.map(Object.keys(peripheralGroups), groups => (
@@ -78,7 +78,7 @@ const handleAccordion = (array) => {
 
 
 const PeripheralListComponent = (props) => {
-  // console.log('peripheral list');
+  console.log('peripheral list');
   let errorMsg = null;
   if (!props.connectionStatus) {
     errorMsg = 'You are currently disconnected from the robot.';
@@ -87,8 +87,8 @@ const PeripheralListComponent = (props) => {
       'No data is being received.';
   }
 
-  // console.log(props.peripherals);
-  // console.log(props.peripherals.peripheralList);
+  console.log(props.peripherals);
+  console.log(props.peripherals.peripheralList);
 
   let panelBody = null;
   if (errorMsg) {

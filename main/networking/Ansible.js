@@ -141,7 +141,7 @@ class ListenSocket {
         // console.log('After info message');
         const sensorData = RecvDeviceProto.decode(msg).devices;
         console.log('After decode');
-        console.log(sensorData);
+        // console.log(sensorData[0].params[0]);
         this.logger.debug(`Dawn received UDP with data ${JSON.stringify(sensorData)}`);
         RendererBridge.reduxDispatch(updatePeripherals(sensorData));
       } catch (err) {
