@@ -28,12 +28,21 @@ const filter = new Set([PeripheralTypes.TeamFlag]);
 const handleAccordion = (array) => {
   const peripheralGroups = {};
 
-  array.filter(p => !filter.has(p.device_type)).forEach((p) => {
-    if (!(p.device_type in peripheralGroups)) {
-      peripheralGroups[p.device_type] = [];
+  // console.log('accordion');
+  // console.log(array);
+
+  array.filter(p => !filter.has(p.name)).forEach((p) => {
+    if (!(p.type in peripheralGroups)) {
+      peripheralGroups[p.name] = [];
     }
-    peripheralGroups[p.device_type].push(p);
+    peripheralGroups[p.name].push(p);
   });
+  // console.log('filter');
+  // console.log(array);
+
+  // console.log('group');
+  // console.log(peripheralGroups);
+
   return (
     _.map(Object.keys(peripheralGroups), groups => (
       <PanelGroup
@@ -53,9 +62,9 @@ const handleAccordion = (array) => {
                   <Peripheral
                     key={String(peripheral.uid)}
                     id={String(peripheral.uid)}
-                    device_name={peripheral.device_name}
-                    device_type={peripheral.device_type}
-                    param={peripheral.param_value}
+                    device_name={peripheral.name}
+                    device_type={peripheral.name}
+                    param={peripheral.params}
                   />
                 ))
               }
@@ -69,6 +78,7 @@ const handleAccordion = (array) => {
 
 
 const PeripheralListComponent = (props) => {
+  // console.log('peripheral list');
   let errorMsg = null;
   if (!props.connectionStatus) {
     errorMsg = 'You are currently disconnected from the robot.';
@@ -77,11 +87,14 @@ const PeripheralListComponent = (props) => {
       'No data is being received.';
   }
 
+  // console.log(props.peripherals);
+  // console.log(props.peripherals.peripheralList);
+
   let panelBody = null;
   if (errorMsg) {
     panelBody = <p className="panelText">{errorMsg}</p>;
   } else {
-    panelBody = handleAccordion(_.sortBy(_.toArray(props.peripherals.peripheralList), ['device_type']));
+    panelBody = handleAccordion(_.sortBy(_.toArray(props.peripherals.peripheralList), ['name']));
   }
 
   return (

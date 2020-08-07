@@ -6,7 +6,7 @@ import _ from 'lodash';
 
 import RendererBridge from '../RendererBridge';
 import { updateConsole } from '../../renderer/actions/ConsoleActions';
-import { ansibleDisconnect } from '../../renderer/actions/InfoActions';
+import { ansibleDisconnect, infoPerMessage } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { Logger, defaults } from '../../renderer/utils/utils';
 
@@ -50,7 +50,7 @@ const SEND_PORT = 1236;
 const TCP_PORT = 1234;
 
 /**
- * Define message ID constants, 
+ * Define message ID constants,
  * each of which are 8 bit.
  */
 const DEVICE_DATA_TYPE = new Uint8Array([1])[0];
@@ -135,7 +135,13 @@ class ListenSocket {
      */
     this.socket.on('message', (msg) => {
       try {
+        // console.log('UDP Received');
+        // console.log(msg);
+        RendererBridge.reduxDispatch(infoPerMessage());
+        // console.log('After info message');
         const sensorData = RecvDeviceProto.decode(msg).devices;
+        console.log('After decode');
+        console.log(sensorData);
         this.logger.debug(`Dawn received UDP with data ${JSON.stringify(sensorData)}`);
         RendererBridge.reduxDispatch(updatePeripherals(sensorData));
       } catch (err) {

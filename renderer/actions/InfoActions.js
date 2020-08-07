@@ -1,6 +1,5 @@
-export const infoPerMessage = stateChange => ({
+export const infoPerMessage = () => ({
   type: 'PER_MESSAGE',
-  robotState: stateChange,
 });
 
 export const ansibleDisconnect = () => ({
