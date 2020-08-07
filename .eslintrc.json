@@ -1,18 +1,26 @@
 {
   "root": true,
-  "extends": "airbnb",
-  "globals": {
-    "VERSION": true,
-    "io": true
-  },
-  "env": {
-    "browser": true,
-    "mocha": true
-  },
+  "extends": [
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:import/errors",
+    "plugin:import/warnings"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint",
+    "jsdoc",
+    "import",
+    "prettier"
+  ],
   "parserOptions": {
     "ecmaFeatures": {
-      "experimentalObjectRestSpread": true
-    }
+      "experimentalObjectRestSpread": true,
+      "jsx": true // Allows for the parsing of JSX
+    },
+    "sourceType": "module", // Allows for the use of imports
+    "ecmaVersion": 2020 // Allows for the parsing of modern ECMAScript features
   },
   "rules": {
     "react/forbid-prop-types": "off",
@@ -25,6 +33,17 @@
     "no-restricted-syntax": "off",
     "no-underscore-dangle": "off",
     "default-case": "off",
-    "react/jsx-closing-tag-location": "off"
-  }
+    "react/jsx-closing-tag-location": "off",
+    "import/extensions": "off"
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".ts", ".tsx"]
+      }
+    },
+    "react": {
+      "version": "detect"
+    }
+  },
 }
