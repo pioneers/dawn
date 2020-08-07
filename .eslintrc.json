@@ -15,7 +15,7 @@
     "jsdoc",
     "import",
     "prettier"
-  ],
+  
   "parserOptions": {
     "project": ["tsconfig.json"],
     "ecmaFeatures": {
