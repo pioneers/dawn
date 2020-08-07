@@ -11,14 +11,6 @@ const net = require('net');
 const protobuf = require('protobufjs');
 
 /**
- * TODO: Fake Runtime is currently broken because it still relies on the old protobufs and
- * Ansible now uses the new protobufs. Fix by porting Fake Runtime over to new protos.
- */
-const DawnData = (new protobuf.Root()).loadSync('old-protos/ansible.proto', { keepCase: true }).lookupType('DawnData');
-const RuntimeData = (new protobuf.Root()).loadSync('old-protos/runtime.proto', { keepCase: true }).lookupType('RuntimeData');
-const Notification = (new protobuf.Root()).loadSync('old-protos/notification.proto', { keepCase: true }).lookupType('Notification');
-
-/**
  * UDP Send (Runtime perspective, Runtime -> Dawn)
  * Device Data Array (sensors), device.proto
  */
@@ -36,20 +28,6 @@ const LISTENPORT = 1236;
 const MSGINTERVAL = 1000; // in ms
 
 const randomFloat = (min, max) => (((max - min) * Math.random()) + min);
-// const sensor = (device_type, device_name, param_value, uid) => ({
-//   device_type,
-//   device_name,
-//   param_value,
-//   uid,
-// });
-
-// const sensor = (type, name, params, uid) => ({
-//   name,
-//   uid,
-//   type,
-//   params,
-// });
-
 const sensor = (name, type, params, uid) => ({
   name,
   type,
@@ -73,43 +51,19 @@ class FakeRuntime {
     this.sendSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
     this.listenSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
 
-    this.fakeState = RuntimeData.State.STUDENT_STOPPED;
+    this.fakeState = null;
     this.listenSocket.on('message', (msg) => {
-      const data = DawnData.decode(msg);
-      switch (data.student_code_status) {
-        case DawnData.StudentCodeStatus.TELEOP:
-          print('Tele-Op');
-          this.fakeState = RuntimeData.State.TELEOP;
-          break;
-        case DawnData.StudentCodeStatus.ESTOP:
-          print('E-Stop');
-          this.fakeState = RuntimeData.State.ESTOP;
-          break;
-        case DawnData.StudentCodeStatus.AUTONOMOUS:
-          print('Autonomous');
-          this.fakeState = RuntimeData.State.AUTO;
-          break;
-        default:
-          print('Idle');
-          this.fakeState = RuntimeData.State.STUDENT_STOPPED;
-      }
+      // TODO: Handle UDP gamepad recv
     });
     this.listenSocket.bind(LISTENPORT);
 
-    // this.tcpSocket = new net.Socket();
-    // this.tcpSocket.connect({ host: 'localhost', port: TCPPORT }, () => {
-    //   print('TCP Up');
-    // });
-    // this.tcpSocket.on('close', () => {
-    //   print('TCP Down');
-    // });
+    // TODO: Create TCP sockets
 
     setInterval(this.onInterval.bind(this), MSGINTERVAL);
     this.generateFakeData = this.generateFakeData.bind(this);
   }
 
   generateFakeData() {
-    console.log('Generate data');
     return {
       devices: [
         sensor('MOTOR_SCALAR', 0, [param('Val', 'float', randomFloat(-100, 100))], 100),
@@ -138,22 +92,9 @@ class FakeRuntime {
 
   onInterval() {
     const fakeData = this.generateFakeData();
-    // const udpData = RuntimeData.create(fakeData);
-    // console.log(fakeData.devices[0].params);
     const udpData = SendDeviceProto.create(fakeData);
-    // console.log(udpData);
-    // console.log('Before send');
-    // this.sendSocket.send(RuntimeData.encode(udpData).finish(), SENDPORT, 'localhost');
     this.sendSocket.send(SendDeviceProto.encode(udpData).finish(), SENDPORT, 'localhost');
-    // console.log('After send');
-    // if (this.fakeState !== RuntimeData.State.ESTOP
-    //   && this.fakeState !== RuntimeData.State.STUDENT_STOPPED) {
-    //   const tcpData = Notification.create({
-    //     header: Notification.Type.CONSOLE_LOGGING,
-    //     console_output: `${randomFloat(-100, 100)}\n`,
-    //   });
-    //   this.tcpSocket.write(Notification.encode(tcpData).finish());
-    // }
+    // TODO: Handle TCP writes to console
   }
 }
 

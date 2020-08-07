@@ -15,9 +15,9 @@ const GameValues = ({
     </h4>
     {
       _.map(param, obj => (
-        <div key={`${obj.param}-${device_name}-Overall`}>
-          <h4 style={{ clear: 'right', float: 'right', height: '10px' }} key={`${obj.param}-${device_name}`} >
-            {obj.int_value}
+        <div key={`${obj.name}-${device_name}-Overall`}>
+          <h4 style={{ clear: 'right', float: 'right', height: '10px' }} key={`${obj.name}-${device_name}`} >
+            {obj.ival}
           </h4>
         </div>
       ))

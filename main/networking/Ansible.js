@@ -106,6 +106,23 @@ function createPacket(payload, messageType) {
 }
 
 /**
+ * Takes uid Long object (uint64) and
+ * converts to String.
+ */
+function cleanUIDs(sensorData) {
+  for (const index in sensorData) {
+    if (sensorData[index]) {
+      const uintLow = sensorData[index].uid.low;
+      if (uintLow) {
+        sensorData[index].uid = String(uintLow);
+      } else {
+        sensorData[index].uid = String(-1);
+      }
+    }
+  }
+}
+
+/**
  * Create gamepad data according to protobuf.
  */
 function buildGamepadProto(data) {
@@ -131,18 +148,16 @@ class ListenSocket {
 
     /**
      * Runtime UDP Message Handler.
-     * Sends raw sensor array to peripheral reducer.
+     * Sets runtime connection, decodes device message,
+     * cleans UIDs from uint64, and sends to sensor
+     * array to reducer.
      */
     this.socket.on('message', (msg) => {
       try {
-        // console.log('UDP Received');
-        // console.log(msg);
         RendererBridge.reduxDispatch(infoPerMessage());
-        // console.log('After info message');
         const sensorData = RecvDeviceProto.decode(msg).devices;
-        console.log('After decode');
-        // console.log(sensorData[0].params[0]);
-        this.logger.debug(`Dawn received UDP with data ${JSON.stringify(sensorData)}`);
+        cleanUIDs(sensorData);
+        this.logger.debug('Dawn received UDP sensor data');
         RendererBridge.reduxDispatch(updatePeripherals(sensorData));
       } catch (err) {
         this.logger.log('Error decoding UDP');

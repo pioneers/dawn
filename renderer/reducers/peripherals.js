@@ -16,16 +16,14 @@ function getParams(peripheral) {
   return res;
 }
 
+// TODO: Handle runtimeVersion since no longer sent
 const peripherals = (state = initialPeripheralState, action) => {
-  console.log(state);
   const nextState = Object.assign({}, state);
   const nextPeripherals = nextState.peripheralList;
   switch (action.type) {
     case 'UPDATE_PERIPHERALS': {
-      console.log('update reducer');
       const keys = [];
       action.peripherals.forEach((peripheral) => {
-        console.log(peripheral);
         if (peripheral.name === PeripheralTypes.BatteryBuzzer) {
           const batteryParams = getParams(peripheral);
           if (batteryParams.is_unsafe !== undefined) {
@@ -38,7 +36,6 @@ const peripherals = (state = initialPeripheralState, action) => {
           const version = getParams(peripheral);
           nextState.runtimeVersion = `${version.major}.${version.minor}.${version.patch}`;
         } else {
-          console.log('pushing peripheral');
           keys.push(peripheral.uid);
           if (peripheral.uid in nextPeripherals) {
             peripheral.name = nextPeripherals[peripheral.uid].name;
@@ -46,16 +43,11 @@ const peripherals = (state = initialPeripheralState, action) => {
           nextPeripherals[peripheral.uid] = peripheral;
         }
       });
-      console.log(nextPeripherals);
       Object.keys(nextPeripherals).forEach((el) => {
         if (keys.indexOf(el) === -1) {
           delete nextPeripherals[el];
         }
       });
-      console.log('keys');
-      console.log(keys);
-      console.log('next state');
-      console.log(nextState);
       return nextState;
     }
     // Note: This is not being used since NameEdit is still broken

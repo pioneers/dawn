@@ -9,7 +9,7 @@ import { ProgressBar } from 'react-bootstrap';
  *  Motor Component
  */
 
-const Motor = ({ id, device_name, param }) => (
+const Motor = ({ id, param }) => (
   <div style={{ overflow: 'auto', width: '100%' }}>
     <h4 style={{ float: 'left' }}>
       <div>{id}</div>
@@ -17,12 +17,12 @@ const Motor = ({ id, device_name, param }) => (
     </h4>
     {
       _.map(param, obj => ( // TODO: Figure out if a ProgressBar is useful
-        <div key={`${obj.param}-${device_name}-Overall`}>
-          <h4 style={{ clear: 'right', float: 'right', height: '50px' }} key={`${obj.param}-${device_name}`}>
-            {`${obj.param}: ${numeral(obj.float_value).format('+0.00')}`}
+        <div key={`${obj.name}-${id}-Overall`}>
+          <h4 style={{ clear: 'right', float: 'right', height: '50px' }} key={`${obj.name}-${id}`}>
+            {`${obj.name}: ${numeral(obj.fval).format('+0.00')}`}
 
           </h4>
-          <ProgressBar style={{ clear: 'right', height: '20px' }} now={obj.float_value} min={-100} />
+          <ProgressBar style={{ clear: 'right', height: '20px' }} now={obj.fval} min={-100} />
         </div>
       ))
     }
@@ -30,7 +30,6 @@ const Motor = ({ id, device_name, param }) => (
 );
 
 Motor.propTypes = {
-  device_name: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
   param: PropTypes.array.isRequired,
 };
