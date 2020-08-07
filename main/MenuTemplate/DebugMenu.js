@@ -33,8 +33,12 @@ const DebugMenu = {
     {
       label: 'Restart FC',
       click() {
-        FCObject.FCInternal.quit();
-        FCObject.setup();
+        if (FCObject.FCInternal !== null) {
+          FCObject.FCInternal.quit();
+          FCObject.setup();
+        } else {
+          console.log('Field Control not active');
+        }
       },
     },
     {
