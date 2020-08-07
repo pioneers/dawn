@@ -10,24 +10,25 @@ import { ansibleDisconnect, infoPerMessage } from '../../renderer/actions/InfoAc
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { Logger, defaults } from '../../renderer/utils/utils';
 
+const protoRoot = new protobuf.Root();
 /**
  * UDP Recv (Runtime -> Dawn)
  * Device Data Array (sensors), device.proto
  */
-const RecvDeviceProto = (new protobuf.Root()).loadSync('protos/device.proto', { keepCase: true }).lookupType('DevData');
+const RecvDeviceProto = protoRoot.loadSync('protos/device.proto', { keepCase: true }).lookupType('DevData');
 
 /**
  * UDP Send (Dawn -> Runtime)
  * Gamepad Data, gamepad.proto
  */
-const SendGamepadProto = (new protobuf.Root()).loadSync('protos/gamepad.proto', { keepCase: true }).lookupType('GpState');
+const SendGamepadProto = protoRoot.loadSync('protos/gamepad.proto', { keepCase: true }).lookupType('GpState');
 
 /**
  * TCP Recv (Runtime -> Dawn)
  * Challenge Data (output values), text.proto
  * Log Data (console), text.proto
  */
-const RecvChallengeProto = (new protobuf.Root()).loadSync('protos/text.proto', { keepCase: true }).lookupType('Text');
+const RecvChallengeProto = protoRoot.loadSync('protos/text.proto', { keepCase: true }).lookupType('Text');
 const { RecvLogProto } = RecvChallengeProto;
 
 /**
@@ -37,10 +38,10 @@ const { RecvLogProto } = RecvChallengeProto;
  * Challenge Data (input values), text.proto
  * Position Data, start_pos.proto
  */
-const SendModeProto = (new protobuf.Root()).loadSync('protos/run_mode.proto', { keepCase: true }).lookupType('RunMode');
+const SendModeProto = protoRoot.loadSync('protos/run_mode.proto', { keepCase: true }).lookupType('RunMode');
 const { SendDeviceProto } = RecvDeviceProto;
 const { SendChallengeProto } = RecvChallengeProto;
-const SendPosProto = (new protobuf.Root()).loadSync('protos/start_pos.proto', { keepCase: true }).lookupType('StartPos');
+const SendPosProto = protoRoot.loadSync('protos/start_pos.proto', { keepCase: true }).lookupType('StartPos');
 
 /**
  * Define port constants.

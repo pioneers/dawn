@@ -9,18 +9,19 @@
 const dgram = require('dgram');
 const net = require('net');
 const protobuf = require('protobufjs');
+const protoRoot = new protobuf.Root();
 
 /**
  * UDP Send (Runtime perspective, Runtime -> Dawn)
  * Device Data Array (sensors), device.proto
  */
-const SendDeviceProto = (new protobuf.Root()).loadSync('protos/device.proto', { keepCase: true }).lookupType('DevData');
+const SendDeviceProto = protoRoot.loadSync('protos/device.proto', { keepCase: true }).lookupType('DevData');
 
 /**
  * UDP Recv (Runtime perspective, Dawn -> Runtime)
  * Gamepad Data, gamepad.proto
  */
-const RecvGamepadProto = (new protobuf.Root()).loadSync('protos/gamepad.proto', { keepCase: true }).lookupType('GpState');
+const RecvGamepadProto = protoRoot.loadSync('protos/gamepad.proto', { keepCase: true }).lookupType('GpState');
 
 const TCPPORT = 1234;
 const SENDPORT = 1235;
