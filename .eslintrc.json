@@ -5,7 +5,9 @@
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "plugin:import/errors",
-    "plugin:import/warnings"
+    "plugin:import/warnings",
+    "prettier/@typescript-eslint", // Uses eslint-config-prettier to disable ESLint rules from @typescript-eslint/eslint-plugin that would conflict with prettier
+    "plugin:prettier/recommended" // Enables eslint-plugin-prettier and eslint-config-prettier. This will display prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
   ],
   "parser": "@typescript-eslint/parser",
   "plugins": [
@@ -15,18 +17,20 @@
     "prettier"
   ],
   "parserOptions": {
+    "project": ["tsconfig.json"],
     "ecmaFeatures": {
       "experimentalObjectRestSpread": true,
       "jsx": true // Allows for the parsing of JSX
     },
     "sourceType": "module", // Allows for the use of imports
-    "ecmaVersion": 2020 // Allows for the parsing of modern ECMAScript features
+    "ecmaVersion": 2018 // Allows for the parsing of modern ECMAScript features
   },
   "rules": {
     "react/forbid-prop-types": "off",
     "react/jsx-filename-extension": "off",
     "react/no-string-refs": "off",
     "react/require-default-props": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
     "no-console": "off",
     "no-constant-condition": ["error", { "checkLoops": false }],
     "no-param-reassign": "off",
@@ -45,5 +49,5 @@
     "react": {
       "version": "detect"
     }
-  },
+  }
 }
