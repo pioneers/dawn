@@ -1,7 +1,7 @@
 import * as consts from '../consts';
 import { FieldActions } from './types';
 
-export const updateTimer: FieldActions['updateTimer'] = (msg: any) => ({
+export const updateTimer: FieldActions['updateTimer'] = (msg: { total_stage_time: number; stage_time_so_far: number; stage_name: string; }) => ({
     type: consts.FieldActionsTypes.UPDATE_TIMER,
     timeLeft: msg.total_stage_time - msg.stage_time_so_far,
     stage: msg.stage_name,

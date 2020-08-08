@@ -1,7 +1,7 @@
 import * as consts from '../../consts';
 
 export interface FieldActions{
-    updateTimer: (msg: any) => {
+    updateTimer: (msg: { total_stage_time: number; stage_time_so_far: number; stage_name: string; }) => {
         type: consts.FieldActionsTypes.UPDATE_TIMER,
         timeLeft: number,
         stage: string,
