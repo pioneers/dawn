@@ -2,8 +2,7 @@
  * Actions for the console state.
  */
 import * as consts from '../consts';
-import { ConsoleActions } from './types';
-
+import { ConsoleActions } from '../types';
 
 export const updateConsole: ConsoleActions['updateConsole'] = (value: string) => ({
   type: consts.ConsoleActionsTypes.UPDATE_CONSOLE,

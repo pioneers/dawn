@@ -3,8 +3,19 @@
  */
 
 import * as consts from '../consts';
+import { AddAsyncAlertAction, RemoveAsyncAlertAction } from '../types';
 
-const asyncAlerts = (state = [], action) => {
+type Actions = AddAsyncAlertAction | RemoveAsyncAlertAction;
+
+type AsyncAlertsState = Array<{
+  id?: number;
+  heading?: string;
+  message?: string;
+}>;
+
+const initialState: AsyncAlertsState = [];
+
+export const asyncAlerts = (state: AsyncAlertsState = initialState, action: Actions) => {
   switch (action.type) {
     case consts.AlertActionsTypes.ADD_ASYNC_ALERT:
       return [
@@ -16,10 +27,8 @@ const asyncAlerts = (state = [], action) => {
         },
       ];
     case consts.AlertActionsTypes.REMOVE_ASYNC_ALERT:
-      return state.filter(el => el.id !== action.id);
+      return state.filter((el: { id?: number }) => el.id !== action.id);
     default:
       return state;
   }
 };
-
-export default asyncAlerts;

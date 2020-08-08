@@ -4,9 +4,9 @@
 
 import { combineReducers } from 'redux';
 
-import asyncAlerts from './alerts';
+import { asyncAlerts } from './alerts';
 import editor from './editor';
-import studentConsole from './studentConsole';
+import { console } from './console';
 import peripherals from './peripherals';
 import info from './info';
 import gamepads from './gamepads';
@@ -18,7 +18,7 @@ const dawnApp = combineReducers({
   asyncAlerts,
   editor,
   fieldStore,
-  studentConsole,
+  console,
   peripherals,
   info,
   gamepads,

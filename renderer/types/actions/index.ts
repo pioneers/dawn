@@ -1,5 +1,5 @@
-export { AlertActions, AddAsyncAlertAction, RemoveAsyncAlertAction } from './actions/alert-actions';
-export { ConsoleActions } from './console-actions';
+export { AlertActions, AddAsyncAlertAction, RemoveAsyncAlertAction } from './alert-actions';
+export { ConsoleActions, ToggleConsoleAction, UpdateConsoleAction, ClearConsoleAction, ToggleScrollAction } from './console-actions';
 export { PeripheralActions } from './peripheral-actions';
 export { EditorActions } from './editor-actions';
 export { GamepadsActions } from './gamepads-actions';

@@ -2,6 +2,9 @@
  * Reducer for console state data
  */
 import * as consts from '../consts';
+import { ClearConsoleAction, UpdateConsoleAction, ToggleConsoleAction, ToggleScrollAction } from '../types';
+
+type Actions = ClearConsoleAction | ToggleConsoleAction | ToggleScrollAction | UpdateConsoleAction;
 
 interface ConsoleState {
   showConsole: boolean;
@@ -17,15 +20,12 @@ const initialState = {
   consoleUnread: false,
 };
 
-const studentConsole = (state: ConsoleState = initialState, action) => {
+export const console = (state: ConsoleState = initialState, action: Actions) => {
   switch (action.type) {
     case consts.ConsoleActionsTypes.UPDATE_CONSOLE:
       return {
         ...state,
-        consoleData: [
-          ...state.consoleData,
-          action.consoleOutput,
-        ],
+        consoleData: [...state.consoleData, action.consoleOutput],
         consoleUnread: !state.showConsole,
       };
     case consts.ConsoleActionsTypes.CLEAR_CONSOLE:
@@ -48,5 +48,3 @@ const studentConsole = (state: ConsoleState = initialState, action) => {
       return state;
   }
 };
-
-export default studentConsole;

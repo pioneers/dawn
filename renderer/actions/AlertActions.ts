@@ -3,7 +3,7 @@
  */
 import * as consts from '../consts';
 import seedrandom from 'seedrandom';
-import { AlertActions } from './types';
+import { AlertActions } from '../types';
 
 const rng = seedrandom('alertseed');
 
