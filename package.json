@@ -9,12 +9,22 @@
     "type": "git",
     "url": "https://github.com/pioneers/dawn.git"
   },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "printWidth": 140,
+    "arrowParens": "always",
+    "parser": "typescript",
+    "bracketSpacing": true
+  },
   "main": "build/main.js",
   "scripts": {
     "start": "electron build/main.js",
     "build": "tsc --build",
-    "lint": "eslint '*/**/*.ts?(x)'",
-    "lintfix": "eslint '*/**/*.ts?(x)' --fix",
+    "lint-actions": "eslint renderer/actions/**/*.ts",
+    "lint-types": "eslint renderer/types/**/*.ts",
+    "lint-actions-fix": "eslint renderer/actions/**/*.ts --fix",
+    "lint-types-fix": "eslint renderer/types/**/*.ts --fix",
     "watch": "webpack --mode development --watch --progress",
     "test": "mocha --require babel-core/register --recursive renderer/**/test/*.test.js",
     "release": "node release.js",
