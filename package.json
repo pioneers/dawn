@@ -86,10 +86,10 @@
     "redux-saga": "0.16.0",
     "seedrandom": "2.4.3",
     "smalltalk": "2.5.1",
-    "socket.io-client": "^2.0.4",
+    "socket.io-client": "^2.3.0",
     "ssh2": "0.5.5",
     "superagent": "3.8.2",
-    "utf-8-validate": "4.0.0",
+    "utf-8-validate": "^5.0.2",
     "ws": "4.0.0"
   }
 }
