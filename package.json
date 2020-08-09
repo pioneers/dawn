@@ -21,21 +21,13 @@
   },
   "betterScripts": {
     "start": {
-<<<<<<< HEAD
-      "command": "electron build/main.js",
-=======
       "command": "cp ./protos/*.proto ./build && electron build/main.js",
->>>>>>> 5499a2bb2392f9200e33e6a807082a296c4ef976
       "env": {
         "NODE_ENV": "development"
       }
     },
     "build": {
-<<<<<<< HEAD
-      "command": "mkdir -p ./build && webpack --mode production --progress",
-=======
       "command": "mkdir -p ./build && cp ./protos/*.proto ./build && webpack --mode production --progress",
->>>>>>> 5499a2bb2392f9200e33e6a807082a296c4ef976
       "env": {
         "NODE_ENV": "production"
       }
