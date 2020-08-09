@@ -12,10 +12,10 @@ export const updateHeart: FieldActions['updateHeart'] = () => ({
   type: consts.FieldActionsTypes.UPDATE_HEART,
 });
 
-export const updateMaster: FieldActions['updateMaster'] = (msg: { blue: string; gold: string; }) => ({
+export const updateMaster: FieldActions['updateMaster'] = (msg: { blue: number; gold: number; }) => ({
   type: consts.FieldActionsTypes.UPDATE_MASTER,
-  blueMaster: msg.blue,
-  goldMaster: msg.gold,
+  blueMasterTeamNumber: msg.blue,
+  goldMasterTeamNumber: msg.gold,
 });
 
 export const updateMatch: FieldActions['updateMatch'] = (msg: { match_number: number; team_names: string[]; team_numbers: number[]; }) => ({

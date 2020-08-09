@@ -1,7 +1,7 @@
 import * as consts from '../consts';
-import { updateTimerAction, updateHeartAction, updateMasterAction, updateMatchAction, updateRobotAction, toggleFieldControlAction, updateFieldControlAction, } from '../types';
+import { UpdateTimerAction, UpdateHeartAction, UpdateMasterAction, UpdateMatchAction, UpdateRobotAction, ToggleFieldControlAction, UpdateFieldControlAction, } from '../types';
 
-type Actions = updateTimerAction | updateHeartAction | updateMasterAction | updateMatchAction | updateRobotAction | toggleFieldControlAction | updateFieldControlAction;
+type Actions = UpdateTimerAction | UpdateHeartAction | UpdateMasterAction | UpdateMatchAction | UpdateRobotAction | ToggleFieldControlAction | UpdateFieldControlAction;
 
 interface FieldState{
   stationNumber: number,
@@ -55,8 +55,8 @@ const fieldStore = (state: FieldState = initialFieldState, action: Actions) => {
       return {
         ...state,
         masterStatus: true,
-        blueMaster: action.blueMaster,
-        goldMaster: action.goldMaster,
+        blueMasterTeamNumber: action.blueMasterTeamNumber,
+        goldMasterTeamNumber: action.goldMasterTeamNumber,
       };
     case consts.FieldActionsTypes.UPDATE_MATCH:
       return {

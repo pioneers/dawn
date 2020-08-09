@@ -1,41 +1,41 @@
 import * as consts from '../../consts';
 
-export interface updateTimerAction {
+export interface UpdateTimerAction {
   type: consts.FieldActionsTypes.UPDATE_TIMER;
   timeLeft: number;
   stage: string;
   totalTime: number;
 }
 
-export interface updateHeartAction {
+export interface UpdateHeartAction {
   type: consts.FieldActionsTypes.UPDATE_HEART;
 }
 
-export interface updateMasterAction {
+export interface UpdateMasterAction {
   type: consts.FieldActionsTypes.UPDATE_MASTER;
-  blueMaster: string;
-  goldMaster: string;
+  blueMasterTeamNumber: number;
+  goldMasterTeamNumber: number;
 }
 
-export interface updateMatchAction {
+export interface UpdateMatchAction {
   type: consts.FieldActionsTypes.UPDATE_MATCH;
   matchNumber: number;
   teamNames: string[];
   teamNumbers: number[];
 }
 
-export interface updateRobotAction {
+export interface UpdateRobotAction {
   type: consts.FieldActionsTypes.UPDATE_ROBOT;
   autonomous: number;
   enabled: boolean;
 }
 
-export interface toggleFieldControlAction {
+export interface ToggleFieldControlAction {
   type: consts.FieldActionsTypes.FIELD_CONTROL;
   fieldControl: boolean;
 }
 
-export interface updateFieldControlAction {
+export interface UpdateFieldControlAction {
   type: consts.FieldActionsTypes.UPDATE_FC_CONFIG;
   stationNumber: number;
   bridgeAddress: string;
@@ -46,36 +46,36 @@ export interface FieldActions {
     total_stage_time: number;
     stage_time_so_far: number;
     stage_name: string;
-  }) => updateTimerAction;
+  }) => UpdateTimerAction;
 
-  updateHeart: () => updateHeartAction;
+  updateHeart: () => UpdateHeartAction;
 
   updateMaster: (msg: {
-    blue: string;
-    gold: string;
-  }) => updateMasterAction;
+    blue: number;
+    gold: number;
+  }) => UpdateMasterAction;
 
   updateMatch: (msg: {
     match_number: number;
     team_names: string[];
     team_numbers: number[];
-  }) => updateMatchAction;
+  }) => UpdateMatchAction;
 
   updateRobot: (
     msg: {
       autonomous: number;
       enabled: boolean;
     }
-  ) => updateRobotAction;
+  ) => UpdateRobotAction;
 
   toggleFieldControl: (
     msg: boolean
-  ) => toggleFieldControlAction;
+  ) => ToggleFieldControlAction;
 
   updateFieldControl: (
     msg: {
       stationNumber: number;
       bridgeAddress: string;
     }
-  ) => updateFieldControlAction;
+  ) => UpdateFieldControlAction;
 }

@@ -2,11 +2,11 @@
  * Reducer for editor state data.
  */
 import * as consts from '../consts';
-import { editorUpdateAction, openFileSucceededAction, saveFileSucceededAction, openFileAction, dragFileAction, 
-  saveFileAction, deleteFileAction, createNewFileAction, downloadCodeAction, uploadCodeAction } from '../types';
+import { EditorUpdateAction, OpenFileSucceededAction, SaveFileSucceededAction, OpenFileAction, DragFileAction, 
+  SaveFileAction, DeleteFileAction, CreateNewFileAction, DownloadCodeAction, UploadCodeAction } from '../types';
 
-type Actions = editorUpdateAction | openFileSucceededAction | saveFileSucceededAction | openFileAction | dragFileAction | 
-saveFileAction| deleteFileAction | createNewFileAction | downloadCodeAction | uploadCodeAction;
+type Actions = EditorUpdateAction | OpenFileSucceededAction | SaveFileSucceededAction | OpenFileAction | DragFileAction | 
+SaveFileAction| DeleteFileAction | CreateNewFileAction | DownloadCodeAction | UploadCodeAction;
 
 interface EditorState{
   filepath: string,

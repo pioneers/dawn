@@ -1,82 +1,82 @@
 import * as consts from '../../consts';
 
-export interface editorUpdateAction {
+export interface EditorUpdateAction {
   type: consts.EditorActionsTypes.UPDATE_EDITOR;
   code: string;
 };
 
-export interface openFileSucceededAction {
+export interface OpenFileSucceededAction {
   type: consts.EditorActionsTypes.OPEN_FILE_SUCCEEDED;
   code: string;
   filepath: string;
 }
 
-export interface saveFileSucceededAction {
+export interface SaveFileSucceededAction {
   type: consts.EditorActionsTypes.SAVE_FILE_SUCCEEDED;
   code: string;
   filepath: string;
 }
 
-export interface openFileAction {
+export interface OpenFileAction {
   type: consts.EditorActionsTypes.OPEN_FILE;
 }
 
-export interface dragFileAction {
+export interface DragFileAction {
   type: consts.EditorActionsTypes.DRAG_FILE;
   filepath: string;
 }
 
-export interface saveFileAction {
+export interface SaveFileAction {
   type: consts.EditorActionsTypes.SAVE_FILE;
   saveAs: boolean;
 }
 
-export interface deleteFileAction {
+export interface DeleteFileAction {
   type: consts.EditorActionsTypes.DELETE_FILE;
 }
 
-export interface createNewFileAction {
+export interface CreateNewFileAction {
   type: consts.EditorActionsTypes.CREATE_NEW_FILE;
 }
 
-export interface downloadCodeAction {
+export interface DownloadCodeAction {
   type: consts.EditorActionsTypes.DOWNLOAD_CODE;
 }
 
-export interface uploadCodeAction{
+export interface UploadCodeAction{
   type: consts.EditorActionsTypes.UPLOAD_CODE;
 }
 
 export interface EditorActions {
   editorUpdate: (
     newVal: string
-  ) => editorUpdateAction;
+  ) => EditorUpdateAction;
 
   openFileSucceeded: (
     data: string,
     filepath: string
-  ) => openFileSucceededAction;
+  ) => OpenFileSucceededAction;
 
   saveFileSucceeded: (
     data: string,
     filepath: string
-  ) => saveFileSucceededAction;
+  ) => SaveFileSucceededAction;
 
-  openFile: () => openFileAction;
+  openFile: () => OpenFileAction;
 
   dragFile: (
     filepath: string
-  ) => dragFileAction;
+  ) => DragFileAction;
 
   saveFile: (
     saveAs: boolean
-  ) => saveFileAction;
+  ) => SaveFileAction;
 
-  deleteFile: () => deleteFileAction;
+  deleteFile: () => DeleteFileAction;
 
-  createNewFile: () => createNewFileAction;
+  createNewFile: () => CreateNewFileAction;
 
-  downloadCode: () => downloadCodeAction;
+  downloadCode: () => DownloadCodeAction;
 
-  uploadCode: () => uploadCodeAction;
+  uploadCode: () => UploadCodeAction;
 }
