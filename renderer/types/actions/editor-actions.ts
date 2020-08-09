@@ -1,62 +1,82 @@
-import * as consts from '../consts';
+import * as consts from '../../consts';
+
+export interface editorUpdateAction {
+  type: consts.EditorActionsTypes.UPDATE_EDITOR;
+  code: string;
+};
+
+export interface openFileSucceededAction {
+  type: consts.EditorActionsTypes.OPEN_FILE_SUCCEEDED;
+  code: string;
+  filepath: string;
+}
+
+export interface saveFileSucceededAction {
+  type: consts.EditorActionsTypes.SAVE_FILE_SUCCEEDED;
+  code: string;
+  filepath: string;
+}
+
+export interface openFileAction {
+  type: consts.EditorActionsTypes.OPEN_FILE;
+}
+
+export interface dragFileAction {
+  type: consts.EditorActionsTypes.DRAG_FILE;
+  filepath: string;
+}
+
+export interface saveFileAction {
+  type: consts.EditorActionsTypes.SAVE_FILE;
+  saveAs: boolean;
+}
+
+export interface deleteFileAction {
+  type: consts.EditorActionsTypes.DELETE_FILE;
+}
+
+export interface createNewFileAction {
+  type: consts.EditorActionsTypes.CREATE_NEW_FILE;
+}
+
+export interface downloadCodeAction {
+  type: consts.EditorActionsTypes.DOWNLOAD_CODE;
+}
+
+export interface uploadCodeAction{
+  type: consts.EditorActionsTypes.UPLOAD_CODE;
+}
 
 export interface EditorActions {
   editorUpdate: (
     newVal: string
-  ) => {
-    type: consts.EditorActionsTypes.UPDATE_EDITOR;
-    code: string;
-  };
+  ) => editorUpdateAction;
 
   openFileSucceeded: (
     data: string,
     filepath: string
-  ) => {
-    type: consts.EditorActionsTypes.OPEN_FILE_SUCCEEDED;
-    code: string;
-    filepath: string;
-  };
+  ) => openFileSucceededAction;
 
   saveFileSucceeded: (
     data: string,
     filepath: string
-  ) => {
-    type: consts.EditorActionsTypes.SAVE_FILE_SUCCEEDED;
-    code: string;
-    filepath: string;
-  };
+  ) => saveFileSucceededAction;
 
-  openFile: () => {
-    type: consts.EditorActionsTypes.OPEN_FILE;
-  };
+  openFile: () => openFileAction;
 
   dragFile: (
     filepath: string
-  ) => {
-    type: consts.EditorActionsTypes.DRAG_FILE;
-    filepath: string;
-  };
+  ) => dragFileAction;
 
   saveFile: (
     saveAs: boolean
-  ) => {
-    type: consts.EditorActionsTypes.SAVE_FILE;
-    saveAs: boolean;
-  };
+  ) => saveFileAction;
 
-  deleteFile: () => {
-    type: consts.EditorActionsTypes.DELETE_FILE;
-  };
+  deleteFile: () => deleteFileAction;
 
-  createNewFile: () => {
-    type: consts.EditorActionsTypes.CREATE_NEW_FILE;
-  };
+  createNewFile: () => createNewFileAction;
 
-  downloadCode: () => {
-    type: consts.EditorActionsTypes.DOWNLOAD_CODE;
-  };
+  downloadCode: () => downloadCodeAction;
 
-  uploadCode: () => {
-    type: consts.EditorActionsTypes.UPLOAD_CODE;
-  };
+  uploadCode: () => uploadCodeAction;
 }

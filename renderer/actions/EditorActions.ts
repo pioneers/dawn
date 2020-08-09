@@ -1,5 +1,5 @@
 import * as consts from '../consts';
-import { EditorActions } from './types';
+import { EditorActions } from '../types';
 
 export const editorUpdate: EditorActions['editorUpdate'] = (newVal: string) => ({
     type: consts.EditorActionsTypes.UPDATE_EDITOR,

@@ -1,4 +1,7 @@
 import * as consts from '../consts';
+import { updateTimerAction, updateHeartAction, updateMasterAction, updateMatchAction, updateRobotAction, toggleFieldControlAction, updateFieldControlAction, } from '../types';
+
+type Actions = updateTimerAction | updateHeartAction | updateMasterAction | updateMatchAction | updateRobotAction | toggleFieldControlAction | updateFieldControlAction;
 
 interface FieldState{
   stationNumber: number,
@@ -30,7 +33,7 @@ const initialFieldState = {
   teamColor: 'Unknown',
 };
 
-const fieldStore = (state: FieldState = initialFieldState, action) => {
+const fieldStore = (state: FieldState = initialFieldState, action: Actions) => {
   switch (action.type) {
     case consts.FieldActionsTypes.UPDATE_FC_CONFIG:
       return {

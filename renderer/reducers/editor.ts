@@ -2,6 +2,11 @@
  * Reducer for editor state data.
  */
 import * as consts from '../consts';
+import { editorUpdateAction, openFileSucceededAction, saveFileSucceededAction, openFileAction, dragFileAction, 
+  saveFileAction, deleteFileAction, createNewFileAction, downloadCodeAction, uploadCodeAction } from '../types';
+
+type Actions = editorUpdateAction | openFileSucceededAction | saveFileSucceededAction | openFileAction | dragFileAction | 
+saveFileAction| deleteFileAction | createNewFileAction | downloadCodeAction | uploadCodeAction;
 
 interface EditorState{
   filepath: string,
@@ -15,7 +20,7 @@ const defaultEditorState = {
   editorCode: '',
 };
 
-const editor = (state : EditorState = defaultEditorState, action) => {
+export const editor = (state : EditorState = defaultEditorState, action : Actions) => {
   switch (action.type) {
     case consts.EditorActionsTypes.UPDATE_EDITOR:
       return {
@@ -39,5 +44,3 @@ const editor = (state : EditorState = defaultEditorState, action) => {
       return state;
   }
 };
-
-export default editor;
