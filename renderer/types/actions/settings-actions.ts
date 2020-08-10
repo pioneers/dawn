@@ -1,17 +1,21 @@
-import * as consts from '../consts';
+import * as consts from '../../consts';
+
+export interface ChangeFontSizeAction{
+  type: consts.SettingsActionsTypes.CHANGE_FONT_SIZE;
+  newFontsize: number;
+}
+
+export interface ChangeThemeAction{
+  type: consts.SettingsActionsTypes.CHANGE_THEME;
+  theme: string;
+}
 
 export interface SettingsActions {
   changeFontsize: (
     newFontSize: number
-  ) => {
-    type: consts.SettingsActionsTypes.CHANGE_FONT_SIZE;
-    newFontsize: number;
-  };
+  ) => ChangeFontSizeAction;
 
   changeTheme: (
     theme: string
-  ) => {
-    type: consts.SettingsActionsTypes.CHANGE_THEME;
-    theme: string;
-  };
+  ) => ChangeThemeAction;
 }

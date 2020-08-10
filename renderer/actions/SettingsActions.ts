@@ -1,5 +1,5 @@
 import * as consts from '../consts';
-import { SettingsActions } from './types';
+import { SettingsActions } from '../types';
 
 export const changeFontsize: SettingsActions['changeFontsize'] = (newFontsize: number) =>({
     type: consts.SettingsActionsTypes.CHANGE_FONT_SIZE,
