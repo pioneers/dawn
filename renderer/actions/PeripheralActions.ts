@@ -1,5 +1,5 @@
 import * as consts from '../consts';
-import { PeripheralActions } from './types';
+import { PeripheralActions } from '../types';
 
 export const updatePeripherals : PeripheralActions['updatePeripherals'] = (sensors: string) => ({
     type: consts.PeripheralActionsTypes.UPDATE_PERIPHERALS,

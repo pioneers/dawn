@@ -1,6 +1,6 @@
 export { AlertActions, AddAsyncAlertAction, RemoveAsyncAlertAction } from './alert-actions';
 export { ConsoleActions, ToggleConsoleAction, UpdateConsoleAction, ClearConsoleAction, ToggleScrollAction } from './console-actions';
-export { PeripheralActions } from './peripheral-actions';
+export { PeripheralActions, UpdatePeripheralsAction, PeripheralRenameAction } from './peripheral-actions';
 export { EditorActions, EditorUpdateAction, OpenFileSucceededAction, SaveFileSucceededAction, OpenFileAction, DragFileAction, 
     SaveFileAction, DeleteFileAction, CreateNewFileAction, DownloadCodeAction, UploadCodeAction } from './editor-actions';
 export { GamepadsActions, UpdateGamepadsAction } from './gamepads-actions';

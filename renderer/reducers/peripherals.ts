@@ -1,4 +1,7 @@
 import * as consts from '../consts';
+import { UpdatePeripheralsAction, PeripheralRenameAction } from '../types';
+
+type Actions =  UpdatePeripheralsAction |  PeripheralRenameAction;
 
 interface PeripheralState{
   peripheralList: object,
@@ -23,7 +26,7 @@ function getParams(peripheral) {
   return res;
 }
 
-const peripherals = (state: PeripheralState = initialPeripheralState, action) => {
+const peripherals = (state: PeripheralState = initialPeripheralState, action: Actions) => {
   const nextState = Object.assign({}, state);
   const nextPeripherals = nextState.peripheralList;
   switch (action.type) {
