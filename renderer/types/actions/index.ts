@@ -7,4 +7,4 @@ export { GamepadsActions, UpdateGamepadsAction } from './gamepads-actions';
 export { SettingsActions } from './settings-actions';
 export { FieldActions, UpdateTimerAction, UpdateHeartAction, UpdateMasterAction, UpdateMatchAction, UpdateRobotAction,
     ToggleFieldControlAction, UpdateFieldControlAction } from './field-actions';
-export { InfoActions } from './info-actions';
+export { InfoActions, InfoPerMessageAction, AnsibleDisconnectAction, RuntimeConnectAction, MasterStatusAction, RuntimeDisconnectAction, UpdateCodeStatusAction, IpChangeAction, NotificationChangeAction } from './info-actions';

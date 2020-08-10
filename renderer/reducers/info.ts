@@ -1,6 +1,9 @@
 import { ipcRenderer } from 'electron';
 import { robotState, runtimeState, defaults } from '../utils/utils';
 import * as consts from '../consts';
+import { InfoPerMessageAction, AnsibleDisconnectAction, RuntimeConnectAction, MasterStatusAction, RuntimeDisconnectAction, UpdateCodeStatusAction, IpChangeAction, UpdateRobotAction, NotificationChangeAction } from '../types';
+
+type Actions = InfoPerMessageAction | AnsibleDisconnectAction | RuntimeConnectAction | MasterStatusAction | RuntimeDisconnectAction | UpdateCodeStatusAction | IpChangeAction | UpdateRobotAction | NotificationChangeAction;
 
 interface InfoState {
   ipAddress: string
@@ -28,7 +31,7 @@ const initialInfoState = {
   fieldControlActivity: false,
 };
 
-const info = (state: InfoState = initialInfoState, action) => {
+const info = (state: InfoState = initialInfoState, action: Actions) => {
   switch (action.type) {
     case consts.InfoActionsTypes.PER_MESSAGE:
       return {
