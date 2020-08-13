@@ -14,7 +14,7 @@ import { settings } from './settings';
 import { fieldStore } from './fieldStore';
 import { timerStore } from './timerStore';
 
-const dawnApp = combineReducers({
+export const rootReducer = combineReducers({
   asyncAlerts,
   editor,
   fieldStore,
@@ -25,5 +25,3 @@ const dawnApp = combineReducers({
   settings,
   timerStore,
 });
-
-export default dawnApp;
