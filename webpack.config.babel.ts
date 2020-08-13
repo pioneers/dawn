@@ -22,7 +22,7 @@ export default [
     devtool: 'cheap-module-eval-source-map',
     output: {
       path: path.join(__dirname, 'build'),
-      filename: 'bundle.ts',
+      filename: 'bundle.js',
     },
     target: 'electron-renderer',
     module: modules,
@@ -31,7 +31,7 @@ export default [
     entry: './main/main-process.ts',
     output: {
       path: path.join(__dirname, 'build'),
-      filename: 'main.ts',
+      filename: 'main.js',
     },
     target: 'electron-main',
     node: {
