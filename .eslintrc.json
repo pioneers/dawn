@@ -15,7 +15,7 @@
     "jsdoc",
     "import",
     "prettier"
-  
+  ],
   "parserOptions": {
     "project": ["tsconfig.json"],
     "ecmaFeatures": {
@@ -23,7 +23,7 @@
       "jsx": true // Allows for the parsing of JSX
     },
     "sourceType": "module", // Allows for the use of imports
-    "ecmaVersion": 2018 // Allows for the parsing of modern ECMAScript features
+    "ecmaVersion": 2020 // Allows for the parsing of modern ECMAScript features
   },
   "rules": {
     "react/forbid-prop-types": "off",
@@ -38,7 +38,8 @@
     "no-underscore-dangle": "off",
     "default-case": "off",
     "react/jsx-closing-tag-location": "off",
-    "import/extensions": "off"
+    "import/extensions": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off"
   },
   "settings": {
     "import/resolver": {
