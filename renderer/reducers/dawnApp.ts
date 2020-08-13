@@ -12,7 +12,7 @@ import { info } from './info';
 import { gamepads } from './gamepads';
 import { settings } from './settings';
 import { fieldStore } from './fieldStore';
-import { timerStore  }from './timerStore';
+import { timerStore }from './timerStore';
 
 const dawnApp = combineReducers({
   asyncAlerts,

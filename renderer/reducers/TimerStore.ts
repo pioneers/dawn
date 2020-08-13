@@ -2,11 +2,11 @@ import * as consts from '../consts';
 import { UpdateTimerAction } from '../types';
 
 interface TimerState {
-  timestamp: number,
-  timeLeft: number,
-  computedTime: number,
-  totalTime: number,
-
+  timestamp: number;
+  timeLeft: number;
+  computedTime: number;
+  totalTime: number;
+  stage: string;
 };
 
 const initialTimerState = {
@@ -14,7 +14,7 @@ const initialTimerState = {
   timeLeft: 0,
   computedTime: 0, // TODO: Questionable if this should even be in the store
   totalTime: 0,
-
+  stage: ''
 };
 
 export const timerStore = (state: TimerState = initialTimerState, action: UpdateTimerAction) => {
