@@ -33,7 +33,7 @@ const initialFieldState = {
   teamColor: 'Unknown',
 };
 
-const fieldStore = (state: FieldState = initialFieldState, action: Actions) => {
+export const fieldStore = (state: FieldState = initialFieldState, action: Actions) => {
   switch (action.type) {
     case consts.FieldActionsTypes.UPDATE_FC_CONFIG:
       return {
@@ -71,5 +71,3 @@ const fieldStore = (state: FieldState = initialFieldState, action: Actions) => {
       return state;
   }
 };
-
-export default fieldStore;

@@ -31,7 +31,7 @@ const initialInfoState = {
   fieldControlActivity: false,
 };
 
-const info = (state: InfoState = initialInfoState, action: Actions) => {
+export const info = (state: InfoState = initialInfoState, action: Actions) => {
   switch (action.type) {
     case consts.InfoActionsTypes.PER_MESSAGE:
       return {
@@ -95,5 +95,3 @@ const info = (state: InfoState = initialInfoState, action: Actions) => {
       return state;
   }
 };
-
-export default info;

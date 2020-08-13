@@ -13,12 +13,12 @@ const initialState = {
   editorTheme: 'tomorrow',
 };
 
-const settings = (state : SettingState = initialState, action: Actions) => {
+export const settings = (state : SettingState = initialState, action: Actions) => {
   switch (action.type) {
     case consts.SettingsActionsTypes.CHANGE_FONT_SIZE:
       return {
         ...state,
-        fontSize: action.newFontsize,
+        fontSize: action.newFontSize,
       };
     case consts.SettingsActionsTypes.CHANGE_THEME:
       return {
@@ -29,5 +29,3 @@ const settings = (state : SettingState = initialState, action: Actions) => {
       return state;
   }
 };
-
-export default settings;

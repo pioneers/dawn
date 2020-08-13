@@ -17,7 +17,7 @@ const initialTimerState = {
 
 };
 
-const TimerStore = (state: TimerState = initialTimerState, action: UpdateTimerAction) => {
+export const timerStore = (state: TimerState = initialTimerState, action: UpdateTimerAction) => {
   switch (action.type) {
     case consts.FieldActionsTypes.UPDATE_TIMER:
       return {
@@ -41,5 +41,3 @@ const TimerStore = (state: TimerState = initialTimerState, action: UpdateTimerAc
 //   _timerData.computedTime = timeLeft;
 // }
 // setInterval(refreshTimer, 200);
-
-export default TimerStore;
