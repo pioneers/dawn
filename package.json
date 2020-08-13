@@ -9,6 +9,14 @@
     "type": "git",
     "url": "https://github.com/pioneers/dawn.git"
   },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "printWidth": 140,
+    "arrowParens": "always",
+    "parser": "typescript",
+    "bracketSpacing": true
+  },
   "main": "build/main.js",
   "scripts": {
     "start": "electron build/main.js",
