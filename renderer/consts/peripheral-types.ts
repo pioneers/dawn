@@ -1,6 +1,5 @@
 import keyMirror from 'keymirror';
 
-export const VERSION = '2.1.0';
 export const PeripheralTypes = keyMirror({
   MOTOR_SCALAR: null,
   SENSOR_BOOLEAN: null,

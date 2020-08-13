@@ -8,7 +8,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ListGroupItem } from 'react-bootstrap';
-import { PeripheralTypes } from '../constants/Constants';
+import { PeripheralTypes } from '../consts';
 import BooleanSensor from './peripherals/BooleanSensor';
 import GenericPeripheral from './peripherals/GenericPeripheral';
 import GameValues from './peripherals/GameValues';

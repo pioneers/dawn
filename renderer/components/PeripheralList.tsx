@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { Panel, PanelGroup, ListGroup } from 'react-bootstrap';
-import { PeripheralTypes } from '../constants/Constants';
+import { PeripheralTypes } from '../consts';
 import Peripheral from './Peripheral';
 
 const cleanerNames = {};
