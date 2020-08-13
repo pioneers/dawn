@@ -1,21 +1,36 @@
 import * as consts from '../consts';
-import { UpdateTimerAction, UpdateHeartAction, UpdateMasterAction, UpdateMatchAction, UpdateRobotAction, ToggleFieldControlAction, UpdateFieldControlAction, } from '../types';
+import {
+  UpdateTimerAction,
+  UpdateHeartAction,
+  UpdateMasterAction,
+  UpdateMatchAction,
+  UpdateRobotAction,
+  ToggleFieldControlAction,
+  UpdateFieldControlAction,
+} from '../types';
 
-type Actions = UpdateTimerAction | UpdateHeartAction | UpdateMasterAction | UpdateMatchAction | UpdateRobotAction | ToggleFieldControlAction | UpdateFieldControlAction;
+type Actions =
+  | UpdateTimerAction
+  | UpdateHeartAction
+  | UpdateMasterAction
+  | UpdateMatchAction
+  | UpdateRobotAction
+  | ToggleFieldControlAction
+  | UpdateFieldControlAction;
 
-interface FieldState{
-  stationNumber: number,
-  bridgeAddress: string,
-  fieldControl: boolean,
-  rTeamNumber: number,
-  rTeamName: string,
-  heart: boolean,
-  masterStatus: boolean,
-  mMatchNumber: number,
-  mTeamNumbers: number[],
-  mTeamNames: string[],
-  teamNumber: number,
-  teamColor: string,
+interface FieldState {
+  stationNumber: number;
+  bridgeAddress: string;
+  fieldControl: boolean;
+  rTeamNumber: number;
+  rTeamName: string;
+  heart: boolean;
+  masterStatus: boolean;
+  mMatchNumber: number;
+  mTeamNumbers: number[];
+  mTeamNames: string[];
+  teamNumber: number;
+  teamColor: string;
 }
 
 const initialFieldState = {

@@ -1,11 +1,11 @@
 import * as consts from '../consts';
 import { ChangeFontSizeAction, ChangeThemeAction } from '../types';
 
-type Actions = ChangeFontSizeAction |  ChangeThemeAction;
+type Actions = ChangeFontSizeAction | ChangeThemeAction;
 
-interface SettingState{
-  fontSize: number,
-  editorTheme: string
+interface SettingState {
+  fontSize: number;
+  editorTheme: string;
 }
 
 const initialState = {
@@ -13,7 +13,7 @@ const initialState = {
   editorTheme: 'tomorrow',
 };
 
-export const settings = (state : SettingState = initialState, action: Actions) => {
+export const settings = (state: SettingState = initialState, action: Actions) => {
   switch (action.type) {
     case consts.SettingsActionsTypes.CHANGE_FONT_SIZE:
       return {

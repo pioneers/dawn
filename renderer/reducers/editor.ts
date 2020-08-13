@@ -2,16 +2,35 @@
  * Reducer for editor state data.
  */
 import * as consts from '../consts';
-import { EditorUpdateAction, OpenFileSucceededAction, SaveFileSucceededAction, OpenFileAction, DragFileAction, 
-  SaveFileAction, DeleteFileAction, CreateNewFileAction, DownloadCodeAction, UploadCodeAction } from '../types';
+import {
+  EditorUpdateAction,
+  OpenFileSucceededAction,
+  SaveFileSucceededAction,
+  OpenFileAction,
+  DragFileAction,
+  SaveFileAction,
+  DeleteFileAction,
+  CreateNewFileAction,
+  DownloadCodeAction,
+  UploadCodeAction,
+} from '../types';
 
-type Actions = EditorUpdateAction | OpenFileSucceededAction | SaveFileSucceededAction | OpenFileAction | DragFileAction | 
-SaveFileAction| DeleteFileAction | CreateNewFileAction | DownloadCodeAction | UploadCodeAction;
+type Actions =
+  | EditorUpdateAction
+  | OpenFileSucceededAction
+  | SaveFileSucceededAction
+  | OpenFileAction
+  | DragFileAction
+  | SaveFileAction
+  | DeleteFileAction
+  | CreateNewFileAction
+  | DownloadCodeAction
+  | UploadCodeAction;
 
-interface EditorState{
-  filepath: string,
-  latestSaveCode: string,
-  editorCode: string
+interface EditorState {
+  filepath: string;
+  latestSaveCode: string;
+  editorCode: string;
 }
 
 const defaultEditorState = {
@@ -20,7 +39,7 @@ const defaultEditorState = {
   editorCode: '',
 };
 
-export const editor = (state : EditorState = defaultEditorState, action : Actions) => {
+export const editor = (state: EditorState = defaultEditorState, action: Actions) => {
   switch (action.type) {
     case consts.EditorActionsTypes.UPDATE_EDITOR:
       return {

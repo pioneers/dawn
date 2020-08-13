@@ -7,14 +7,14 @@ interface TimerState {
   computedTime: number;
   totalTime: number;
   stage: string;
-};
+}
 
 const initialTimerState = {
   timestamp: 0,
   timeLeft: 0,
   computedTime: 0, // TODO: Questionable if this should even be in the store
   totalTime: 0,
-  stage: ''
+  stage: '',
 };
 
 export const timerStore = (state: TimerState = initialTimerState, action: UpdateTimerAction) => {
