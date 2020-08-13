@@ -1,45 +1,43 @@
 import * as consts from '../../consts';
 
-export interface InfoPerMessageAction{
+export interface InfoPerMessageAction {
   type: consts.InfoActionsTypes.PER_MESSAGE;
   robotState: number;
 }
 
-export interface AnsibleDisconnectAction{
+export interface AnsibleDisconnectAction {
   type: consts.InfoActionsTypes.ANSIBLE_DISCONNECT;
 }
 
-export interface RuntimeConnectAction{
+export interface RuntimeConnectAction {
   type: consts.InfoActionsTypes.RUNTIME_CONNECT;
 }
 
-export interface MasterStatusAction{
+export interface MasterStatusAction {
   type: consts.InfoActionsTypes.MASTER_ROBOT;
 }
 
-export interface RuntimeDisconnectAction{
+export interface RuntimeDisconnectAction {
   type: consts.InfoActionsTypes.RUNTIME_DISCONNECT;
 }
 
-export interface UpdateCodeStatusAction{
+export interface UpdateCodeStatusAction {
   type: consts.InfoActionsTypes.CODE_STATUS;
   studentCodeStatus: string;
 }
 
-export interface IpChangeAction{
+export interface IpChangeAction {
   type: consts.InfoActionsTypes.IP_CHANGE;
   ipAddress: string;
 }
 
-export interface NotificationChangeAction{
+export interface NotificationChangeAction {
   type: consts.InfoActionsTypes.NOTIFICATION_CHANGE;
   notificationHold: number;
 }
 
 export interface InfoActions {
-  infoPerMessage: (
-    stateChange: number
-  ) => InfoPerMessageAction;
+  infoPerMessage: (stateChange: number) => InfoPerMessageAction;
 
   ansibleDisconnect: () => AnsibleDisconnectAction;
 
@@ -49,13 +47,9 @@ export interface InfoActions {
 
   runtimeDisconnect: () => RuntimeDisconnectAction;
 
-  updateCodeStatus: (
-    studentCodeStatus: string
-  ) => UpdateCodeStatusAction;
+  updateCodeStatus: (studentCodeStatus: string) => UpdateCodeStatusAction;
 
-  ipChange: (
-    ipAddress: string
-  ) => IpChangeAction;
+  ipChange: (ipAddress: string) => IpChangeAction;
 
   notificationChange: () => NotificationChangeAction;
 }

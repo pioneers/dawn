@@ -42,40 +42,17 @@ export interface UpdateFieldControlAction {
 }
 
 export interface FieldActions {
-  updateTimer: (msg: {
-    total_stage_time: number;
-    stage_time_so_far: number;
-    stage_name: string;
-  }) => UpdateTimerAction;
+  updateTimer: (msg: { total_stage_time: number; stage_time_so_far: number; stage_name: string }) => UpdateTimerAction;
 
   updateHeart: () => UpdateHeartAction;
 
-  updateMaster: (msg: {
-    blue: number;
-    gold: number;
-  }) => UpdateMasterAction;
+  updateMaster: (msg: { blue: number; gold: number }) => UpdateMasterAction;
 
-  updateMatch: (msg: {
-    match_number: number;
-    team_names: string[];
-    team_numbers: number[];
-  }) => UpdateMatchAction;
+  updateMatch: (msg: { match_number: number; team_names: string[]; team_numbers: number[] }) => UpdateMatchAction;
 
-  updateRobot: (
-    msg: {
-      autonomous: number;
-      enabled: boolean;
-    }
-  ) => UpdateRobotAction;
+  updateRobot: (msg: { autonomous: number; enabled: boolean }) => UpdateRobotAction;
 
-  toggleFieldControl: (
-    msg: boolean
-  ) => ToggleFieldControlAction;
+  toggleFieldControl: (msg: boolean) => ToggleFieldControlAction;
 
-  updateFieldControl: (
-    msg: {
-      stationNumber: number;
-      bridgeAddress: string;
-    }
-  ) => UpdateFieldControlAction;
+  updateFieldControl: (msg: { stationNumber: number; bridgeAddress: string }) => UpdateFieldControlAction;
 }

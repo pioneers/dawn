@@ -1,12 +1,10 @@
 import * as consts from '../../consts';
 
-export interface UpdateGamepadsAction{
+export interface UpdateGamepadsAction {
   type: consts.GamepadsActionsTypes.UPDATE_GAMEPADS;
   gamepads: string;
 }
 
 export interface GamepadsActions {
-  updateGamepads: (
-    gamepads: string
-  ) => UpdateGamepadsAction;
+  updateGamepads: (gamepads: string) => UpdateGamepadsAction;
 }

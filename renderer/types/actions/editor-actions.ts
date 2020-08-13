@@ -3,7 +3,7 @@ import * as consts from '../../consts';
 export interface EditorUpdateAction {
   type: consts.EditorActionsTypes.UPDATE_EDITOR;
   code: string;
-};
+}
 
 export interface OpenFileSucceededAction {
   type: consts.EditorActionsTypes.OPEN_FILE_SUCCEEDED;
@@ -43,34 +43,22 @@ export interface DownloadCodeAction {
   type: consts.EditorActionsTypes.DOWNLOAD_CODE;
 }
 
-export interface UploadCodeAction{
+export interface UploadCodeAction {
   type: consts.EditorActionsTypes.UPLOAD_CODE;
 }
 
 export interface EditorActions {
-  editorUpdate: (
-    newVal: string
-  ) => EditorUpdateAction;
+  editorUpdate: (newVal: string) => EditorUpdateAction;
 
-  openFileSucceeded: (
-    data: string,
-    filepath: string
-  ) => OpenFileSucceededAction;
+  openFileSucceeded: (data: string, filepath: string) => OpenFileSucceededAction;
 
-  saveFileSucceeded: (
-    data: string,
-    filepath: string
-  ) => SaveFileSucceededAction;
+  saveFileSucceeded: (data: string, filepath: string) => SaveFileSucceededAction;
 
   openFile: () => OpenFileAction;
 
-  dragFile: (
-    filepath: string
-  ) => DragFileAction;
+  dragFile: (filepath: string) => DragFileAction;
 
-  saveFile: (
-    saveAs: boolean
-  ) => SaveFileAction;
+  saveFile: (saveAs: boolean) => SaveFileAction;
 
   deleteFile: () => DeleteFileAction;
 
