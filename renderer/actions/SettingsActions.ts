@@ -1,9 +1,9 @@
 import * as consts from '../consts';
 import { SettingsActions } from '../types';
 
-export const changeFontsize: SettingsActions['changeFontsize'] = (newFontsize: number) => ({
+export const changeFontSize: SettingsActions['changeFontSize'] = (newFontSize: number) => ({
   type: consts.SettingsActionsTypes.CHANGE_FONT_SIZE,
-  newFontsize,
+  newFontSize,
 });
 
 export const changeTheme: SettingsActions['changeTheme'] = (theme: string) => ({

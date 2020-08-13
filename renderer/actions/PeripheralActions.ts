@@ -6,8 +6,8 @@ export const updatePeripherals: PeripheralActions['updatePeripherals'] = (sensor
   peripherals: sensors,
 });
 
-export const peripheralRename: PeripheralActions['peripheralRename'] = (uid: number, newname: string) => ({
+export const peripheralRename: PeripheralActions['peripheralRename'] = (uid: number, newName: string) => ({
   type: consts.PeripheralActionsTypes.PERIPHERAL_RENAME,
   id: uid,
-  name: newname,
+  name: newName,
 });

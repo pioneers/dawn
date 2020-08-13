@@ -18,6 +18,6 @@ export interface PeripheralActions {
 
   peripheralRename: (
     uid: number,
-    newname: string
+    newName: string
   ) => PeripheralRenameAction;
 }
