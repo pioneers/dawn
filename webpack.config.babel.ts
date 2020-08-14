@@ -18,7 +18,7 @@ const modules = {
 
 export default [
   {
-    entry: './renderer/index.js',
+    entry: './renderer/index.tsx',
     devtool: 'cheap-module-eval-source-map',
     output: {
       path: path.join(__dirname, 'build'),
@@ -28,7 +28,7 @@ export default [
     module: modules,
   },
   {
-    entry: './main/main-process.js',
+    entry: './main/main-process.ts',
     output: {
       path: path.join(__dirname, 'build'),
       filename: 'main.js',

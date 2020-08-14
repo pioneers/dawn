@@ -1,6 +1,41 @@
 import { ipcRenderer } from 'electron';
-import { ActionTypes } from '../constants/Constants';
 import { robotState, runtimeState, defaults } from '../utils/utils';
+import * as consts from '../consts';
+import {
+  InfoPerMessageAction,
+  AnsibleDisconnectAction,
+  RuntimeConnectAction,
+  MasterStatusAction,
+  RuntimeDisconnectAction,
+  UpdateCodeStatusAction,
+  IpChangeAction,
+  UpdateRobotAction,
+  NotificationChangeAction,
+} from '../types';
+
+type Actions =
+  | InfoPerMessageAction
+  | AnsibleDisconnectAction
+  | RuntimeConnectAction
+  | MasterStatusAction
+  | RuntimeDisconnectAction
+  | UpdateCodeStatusAction
+  | IpChangeAction
+  | UpdateRobotAction
+  | NotificationChangeAction;
+
+interface InfoState {
+  ipAddress: string;
+  studentCodeStatus: number;
+  robotState: number;
+  isRunningCode: boolean;
+  connectionStatus: boolean;
+  runtimeStatus: boolean;
+  masterStatus: boolean;
+  notificationHold: number;
+  fieldControlDirective: number;
+  fieldControlActivity: boolean;
+}
 
 const initialInfoState = {
   ipAddress: defaults.IPADDRESS,
@@ -15,52 +50,52 @@ const initialInfoState = {
   fieldControlActivity: false,
 };
 
-const info = (state = initialInfoState, action) => {
+export const info = (state: InfoState = initialInfoState, action: Actions) => {
   switch (action.type) {
-    case 'PER_MESSAGE':
+    case consts.InfoActionsTypes.PER_MESSAGE:
       return {
         ...state,
         connectionStatus: true,
       };
-    case 'ANSIBLE_DISCONNECT':
+    case consts.InfoActionsTypes.ANSIBLE_DISCONNECT:
       return {
         ...state,
         connectionStatus: false,
       };
-    case 'NOTIFICATION_CHANGE':
+    case consts.InfoActionsTypes.NOTIFICATION_CHANGE:
       return {
         ...state,
         notificationHold: action.notificationHold,
       };
-    case 'RUNTIME_CONNECT':
+    case consts.InfoActionsTypes.RUNTIME_CONNECT:
       return {
         ...state,
         runtimeStatus: true,
       };
-    case 'MASTER_ROBOT':
+    case consts.InfoActionsTypes.MASTER_ROBOT:
       return {
         ...state,
         masterStatus: true,
       };
-    case 'RUNTIME_DISCONNECT':
+    case consts.InfoActionsTypes.RUNTIME_DISCONNECT:
       return {
         ...state,
         runtimeStatus: false,
         studentCodeStatus: robotState.IDLE,
       };
-    case 'CODE_STATUS':
+    case consts.InfoActionsTypes.CODE_STATUS:
       ipcRenderer.send('studentCodeStatus', { studentCodeStatus: action.studentCodeStatus });
       return {
         ...state,
         studentCodeStatus: action.studentCodeStatus,
       };
-    case 'IP_CHANGE':
+    case consts.InfoActionsTypes.IP_CHANGE:
       ipcRenderer.send('ipAddress', { ipAddress: action.ipAddress });
       return {
         ...state,
         ipAddress: action.ipAddress,
       };
-    case ActionTypes.UPDATE_ROBOT: {
+    case consts.FieldActionsTypes.UPDATE_ROBOT: {
       const stateChange = (action.autonomous) ? robotState.AUTONOMOUS : robotState.TELEOP;
       const codeStatus = (!action.enabled) ? robotState.IDLE : stateChange;
       return {
@@ -75,5 +110,3 @@ const info = (state = initialInfoState, action) => {
       return state;
   }
 };
-
-export default info;

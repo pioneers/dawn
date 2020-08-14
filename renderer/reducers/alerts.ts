@@ -2,9 +2,22 @@
  * Reducer from asynchronous alerts state data.
  */
 
-const asyncAlerts = (state = [], action) => {
+import * as consts from '../consts';
+import { AddAsyncAlertAction, RemoveAsyncAlertAction } from '../types';
+
+type Actions = AddAsyncAlertAction | RemoveAsyncAlertAction;
+
+type AsyncAlertsState = Array<{
+  id?: number;
+  heading?: string;
+  message?: string;
+}>;
+
+const initialState: AsyncAlertsState = [];
+
+export const asyncAlerts = (state: AsyncAlertsState = initialState, action: Actions) => {
   switch (action.type) {
-    case 'ADD_ASYNC_ALERT':
+    case consts.AlertActionsTypes.ADD_ASYNC_ALERT:
       return [
         ...state,
         {
@@ -13,11 +26,9 @@ const asyncAlerts = (state = [], action) => {
           message: action.message,
         },
       ];
-    case 'REMOVE_ASYNC_ALERT':
-      return state.filter(el => el.id !== action.id);
+    case consts.AlertActionsTypes.REMOVE_ASYNC_ALERT:
+      return state.filter((el: { id?: number }) => el.id !== action.id);
     default:
       return state;
   }
 };
-
-export default asyncAlerts;

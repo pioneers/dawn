@@ -2,7 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { PeripheralTypes } from '../../constants/Constants';
+import { PeripheralTypes } from '../../consts';
 
 /**
  * Boolean Sensor Component

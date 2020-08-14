@@ -28,7 +28,8 @@
     ]
   },
   "exclude": [
-    "./main/networking", // exclude temporarily until new protos are added,
+    "./renderer/utils/sagas.ts",
+    "./main/networking", // Exclude temporarily until new protos are added
     "node_modules"
   ]
 }
