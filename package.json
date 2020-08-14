@@ -27,6 +27,8 @@
     "lint-actions-fix": "eslint renderer/actions/**/*.ts --fix",
     "lint-reducers-fix": "eslint renderer/reducers/**/*.ts --fix",
     "lint-types-fix": "eslint renderer/types/**/*.ts --fix",
+    "lint": "eslint '*/**/*.ts?(x)'",
+    "lintfix": "eslint '*/**/*.ts?(x)' --fix",
     "watch": "webpack --mode development --watch --progress",
     "test": "mocha --require babel-core/register --recursive renderer/**/test/*.test.js",
     "release": "node release.js",
@@ -107,10 +109,10 @@
     "redux-saga": "0.16.0",
     "seedrandom": "2.4.3",
     "smalltalk": "2.5.1",
-    "socket.io-client": "^2.0.4",
+    "socket.io-client": "^2.3.0",
     "ssh2": "0.5.5",
     "superagent": "3.8.2",
-    "utf-8-validate": "4.0.0",
+    "utf-8-validate": "^5.0.2",
     "ws": "4.0.0"
   }
 }
