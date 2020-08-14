@@ -29,7 +29,7 @@ const SendGamepadProto = protoRoot.loadSync('protos/gamepad.proto', { keepCase: 
  * Log Data (console), text.proto
  */
 const RecvChallengeProto = protoRoot.loadSync('protos/text.proto', { keepCase: true }).lookupType('Text');
-const { RecvLogProto } = RecvChallengeProto;
+const RecvLogProto = RecvChallengeProto;
 
 /**
  * TCP Send (Dawn -> Runtime)
@@ -39,8 +39,8 @@ const { RecvLogProto } = RecvChallengeProto;
  * Position Data, start_pos.proto
  */
 const SendModeProto = protoRoot.loadSync('protos/run_mode.proto', { keepCase: true }).lookupType('RunMode');
-const { SendDeviceProto } = RecvDeviceProto;
-const { SendChallengeProto } = RecvChallengeProto;
+const SendDeviceProto = RecvDeviceProto;
+const SendChallengeProto = RecvChallengeProto;
 const SendPosProto = protoRoot.loadSync('protos/start_pos.proto', { keepCase: true }).lookupType('StartPos');
 
 /**
@@ -64,7 +64,7 @@ const LOG_TYPE = new Uint8Array([5])[0];
  * Unpack TCP packet header from payload
  * as sent from Runtime.
  */
-function readPacket(data) {
+function readPacket(data: any) {
   const buf = Buffer.from(data);
   const header = buf.slice(0, 3);
   const msgType = new Uint8Array(header)[0];
@@ -82,8 +82,8 @@ function readPacket(data) {
  * Create TCP packet header and prepend to
  * payload to send to Runtime.
  */
-function createPacket(payload, messageType) {
-  let encodedPayload;
+function createPacket(payload: any, messageType: number) {
+  let encodedPayload: any;
   switch (messageType) {
     case DEVICE_DATA_TYPE:
       encodedPayload = SendDeviceProto.encode(payload).finish();
@@ -110,7 +110,7 @@ function createPacket(payload, messageType) {
  * Takes uid Long object (uint64) and
  * converts to String.
  */
-function cleanUIDs(sensorData) {
+function cleanUIDs(sensorData: any) {
   for (const index in sensorData) {
     if (sensorData[index]) {
       const uintLow = sensorData[index].uid.low;
@@ -126,8 +126,8 @@ function cleanUIDs(sensorData) {
 /**
  * Create gamepad data according to protobuf.
  */
-function buildGamepadProto(data) {
-  const gamepads = _.map(_.toArray(data.gamepads), (gamepad) => {
+function buildGamepadProto(data: any) {
+  const gamepads = _.map(_.toArray(data.gamepads), (gamepad: any) => {
     const axes = _.toArray(gamepad.axes);
     const buttons = _.map(_.toArray(gamepad.buttons), Boolean);
     return SendGamepadProto.create({
@@ -141,7 +141,7 @@ function buildGamepadProto(data) {
 }
 
 class ListenSocket {
-  constructor(logger) {
+  constructor(logger: any) {
     this.logger = logger;
     this.statusUpdateTimeout = 0;
     this.socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
