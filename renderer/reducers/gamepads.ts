@@ -1,6 +1,11 @@
 import * as consts from '../consts';
+import { UpdateGamepadsAction } from '../types';
 
-const gamepads = (state: object = {}, action) => {
+interface GamePadsState {
+  gamepads?: string;
+}
+
+export const gamepads = (state: GamePadsState = {}, action: UpdateGamepadsAction) => {
   switch (action.type) {
     case consts.GamepadsActionsTypes.UPDATE_GAMEPADS:
       return {
@@ -11,5 +16,3 @@ const gamepads = (state: object = {}, action) => {
       return state;
   }
 };
-
-export default gamepads;

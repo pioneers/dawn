@@ -1,40 +1,55 @@
-import * as consts from '../consts';
+import * as consts from '../../consts';
+
+export interface InfoPerMessageAction {
+  type: consts.InfoActionsTypes.PER_MESSAGE;
+  robotState: number;
+}
+
+export interface AnsibleDisconnectAction {
+  type: consts.InfoActionsTypes.ANSIBLE_DISCONNECT;
+}
+
+export interface RuntimeConnectAction {
+  type: consts.InfoActionsTypes.RUNTIME_CONNECT;
+}
+
+export interface MasterStatusAction {
+  type: consts.InfoActionsTypes.MASTER_ROBOT;
+}
+
+export interface RuntimeDisconnectAction {
+  type: consts.InfoActionsTypes.RUNTIME_DISCONNECT;
+}
+
+export interface UpdateCodeStatusAction {
+  type: consts.InfoActionsTypes.CODE_STATUS;
+  studentCodeStatus: string;
+}
+
+export interface IpChangeAction {
+  type: consts.InfoActionsTypes.IP_CHANGE;
+  ipAddress: string;
+}
+
+export interface NotificationChangeAction {
+  type: consts.InfoActionsTypes.NOTIFICATION_CHANGE;
+  notificationHold: number;
+}
 
 export interface InfoActions {
-  infoPerMessage: (
-    stateChange: number
-  ) => {
-    type: consts.InfoActionsTypes.PER_MESSAGE;
-    robotState: number;
-  };
+  infoPerMessage: (stateChange: number) => InfoPerMessageAction;
 
-  ansibleDisconnect: () => {
-    type: consts.InfoActionsTypes.ANSIBLE_DISCONNECT;
-  };
+  ansibleDisconnect: () => AnsibleDisconnectAction;
 
-  runtimeConnect: () => {
-    type: consts.InfoActionsTypes.RUNTIME_CONNECT;
-  };
+  runtimeConnect: () => RuntimeConnectAction;
 
-  masterStatus: () => {
-    type: consts.InfoActionsTypes.MASTER_ROBOT;
-  };
+  masterStatus: () => MasterStatusAction;
 
-  runtimeDisconnect: () => {
-    type: consts.InfoActionsTypes.RUNTIME_DISCONNECT;
-  };
+  runtimeDisconnect: () => RuntimeDisconnectAction;
 
-  updateCodeStatus: (
-    studentCodeStatus: string
-  ) => {
-    type: consts.InfoActionsTypes.CODE_STATUS;
-    studentCodeStatus: string;
-  };
+  updateCodeStatus: (studentCodeStatus: string) => UpdateCodeStatusAction;
 
-  ipChange: (
-    ipAddress: string
-  ) => {
-    type: consts.InfoActionsTypes.IP_CHANGE;
-    ipAddress: string;
-  };
+  ipChange: (ipAddress: string) => IpChangeAction;
+
+  notificationChange: () => NotificationChangeAction;
 }

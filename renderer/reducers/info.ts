@@ -1,19 +1,41 @@
 import { ipcRenderer } from 'electron';
 import { robotState, runtimeState, defaults } from '../utils/utils';
 import * as consts from '../consts';
+import {
+  InfoPerMessageAction,
+  AnsibleDisconnectAction,
+  RuntimeConnectAction,
+  MasterStatusAction,
+  RuntimeDisconnectAction,
+  UpdateCodeStatusAction,
+  IpChangeAction,
+  UpdateRobotAction,
+  NotificationChangeAction,
+} from '../types';
+
+type Actions =
+  | InfoPerMessageAction
+  | AnsibleDisconnectAction
+  | RuntimeConnectAction
+  | MasterStatusAction
+  | RuntimeDisconnectAction
+  | UpdateCodeStatusAction
+  | IpChangeAction
+  | UpdateRobotAction
+  | NotificationChangeAction;
 
 interface InfoState {
-  ipAddress: string
-  studentCodeStatus: number,
-  robotState: number,
-  isRunningCode: boolean,
-  connectionStatus: boolean,
-  runtimeStatus: boolean,
-  masterStatus: boolean,
-  notificationHold: number,
-  fieldControlDirective: number,
-  fieldControlActivity: boolean,
-};
+  ipAddress: string;
+  studentCodeStatus: number;
+  robotState: number;
+  isRunningCode: boolean;
+  connectionStatus: boolean;
+  runtimeStatus: boolean;
+  masterStatus: boolean;
+  notificationHold: number;
+  fieldControlDirective: number;
+  fieldControlActivity: boolean;
+}
 
 const initialInfoState = {
   ipAddress: defaults.IPADDRESS,
@@ -28,16 +50,17 @@ const initialInfoState = {
   fieldControlActivity: false,
 };
 
-const info = (state: InfoState = initialInfoState, action) => {
+export const info = (state: InfoState = initialInfoState, action: Actions) => {
   switch (action.type) {
     case consts.InfoActionsTypes.PER_MESSAGE:
       return {
         ...state,
         connectionStatus: true,
         robotState: action.robotState,
-        isRunningCode: (action.robotState === runtimeState.STUDENT_RUNNING ||
-        action.robotState === runtimeState.TELEOP ||
-        action.robotState === runtimeState.AUTONOMOUS),
+        isRunningCode:
+          action.robotState === runtimeState.STUDENT_RUNNING ||
+          action.robotState === runtimeState.TELEOP ||
+          action.robotState === runtimeState.AUTONOMOUS,
       };
     case consts.InfoActionsTypes.ANSIBLE_DISCONNECT:
       return {
@@ -78,19 +101,17 @@ const info = (state: InfoState = initialInfoState, action) => {
         ipAddress: action.ipAddress,
       };
     case consts.FieldActionsTypes.UPDATE_ROBOT: {
-      const stateChange = (action.autonomous) ? robotState.AUTONOMOUS : robotState.TELEOP;
-      ipcRenderer.send('studentCodeStatus', { studentCodeStatus: (!action.enabled) ? robotState.IDLE : stateChange });
+      const stateChange = action.autonomous ? robotState.AUTONOMOUS : robotState.TELEOP;
+      ipcRenderer.send('studentCodeStatus', { studentCodeStatus: !action.enabled ? robotState.IDLE : stateChange });
       return {
         ...state,
         fieldControlDirective: stateChange,
         fieldControlActivity: action.enabled,
         // eslint-disable-next-line no-nested-ternary
-        studentCodeStatus: (!action.enabled) ? robotState.IDLE : stateChange,
+        studentCodeStatus: !action.enabled ? robotState.IDLE : stateChange,
       };
     }
     default:
       return state;
   }
 };
-
-export default info;

@@ -1,5 +1,5 @@
 import * as consts from '../consts';
-import { InfoActions } from './types';
+import { InfoActions } from '../types';
 
 export const infoPerMessage: InfoActions['infoPerMessage'] = (stateChange: number) => ({
   type: consts.InfoActionsTypes.PER_MESSAGE,

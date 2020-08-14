@@ -1,18 +1,36 @@
 import * as consts from '../consts';
+import {
+  UpdateTimerAction,
+  UpdateHeartAction,
+  UpdateMasterAction,
+  UpdateMatchAction,
+  UpdateRobotAction,
+  ToggleFieldControlAction,
+  UpdateFieldControlAction,
+} from '../types';
 
-interface FieldState{
-  stationNumber: number,
-  bridgeAddress: string,
-  fieldControl: boolean,
-  rTeamNumber: number,
-  rTeamName: string,
-  heart: boolean,
-  masterStatus: boolean,
-  mMatchNumber: number,
-  mTeamNumbers: number[],
-  mTeamNames: string[],
-  teamNumber: number,
-  teamColor: string,
+type Actions =
+  | UpdateTimerAction
+  | UpdateHeartAction
+  | UpdateMasterAction
+  | UpdateMatchAction
+  | UpdateRobotAction
+  | ToggleFieldControlAction
+  | UpdateFieldControlAction;
+
+interface FieldState {
+  stationNumber: number;
+  bridgeAddress: string;
+  fieldControl: boolean;
+  rTeamNumber: number;
+  rTeamName: string;
+  heart: boolean;
+  masterStatus: boolean;
+  mMatchNumber: number;
+  mTeamNumbers: number[];
+  mTeamNames: string[];
+  teamNumber: number;
+  teamColor: string;
 }
 
 const initialFieldState = {
@@ -30,7 +48,7 @@ const initialFieldState = {
   teamColor: 'Unknown',
 };
 
-const fieldStore = (state: FieldState = initialFieldState, action) => {
+export const fieldStore = (state: FieldState = initialFieldState, action: Actions) => {
   switch (action.type) {
     case consts.FieldActionsTypes.UPDATE_FC_CONFIG:
       return {
@@ -52,8 +70,8 @@ const fieldStore = (state: FieldState = initialFieldState, action) => {
       return {
         ...state,
         masterStatus: true,
-        blueMaster: action.blueMaster,
-        goldMaster: action.goldMaster,
+        blueMasterTeamNumber: action.blueMasterTeamNumber,
+        goldMasterTeamNumber: action.goldMasterTeamNumber,
       };
     case consts.FieldActionsTypes.UPDATE_MATCH:
       return {
@@ -68,5 +86,3 @@ const fieldStore = (state: FieldState = initialFieldState, action) => {
       return state;
   }
 };
-
-export default fieldStore;

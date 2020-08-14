@@ -1,10 +1,10 @@
-import * as consts from '../consts';
+import * as consts from '../../consts';
+
+export interface UpdateGamepadsAction {
+  type: consts.GamepadsActionsTypes.UPDATE_GAMEPADS;
+  gamepads: string;
+}
 
 export interface GamepadsActions {
-  updateGamepads: (
-    gamepads: string
-  ) => {
-    type: consts.GamepadsActionsTypes.UPDATE_GAMEPADS;
-    gamepads: string;
-  };
+  updateGamepads: (gamepads: string) => UpdateGamepadsAction;
 }

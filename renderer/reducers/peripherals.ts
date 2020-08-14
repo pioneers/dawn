@@ -1,10 +1,13 @@
 import * as consts from '../consts';
+import { UpdatePeripheralsAction, PeripheralRenameAction } from '../types';
 
-interface PeripheralState{
-  peripheralList: object,
-  batterySafety: boolean,
-  batteryLevel: number,
-  runtimeVersion: string
+type Actions = UpdatePeripheralsAction | PeripheralRenameAction;
+
+interface PeripheralState {
+  peripheralList: object;
+  batterySafety: boolean;
+  batteryLevel: number;
+  runtimeVersion: string;
 }
 
 const initialPeripheralState = {
@@ -14,7 +17,7 @@ const initialPeripheralState = {
   runtimeVersion: '0.0.0',
 };
 
-function getParams(peripheral) {
+function getParams(peripheral: any) {
   const res = {};
   peripheral.param_value.forEach((obj) => {
     // eslint-disable-next-line prefer-destructuring
@@ -23,7 +26,7 @@ function getParams(peripheral) {
   return res;
 }
 
-const peripherals = (state: PeripheralState = initialPeripheralState, action) => {
+export const peripherals = (state: PeripheralState = initialPeripheralState, action: Actions) => {
   const nextState = Object.assign({}, state);
   const nextPeripherals = nextState.peripheralList;
   switch (action.type) {
@@ -66,5 +69,3 @@ const peripherals = (state: PeripheralState = initialPeripheralState, action) =>
     }
   }
 };
-
-export default peripherals;

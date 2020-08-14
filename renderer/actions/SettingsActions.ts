@@ -1,12 +1,12 @@
 import * as consts from '../consts';
-import { SettingsActions } from './types';
+import { SettingsActions } from '../types';
 
-export const changeFontsize: SettingsActions['changeFontsize'] = (newFontsize: number) =>({
-    type: consts.SettingsActionsTypes.CHANGE_FONT_SIZE,
-    newFontsize,
-})
+export const changeFontSize: SettingsActions['changeFontSize'] = (newFontSize: number) => ({
+  type: consts.SettingsActionsTypes.CHANGE_FONT_SIZE,
+  newFontSize,
+});
 
 export const changeTheme: SettingsActions['changeTheme'] = (theme: string) => ({
-    type: consts.SettingsActionsTypes.CHANGE_THEME,
-    theme,
-})
+  type: consts.SettingsActionsTypes.CHANGE_THEME,
+  theme,
+});
