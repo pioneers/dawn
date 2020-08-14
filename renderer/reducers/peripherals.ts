@@ -1,4 +1,14 @@
-import { PeripheralTypes } from '../constants/Constants';
+import * as consts from '../consts';
+import { UpdatePeripheralsAction, PeripheralRenameAction } from '../types';
+
+type Actions = UpdatePeripheralsAction | PeripheralRenameAction;
+
+interface PeripheralState {
+  peripheralList: object;
+  batterySafety: boolean;
+  batteryLevel: number;
+  runtimeVersion: string;
+}
 
 const initialPeripheralState = {
   peripheralList: {},
@@ -7,7 +17,7 @@ const initialPeripheralState = {
   runtimeVersion: '0.0.0',
 };
 
-function getParams(peripheral) {
+function getParams(peripheral: any) {
   const res = {};
   peripheral.param_value.forEach((obj) => {
     // eslint-disable-next-line prefer-destructuring
@@ -16,14 +26,14 @@ function getParams(peripheral) {
   return res;
 }
 
-const peripherals = (state = initialPeripheralState, action) => {
+export const peripherals = (state: PeripheralState = initialPeripheralState, action: Actions) => {
   const nextState = Object.assign({}, state);
   const nextPeripherals = nextState.peripheralList;
   switch (action.type) {
-    case 'UPDATE_PERIPHERALS': {
+    case consts.PeripheralActionsTypes.UPDATE_PERIPHERALS: {
       const keys = [];
       action.peripherals.forEach((peripheral) => {
-        if (peripheral.device_type === PeripheralTypes.BatteryBuzzer) {
+        if (peripheral.device_type === consts.PeripheralTypes.BatteryBuzzer) {
           const batteryParams = getParams(peripheral);
           if (batteryParams.is_unsafe !== undefined) {
             nextState.batterySafety = batteryParams.is_unsafe;
@@ -50,7 +60,7 @@ const peripherals = (state = initialPeripheralState, action) => {
       return nextState;
     }
     // Note: This is not being used since NameEdit is still broken
-    case 'PERIPHERAL_RENAME': {
+    case consts.PeripheralActionsTypes.PERIPHERAL_RENAME: {
       nextPeripherals[action.id].name = action.name;
       return nextState;
     }
@@ -59,5 +69,3 @@ const peripherals = (state = initialPeripheralState, action) => {
     }
   }
 };
-
-export default peripherals;

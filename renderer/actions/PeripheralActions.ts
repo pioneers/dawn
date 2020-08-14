@@ -1,10 +1,13 @@
-export const updatePeripherals = sensors => ({
-  type: 'UPDATE_PERIPHERALS',
+import * as consts from '../consts';
+import { PeripheralActions } from '../types';
+
+export const updatePeripherals: PeripheralActions['updatePeripherals'] = (sensors: string) => ({
+  type: consts.PeripheralActionsTypes.UPDATE_PERIPHERALS,
   peripherals: sensors,
 });
 
-export const peripheralRename = (uid, newname) => ({
-  type: 'PERIPHERAL_RENAME',
+export const peripheralRename: PeripheralActions['peripheralRename'] = (uid: number, newName: string) => ({
+  type: consts.PeripheralActionsTypes.PERIPHERAL_RENAME,
   id: uid,
-  name: newname,
+  name: newName,
 });

@@ -1,50 +1,49 @@
-/**
- * Actions for the editor state.
- */
+import * as consts from '../consts';
+import { EditorActions } from '../types';
 
-export const editorUpdate = newVal => ({
-  type: 'UPDATE_EDITOR',
+export const editorUpdate: EditorActions['editorUpdate'] = (newVal: string) => ({
+  type: consts.EditorActionsTypes.UPDATE_EDITOR,
   code: newVal,
 });
 
-export const openFileSucceeded = (data, filepath) => ({
-  type: 'OPEN_FILE_SUCCEEDED',
+export const openFileSucceeded: EditorActions['openFileSucceeded'] = (data: string, filepath: string) => ({
+  type: consts.EditorActionsTypes.OPEN_FILE_SUCCEEDED,
   code: data,
   filepath,
 });
 
-export const saveFileSucceeded = (data, filepath) => ({
-  type: 'SAVE_FILE_SUCCEEDED',
+export const saveFileSucceeded: EditorActions['saveFileSucceeded'] = (data: string, filepath: string) => ({
+  type: consts.EditorActionsTypes.SAVE_FILE_SUCCEEDED,
   code: data,
   filepath,
 });
 
-export const openFile = () => ({
-  type: 'OPEN_FILE',
+export const openFile: EditorActions['openFile'] = () => ({
+  type: consts.EditorActionsTypes.OPEN_FILE,
 });
 
-export const dragFile = filepath => ({
-  type: 'DRAG_FILE',
+export const dragFile: EditorActions['dragFile'] = (filepath: string) => ({
+  type: consts.EditorActionsTypes.DRAG_FILE,
   filepath,
 });
 
-export const saveFile = (saveAs = false) => ({
-  type: 'SAVE_FILE',
+export const saveFile: EditorActions['saveFile'] = (saveAs = false) => ({
+  type: consts.EditorActionsTypes.SAVE_FILE,
   saveAs,
 });
 
-export const deleteFile = () => ({
-  type: 'DELETE_FILE',
+export const deleteFile: EditorActions['deleteFile'] = () => ({
+  type: consts.EditorActionsTypes.DELETE_FILE,
 });
 
-export const createNewFile = () => ({
-  type: 'CREATE_NEW_FILE',
+export const createNewFile: EditorActions['createNewFile'] = () => ({
+  type: consts.EditorActionsTypes.CREATE_NEW_FILE,
 });
 
-export const downloadCode = () => ({
-  type: 'DOWNLOAD_CODE',
+export const downloadCode: EditorActions['downloadCode'] = () => ({
+  type: consts.EditorActionsTypes.DOWNLOAD_CODE,
 });
 
-export const uploadCode = () => ({
-  type: 'UPLOAD_CODE',
+export const uploadCode: EditorActions['uploadCode'] = () => ({
+  type: consts.EditorActionsTypes.UPLOAD_CODE,
 });
