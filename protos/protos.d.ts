@@ -1,7 +1,4 @@
 import * as $protobuf from "protobufjs";
-
-export as namespace protos;
-
 /** Properties of a Param. */
 export interface IParam {
 

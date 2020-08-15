@@ -600,6 +600,6 @@ export {
   runtimeHeartbeat,
   gamepadsState,
   updateMainProcess,
-  runtimeReceiver as ansibleReceiver,
-  runtimeSaga as ansibleSaga,
+  runtimeReceiver,
+  runtimeSaga,
 }; // for tests
