@@ -2,7 +2,7 @@ import * as consts from '../../consts';
 
 export interface UpdateConsoleAction {
   type: consts.ConsoleActionsTypes.UPDATE_CONSOLE;
-  consoleOutput: string;
+  consoleOutput: string[];
 }
 
 export interface ClearConsoleAction {
@@ -18,7 +18,7 @@ export interface ToggleScrollAction {
 }
 
 export interface ConsoleActions {
-  updateConsole: (value: string) => UpdateConsoleAction;
+  updateConsole: (value: string[]) => UpdateConsoleAction;
 
   clearConsole: () => ClearConsoleAction;
 

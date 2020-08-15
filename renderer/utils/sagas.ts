@@ -15,6 +15,7 @@ import { toggleFieldControl } from '../actions/FieldActions';
 import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
 import { TIMEOUT, defaults, logging } from '../utils/utils';
+import { IGpState } from '../../protos/protos';
 
 
 const { Client } = require('ssh2');
@@ -215,7 +216,7 @@ function* runtimeHeartbeat() {
 
 const _timestamps = [0, 0, 0, 0];
 
-function _needToUpdate(newGamepads) {
+function _needToUpdate(newGamepads: Gamepad[]): boolean {
   return _.some(newGamepads, (gamepad, index) => {
     if (gamepad != null && (gamepad.timestamp > _timestamps[index])) {
       _timestamps[index] = gamepad.timestamp;
@@ -228,16 +229,16 @@ function _needToUpdate(newGamepads) {
   });
 }
 
-function formatGamepads(newGamepads) {
-  const formattedGamepads = {};
+function formatGamepads(newGamepads: Gamepad[]): IGpState[] {
+  let formattedGamepads: IGpState[];
   // Currently there is a bug on windows where navigator.getGamepads()
   // returns a second, 'ghost' gamepad even when only one is connected.
   // The filter on 'mapping' filters out the ghost gamepad.
-  _.forEach(_.filter(newGamepads, { mapping: 'standard' }), (gamepad, indexGamepad) => {
+  _.forEach(_.filter(newGamepads, { mapping: 'standard' }), (gamepad: Gamepad, indexGamepad: number) => {
     if (gamepad) {
       formattedGamepads[indexGamepad] = {
-        index: indexGamepad,
-        axes: gamepad.axes,
+        connected: gamepad.connected,
+        axes: gamepad.axes.slice(),
         buttons: _.map(gamepad.buttons, 'value'),
       };
     }
@@ -249,11 +250,11 @@ function formatGamepads(newGamepads) {
  * Repeatedly grab gamepad data, send it over Ansible to the robot, and dispatch
  * redux action to update gamepad state.
  */
-function* ansibleGamepads() {
+function* runtimeGamepads() {
   while (true) {
     // navigator.getGamepads always returns a reference to the same object. This
     // confuses redux, so we use assignIn to clone to a new object each time.
-    const newGamepads = Array.prototype.slice.call(navigator.getGamepads());
+    const newGamepads = navigator.getGamepads();
     if (_needToUpdate(newGamepads) || Date.now() - timestamp > 100) {
       const formattedGamepads = formatGamepads(newGamepads);
       yield put(updateGamepads(formattedGamepads));
@@ -271,10 +272,10 @@ function* ansibleGamepads() {
 }
 
 /**
- * Creates the ansibleReceiver eventChannel, which emits
+ * Creates the runtimeReceiver eventChannel, which emits
  * data received from the main process.
  */
-function ansibleReceiver() {
+function runtimeReceiver() {
   return eventChannel((emitter) => {
     const listener = (event, action) => {
       emitter(action);
@@ -289,12 +290,12 @@ function ansibleReceiver() {
 }
 
 /**
- * Takes data from the ansibleReceiver channel and dispatches
+ * Takes data from the runtimeReceiver channel and dispatches
  * it to the store
  */
-function* ansibleSaga() {
+function* runtimeSaga() {
   try {
-    const chan = yield call(ansibleReceiver);
+    const chan = yield call(runtimeReceiver);
     while (true) {
       const action = yield take(chan);
       // dispatch the action
@@ -305,7 +306,7 @@ function* ansibleSaga() {
   }
 }
 
-const gamepadsState = state => ({
+const gamepadsState = (state) => ({
   gamepads: state.gamepads.gamepads,
 });
 
@@ -313,7 +314,7 @@ const gamepadsState = state => ({
  * Send the store to the main process whenever it changes.
  */
 function* updateMainProcess() {
-  const stateSlice = yield select(gamepadsState);
+  const stateSlice = yield select(gamepadsState); // Get gamepads from Redux state store
   ipcRenderer.send('stateUpdate', stateSlice);
 }
 
@@ -582,8 +583,8 @@ export default function* rootSaga() {
     takeEvery('TIMESTAMP_CHECK', timestampBounceback),
     takeEvery('EXPORT_RUN_MODE', exportRunMode),
     fork(runtimeHeartbeat),
-    fork(ansibleGamepads),
-    fork(ansibleSaga),
+    fork(runtimeGamepads),
+    fork(runtimeSaga),
   ]);
 }
 
@@ -599,6 +600,6 @@ export {
   runtimeHeartbeat,
   gamepadsState,
   updateMainProcess,
-  ansibleReceiver,
-  ansibleSaga,
+  runtimeReceiver as ansibleReceiver,
+  runtimeSaga as ansibleSaga,
 }; // for tests

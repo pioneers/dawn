@@ -1,73 +1,44 @@
-import dgram from 'dgram';
-import net from 'net';
+import { createSocket, Socket as UDPSocket } from 'dgram';
+import { createServer, Socket as TCPSocket, Server } from 'net';
 import { ipcMain } from 'electron';
-import protobuf from 'protobufjs';
+import * as protos from '../../protos/protos';
 import _ from 'lodash';
 
 import RendererBridge from '../RendererBridge';
 import { updateConsole } from '../../renderer/actions/ConsoleActions';
-import { ansibleDisconnect, infoPerMessage } from '../../renderer/actions/InfoActions';
+import { runtimeDisconnect, infoPerMessage } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { Logger, defaults } from '../../renderer/utils/utils';
-
-const protoRoot = new protobuf.Root();
-/**
- * UDP Recv (Runtime -> Dawn)
- * Device Data Array (sensors), device.proto
- */
-const RecvDeviceProto = protoRoot.loadSync('protos/device.proto', { keepCase: true }).lookupType('DevData');
-
-/**
- * UDP Send (Dawn -> Runtime)
- * Gamepad Data, gamepad.proto
- */
-const SendGamepadProto = protoRoot.loadSync('protos/gamepad.proto', { keepCase: true }).lookupType('GpState');
-
-/**
- * TCP Recv (Runtime -> Dawn)
- * Challenge Data (output values), text.proto
- * Log Data (console), text.proto
- */
-const RecvChallengeProto = protoRoot.loadSync('protos/text.proto', { keepCase: true }).lookupType('Text');
-const RecvLogProto = RecvChallengeProto;
-
-/**
- * TCP Send (Dawn -> Runtime)
- * Run Mode Data (TELEOP, ESTOP), run_mode.proto
- * Device Data Array (preference filter), device.proto
- * Challenge Data (input values), text.proto
- * Position Data, start_pos.proto
- */
-const SendModeProto = protoRoot.loadSync('protos/run_mode.proto', { keepCase: true }).lookupType('RunMode');
-const SendDeviceProto = RecvDeviceProto;
-const SendChallengeProto = RecvChallengeProto;
-const SendPosProto = protoRoot.loadSync('protos/start_pos.proto', { keepCase: true }).lookupType('StartPos');
+import { Message } from 'protobufjs';
 
 /**
  * Define port constants.
  */
 const LISTEN_PORT = 1235;
-const SEND_PORT = 1236;
+const SEND_PORT = 9000;
 const TCP_PORT = 1234;
 
 /**
- * Define message ID constants,
- * each of which are 8 bit.
+ * Define message ID constants, which must match with Runtime
  */
-const DEVICE_DATA_TYPE = new Uint8Array([1])[0];
-const RUN_MODE_TYPE = new Uint8Array([2])[0];
-const START_POS_TYPE = new Uint8Array([3])[0];
-const CHALLENGE_DATA_TYPE = new Uint8Array([4])[0];
-const LOG_TYPE = new Uint8Array([5])[0];
+enum MsgType {
+  RUN_MODE, START_POS, CHALLENGE_DATA, LOG, DEVICE_DATA
+}
+
+interface TCPPacket {
+  messageType: MsgType,
+  messageLength: number,
+  payload: Buffer,
+}
 
 /**
  * Unpack TCP packet header from payload
  * as sent from Runtime.
  */
-function readPacket(data: any) {
+function readPacket(data: any): TCPPacket {
   const buf = Buffer.from(data);
   const header = buf.slice(0, 3);
-  const msgType = new Uint8Array(header)[0];
+  const msgType = header[0];
   const msgLength = new Uint16Array(header.slice(1))[0];
   const load = buf.slice(3);
 
@@ -82,26 +53,26 @@ function readPacket(data: any) {
  * Create TCP packet header and prepend to
  * payload to send to Runtime.
  */
-function createPacket(payload: any, messageType: number) {
-  let encodedPayload: any;
+function createPacket(payload: any, messageType: MsgType): Buffer {
+  let encodedPayload: Uint8Array;
   switch (messageType) {
-    case DEVICE_DATA_TYPE:
-      encodedPayload = SendDeviceProto.encode(payload).finish();
+    case MsgType.DEVICE_DATA:
+      encodedPayload = protos.DevData.encode(payload).finish();
       break;
-    case RUN_MODE_TYPE:
-      encodedPayload = SendModeProto.encode(payload).finish();
+    case MsgType.RUN_MODE:
+      encodedPayload = protos.RunMode.encode(payload).finish();
       break;
-    case START_POS_TYPE:
-      encodedPayload = SendPosProto.encode(payload).finish();
+    case MsgType.START_POS:
+      encodedPayload = protos.StartPos.encode(payload).finish();
       break;
-    case CHALLENGE_DATA_TYPE:
-      encodedPayload = SendChallengeProto.encode(payload).finish();
+    case MsgType.CHALLENGE_DATA:
+      encodedPayload = protos.Text.encode(payload).finish();
       break;
   }
-  const msgLength = new Uint16Array([Buffer.byteLength(encodedPayload)])[0];
+  const msgLength = Buffer.byteLength(encodedPayload);
 
   const msgTypeArr = new Uint8Array([messageType]);
-  const msgLengthArr = new Uint8Array([msgLength]);
+  const msgLengthArr = new Uint8Array([msgLength & 0x00FF, msgLength & 0xFF00]); // Assuming little-endian byte order, since runs on x64
   const encodedPayloadArr = new Uint8Array(encodedPayload);
   return Buffer.concat([msgTypeArr, msgLengthArr, encodedPayloadArr], msgLength);
 }
@@ -123,28 +94,16 @@ function cleanUIDs(sensorData: any) {
   }
 }
 
-/**
- * Create gamepad data according to protobuf.
- */
-function buildGamepadProto(data: any) {
-  const gamepads = _.map(_.toArray(data.gamepads), (gamepad: any) => {
-    const axes = _.toArray(gamepad.axes);
-    const buttons = _.map(_.toArray(gamepad.buttons), Boolean);
-    return SendGamepadProto.create({
-      connected: gamepad.index,
-      axes,
-      buttons,
-    });
-  });
-
-  return SendGamepadProto.create({ gamepads });
-}
-
 class ListenSocket {
-  constructor(logger: any) {
+  logger: Logger;
+  socket: UDPSocket;
+  statusUpdateTimeout: number;
+
+  constructor(logger: Logger) {
     this.logger = logger;
     this.statusUpdateTimeout = 0;
-    this.socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
+    this.socket = createSocket({ type: 'udp4', reuseAddr: true });
+
     this.close = this.close.bind(this);
 
     /**
@@ -156,7 +115,7 @@ class ListenSocket {
     this.socket.on('message', (msg) => {
       try {
         RendererBridge.reduxDispatch(infoPerMessage());
-        const sensorData = RecvDeviceProto.decode(msg).devices;
+        const sensorData = protos.DevData.decode(msg).devices;
         cleanUIDs(sensorData);
         this.logger.debug('Dawn received UDP sensor data');
         RendererBridge.reduxDispatch(updatePeripherals(sensorData));
@@ -166,13 +125,13 @@ class ListenSocket {
       }
     });
 
-    this.socket.on('error', (err) => {
+    this.socket.on('error', (err: Error) => {
       this.logger.log('UDP listening error');
       this.logger.debug(err);
     });
 
     this.socket.on('close', () => {
-      RendererBridge.reduxDispatch(ansibleDisconnect());
+      RendererBridge.reduxDispatch(runtimeDisconnect());
       this.logger.log('UDP listening closed');
     });
 
@@ -187,15 +146,20 @@ class ListenSocket {
 }
 
 class SendSocket {
-  constructor(logger) {
+  logger: Logger;
+  socket: UDPSocket;
+  runtimeIP: string;
+
+  constructor(logger: Logger) {
     this.logger = logger;
     this.runtimeIP = defaults.IPADDRESS;
-    this.socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
+    this.socket = createSocket({ type: 'udp4', reuseAddr: true });
+
     this.sendGamepadMessages = this.sendGamepadMessages.bind(this);
     this.ipAddressListener = this.ipAddressListener.bind(this);
     this.close = this.close.bind(this);
 
-    this.socket.on('error', (err) => {
+    this.socket.on('error', (err: Error) => {
       this.logger.log('UDP sending error');
       this.logger.log(err);
     });
@@ -212,18 +176,18 @@ class SendSocket {
   }
 
   /**
-   * IPC Connection with sagas.js' ansibleGamepads()
+   * IPC Connection with sagas.ts' runtimeGamepads()
    * Sends messages when Gamepad information changes
    * or when 100 ms has passed (with 50 ms cooldown)
    */
-  sendGamepadMessages(event, data) {
-    const message = SendGamepadProto.encode(buildGamepadProto(data)).finish();
+  sendGamepadMessages(event, data: protos.IGpState[]) {
+    const message = protos.GpState.encode(data[0]).finish();
     this.logger.debug(`Dawn sent UDP to ${this.runtimeIP}`);
     this.socket.send(message, SEND_PORT, this.runtimeIP);
   }
 
   /**
-   * IPC Connection with ConfigBox.js' saveChanges()
+   * IPC Connection with ConfigBox.ts' saveChanges()
    * Receives new IP Address to send messages to.
    */
   ipAddressListener(event, { ipAddress }) {
@@ -237,16 +201,19 @@ class SendSocket {
   }
 }
 
-class TCPSocket {
-  constructor(socket, logger) {
+class TCPConn {
+  logger: Logger;
+  socket: TCPSocket;
+
+  constructor(socket: TCPSocket, logger: Logger) {
+    this.logger = logger;
+    this.socket = socket;
+
     this.sendRunMode = this.sendRunMode.bind(this);
     this.sendDevicePreferences = this.sendDevicePreferences.bind(this);
     this.sendChallengeInputs = this.sendChallengeInputs.bind(this);
     this.sendRobotStartPos = this.sendRobotStartPos.bind(this);
     this.close = this.close.bind(this);
-
-    this.logger = logger;
-    this.socket = socket;
 
     this.logger.log('Runtime connected');
     this.socket.on('end', () => {
@@ -261,15 +228,15 @@ class TCPSocket {
     this.socket.on('data', (data) => {
       const message = readPacket(data);
       this.logger.log(`Dawn received TCP Packet ${message.messageType}`);
-      let decoded;
+      let decoded: protos.Text;
 
       switch (message.messageType) {
-        case LOG_TYPE:
-          decoded = RecvLogProto.decode(message.payload);
+        case MsgType.LOG:
+          decoded = protos.Text.decode(message.payload);
           RendererBridge.reduxDispatch(updateConsole(decoded.payload));
           break;
-        case CHALLENGE_DATA_TYPE:
-          decoded = RecvChallengeProto.decode(message.payload);
+        case MsgType.CHALLENGE_DATA:
+          decoded = protos.Text.decode(message.payload);
           // TODO: Dispatch challenge outputs to redux
           break;
       }
@@ -286,7 +253,7 @@ class TCPSocket {
    */
   sendRunMode(event, data) {
     const mode = data.studentCodeStatus;
-    const message = createPacket(mode, RUN_MODE_TYPE);
+    const message = createPacket(mode, MsgType.RUN_MODE);
     this.socket.write(message, () => {
       this.logger.debug(`Run Mode message sent: ${mode}`);
     });
@@ -294,7 +261,7 @@ class TCPSocket {
 
   sendDevicePreferences(event, data) {
     // TODO: Get device preference filter from UI components, then sagas
-    const message = createPacket(data, DEVICE_DATA_TYPE);
+    const message = createPacket(data, MsgType.DEVICE_DATA);
     this.socket.write(message, () => {
       this.logger.debug(`Device preferences sent: ${data}`);
     });
@@ -302,7 +269,7 @@ class TCPSocket {
 
   sendChallengeInputs(event, data) {
     // TODO: Get challenge inputs from UI components, then sagas
-    const message = createPacket(data, CHALLENGE_DATA_TYPE);
+    const message = createPacket(data, MsgType.CHALLENGE_DATA);
     this.socket.write(message, () => {
       this.logger.debug(`Challenge inputs sent: ${data}`);
     });
@@ -310,7 +277,7 @@ class TCPSocket {
 
   sendRobotStartPos(event, data) {
     // TODO: Get start pos from sagas
-    const message = createPacket(data, START_POS_TYPE);
+    const message = createPacket(data, MsgType.START_POS);
     this.socket.write(message, () => {
       this.logger.debug(`Start position sent: ${data}`);
     });
@@ -318,16 +285,20 @@ class TCPSocket {
 
   close() {
     this.socket.end();
-    this.ipcMain.removeListener('runModeUpdate', this.sendRunMode);
+    ipcMain.removeListener('runModeUpdate', this.sendRunMode);
   }
 }
 
 class TCPServer {
+  logger: Logger;
+  tcp: Server;
+  conn: TCPConn;
+
   constructor(logger) {
-    this.socket = null;
+    this.conn = null;
     this.close = this.close.bind(this);
-    this.tcp = net.createServer((socket) => {
-      this.socket = new TCPSocket(socket, logger);
+    this.tcp = createServer((socket) => {
+      this.conn = new TCPConn(socket, logger);
     });
 
     this.logger = logger;
@@ -343,17 +314,16 @@ class TCPServer {
   }
 
   close() {
-    if (this.socket) {
-      this.socket.close();
+    if (this.conn) {
+      this.conn.close();
     }
-
     this.tcp.close();
   }
 }
 
-const Ansible = {
+const Runtime = {
   conns: [],
-  logger: new Logger('ansible', 'Ansible Debug'),
+  logger: new Logger('runtime', 'Runtime Debug'),
   setup() {
     this.conns = [
       new ListenSocket(this.logger),
@@ -366,4 +336,4 @@ const Ansible = {
   },
 };
 
-export default Ansible;
+export default Runtime;

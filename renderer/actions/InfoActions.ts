@@ -13,12 +13,12 @@ export const runtimeConnect: InfoActions['runtimeConnect'] = () => ({
   type: consts.InfoActionsTypes.RUNTIME_CONNECT,
 });
 
-export const masterStatus: InfoActions['masterStatus'] = () => ({
-  type: consts.InfoActionsTypes.MASTER_ROBOT,
-});
-
 export const runtimeDisconnect: InfoActions['runtimeDisconnect'] = () => ({
   type: consts.InfoActionsTypes.RUNTIME_DISCONNECT,
+});
+
+export const masterStatus: InfoActions['masterStatus'] = () => ({
+  type: consts.InfoActionsTypes.MASTER_ROBOT,
 });
 
 export const updateCodeStatus: InfoActions['updateCodeStatus'] = (studentCodeStatus: string) => ({

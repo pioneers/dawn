@@ -12,12 +12,12 @@ export interface RuntimeConnectAction {
   type: consts.InfoActionsTypes.RUNTIME_CONNECT;
 }
 
-export interface MasterStatusAction {
-  type: consts.InfoActionsTypes.MASTER_ROBOT;
-}
-
 export interface RuntimeDisconnectAction {
   type: consts.InfoActionsTypes.RUNTIME_DISCONNECT;
+}
+
+export interface MasterStatusAction {
+  type: consts.InfoActionsTypes.MASTER_ROBOT;
 }
 
 export interface UpdateCodeStatusAction {

@@ -29,6 +29,7 @@
     "lint-types-fix": "eslint renderer/types/**/*.ts --fix",
     "lint": "eslint '*/**/*.ts?(x)'",
     "lintfix": "eslint '*/**/*.ts?(x)' --fix",
+    "build-protos": "npx pbjs -t static-module protos/*.proto | npx pbts -o renderer/types/protos.d.ts -",
     "watch": "webpack --mode development --watch --progress",
     "test": "mocha --require babel-core/register --recursive renderer/**/test/*.test.js",
     "release": "node release.js",

@@ -14,6 +14,7 @@ import { logging, startLog } from '../utils/utils';
 const storage = remote.require('electron-json-storage');
 
 class AppComponent extends React.Component {
+  
   constructor(props) {
     super(props);
     this.state = {

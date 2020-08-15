@@ -5,21 +5,22 @@
  */
 
 import _ from 'lodash';
+import { BrowserWindow } from "electron";
 
-const RendererBridge = {
-  registeredWindow: null,
+class RendererBridge {
+  registeredWindow: BrowserWindow = null;
 
-  registerWindow(electronWindow) {
+  registerWindow(electronWindow: BrowserWindow) {
     this.registeredWindow = electronWindow;
-  },
+  }
 
-  reduxDispatch(action) {
+  reduxDispatch(action: any) {
     if (this.registeredWindow) {
       this.registeredWindow.webContents.send('dispatch', action);
     }
-  },
+  }
 };
 
-_.bindAll(RendererBridge, ['registerWindow', 'reduxDispatch']);
+// _.bindAll(RendererBridge, ['registerWindow', 'reduxDispatch']);
 
-export default RendererBridge;
+export default new RendererBridge();

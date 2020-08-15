@@ -72,16 +72,16 @@ export const info = (state: InfoState = initialInfoState, action: Actions) => {
         ...state,
         runtimeStatus: true,
       };
-    case consts.InfoActionsTypes.MASTER_ROBOT:
-      return {
-        ...state,
-        masterStatus: true,
-      };
     case consts.InfoActionsTypes.RUNTIME_DISCONNECT:
       return {
         ...state,
         runtimeStatus: false,
         studentCodeStatus: robotState.IDLE,
+      };
+    case consts.InfoActionsTypes.MASTER_ROBOT:
+      return {
+        ...state,
+        masterStatus: true,
       };
     case consts.InfoActionsTypes.CODE_STATUS:
       ipcRenderer.send('studentCodeStatus', { studentCodeStatus: action.studentCodeStatus });
