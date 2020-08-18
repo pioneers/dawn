@@ -56,7 +56,7 @@ class ConfigBoxComponent extends React.Component<Props, State> {
     };
   }
 
-  const componentDidMount = () => {
+  componentDidMount() {
     storage.get('ipAddress', (err: any, ipAddress: string) => {
       if (err) {
         logging.log(err);
