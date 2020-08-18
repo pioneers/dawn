@@ -1,14 +1,13 @@
 import React from 'react';
 import { Modal, Button, FormGroup, Form, FormControl, ControlLabel } from 'react-bootstrap';
-import { remote, ipcRenderer } from 'electron';
+import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import _ from 'lodash';
 import { getValidationState, logging } from '../utils/utils';
 import { updateFieldControl } from '../actions/FieldActions';
 import { ipChange } from '../actions/InfoActions';
-
-const storage = remote.require('electron-json-storage');
+import storage from 'electron-json-storage';
 
 interface Config {
   stationNumber: number;
@@ -57,10 +56,13 @@ class ConfigBoxComponent extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    storage.get('ipAddress', (err: any, ipAddress: string) => {
+    /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types */
+    storage.get('ipAddress', (err: any, data: object) => {
       if (err) {
         logging.log(err);
-      } else if (!_.isEmpty(ipAddress)) {
+      } else if (!_.isEmpty(data)) {
+        const ipAddress = (data as { ipAddress: string }).ipAddress;
+
         this.props.onIPChange(ipAddress);
         this.setState({
           ipAddress: ipAddress,
@@ -69,11 +71,11 @@ class ConfigBoxComponent extends React.Component<Props, State> {
       }
     });
 
-    storage.get('fieldControl', (err: any, config: Config) => {
+    storage.get('fieldControl', (err: any, data: object) => {
       if (err) {
         logging.log(err);
-      } else if (!_.isEmpty(config)) {
-        const { bridgeAddress, stationNumber } = config;
+      } else if (!_.isEmpty(data)) {
+        const { bridgeAddress, stationNumber } = data as Config;
 
         this.setState({
           fcAddress: bridgeAddress,
@@ -92,7 +94,7 @@ class ConfigBoxComponent extends React.Component<Props, State> {
 
     this.props.onIPChange(ipAddress);
     this.setState({ originalIPAddress: ipAddress });
-    storage.set('ipAddress', this.state.ipAddress, (err: any) => {
+    storage.set('ipAddress', { ipAddress: this.state.ipAddress }, (err: any) => {
       if (err) logging.log(err);
     });
 
