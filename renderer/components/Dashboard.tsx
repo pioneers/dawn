@@ -1,11 +1,16 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Grid, Row, Col } from 'react-bootstrap';
 import PeripheralList from './PeripheralList';
 import GamepadList from './GamepadList';
 import EditorContainer from './EditorContainer';
 
-const Dashboard = props => (
+interface StateProps {
+  connectionStatus: boolean;
+  runtimeStatus: boolean;
+  isRunningCode: boolean;
+}
+
+export const Dashboard = (props: StateProps) => (
   <Grid fluid>
     <Row>
       <Col smPush={8} sm={4}>
@@ -24,11 +29,3 @@ const Dashboard = props => (
     </Row>
   </Grid>
 );
-
-Dashboard.propTypes = {
-  connectionStatus: PropTypes.bool.isRequired,
-  runtimeStatus: PropTypes.bool.isRequired,
-  isRunningCode: PropTypes.bool.isRequired,
-};
-
-export default Dashboard;
