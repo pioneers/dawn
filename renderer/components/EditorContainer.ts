@@ -11,7 +11,7 @@ import {
 } from '../actions/EditorActions';
 import {
   changeTheme,
-  changeFontsize,
+  changeFontSize,
 } from '../actions/SettingsActions';
 import {
   toggleConsole,
@@ -60,7 +60,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     dispatch(changeTheme(theme));
   },
   onChangeFontsize: (newFontsize: number) => {
-    dispatch(changeFontsize(newFontsize));
+    dispatch(changeFontSize(newFontsize));
   },
   toggleConsole: () => {
     dispatch(toggleConsole());
