@@ -2,7 +2,7 @@ import React from 'react';
 import { Grid, Row, Col } from 'react-bootstrap';
 import PeripheralList from './PeripheralList';
 import GamepadList from './GamepadList';
-import EditorContainer from './EditorContainer';
+import { EditorContainer } from './EditorContainer';
 
 interface StateProps {
   connectionStatus: boolean;

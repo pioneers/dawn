@@ -4,7 +4,7 @@ import { Navbar, ButtonToolbar, ButtonGroup, Label } from 'react-bootstrap';
 import { ConfigBox } from './ConfigBox';
 import UpdateBox from './UpdateBox';
 import StatusLabel from './StatusLabel';
-import TooltipButton from './TooltipButton';
+import { TooltipButton } from './TooltipButton';
 import { VERSION } from '../consts';
 import { runtimeState } from '../utils/utils';
 
