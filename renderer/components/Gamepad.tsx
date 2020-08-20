@@ -8,8 +8,13 @@ import {
 import _ from 'lodash';
 import numeral from 'numeral';
 
+export interface GamepadObject{
+  axes: Array<String | number> | object;
+  buttons: Array<String | number> | object;
+}
+
 interface OwnProps {
-  gamepad: {axes: number | string, buttons: number | string};
+  gamepad: GamepadObject;
   index: number;
 }
 
