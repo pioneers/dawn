@@ -2,14 +2,12 @@ import { createSocket, Socket as UDPSocket } from 'dgram';
 import { createServer, Socket as TCPSocket, Server } from 'net';
 import { ipcMain } from 'electron';
 import * as protos from '../../protos/protos';
-import _ from 'lodash';
 
 import RendererBridge from '../RendererBridge';
 import { updateConsole } from '../../renderer/actions/ConsoleActions';
 import { runtimeDisconnect, infoPerMessage } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { Logger, defaults } from '../../renderer/utils/utils';
-import { Message } from 'protobufjs';
 
 /**
  * Define port constants.
@@ -54,7 +52,7 @@ function readPacket(data: any): TCPPacket {
  * payload to send to Runtime.
  */
 function createPacket(payload: any, messageType: MsgType): Buffer {
-  let encodedPayload: Uint8Array;
+  let encodedPayload: any;
   switch (messageType) {
     case MsgType.DEVICE_DATA:
       encodedPayload = protos.DevData.encode(payload).finish();
@@ -67,6 +65,9 @@ function createPacket(payload: any, messageType: MsgType): Buffer {
       break;
     case MsgType.CHALLENGE_DATA:
       encodedPayload = protos.Text.encode(payload).finish();
+      break;
+    default:
+      encodedPayload = null;
       break;
   }
   const msgLength = Buffer.byteLength(encodedPayload);
@@ -180,7 +181,7 @@ class SendSocket {
    * Sends messages when Gamepad information changes
    * or when 100 ms has passed (with 50 ms cooldown)
    */
-  sendGamepadMessages(event, data: protos.IGpState[]) {
+  sendGamepadMessages(event: any, data: protos.IGpState[]) {
     const message = protos.GpState.encode(data[0]).finish();
     this.logger.debug(`Dawn sent UDP to ${this.runtimeIP}`);
     this.socket.send(message, SEND_PORT, this.runtimeIP);
@@ -190,7 +191,7 @@ class SendSocket {
    * IPC Connection with ConfigBox.ts' saveChanges()
    * Receives new IP Address to send messages to.
    */
-  ipAddressListener(event, { ipAddress }) {
+  ipAddressListener(event: any, ipAddress: string) {
     this.runtimeIP = ipAddress;
   }
 
@@ -251,7 +252,7 @@ class TCPConn {
    * IPC Connection with sagas.js' exportRunMode()
    * Receives new run mode to send to Runtime
    */
-  sendRunMode(event, data) {
+  sendRunMode(event: any, data: any) {
     const mode = data.studentCodeStatus;
     const message = createPacket(mode, MsgType.RUN_MODE);
     this.socket.write(message, () => {
@@ -259,7 +260,7 @@ class TCPConn {
     });
   }
 
-  sendDevicePreferences(event, data) {
+  sendDevicePreferences(event: any, data: any) {
     // TODO: Get device preference filter from UI components, then sagas
     const message = createPacket(data, MsgType.DEVICE_DATA);
     this.socket.write(message, () => {
@@ -267,7 +268,7 @@ class TCPConn {
     });
   }
 
-  sendChallengeInputs(event, data) {
+  sendChallengeInputs(event: any, data: any) {
     // TODO: Get challenge inputs from UI components, then sagas
     const message = createPacket(data, MsgType.CHALLENGE_DATA);
     this.socket.write(message, () => {
@@ -275,7 +276,7 @@ class TCPConn {
     });
   }
 
-  sendRobotStartPos(event, data) {
+  sendRobotStartPos(event: any, data: any) {
     // TODO: Get start pos from sagas
     const message = createPacket(data, MsgType.START_POS);
     this.socket.write(message, () => {
@@ -294,8 +295,7 @@ class TCPServer {
   tcp: Server;
   conn: TCPConn;
 
-  constructor(logger) {
-    this.conn = null;
+  constructor(logger: Logger) {
     this.close = this.close.bind(this);
     this.tcp = createServer((socket) => {
       this.conn = new TCPConn(socket, logger);
@@ -321,8 +321,10 @@ class TCPServer {
   }
 }
 
+const ConnsInit: (ListenSocket|SendSocket|TCPServer)[] = [];
+
 const Runtime = {
-  conns: [],
+  conns: ConnsInit,
   logger: new Logger('runtime', 'Runtime Debug'),
   setup() {
     this.conns = [

@@ -4,7 +4,7 @@ import { IDevice } from '../../../protos/protos';
 
 export interface UpdatePeripheralsAction {
   type: consts.PeripheralActionsTypes.UPDATE_PERIPHERALS;
-  peripherals: IDevice[];
+  peripherals: Peripheral[];
 }
 
 export interface PeripheralRenameAction {
@@ -14,7 +14,7 @@ export interface PeripheralRenameAction {
 }
 
 export interface PeripheralActions {
-  updatePeripherals: (sensors: IDevice[]) => UpdatePeripheralsAction;
+  updatePeripherals: (sensors: Peripheral[]) => UpdatePeripheralsAction;
 
   peripheralRename: (uid: number, newName: string) => PeripheralRenameAction;
 }
