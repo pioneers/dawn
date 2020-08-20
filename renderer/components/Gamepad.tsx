@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {
   Modal,
   Button,
@@ -9,30 +8,39 @@ import {
 import _ from 'lodash';
 import numeral from 'numeral';
 
-class Gamepad extends React.Component {
-  constructor(props) {
+interface OwnProps {
+  gamepad: {axes: number | string, buttons: number | string};
+  index: number;
+}
+
+type Props = OwnProps;
+
+interface State {
+  showModal: boolean;
+}
+
+export class Gamepad extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
     this.state = { showModal: false };
-    this.openModal = this.openModal.bind(this);
-    this.closeModal = this.closeModal.bind(this);
   }
 
-  closeModal() {
+  closeModal = () => {
     this.setState({ showModal: false });
   }
 
-  openModal() {
+  openModal = () => {
     this.setState({ showModal: true });
   }
 
-  roundedValues() {
+  roundedValues = () => {
     return {
-      axes: _.map(this.props.gamepad.axes, axis => numeral(axis).format('0.00000')),
-      buttons: _.map(this.props.gamepad.buttons, button => numeral(button).format('0')),
+      axes: _.map(this.props.gamepad.axes, (axis: string | number) => numeral(axis).format('0.00000')),
+      buttons: _.map(this.props.gamepad.buttons, (button: string | number) => numeral(button).format('0')),
     };
   }
 
-  renderHeader() {
+  renderHeader = () => {
     return (
       <div>
         <h4 style={{ display: 'inline' }}> Gamepad {this.props.index} </h4>
@@ -41,7 +49,11 @@ class Gamepad extends React.Component {
   }
 
   render() {
-    if (!this.props.gamepad) {
+
+    const { gamepad } = this.props;
+    const { showModal } = this.state;
+
+    if (!gamepad) {
       return (<div />);
     }
     const values = this.roundedValues();
@@ -53,7 +65,7 @@ class Gamepad extends React.Component {
             Details
           </Button>
         </div>
-        <Modal show={this.state.showModal} onHide={this.closeModal}>
+        <Modal show={showModal} onHide={this.closeModal}>
           <Modal.Header closeButton>
             <Modal.Title>{this.renderHeader()}</Modal.Title>
           </Modal.Header>
@@ -126,11 +138,4 @@ class Gamepad extends React.Component {
       </ListGroupItem>
     );
   }
-}
-
-Gamepad.propTypes = {
-  gamepad: PropTypes.object.isRequired,
-  index: PropTypes.number.isRequired,
 };
-
-export default Gamepad;
