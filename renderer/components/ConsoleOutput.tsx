@@ -14,7 +14,7 @@ interface OwnProps {
 
 type Props = StateProps & OwnProps;
 
-export class ConsoleOutput extends React.Component<Props, any> {
+export class ConsoleOutput extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
   }
