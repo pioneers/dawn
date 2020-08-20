@@ -1,30 +1,50 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {
   Modal,
   Button,
 } from 'react-bootstrap';
 import { remote } from 'electron';
 import { connect } from 'react-redux';
+import { Dispatch } from 'redux';
 import { addAsyncAlert } from '../actions/AlertActions';
 import { pathToName, defaults, logging } from '../utils/utils';
 
 const { dialog } = remote;
 const { Client } = require('ssh2');
 
-class UpdateBox extends React.Component {
-  constructor(props) {
+interface StateProps {
+  connectionStatus: boolean;
+  runtimeStatus: boolean;
+  isRunningCode: boolean;
+  ipAddress: string;
+}
+
+interface DispatchProps {
+  onAlertAdd: (heading: string, message: string) => void;
+}
+
+interface OwnProps {
+  shouldShow: boolean;
+  hide: () => void;
+}
+
+type Props = StateProps & DispatchProps & OwnProps;
+
+interface State {
+  isUploading: boolean;
+  updateFilepath: string;
+}
+
+class UpdateBox extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
     this.state = {
       isUploading: false,
       updateFilepath: '',
     };
-    this.chooseUpdate = this.chooseUpdate.bind(this);
-    this.upgradeSoftware = this.upgradeSoftware.bind(this);
-    this.disableUploadUpdate = this.disableUploadUpdate.bind(this);
   }
 
-  chooseUpdate() {
+  chooseUpdate = () => {
     dialog.showOpenDialog({
       filters: [{ name: 'Update Package', extensions: ['gz', 'tar.gz'] }],
     }, (filepaths) => {
@@ -33,19 +53,19 @@ class UpdateBox extends React.Component {
     });
   }
 
-  upgradeSoftware() {
+  upgradeSoftware = () => {
     this.setState({ isUploading: true });
     const update = pathToName(this.state.updateFilepath);
     const conn = new Client();
     conn.on('ready', () => {
-      conn.sftp((err, sftp) => {
+      conn.sftp((err: any, sftp: any) => {
         if (err) {
           logging.log(err);
         } else {
           logging.log('SSH Connection');
           sftp.fastPut(
             this.state.updateFilepath,
-            `./updates/${update}`, (err2) => {
+            `./updates/${update}`, (err2: any) => {
               conn.end();
               this.setState({ isUploading: false });
               this.props.hide();
@@ -68,7 +88,7 @@ class UpdateBox extends React.Component {
         }
       });
     }).connect({
-      debug: (inpt) => { logging.log(inpt); },
+      debug: (inpt: any) => { logging.log(inpt); },
       host: this.props.ipAddress,
       port: defaults.PORT,
       username: defaults.USERNAME,
@@ -76,7 +96,7 @@ class UpdateBox extends React.Component {
     });
   }
 
-  disableUploadUpdate() {
+  disableUploadUpdate = () => {
     return (
       !(this.state.updateFilepath) ||
       this.state.isUploading ||
@@ -86,8 +106,11 @@ class UpdateBox extends React.Component {
   }
 
   render() {
+    const { shouldShow, hide } = this.props;
+    const { isUploading, updateFilepath } = this.state;
+
     let modalBody = null;
-    if (this.state.isUploading) {
+    if (isUploading) {
       modalBody = (
         <Modal.Body>
           <h4>PLEASE DO NOT TURN OFF ROBOT</h4>
@@ -98,14 +121,14 @@ class UpdateBox extends React.Component {
       modalBody = (
         <Modal.Body>
           <h4>Update Package (tar.gz file)</h4>
-          <h5>{this.state.updateFilepath ? this.state.updateFilepath : ''}</h5>
+          <h5>{updateFilepath ? updateFilepath : ''}</h5>
           <Button type="button" onClick={this.chooseUpdate}>Choose File</Button>
           <br />
         </Modal.Body>
       );
     }
     return (
-      <Modal show={this.props.shouldShow} onHide={this.props.hide}>
+      <Modal show={shouldShow} onHide={hide}>
         <Modal.Header closeButton>
           <Modal.Title>Upload Update</Modal.Title>
         </Modal.Header>
@@ -117,7 +140,7 @@ class UpdateBox extends React.Component {
             onClick={this.upgradeSoftware}
             disabled={this.disableUploadUpdate()}
           >
-            {this.state.isUploading ? 'Uploading...' : 'Upload Files'}
+            {isUploading ? 'Uploading...' : 'Upload Files'}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -125,22 +148,10 @@ class UpdateBox extends React.Component {
   }
 }
 
-UpdateBox.propTypes = {
-  shouldShow: PropTypes.bool.isRequired,
-  hide: PropTypes.func.isRequired,
-  connectionStatus: PropTypes.bool.isRequired,
-  runtimeStatus: PropTypes.bool.isRequired,
-  isRunningCode: PropTypes.bool.isRequired,
-  ipAddress: PropTypes.string.isRequired,
-  onAlertAdd: PropTypes.func.isRequired,
-};
-
-const mapDispatchToProps = dispatch => ({
-  onAlertAdd: (heading, message) => {
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  onAlertAdd: (heading: string, message: string) => {
     dispatch(addAsyncAlert(heading, message));
   },
 });
 
-const UpdateBoxContainer = connect(null, mapDispatchToProps)(UpdateBox);
-
-export default UpdateBoxContainer;
+export const UpdateBoxContainer = connect(null, mapDispatchToProps)(UpdateBox);
