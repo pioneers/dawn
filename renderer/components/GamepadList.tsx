@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { Gamepad, GamepadObject } from './Gamepad';
 
 interface StateProps {
-  gamepads: object;
+  gamepads: GamepadObject[];
 }
 
 type Props = StateProps;
