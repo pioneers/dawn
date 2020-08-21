@@ -21,6 +21,9 @@ const initialPeripheralState: PeripheralState = {
   runtimeVersion: '0.0.0',
 };
 
+// Taken from runtime_util.c in Runtime repo
+const IS_UNSAFE: number = 0;
+const V_BATT: number = 5;
 
 // TODO: Handle runtimeVersion since no longer sent
 export const peripherals = (state: PeripheralState = initialPeripheralState, action: Actions) => {
@@ -32,15 +35,15 @@ export const peripherals = (state: PeripheralState = initialPeripheralState, act
       action.peripherals.forEach((peripheral: Device) => {
         if (peripheral.name === consts.PeripheralTypes.BatteryBuzzer) {
           const batteryParams = peripheral.params;
-          if (batteryParams['is_unsafe'] !== undefined) {
-            nextState.batterySafety = batteryParams['is_unsafe'];
+          if (batteryParams[IS_UNSAFE] && batteryParams[IS_UNSAFE].bval) {
+            nextState.batterySafety = batteryParams[IS_UNSAFE].bval!;
           }
-          if (batteryParams['v_batt'] !== undefined) {
-            nextState.batteryLevel = batteryParams['v_batt'];
+          if (batteryParams[V_BATT] && batteryParams[V_BATT].fval) {
+            nextState.batteryLevel = batteryParams[V_BATT].fval!;
           }
-        } else if (peripheral.uid === -1) {
-          const version = peripheral.params;
-          nextState.runtimeVersion = `${version['major']}.${version['minor']}.${version['patch']}`;
+        // } else if (peripheral.uid === -1) {
+        //   const version = peripheral.params;
+        //   nextState.runtimeVersion = `${version['major']}.${version['minor']}.${version['patch']}`;
         } else {
           const key: string = peripheral.uid.toString();
           keys.push(key);
