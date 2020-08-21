@@ -1,8 +1,9 @@
+import { app, remote } from 'electron';
 import fs from 'fs';
 
 export const TIMEOUT = 5000;
 
-export const pathToName = (filepath) => {
+export const pathToName = (filepath: string) => {
   if (filepath !== null && filepath !== '') {
     if (process.platform === 'win32') {
       return filepath.split('\\').pop();
@@ -13,7 +14,7 @@ export const pathToName = (filepath) => {
 };
 
 const IPV4_REGEX = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}$/;
-export const getValidationState = (testIPAddress) => {
+export const getValidationState = (testIPAddress: string) => {
   if (IPV4_REGEX.test(testIPAddress)) {
     return 'success';
   }
@@ -81,12 +82,14 @@ export const windowInfo = {
 };
 
 export class Logger {
-  constructor(processname, firstline) {
+  log_file: fs.WriteStream;
+  lastStr: string;
+
+  constructor(processname: string, firstline: string) {
     let path;
     if (processname === 'dawn') {
-      path = require('electron').remote.app.getPath('desktop'); // eslint-disable-line global-require
+      path = remote.app.getPath('desktop');
     } else {
-      const { app } = require('electron'); // eslint-disable-line global-require
       path = app.getPath('desktop');
     }
     try {
@@ -97,18 +100,17 @@ export class Logger {
     this.log_file = fs.createWriteStream(`${path}/Dawn/${processname}.log`, { flags: 'a' });
     this.log_file.write(`\n${firstline}`);
     this.lastStr = '';
-    this._write = this._write.bind(this);
   }
 
-  log(output) {
+  log = (output: string) => {
     console.log(output);
     this._write(output, `\n[${(new Date()).toString()}]`);
   }
-  debug(output) {
+  debug = (output: string) => {
     this._write(output, `\n[${(new Date()).toString()} DEBUG]`);
   }
 
-  _write(output, prefix) {
+  _write = (output: string, prefix: string) => {
     output = String(output);
     if (output !== this.lastStr) {
       this.log_file.write(`${prefix} ${output}`);
@@ -119,7 +121,7 @@ export class Logger {
   }
 }
 
-export let logging; // eslint-disable-line import/no-mutable-exports
+export let logging: Logger; // eslint-disable-line import/no-mutable-exports
 
 export const startLog = () => {
   logging = new Logger('dawn', 'Renderer Debug');

@@ -15,7 +15,7 @@ import { toggleFieldControl } from '../actions/FieldActions';
 import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
 import { TIMEOUT, defaults, logging } from '../utils/utils';
-import { IGpState } from '../../protos/protos';
+import { GpState } from '../../protos/protos';
 
 
 const { Client } = require('ssh2');
@@ -77,7 +77,7 @@ function saveFileDialog() {
  *
  * @return {Promise} - fulfilled with button index.
  */
-function unsavedDialog(action) {
+function unsavedDialog(action: string) {
   return new Promise((resolve, reject) => {
     remote.dialog.showMessageBox({
       type: 'warning',
@@ -100,7 +100,7 @@ your current one. What do you want to do?`,
  * Simple helper function to write to a codefile and dispatch action
  * notifying store of the save.
  */
-function* writeFile(filepath, code) {
+function* writeFile(filepath: string, code: string) {
   yield cps(fs.writeFile, filepath, code);
   yield put(saveFileSucceeded(code, filepath));
 }
@@ -193,7 +193,7 @@ function* dragFile(action) {
  * This saga acts as a "heartbeat" to check whether we are still receiving
  * updates from Runtime.
  *
- * NOTE that this is different from whether or not the Ansible connection
+ * NOTE that this is different from whether or not the Runtime connection
  * is still alive.
  */
 function* runtimeHeartbeat() {
@@ -229,25 +229,25 @@ function _needToUpdate(newGamepads: Gamepad[]): boolean {
   });
 }
 
-function formatGamepads(newGamepads: Gamepad[]): IGpState[] {
-  let formattedGamepads: IGpState[];
+function formatGamepads(newGamepads: Gamepad[]): GpState[] {
+  let formattedGamepads: GpState[];
   // Currently there is a bug on windows where navigator.getGamepads()
   // returns a second, 'ghost' gamepad even when only one is connected.
   // The filter on 'mapping' filters out the ghost gamepad.
   _.forEach(_.filter(newGamepads, { mapping: 'standard' }), (gamepad: Gamepad, indexGamepad: number) => {
     if (gamepad) {
-      formattedGamepads[indexGamepad] = {
+      formattedGamepads[indexGamepad] = new GpState({
         connected: gamepad.connected,
         axes: gamepad.axes.slice(),
         buttons: _.map(gamepad.buttons, 'value'),
-      };
+      });
     }
   });
   return formattedGamepads;
 }
 
 /**
- * Repeatedly grab gamepad data, send it over Ansible to the robot, and dispatch
+ * Repeatedly grab gamepad data, send it over Runtime to the robot, and dispatch
  * redux action to update gamepad state.
  */
 function* runtimeGamepads() {
@@ -259,7 +259,7 @@ function* runtimeGamepads() {
       const formattedGamepads = formatGamepads(newGamepads);
       yield put(updateGamepads(formattedGamepads));
 
-      // Send gamepad data to Runtime over Ansible.
+      // Send gamepad data to Runtime.
       if (_.some(newGamepads) || Date.now() - timestamp > 100) {
         timestamp = Date.now();
         yield put({ type: 'UPDATE_MAIN_PROCESS' });

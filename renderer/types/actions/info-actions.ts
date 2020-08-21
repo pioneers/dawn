@@ -4,10 +4,6 @@ export interface InfoPerMessageAction {
   type: consts.InfoActionsTypes.PER_MESSAGE;
 }
 
-export interface AnsibleDisconnectAction {
-  type: consts.InfoActionsTypes.ANSIBLE_DISCONNECT;
-}
-
 export interface RuntimeConnectAction {
   type: consts.InfoActionsTypes.RUNTIME_CONNECT;
 }
@@ -22,7 +18,7 @@ export interface MasterStatusAction {
 
 export interface UpdateCodeStatusAction {
   type: consts.InfoActionsTypes.CODE_STATUS;
-  studentCodeStatus: string;
+  studentCodeStatus: number;
 }
 
 export interface IpChangeAction {
@@ -38,15 +34,13 @@ export interface NotificationChangeAction {
 export interface InfoActions {
   infoPerMessage: () => InfoPerMessageAction;
 
-  ansibleDisconnect: () => AnsibleDisconnectAction;
-
   runtimeConnect: () => RuntimeConnectAction;
 
   masterStatus: () => MasterStatusAction;
 
   runtimeDisconnect: () => RuntimeDisconnectAction;
 
-  updateCodeStatus: (studentCodeStatus: string) => UpdateCodeStatusAction;
+  updateCodeStatus: (studentCodeStatus: number) => UpdateCodeStatusAction;
 
   ipChange: (ipAddress: string) => IpChangeAction;
 

@@ -1,9 +1,9 @@
 import * as consts from '../consts';
 import { UpdateGamepadsAction } from '../types';
-import { IGpState } from '../../protos/protos';
+import { GpState } from '../../protos/protos';
 
 interface GamePadsState {
-  gamepads?: IGpState[];
+  gamepads?: GpState[];
 }
 
 export const gamepads = (state: GamePadsState = {}, action: UpdateGamepadsAction) => {

@@ -1,11 +1,11 @@
 import * as consts from '../../consts';
-import { IGpState } from "../../../protos/protos";
+import { GpState } from "../../../protos/protos";
 
 export interface UpdateGamepadsAction {
   type: consts.GamepadsActionsTypes.UPDATE_GAMEPADS;
-  gamepads: IGpState[];
+  gamepads: GpState[];
 }
 
 export interface GamepadsActions {
-  updateGamepads: (gamepads: IGpState[]) => UpdateGamepadsAction;
+  updateGamepads: (gamepads: GpState[]) => UpdateGamepadsAction;
 }

@@ -10,7 +10,7 @@ import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { Logger, defaults } from '../../renderer/utils/utils';
 
 /**
- * Define port constants.
+ * Define port constants, which must match with Runtime
  */
 const LISTEN_PORT = 1235;
 const SEND_PORT = 9000;
@@ -75,24 +75,7 @@ function createPacket(payload: any, messageType: MsgType): Buffer {
   const msgTypeArr = new Uint8Array([messageType]);
   const msgLengthArr = new Uint8Array([msgLength & 0x00FF, msgLength & 0xFF00]); // Assuming little-endian byte order, since runs on x64
   const encodedPayloadArr = new Uint8Array(encodedPayload);
-  return Buffer.concat([msgTypeArr, msgLengthArr, encodedPayloadArr], msgLength);
-}
-
-/**
- * Takes uid Long object (uint64) and
- * converts to String.
- */
-function cleanUIDs(sensorData: any) {
-  for (const index in sensorData) {
-    if (sensorData[index]) {
-      const uintLow = sensorData[index].uid.low;
-      if (uintLow) {
-        sensorData[index].uid = String(uintLow);
-      } else {
-        sensorData[index].uid = String(-1);
-      }
-    }
-  }
+  return Buffer.concat([msgTypeArr, msgLengthArr, encodedPayloadArr], msgLength + 3);
 }
 
 class ListenSocket {
@@ -113,11 +96,10 @@ class ListenSocket {
      * cleans UIDs from uint64, and sends to sensor
      * array to reducer.
      */
-    this.socket.on('message', (msg) => {
+    this.socket.on('message', (msg: Uint8Array) => {
       try {
         RendererBridge.reduxDispatch(infoPerMessage());
         const sensorData: any = protos.DevData.decode(msg).devices;
-        cleanUIDs(sensorData);
         this.logger.debug('Dawn received UDP sensor data');
         RendererBridge.reduxDispatch(updatePeripherals(sensorData));
       } catch (err) {
@@ -126,7 +108,7 @@ class ListenSocket {
       }
     });
 
-    this.socket.on('error', (err: Error) => {
+    this.socket.on('error', (err: string) => {
       this.logger.log('UDP listening error');
       this.logger.debug(err);
     });
@@ -160,7 +142,7 @@ class SendSocket {
     this.ipAddressListener = this.ipAddressListener.bind(this);
     this.close = this.close.bind(this);
 
-    this.socket.on('error', (err: Error) => {
+    this.socket.on('error', (err: string) => {
       this.logger.log('UDP sending error');
       this.logger.log(err);
     });
@@ -181,7 +163,7 @@ class SendSocket {
    * Sends messages when Gamepad information changes
    * or when 100 ms has passed (with 50 ms cooldown)
    */
-  sendGamepadMessages(event: any, data: protos.IGpState[]) {
+  sendGamepadMessages(event: any, data: protos.GpState[]) {
     const message = protos.GpState.encode(data[0]).finish();
     this.logger.debug(`Dawn sent UDP to ${this.runtimeIP}`);
     this.socket.send(message, SEND_PORT, this.runtimeIP);
@@ -303,7 +285,7 @@ class TCPServer {
 
     this.logger = logger;
 
-    this.tcp.on('error', (err) => {
+    this.tcp.on('error', (err: string) => {
       this.logger.log('TCP error');
       this.logger.log(err);
     });

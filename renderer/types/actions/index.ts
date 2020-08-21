@@ -29,7 +29,6 @@ export {
 export {
   InfoActions,
   InfoPerMessageAction,
-  AnsibleDisconnectAction,
   RuntimeConnectAction,
   MasterStatusAction,
   RuntimeDisconnectAction,

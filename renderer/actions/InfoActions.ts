@@ -5,10 +5,6 @@ export const infoPerMessage: InfoActions['infoPerMessage'] = () => ({
   type: consts.InfoActionsTypes.PER_MESSAGE,
 });
 
-export const ansibleDisconnect: InfoActions['ansibleDisconnect'] = () => ({
-  type: consts.InfoActionsTypes.ANSIBLE_DISCONNECT,
-});
-
 export const runtimeConnect: InfoActions['runtimeConnect'] = () => ({
   type: consts.InfoActionsTypes.RUNTIME_CONNECT,
 });
@@ -21,7 +17,7 @@ export const masterStatus: InfoActions['masterStatus'] = () => ({
   type: consts.InfoActionsTypes.MASTER_ROBOT,
 });
 
-export const updateCodeStatus: InfoActions['updateCodeStatus'] = (studentCodeStatus: string) => ({
+export const updateCodeStatus: InfoActions['updateCodeStatus'] = (studentCodeStatus: number) => ({
   type: consts.InfoActionsTypes.CODE_STATUS,
   studentCodeStatus,
 });

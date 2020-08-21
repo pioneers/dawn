@@ -1,10 +1,18 @@
 import * as consts from '../consts';
 import { UpdatePeripheralsAction, PeripheralRenameAction } from '../types';
-import { PeripheralState, Peripheral, Param } from '../types/peripheral';
+import { Device } from "../../protos/protos";
 
 type Actions = UpdatePeripheralsAction | PeripheralRenameAction;
+type PeripheralList = Array<{ [uid: string]: Device[] }>;
 
-const initialPeripheralList: Peripheral[] = []
+const initialPeripheralList: PeripheralList = []
+
+interface PeripheralState {
+  peripheralList: PeripheralList;
+  batterySafety: boolean;
+  batteryLevel: number;
+  runtimeVersion: string;
+}
 
 const initialPeripheralState: PeripheralState = {
   peripheralList: initialPeripheralList,
@@ -13,52 +21,45 @@ const initialPeripheralState: PeripheralState = {
   runtimeVersion: '0.0.0',
 };
 
-function getParams(peripheral: Peripheral): Omit<Param, 'val'> {
-  const res: Omit<Param, 'val'> = { name: ''};
-  peripheral.params.forEach((obj: Param) => {
-    // eslint-disable-next-line prefer-destructuring
-    res[obj.name] = Object.values(obj)[0];
-  });
-  return res;
-}
 
 // TODO: Handle runtimeVersion since no longer sent
 export const peripherals = (state: PeripheralState = initialPeripheralState, action: Actions) => {
   const nextState = Object.assign({}, state);
-  const nextPeripherals: {[uid: number]: Peripheral} = nextState.peripheralList;
+  const nextPeripherals = nextState.peripheralList;
   switch (action.type) {
     case consts.PeripheralActionsTypes.UPDATE_PERIPHERALS: {
       const keys: string[] = [];
-      action.peripherals.forEach((peripheral) => {
+      action.peripherals.forEach((peripheral: Device) => {
         if (peripheral.name === consts.PeripheralTypes.BatteryBuzzer) {
-          const batteryParams: Omit<Param, 'val'> = getParams(peripheral);
+          const batteryParams = peripheral.params;
           if (batteryParams['is_unsafe'] !== undefined) {
             nextState.batterySafety = batteryParams['is_unsafe'];
           }
           if (batteryParams['v_batt'] !== undefined) {
             nextState.batteryLevel = batteryParams['v_batt'];
           }
-        } else if (peripheral.uid === '-1') {
-          const version: Omit<Param, 'val'> = getParams(peripheral);
+        } else if (peripheral.uid === -1) {
+          const version = peripheral.params;
           nextState.runtimeVersion = `${version['major']}.${version['minor']}.${version['patch']}`;
         } else {
-          keys.push(peripheral.uid);
-          if (peripheral.uid in nextPeripherals) {
-            peripheral.name = nextPeripherals[peripheral.uid].name;
+          const key: string = peripheral.uid.toString();
+          keys.push(key);
+          if (key in nextPeripherals) {
+            peripheral.name = nextPeripherals[key].name;
           }
-          nextPeripherals[peripheral.uid] = peripheral;
+          nextPeripherals[key] = peripheral;
         }
       });
-      Object.keys(nextPeripherals).forEach((el: string) => {
-        if (keys.indexOf(el) === -1) {
-          delete nextPeripherals[el];
+      Object.keys(nextPeripherals).forEach((uid: string) => {
+        if (keys.indexOf(uid) === -1) {
+          delete nextPeripherals[uid]; // Delete old devices
         }
       });
       return nextState;
     }
     // Note: This is not being used since NameEdit is still broken
     case consts.PeripheralActionsTypes.PERIPHERAL_RENAME: {
-      nextPeripherals[action.id].name = action.name;
+      // nextPeripherals[action.id].name = action.name;
       return nextState;
     }
     default: {

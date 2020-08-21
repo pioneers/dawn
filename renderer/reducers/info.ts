@@ -3,7 +3,6 @@ import { robotState, runtimeState, defaults } from '../utils/utils';
 import * as consts from '../consts';
 import {
   InfoPerMessageAction,
-  AnsibleDisconnectAction,
   RuntimeConnectAction,
   MasterStatusAction,
   RuntimeDisconnectAction,
@@ -15,7 +14,6 @@ import {
 
 type Actions =
   | InfoPerMessageAction
-  | AnsibleDisconnectAction
   | RuntimeConnectAction
   | MasterStatusAction
   | RuntimeDisconnectAction
@@ -57,11 +55,6 @@ export const info = (state: InfoState = initialInfoState, action: Actions) => {
         ...state,
         connectionStatus: true,
       };
-    case consts.InfoActionsTypes.ANSIBLE_DISCONNECT:
-      return {
-        ...state,
-        connectionStatus: false,
-      };
     case consts.InfoActionsTypes.NOTIFICATION_CHANGE:
       return {
         ...state,
@@ -76,6 +69,7 @@ export const info = (state: InfoState = initialInfoState, action: Actions) => {
       return {
         ...state,
         runtimeStatus: false,
+        connectionStatus: false,
         studentCodeStatus: robotState.IDLE,
       };
     case consts.InfoActionsTypes.MASTER_ROBOT:
@@ -84,13 +78,13 @@ export const info = (state: InfoState = initialInfoState, action: Actions) => {
         masterStatus: true,
       };
     case consts.InfoActionsTypes.CODE_STATUS:
-      ipcRenderer.send('studentCodeStatus', { studentCodeStatus: action.studentCodeStatus });
+      ipcRenderer.send('studentCodeStatus', action.studentCodeStatus);
       return {
         ...state,
         studentCodeStatus: action.studentCodeStatus,
       };
     case consts.InfoActionsTypes.IP_CHANGE:
-      ipcRenderer.send('ipAddress', { ipAddress: action.ipAddress });
+      ipcRenderer.send('ipAddress', action.ipAddress);
       return {
         ...state,
         ipAddress: action.ipAddress,
