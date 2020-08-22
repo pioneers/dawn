@@ -18,7 +18,7 @@ const initialPeripheralState: PeripheralState = {
   peripheralList: initialPeripheralList,
   batterySafety: false,
   batteryLevel: 0,
-  runtimeVersion: '0.0.0',
+  runtimeVersion: '1.0.0',
 };
 
 // Taken from runtime_util.c in Runtime repo
@@ -41,14 +41,14 @@ export const peripherals = (state: PeripheralState = initialPeripheralState, act
           if (batteryParams[V_BATT] && batteryParams[V_BATT].fval) {
             nextState.batteryLevel = batteryParams[V_BATT].fval!;
           }
-        // } else if (peripheral.uid === -1) {
-        //   const version = peripheral.params;
-        //   nextState.runtimeVersion = `${version['major']}.${version['minor']}.${version['patch']}`;
+        } else if (peripheral.uid === -1) {
+          // const version = peripheral.params;
+          // nextState.runtimeVersion = `${version['major']}.${version['minor']}.${version['patch']}`;
         } else {
           const key: string = peripheral.uid.toString();
           keys.push(key);
           if (key in nextPeripherals) {
-            peripheral.name = nextPeripherals[key].name;
+            peripheral.name = nextPeripherals[key].name; // ensures that the device keeps the name, if it was a custom name
           }
           nextPeripherals[key] = peripheral;
         }
