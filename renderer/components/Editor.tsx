@@ -1,5 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import PropTypes, { number } from 'prop-types';
 import {
   Panel,
   ButtonGroup,
@@ -34,14 +34,56 @@ import 'brace/theme/solarized_dark';
 import 'brace/theme/solarized_light';
 import 'brace/theme/terminal';
 
-import ConsoleOutput from './ConsoleOutput';
-import TooltipButton from './TooltipButton';
+import { ConsoleOutput } from './ConsoleOutput';
+import { TooltipButton } from './TooltipButton';
 import { pathToName, robotState, timings, logging, windowInfo } from '../utils/utils';
 
 const { dialog } = remote;
 const currentWindow = remote.getCurrentWindow();
 
-class Editor extends React.Component {
+interface StateProps {
+  editorTheme: string;
+  editorCode: string;  
+  latestSaveCode: string;
+  filepath: string;
+  fontSize: number;
+  showConsole: boolean;
+  consoleData: string[];
+  isRunningCode: boolean;
+  runtimeStatus: boolean;
+  fieldControlActivity: boolean;
+  disableScroll: boolean;
+  consoleUnread: boolean;
+}
+
+interface OwnProps {
+  onAlertAdd: (heading: string, message: string) => void;
+  onEditorUpdate: (newVal: string) => void;
+  onSaveFile: (saveAs?: boolean) => void;
+  onDragFile: (filepath: string) => void; 
+  onOpenFile: () => void; 
+  onCreateNewFile: () => void;
+  onChangeTheme: (theme: string) => void;
+  onChangeFontsize: (newFontsize: number) => void; 
+  toggleConsole: () => void;
+  onClearConsole: () => void;
+  onUpdateCodeStatus: (status: string) => void;
+  onDownloadCode: () => void;
+  onUploadCode: () => void;
+}
+
+type Props = StateProps & OwnProps;
+
+interface State {
+  consoleHeight: number;
+  editorHeight: number | string;
+  mode: number;
+  modeDisplay: string;
+  simulate: boolean;
+  fontsize?: number;
+};
+
+class Editor extends React.Component<Props, State> {
   /*
    * ASCII Enforcement
    */
@@ -56,11 +98,11 @@ class Editor extends React.Component {
   }
 
   // TODO: Take onEditorPaste items and move to utils?
-  static correctText(text) {
+  static correctText(text: string) {
     return text.replace(/[^\x00-\x7F]/g, ''); // eslint-disable-line no-control-regex
   }
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this.themes = [
       'monokai',
@@ -74,24 +116,6 @@ class Editor extends React.Component {
       'solarized_light',
       'terminal',
     ];
-    this.beforeUnload = this.beforeUnload.bind(this);
-    this.onWindowResize = this.onWindowResize.bind(this);
-    this.toggleConsole = this.toggleConsole.bind(this);
-    this.getEditorHeight = this.getEditorHeight.bind(this);
-    this.changeTheme = this.changeTheme.bind(this);
-    this.increaseFontsize = this.increaseFontsize.bind(this);
-    this.decreaseFontsize = this.decreaseFontsize.bind(this);
-    this.changeFontsizeToFont = this.changeFontsizeToFont.bind(this);
-    this.handleSubmitFontsize = this.handleSubmitFontsize.bind(this);
-    this.handleChangeFontsize = this.handleChangeFontsize.bind(this);
-    this.startRobot = this.startRobot.bind(this);
-    this.stopRobot = this.stopRobot.bind(this);
-    this.upload = this.upload.bind(this);
-    this.estop = this.estop.bind(this);
-    this.simulateCompetition = this.simulateCompetition.bind(this);
-    this.raiseConsole = this.raiseConsole.bind(this);
-    this.lowerConsole = this.lowerConsole.bind(this);
-    this.copyConsole = this.copyConsole.bind(this);
     this.state = {
       consoleHeight: windowInfo.CONSOLESTART,
       editorHeight: 0, // Filled in later during componentDidMount
@@ -104,7 +128,7 @@ class Editor extends React.Component {
   /*
    * Confirmation Dialog on Quit, Stored Editor Settings, Window Size-Editor Re-render
    */
-  componentDidMount() {
+  componentDidMount = () => {
     this.CodeEditor.editor.setOptions({
       enableBasicAutocompletion: true,
       enableLiveAutocompletion: true,
@@ -158,7 +182,7 @@ class Editor extends React.Component {
     this.CodeEditor.editor.completers = [autoComplete];
 
     this.onWindowResize();
-    storage.get('editorTheme', (err, data) => {
+    storage.get('editorTheme', (err: any, data: {theme: string}) => {
       if (err) {
         logging.log(err);
       } else if (!_.isEmpty(data)) {
@@ -166,7 +190,7 @@ class Editor extends React.Component {
       }
     });
 
-    storage.get('editorFontSize', (err, data) => {
+    storage.get('editorFontSize', (err: any, data: {editorFontSize: number}) => {
       if (err) {
         logging.log(err);
       } else if (!_.isEmpty(data)) {
@@ -178,34 +202,34 @@ class Editor extends React.Component {
 
     window.addEventListener('beforeunload', this.beforeUnload);
     window.addEventListener('resize', this.onWindowResize, { passive: true });
-    window.addEventListener('dragover', (e) => {
+    window.addEventListener('dragover', (e: any) => {
       e.preventDefault();
       return false;
     });
-    window.addEventListener('drop', (e) => {
+    window.addEventListener('drop', (e: any) => {
       e.preventDefault();
       this.props.onDragFile(e.dataTransfer.files[0].path);
       return false;
     });
   }
 
-  componentWillUnmount() {
+  componentWillUnmount = () => {
     window.removeEventListener('beforeunload', this.beforeUnload);
     window.removeEventListener('resize', this.onWindowResize);
   }
 
-  onWindowResize() {
+  onWindowResize = () => {
     // Trigger editor to re-render on window resizing.
     this.setState({ editorHeight: this.getEditorHeight() });
   }
 
-  getEditorHeight() {
+  getEditorHeight = () => {
     const windowNonEditorHeight = windowInfo.NONEDITOR +
       (this.props.showConsole * (this.state.consoleHeight + windowInfo.CONSOLEPAD));
     return `${String(window.innerHeight - windowNonEditorHeight)}px`;
   }
 
-  beforeUnload(event) {
+  beforeUnload = (event: any) => {
     // If there are unsaved changes and the user tries to close Dawn,
     // check if they want to save their changes first.
     if (this.hasUnsavedChanges()) {
@@ -233,13 +257,13 @@ class Editor extends React.Component {
     }
   }
 
-  toggleConsole() {
+  toggleConsole = () => {
     this.props.toggleConsole();
     // Resize since the console overlaps with the editor, but enough time for console changes
     setTimeout(() => this.onWindowResize(), 0.01);
   }
 
-  upload() {
+  upload = () => {
     const { filepath } = this.props;
     if (filepath === '') {
       this.props.onAlertAdd(
@@ -270,12 +294,12 @@ class Editor extends React.Component {
     this.props.onUploadCode();
   }
 
-  startRobot() {
+  startRobot = () => {
     this.props.onUpdateCodeStatus(this.state.mode);
     this.props.onClearConsole();
   }
 
-  stopRobot() {
+  stopRobot = () => {
     this.setState({
       simulate: false,
       modeDisplay: (this.state.mode === robotState.AUTONOMOUS) ?
@@ -284,12 +308,12 @@ class Editor extends React.Component {
     this.props.onUpdateCodeStatus(robotState.IDLE);
   }
 
-  estop() {
+  estop = () => {
     this.setState({ simulate: false, modeDisplay: robotState.ESTOPSTR });
     this.props.onUpdateCodeStatus(robotState.ESTOP);
   }
 
-  simulateCompetition() {
+  simulateCompetition = () => {
     this.setState({ simulate: true, modeDisplay: robotState.SIMSTR });
     const simulation = new Promise((resolve, reject) => {
       logging.log(`Beginning ${timings.AUTO}s ${robotState.AUTOSTR}`);
@@ -356,35 +380,35 @@ class Editor extends React.Component {
     });
   }
 
-  hasUnsavedChanges() {
+  hasUnsavedChanges = () => {
     return (this.props.latestSaveCode !== this.props.editorCode);
   }
 
-  changeTheme(theme) {
+  changeTheme = (theme: string) => {
     this.props.onChangeTheme(theme);
-    storage.set('editorTheme', { theme }, (err) => {
+    storage.set('editorTheme', { theme }, (err: any) => {
       if (err) logging.log(err);
     });
   }
 
-  increaseFontsize() {
+  increaseFontsize = () => {
     this.setState({ fontsize: this.props.fontSize + 1 });
     this.props.onChangeFontsize(this.props.fontSize + 1);
-    storage.set('editorFontSize', { editorFontSize: this.props.fontSize + 1 }, (err) => {
+    storage.set('editorFontSize', { editorFontSize: this.props.fontSize + 1 }, (err: any) => {
       if (err) logging.log(err);
     });
   }
 
-  handleChangeFontsize(event) {
+  handleChangeFontsize = (event: { target: {value: number}}) => {
     this.setState({ fontsize: event.target.value });
   }
 
-  handleSubmitFontsize(event) {
+  handleSubmitFontsize = (event: React.FormEvent<HTMLInputElement>) => {
     this.changeFontsizeToFont(Number(this.state.fontsize));
     event.preventDefault();
   }
 
-  changeFontsizeToFont(fontSize) {
+  changeFontsizeToFont = (fontSize: number) => {
     if (fontSize > 28) {
       fontSize = 28;
     }
@@ -393,31 +417,31 @@ class Editor extends React.Component {
     }
     this.props.onChangeFontsize(fontSize);
     this.setState({ fontsize: fontSize });
-    storage.set('editorFontSize', { editorFontSize: fontSize }, (err) => {
+    storage.set('editorFontSize', { editorFontSize: fontSize }, (err: any) => {
       if (err) logging.log(err);
     });
   }
 
-  raiseConsole() {
+  raiseConsole = () => {
     this.setState({ consoleHeight: this.state.consoleHeight + windowInfo.UNIT }, () => {
       this.onWindowResize();
     });
   }
 
-  lowerConsole() {
+  lowerConsole = () => {
     this.setState({ consoleHeight: this.state.consoleHeight - windowInfo.UNIT }, () => {
       this.onWindowResize();
     });
   }
 
-  copyConsole() {
+  copyConsole = () => {
     clipboard.writeText(this.props.consoleData.join(''));
   }
 
-  decreaseFontsize() {
+  decreaseFontsize = () => {
     this.setState({ fontsize: this.props.fontSize - 1 });
     this.props.onChangeFontsize(this.props.fontSize - 1);
-    storage.set('editorFontSize', { editorFontSize: this.props.fontSize - 1 }, (err) => {
+    storage.set('editorFontSize', { editorFontSize: this.props.fontSize - 1 }, (err: any) => {
       if (err) logging.log(err);
     });
   }
@@ -638,7 +662,7 @@ class Editor extends React.Component {
                 bsSize="small"
                 id="choose-theme"
               >
-                {this.themes.map(theme => (
+                {this.themes.map((theme: string) => (
                   <MenuItem
                     active={theme === this.props.editorTheme}
                     onClick={_.partial(this.changeTheme, theme)}
