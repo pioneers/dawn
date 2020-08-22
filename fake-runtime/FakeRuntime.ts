@@ -9,9 +9,6 @@ import { Param, Device, DevData } from '../protos/protos';
 import { createSocket, Socket as UDPSocket } from 'dgram';
 import { createServer, Socket as TCPSocket, Server } from 'net';
 
-const dgram = require('dgram');
-const net = require('net');
-
 /**
  * UDP Send (Runtime perspective, Runtime -> Dawn)
  * Device Data Array (sensors), device.proto
@@ -54,8 +51,8 @@ class FakeRuntime {
   listenSocket: UDPSocket;
 
   constructor() {
-    this.sendSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
-    this.listenSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
+    this.sendSocket = createSocket({ type: 'udp4', reuseAddr: true });
+    this.listenSocket = createSocket({ type: 'udp4', reuseAddr: true });
 
     // this.fakeState = null;f
     this.listenSocket.on('message', (msg: any) => {
