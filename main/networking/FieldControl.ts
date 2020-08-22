@@ -4,15 +4,13 @@ import RendererBridge from '../RendererBridge';
 import { Logger } from '../../renderer/utils/utils';
 
 class FCInternals {
-  socket: any;
-  queuedPublish: any;
+  socket: SocketIOClient.Socket | null;
   stationNumber: number;
   bridgeAddress: string;
   logger: Logger;
 
   constructor(stationNumber: number, bridgeAddress: string, logger: Logger) {
     this.socket = null;
-    this.queuedPublish = null;
     this.stationNumber = stationNumber;
     this.bridgeAddress = bridgeAddress;
     this.logger = logger;
@@ -25,10 +23,10 @@ class FCInternals {
     this.socket = io(`http://${this.bridgeAddress}:7000`);
     this.socket.on('connect', () => {
       this.logger.log('Connected to Field Control Socket');
-      this.socket.on('robot_state', (data: any) => {
+      this.socket!.on('robot_state', (data: any) => {
         RendererBridge.reduxDispatch(updateRobot(JSON.parse(data)));
       });
-      this.socket.on('heartbeat', () => {
+      this.socket!.on('heartbeat', () => {
         RendererBridge.reduxDispatch(updateHeart());
       });
       // NOTE: This listener may be deprecated
@@ -39,7 +37,7 @@ class FCInternals {
       //     this.logger.log('Trying to send FC Info to Disconnected Robot');
       //   }
       // });
-      this.socket.on('master', (data: any) => {
+      this.socket!.on('master', (data: any) => {
         RendererBridge.reduxDispatch(updateMaster(JSON.parse(data)));
       });
     });
@@ -47,7 +45,9 @@ class FCInternals {
 
   quit() {
     try {
-      this.socket.close();
+      if (this.socket) {
+        this.socket.close();
+      }
     } catch (err) {
       this.logger.log(err);
     }
