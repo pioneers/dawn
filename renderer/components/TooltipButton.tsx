@@ -12,8 +12,8 @@ interface StateProp{
   onClick: Function;
   glyph: string;
   disabled: boolean;
-  bsStyle: string;
-  placement: string;
+  bsStyle?: string;
+  placement?: string;
 }
 
 export const TooltipButton = (props: StateProp) => {

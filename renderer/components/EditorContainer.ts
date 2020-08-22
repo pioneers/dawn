@@ -44,7 +44,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   onEditorUpdate: (newVal: string) => {
     dispatch(editorUpdate(newVal));
   },
-  onSaveFile: (saveAs: boolean) => {
+  onSaveFile: (saveAs?: boolean) => {
     dispatch(saveFile(saveAs));
   },
   onOpenFile: () => {
