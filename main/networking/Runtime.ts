@@ -1,6 +1,6 @@
 import { createSocket, Socket as UDPSocket } from 'dgram';
 import { createServer, Socket as TCPSocket, Server } from 'net';
-import { ipcMain, IpcMainEvent } from 'electron';
+import { ipcMain } from 'electron';
 import * as protos from '../../protos/protos';
 
 import RendererBridge from '../RendererBridge';
@@ -100,7 +100,7 @@ class ListenSocket {
     this.socket.on('message', (msg: Uint8Array) => {
       try {
         RendererBridge.reduxDispatch(infoPerMessage());
-        const sensorData: any = protos.DevData.decode(msg).devices;
+        const sensorData: protos.IDevice[] = protos.DevData.decode(msg).devices;
         this.logger.debug('Dawn received UDP sensor data');
         RendererBridge.reduxDispatch(updatePeripherals(sensorData));
       } catch (err) {
