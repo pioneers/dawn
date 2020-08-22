@@ -32,17 +32,12 @@ interface DispatchProps {
   onFCUpdate: (ipAddress: string) => void;
 }
 
-interface OwnProps {
-  onAlertDone: Function;
-  onFCUpdate: Function;
-}
-
 interface State {
   steps: Array<Object>;
   tourRunning: boolean;
 }
 
-type Props = StateProps & DispatchProps & OwnProps;
+type Props = StateProps & DispatchProps;
 
 class AppComponent extends React.Component<Props, State> {
   constructor(props: Props) {
