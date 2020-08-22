@@ -5,21 +5,9 @@
  */
 
 /* eslint-disable camelcase */
-import { Param, Device, DevData } from '../protos/protos';
+import { IParam, DevData, IDevData } from '../protos/protos';
 import { createSocket, Socket as UDPSocket } from 'dgram';
 import { createServer, Socket as TCPSocket, Server } from 'net';
-
-/**
- * UDP Send (Runtime perspective, Runtime -> Dawn)
- * Device Data Array (sensors), device.proto
- */
-// const SendDeviceProto = protoRoot.loadSync('protos/device.proto', { keepCase: true }).lookupType('DevData');
-
-/**
- * UDP Recv (Runtime perspective, Dawn -> Runtime)
- * Gamepad Data, gamepad.proto
- */
-// const RecvGamepadProto = protoRoot.loadSync('protos/gamepad.proto', { keepCase: true }).lookupType('GpState');
 
 const TCPPORT = 1234;
 const SENDPORT = 1235;
@@ -27,7 +15,7 @@ const LISTENPORT = 1236;
 const MSGINTERVAL = 1000; // in ms
 
 const randomFloat = (min: number, max: number) => (((max - min) * Math.random()) + min);
-const sensor = (name: string, type: number, params: any, uid: number) => ({
+const sensor = (name: string, type: number, params: IParam[], uid: number) => ({
   name,
   type,
   params,
@@ -54,7 +42,7 @@ class FakeRuntime {
     this.sendSocket = createSocket({ type: 'udp4', reuseAddr: true });
     this.listenSocket = createSocket({ type: 'udp4', reuseAddr: true });
 
-    // this.fakeState = null;f
+    // this.fakeState = null;
     this.listenSocket.on('message', (msg: any) => {
       // TODO: Handle UDP gamepad recv
     });
@@ -66,7 +54,7 @@ class FakeRuntime {
     this.generateFakeData = this.generateFakeData.bind(this);
   }
 
-  generateFakeData() {
+  generateFakeData(): IDevData {
     return {
       devices: [
         sensor('MOTOR_SCALAR', 0, [param('Val', 'float', randomFloat(-100, 100))], 100),
@@ -94,9 +82,9 @@ class FakeRuntime {
   }
 
   onInterval() {
-    const fakeData: any = this.generateFakeData();
-    const udpData = Device.create(fakeData);
-    this.sendSocket.send(Device.encode(udpData).finish(), SENDPORT, 'localhost');
+    const fakeData = this.generateFakeData();
+    const udpData = DevData.create(fakeData);
+    this.sendSocket.send(DevData.encode(udpData).finish(), SENDPORT, 'localhost');
     // TODO: Handle TCP writes to console
   }
 }
