@@ -2,7 +2,9 @@
  * Defines the edit menu.
  */
 
-const EditMenu = {
+import { MenuItemConstructorOptions } from "electron";
+
+const EditMenu: MenuItemConstructorOptions = {
   label: 'Edit',
   submenu: [
     {

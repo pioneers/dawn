@@ -34,7 +34,7 @@ function openFileDialog() {
   return new Promise((resolve, reject) => {
     remote.dialog.showOpenDialog({
       filters: [{ name: 'python', extensions: ['py'] }],
-    }, (filepaths) => {
+    }, (filepaths: string[]) => {
       // If filepaths is undefined, the user did not specify a file.
       if (filepaths === undefined) {
         reject();
@@ -85,7 +85,7 @@ function unsavedDialog(action: string) {
       title: 'You have unsaved changes!',
       message: `You are trying to ${action} a new file, but you have unsaved changes to
 your current one. What do you want to do?`,
-    }, (res) => {
+    }, (res: number) => {
       // 'res' is an integer corrseponding to index in button list above.
       if (res === 0 || res === 1 || res === 2) {
         resolve(res);

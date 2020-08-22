@@ -3,14 +3,17 @@
  */
 import RendererBridge from '../RendererBridge';
 import showAPI from '../main-process';
+import { MenuItemConstructorOptions } from 'electron';
 
-const HelpMenu = {
+const HelpMenu: MenuItemConstructorOptions = {
   label: 'Help',
   submenu: [
     {
       label: 'Interactive Tutorial',
       click() {
-        RendererBridge.registeredWindow.webContents.send('start-interactive-tour');
+        if (RendererBridge.registeredWindow) {
+          RendererBridge.registeredWindow.webContents.send('start-interactive-tour');
+        }
       },
       accelerator: 'CommandOrControl+T',
     },

@@ -8,8 +8,9 @@ import {
   saveFile,
   createNewFile,
 } from '../../renderer/actions/EditorActions';
+import { MenuItemConstructorOptions } from 'electron';
 
-const FileMenu = {
+const FileMenu: MenuItemConstructorOptions = {
   label: 'File',
   submenu: [
     {

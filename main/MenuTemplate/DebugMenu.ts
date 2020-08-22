@@ -1,8 +1,9 @@
-import { fork } from 'child_process';
+import { fork, ChildProcess } from 'child_process';
 import RendererBridge from '../RendererBridge';
 import FCObject from '../networking/FieldControl';
+import { MenuItemConstructorOptions } from 'electron';
 
-let fakeRuntime = null;
+let fakeRuntime: ChildProcess | null = null;
 
 export function killFakeRuntime() {
   if (fakeRuntime) {
@@ -12,13 +13,15 @@ export function killFakeRuntime() {
   }
 }
 
-const DebugMenu = {
+const DebugMenu: MenuItemConstructorOptions = {
   label: 'Debug',
   submenu: [
     {
       label: 'Toggle DevTools',
       click() {
-        RendererBridge.registeredWindow.webContents.toggleDevTools();
+        if (RendererBridge.registeredWindow) {
+          RendererBridge.registeredWindow.webContents.toggleDevTools();
+        }
       },
       accelerator: 'CommandOrControl+alt+I',
     },
@@ -54,7 +57,9 @@ const DebugMenu = {
       label: 'Reload',
       accelerator: 'CommandOrControl+R',
       click() {
-        RendererBridge.registeredWindow.reload();
+        if (RendererBridge.registeredWindow) {
+          RendererBridge.registeredWindow.reload();
+        }
       },
     },
 
@@ -70,7 +75,7 @@ const DebugMenu = {
 };
 
 if (process.env.NODE_ENV === 'development') {
-  DebugMenu.submenu.push({
+  (DebugMenu.submenu as MenuItemConstructorOptions[]).push({ // Need to type cast since submenu's type isn't always array
     label: 'Toggle Fake Runtime',
     click() {
       if (fakeRuntime) {

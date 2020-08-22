@@ -1,6 +1,6 @@
 import { createSocket, Socket as UDPSocket } from 'dgram';
 import { createServer, Socket as TCPSocket, Server } from 'net';
-import { ipcMain } from 'electron';
+import { ipcMain, IpcMainEvent } from 'electron';
 import * as protos from '../../protos/protos';
 
 import RendererBridge from '../RendererBridge';
@@ -52,7 +52,7 @@ function readPacket(data: any): TCPPacket {
  * payload to send to Runtime.
  */
 function createPacket(payload: any, messageType: MsgType): Buffer {
-  let encodedPayload: any;
+  let encodedPayload: Uint8Array;
   switch (messageType) {
     case MsgType.DEVICE_DATA:
       encodedPayload = protos.DevData.encode(payload).finish();
@@ -67,7 +67,8 @@ function createPacket(payload: any, messageType: MsgType): Buffer {
       encodedPayload = protos.Text.encode(payload).finish();
       break;
     default:
-      encodedPayload = null;
+      console.log("ERROR: trying to create TCP Packet with type LOG")
+      encodedPayload = new Uint8Array();
       break;
   }
   const msgLength = Buffer.byteLength(encodedPayload);

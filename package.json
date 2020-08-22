@@ -32,7 +32,7 @@
     "build-protos": "pbjs -t static-module -w es6 -o protos/protos.js protos/*.proto && pbts -o protos/protos.d.ts protos/protos.js ",
     "watch": "webpack --mode development --watch --progress",
     "test": "mocha --require babel-core/register --recursive renderer/**/test/*.test.js",
-    "release": "node release.js",
+    "release": "node release.ts",
     "version": "echo $npm_package_version"
   },
   "betterScripts": {
@@ -50,7 +50,6 @@
     }
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.159",
     "@types/minimist": "^1.2.0",
     "@typescript-eslint/eslint-plugin": "^3.7.0",
     "@typescript-eslint/parser": "^3.8.0",
@@ -83,8 +82,13 @@
     "zip-webpack-plugin": "3.0.0"
   },
   "dependencies": {
+    "@types/electron-devtools-installer": "^2.2.0",
+    "@types/lodash": "^4.14.159",
     "@types/node": "^14.0.14",
     "@types/react": "^16.9.43",
+    "@types/react-dom": "^16.9.8",
+    "@types/react-redux": "^7.1.9",
+    "@types/react-router": "^5.1.8",
     "@types/seedrandom": "^2.4.28",
     "@types/socket.io-client": "^1.4.33",
     "brace": "0.11.0",

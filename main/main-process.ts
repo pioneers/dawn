@@ -28,7 +28,7 @@ app.on('will-quit', () => {
   }
 });
 
-function initializeFC(event) { // eslint-disable-line no-unused-vars
+function initializeFC(event: any) { // eslint-disable-line no-unused-vars
   try {
     FCObject.setup();
   } catch (err) {
@@ -36,14 +36,14 @@ function initializeFC(event) { // eslint-disable-line no-unused-vars
   }
 }
 
-function teardownFC(event) { // eslint-disable-line no-unused-vars
+function teardownFC(event: any) { // eslint-disable-line no-unused-vars
   if (FCObject.FCInternal !== null) {
     FCObject.FCInternal.quit();
   }
 }
 
 export default function showAPI() {
-  let api = new BrowserWindow({
+  let api: BrowserWindow | null = new BrowserWindow({
     webPreferences: {
       nodeIntegration: false,
     },
@@ -56,7 +56,9 @@ export default function showAPI() {
   });
   api.loadURL(`file://${__dirname}/../static/website-robot-api-master/robot_api.html`);
   api.once('ready-to-show', () => {
-    api.show();
+    if (api) {
+      api.show();
+    }
   });
 }
 

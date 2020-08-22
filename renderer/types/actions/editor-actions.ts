@@ -58,7 +58,7 @@ export interface EditorActions {
 
   dragFile: (filepath: string) => DragFileAction;
 
-  saveFile: (saveAs: boolean) => SaveFileAction;
+  saveFile: (saveAs?: boolean) => SaveFileAction;
 
   deleteFile: () => DeleteFileAction;
 

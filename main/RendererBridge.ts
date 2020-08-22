@@ -8,7 +8,7 @@ import _ from 'lodash';
 import { BrowserWindow } from "electron";
 
 class RendererBridge {
-  registeredWindow: BrowserWindow = null;
+  registeredWindow: BrowserWindow | null = null;
 
   registerWindow(electronWindow: BrowserWindow) {
     this.registeredWindow = electronWindow;
