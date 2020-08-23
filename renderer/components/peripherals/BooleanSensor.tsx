@@ -8,9 +8,9 @@ import { PeripheralTypes } from '../../consts';
  * Boolean Sensor Component
  */
 const formatBoolean = (peripheralType, peripheral) => {
-  let sensorValue = peripheral.int_value;
+  let sensorValue = peripheral.ival;
   if (sensorValue === undefined) {
-    sensorValue = peripheral.bool_value;
+    sensorValue = peripheral.bval;
   }
   if (peripheralType === PeripheralTypes.LimitSwitch) {
     return (sensorValue) ? 'Closed' : 'Open';
@@ -19,7 +19,7 @@ const formatBoolean = (peripheralType, peripheral) => {
 };
 
 const BooleanSensor = ({
-  id, device_name, device_type, param,
+  id, device_type, param,
 }) => (
   <div style={{ overflow: 'auto', width: '100%' }}>
     <h4 style={{ float: 'left' }}>
@@ -27,9 +27,9 @@ const BooleanSensor = ({
     </h4>
     {
       _.map(param, obj => (
-        <div key={`${obj.param}-${device_name}-Overall`}>
-          <h4 style={{ clear: 'right', float: 'right', height: '10px' }} key={`${obj.param}-${device_name}`}>
-            {`${obj.param}: ${formatBoolean(device_type, obj)}`}
+        <div key={`${obj.name}-${id}-Overall`}>
+          <h4 style={{ clear: 'right', float: 'right', height: '10px' }} key={`${obj.name}-${id}`}>
+            {`${obj.name}: ${formatBoolean(device_type, obj)}`}
           </h4>
         </div>
       ))
@@ -38,7 +38,6 @@ const BooleanSensor = ({
 );
 
 BooleanSensor.propTypes = {
-  device_name: PropTypes.string.isRequired,
   device_type: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
   param: PropTypes.array.isRequired,

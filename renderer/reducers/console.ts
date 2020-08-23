@@ -25,7 +25,7 @@ export const console = (state: ConsoleState = initialState, action: Actions) => 
     case consts.ConsoleActionsTypes.UPDATE_CONSOLE:
       return {
         ...state,
-        consoleData: [...state.consoleData, action.consoleOutput],
+        consoleData: [...state.consoleData, ...action.consoleOutput],
         consoleUnread: !state.showConsole,
       };
     case consts.ConsoleActionsTypes.CLEAR_CONSOLE:

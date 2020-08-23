@@ -2,12 +2,15 @@ import io from 'socket.io-client';
 import { updateRobot, updateHeart, updateMaster } from '../../renderer/actions/FieldActions';
 import RendererBridge from '../RendererBridge';
 import { Logger } from '../../renderer/utils/utils';
-import Ansible from './Ansible';
 
 class FCInternals {
-  constructor(stationNumber, bridgeAddress, logger) {
+  socket: SocketIOClient.Socket | null;
+  stationNumber: number;
+  bridgeAddress: string;
+  logger: Logger;
+
+  constructor(stationNumber: number, bridgeAddress: string, logger: Logger) {
     this.socket = null;
-    this.queuedPublish = null;
     this.stationNumber = stationNumber;
     this.bridgeAddress = bridgeAddress;
     this.logger = logger;
@@ -20,20 +23,21 @@ class FCInternals {
     this.socket = io(`http://${this.bridgeAddress}:7000`);
     this.socket.on('connect', () => {
       this.logger.log('Connected to Field Control Socket');
-      this.socket.on('robot_state', (data) => {
+      this.socket!.on('robot_state', (data: any) => {
         RendererBridge.reduxDispatch(updateRobot(JSON.parse(data)));
       });
-      this.socket.on('heartbeat', () => {
+      this.socket!.on('heartbeat', () => {
         RendererBridge.reduxDispatch(updateHeart());
       });
-      this.socket.on('codes', (data) => {
-        if (Ansible.conns[2].socket !== null) {
-          Ansible.conns[2].socket.sendFieldControl(JSON.parse(data));
-        } else {
-          this.logger.log('Trying to send FC Info to Disconnected Robot');
-        }
-      });
-      this.socket.on('master', (data) => {
+      // NOTE: This listener may be deprecated
+      // this.socket.on('codes', (data: any) => {
+      //   if (Runtime.conns[2].socket !== null) {
+      //     Runtime.conns[2].socket.sendFieldControl(JSON.parse(data));
+      //   } else {
+      //     this.logger.log('Trying to send FC Info to Disconnected Robot');
+      //   }
+      // });
+      this.socket!.on('master', (data: any) => {
         RendererBridge.reduxDispatch(updateMaster(JSON.parse(data)));
       });
     });
@@ -41,7 +45,9 @@ class FCInternals {
 
   quit() {
     try {
-      this.socket.close();
+      if (this.socket) {
+        this.socket.close();
+      }
     } catch (err) {
       this.logger.log(err);
     }
@@ -49,8 +55,10 @@ class FCInternals {
   }
 }
 
+const FCInternalInit: any = null;
+
 const FCObject = {
-  FCInternal: null,
+  FCInternal: FCInternalInit,
   stationNumber: 4,
   bridgeAddress: 'localhost',
   logger: new Logger('fieldControl', 'Field Control Debug'),
@@ -61,7 +69,7 @@ const FCObject = {
     this.FCInternal = new FCInternals(this.stationNumber, this.bridgeAddress, FCObject.logger);
     this.FCInternal.init();
   },
-  changeFCInfo(event, arg) {
+  changeFCInfo(_event: any, arg: any) {
     if (arg.stationNumber !== null) {
       FCObject.stationNumber = arg.stationNumber;
       FCObject.logger.log(`stationNumber set to ${FCObject.stationNumber}`);

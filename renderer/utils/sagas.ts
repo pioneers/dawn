@@ -4,17 +4,18 @@
  * Sagas use ES6 generator functions, which have the '*' in their declaration.
  */
 
-import fs from 'fs';
+import fs, { readFile, writeFile } from 'fs';
 import _ from 'lodash';
-import { delay, eventChannel } from 'redux-saga';
-import { all, call, cps, fork, put, race, select, take, takeEvery } from 'redux-saga/effects';
-import { ipcRenderer, remote } from 'electron';
+import { eventChannel } from 'redux-saga';
+import { all, call, cps, delay, fork, put, race, select, take, takeEvery } from 'redux-saga/effects';
+import { ipcRenderer, OpenDialogReturnValue, SaveDialogReturnValue, MessageBoxReturnValue, remote } from 'electron';
 import { addAsyncAlert } from '../actions/AlertActions';
 import { openFileSucceeded, saveFileSucceeded } from '../actions/EditorActions';
 import { toggleFieldControl } from '../actions/FieldActions';
 import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
 import { TIMEOUT, defaults, logging } from '../utils/utils';
+import { GpState } from '../../protos/protos';
 
 
 const { Client } = require('ssh2');
@@ -33,13 +34,16 @@ function openFileDialog() {
   return new Promise((resolve, reject) => {
     remote.dialog.showOpenDialog({
       filters: [{ name: 'python', extensions: ['py'] }],
-    }, (filepaths) => {
+    }).then((openDialogReturnValue: OpenDialogReturnValue) => {
+      const { filePaths } = openDialogReturnValue; 
       // If filepaths is undefined, the user did not specify a file.
-      if (filepaths === undefined) {
+      if (_.isEmpty(filePaths)) {
         reject();
       } else {
-        resolve(filepaths[0]);
+        resolve(filePaths[0]);
       }
+    }).catch((error) => {
+      reject(error);
     });
   });
 }
@@ -54,18 +58,19 @@ function saveFileDialog() {
   return new Promise((resolve, reject) => {
     remote.dialog.showSaveDialog({
       filters: [{ name: 'python', extensions: ['py'] }],
-    }, (filepath) => {
+    }).then((saveDialogReturnValue: SaveDialogReturnValue) => {
+      const { filePath } = saveDialogReturnValue; 
       // If filepath is undefined, the user did not specify a file.
-      if (filepath === undefined) {
+      if (filePath === undefined) {
         reject();
         return;
       }
 
       // Automatically append .py extension if they don't have it
-      if (!filepath.endsWith('.py')) {
-        resolve(`${filepath}.py`);
+      if (!filePath.endsWith('.py')) {
+        resolve(`${filePath}.py`);
       }
-      resolve(filepath);
+      resolve(filePath);
     });
   });
 }
@@ -76,7 +81,7 @@ function saveFileDialog() {
  *
  * @return {Promise} - fulfilled with button index.
  */
-function unsavedDialog(action) {
+function unsavedDialog(action: string) {
   return new Promise((resolve, reject) => {
     remote.dialog.showMessageBox({
       type: 'warning',
@@ -84,14 +89,15 @@ function unsavedDialog(action) {
       title: 'You have unsaved changes!',
       message: `You are trying to ${action} a new file, but you have unsaved changes to
 your current one. What do you want to do?`,
-    }, (res) => {
+    }).then((messageBoxReturnValue: MessageBoxReturnValue) => {
+      const { response } = messageBoxReturnValue;
       // 'res' is an integer corrseponding to index in button list above.
-      if (res === 0 || res === 1 || res === 2) {
-        resolve(res);
+      if (response === 0 || response === 1 || response === 2) {
+        resolve(response);
       } else {
         reject();
       }
-    });
+    })
   });
 }
 
@@ -99,17 +105,17 @@ your current one. What do you want to do?`,
  * Simple helper function to write to a codefile and dispatch action
  * notifying store of the save.
  */
-function* writeFile(filepath, code) {
-  yield cps(fs.writeFile, filepath, code);
+function* writeCodeToFile(filepath: string, code: string): Generator<any, void, any> {
+  yield cps([fs, writeFile], filepath, code);
   yield put(saveFileSucceeded(code, filepath));
 }
 
-const editorState = state => ({
+const editorState = (state: any) => ({
   filepath: state.editor.filepath,
   code: state.editor.editorCode,
 });
 
-function* saveFile(action) {
+function* saveFile(action: any) {
   const result = yield select(editorState);
   let { filepath } = result;
   const { code } = result;
@@ -118,21 +124,21 @@ function* saveFile(action) {
   if (action.saveAs === true || !filepath) {
     try {
       filepath = yield call(saveFileDialog);
-      yield* writeFile(filepath, code);
+      yield* writeCodeToFile(filepath, code);
     } catch (e) {
       logging.log('No filename specified, file not saved.');
     }
   } else {
-    yield* writeFile(filepath, code);
+    yield* writeCodeToFile(filepath, code);
   }
 }
 
-const editorSavedState = state => ({
+const editorSavedState = (state: any) => ({
   savedCode: state.editor.latestSaveCode,
   code: state.editor.editorCode,
 });
 
-function* openFile(action) {
+function* openFile(action: any) {
   const type = (action.type === 'OPEN_FILE') ? 'open' : 'create';
   const result = yield select(editorSavedState);
   let res = 1;
@@ -148,21 +154,21 @@ function* openFile(action) {
   if (res === 0 || res === 1) {
     if (type === 'open') {
       try {
-        const filepath = yield call(openFileDialog);
-        const data = yield cps(fs.readFile, filepath, 'utf8');
+        const filepath: string = yield call(openFileDialog);
+        const data = yield cps([fs, readFile], filepath);
         yield put(openFileSucceeded(data, filepath));
       } catch (e) {
         logging.log('No filename specified, no file opened.');
       }
     } else if (type === 'create') {
-      yield put(openFileSucceeded('', null));
+      yield put(openFileSucceeded('', ''));
     }
   } else {
     logging.log(`File ${type} canceled.`);
   }
 }
 
-function* dragFile(action) {
+function* dragFile(action: any) {
   const result = yield select(editorSavedState);
   let res = 1; // Refers to unsavedDialog choices
   if (result.code !== result.savedCode) {
@@ -178,7 +184,7 @@ function* dragFile(action) {
   if (res === 0 || res === 1) {
     try {
       const { filepath } = action;
-      const data = yield cps(fs.readFile, filepath, 'utf8');
+      const data = yield cps([fs, readFile], filepath);
       yield put(openFileSucceeded(data, filepath));
     } catch (e) {
       logging.log('Failure to Drag File In');
@@ -192,7 +198,7 @@ function* dragFile(action) {
  * This saga acts as a "heartbeat" to check whether we are still receiving
  * updates from Runtime.
  *
- * NOTE that this is different from whether or not the Ansible connection
+ * NOTE that this is different from whether or not the Runtime connection
  * is still alive.
  */
 function* runtimeHeartbeat() {
@@ -213,11 +219,11 @@ function* runtimeHeartbeat() {
   }
 }
 
-const _timestamps = [0, 0, 0, 0];
+const _timestamps: Array<number | null> = [0, 0, 0, 0];
 
-function _needToUpdate(newGamepads) {
+function _needToUpdate(newGamepads: (Gamepad | null)[]): boolean {
   return _.some(newGamepads, (gamepad, index) => {
-    if (gamepad != null && (gamepad.timestamp > _timestamps[index])) {
+    if (gamepad != null && (gamepad.timestamp > (_timestamps[index] ?? 0))) {
       _timestamps[index] = gamepad.timestamp;
       return true;
     } else if (gamepad == null && _timestamps[index] != null) {
@@ -228,40 +234,47 @@ function _needToUpdate(newGamepads) {
   });
 }
 
-function formatGamepads(newGamepads) {
-  const formattedGamepads = {};
+function formatGamepads(newGamepads: (Gamepad | null)[]): GpState[] {
+  let formattedGamepads: GpState[] = [];
   // Currently there is a bug on windows where navigator.getGamepads()
   // returns a second, 'ghost' gamepad even when only one is connected.
   // The filter on 'mapping' filters out the ghost gamepad.
-  _.forEach(_.filter(newGamepads, { mapping: 'standard' }), (gamepad, indexGamepad) => {
+  _.forEach(_.filter(newGamepads, { mapping: 'standard' }), (gamepad: Gamepad | null, indexGamepad: number) => {
     if (gamepad) {
-      formattedGamepads[indexGamepad] = {
-        index: indexGamepad,
-        axes: gamepad.axes,
-        buttons: _.map(gamepad.buttons, 'value'),
-      };
+      let bitmap: number = 0;
+      gamepad.buttons.forEach((button, index) => {
+        if (button.pressed) {
+          bitmap |= (1 << index);
+        }
+      });
+      formattedGamepads[indexGamepad] = new GpState({
+        connected: gamepad.connected,
+        axes: gamepad.axes.slice(),
+        buttons: bitmap,
+      });
     }
   });
   return formattedGamepads;
 }
 
 /**
- * Repeatedly grab gamepad data, send it over Ansible to the robot, and dispatch
+ * Repeatedly grab gamepad data, send it over Runtime to the robot, and dispatch
  * redux action to update gamepad state.
  */
-function* ansibleGamepads() {
+function* runtimeGamepads() {
   while (true) {
     // navigator.getGamepads always returns a reference to the same object. This
     // confuses redux, so we use assignIn to clone to a new object each time.
-    const newGamepads = Array.prototype.slice.call(navigator.getGamepads());
+    const newGamepads = navigator.getGamepads();
     if (_needToUpdate(newGamepads) || Date.now() - timestamp > 100) {
       const formattedGamepads = formatGamepads(newGamepads);
       yield put(updateGamepads(formattedGamepads));
 
-      // Send gamepad data to Runtime over Ansible.
+      // Send gamepad data to Runtime.
       if (_.some(newGamepads) || Date.now() - timestamp > 100) {
         timestamp = Date.now();
         yield put({ type: 'UPDATE_MAIN_PROCESS' });
+        yield put({ type: 'EXPORT_RUN_MODE' });
       }
     }
 
@@ -270,12 +283,12 @@ function* ansibleGamepads() {
 }
 
 /**
- * Creates the ansibleReceiver eventChannel, which emits
+ * Creates the runtimeReceiver eventChannel, which emits
  * data received from the main process.
  */
-function ansibleReceiver() {
+function runtimeReceiver() {
   return eventChannel((emitter) => {
-    const listener = (event, action) => {
+    const listener = (_event: any, action: any) => {
       emitter(action);
     };
     // Suscribe listener to dispatches from main process.
@@ -288,12 +301,12 @@ function ansibleReceiver() {
 }
 
 /**
- * Takes data from the ansibleReceiver channel and dispatches
+ * Takes data from the runtimeReceiver channel and dispatches
  * it to the store
  */
-function* ansibleSaga() {
+function* runtimeSaga() {
   try {
-    const chan = yield call(ansibleReceiver);
+    const chan = yield call(runtimeReceiver);
     while (true) {
       const action = yield take(chan);
       // dispatch the action
@@ -304,8 +317,7 @@ function* ansibleSaga() {
   }
 }
 
-const gamepadsState = state => ({
-  studentCodeStatus: state.info.studentCodeStatus,
+const gamepadsState = (state: any) => ({
   gamepads: state.gamepads.gamepads,
 });
 
@@ -313,13 +325,13 @@ const gamepadsState = state => ({
  * Send the store to the main process whenever it changes.
  */
 function* updateMainProcess() {
-  const stateSlice = yield select(gamepadsState);
+  const stateSlice = yield select(gamepadsState); // Get gamepads from Redux state store
   ipcRenderer.send('stateUpdate', stateSlice);
 }
 
 function* restartRuntime() {
   const conn = new Client();
-  const stateSlice = yield select(state => ({
+  const stateSlice = yield select((state: any) => ({
     runtimeStatus: state.info.runtimeStatus,
     ipAddress: state.info.ipAddress,
   }));
@@ -328,12 +340,12 @@ function* restartRuntime() {
       conn.on('ready', () => {
         conn.exec(
           'sudo systemctl restart runtime.service',
-          { pty: true }, (uperr, stream) => {
+          { pty: true }, (uperr: any, stream: any) => {
             if (uperr) {
               resolve(1);
             }
             stream.write(`${defaults.PASSWORD}\n`);
-            stream.on('exit', (code) => {
+            stream.on('exit', (code: any) => {
               logging.log(`Runtime Restart: Returned ${code}`);
               conn.end();
               resolve(0);
@@ -341,7 +353,7 @@ function* restartRuntime() {
           },
         );
       }).connect({
-        debug: (inpt) => {
+        debug: (inpt: any) => {
           logging.log(inpt);
         },
         host: stateSlice.ipAddress,
@@ -361,7 +373,7 @@ function* restartRuntime() {
 
 function* downloadStudentCode() {
   const conn = new Client();
-  const stateSlice = yield select(state => ({
+  const stateSlice = yield select((state: any) => ({
     runtimeStatus: state.info.runtimeStatus,
     ipAddress: state.info.ipAddress,
   }));
@@ -374,20 +386,20 @@ function* downloadStudentCode() {
   if (stateSlice.runtimeStatus) {
     logging.log(`Downloading to ${path}`);
     const errors = yield call(() => new Promise((resolve) => {
-      conn.on('error', (err) => {
+      conn.on('error', (err: any) => {
         logging.log(err);
         resolve(3);
       });
 
       conn.on('ready', () => {
-        conn.sftp((err, sftp) => {
+        conn.sftp((err: any, sftp: any) => {
           if (err) {
             logging.log(err);
             resolve(1);
           }
           sftp.fastGet(
             defaults.STUDENTCODELOC, `${path}/robotCode.py`,
-            (err2) => {
+            (err2: any) => {
               if (err2) {
                 logging.log(err2);
                 resolve(2);
@@ -397,7 +409,7 @@ function* downloadStudentCode() {
           );
         });
       }).connect({
-        debug: (inpt) => {
+        debug: (inpt: any) => {
           logging.log(inpt);
         },
         host: stateSlice.ipAddress,
@@ -408,7 +420,7 @@ function* downloadStudentCode() {
     }));
     switch (errors) {
       case 0: {
-        const data = yield cps(fs.readFile, `${path}/robotCode.py`, 'utf8');
+        const data = yield cps(fs.readFile, `${path}/robotCode.py`);
         yield put(openFileSucceeded(data, `${path}/robotCode.py`));
         yield put(addAsyncAlert(
           'Download Success',
@@ -453,7 +465,7 @@ function* downloadStudentCode() {
 
 function* uploadStudentCode() {
   const conn = new Client();
-  const stateSlice = yield select(state => ({
+  const stateSlice = yield select((state: any) => ({
     runtimeStatus: state.info.runtimeStatus,
     ipAddress: state.info.ipAddress,
     filepath: state.editor.filepath,
@@ -461,20 +473,20 @@ function* uploadStudentCode() {
   if (stateSlice.runtimeStatus) {
     logging.log(`Uploading ${stateSlice.filepath}`);
     const errors = yield call(() => new Promise((resolve) => {
-      conn.on('error', (err) => {
+      conn.on('error', (err: any) => {
         logging.log(err);
         resolve(3);
       });
 
       conn.on('ready', () => {
-        conn.sftp((err, sftp) => {
+        conn.sftp((err: any, sftp: any) => {
           if (err) {
             logging.log(err);
             resolve(1);
           }
           sftp.fastPut(
             stateSlice.filepath, defaults.STUDENTCODELOC,
-            (err2) => {
+            (err2: any) => {
               if (err2) {
                 logging.log(err2);
                 resolve(2);
@@ -484,7 +496,7 @@ function* uploadStudentCode() {
           );
         });
       }).connect({
-        debug: (input) => {
+        debug: (input: any) => {
           logging.log(input);
         },
         host: stateSlice.ipAddress,
@@ -538,7 +550,7 @@ function* uploadStudentCode() {
 }
 
 function* handleFieldControl() {
-  const stateSlice = yield select(state => ({
+  const stateSlice = yield select((state: any) => ({
     fieldControlStatus: state.fieldStore.fieldControl,
   }));
   if (stateSlice.fieldControlStatus) {
@@ -555,6 +567,15 @@ function timestampBounceback() {
   ipcRenderer.send('TIMESTAMP_SEND');
 }
 
+/**
+ * Sends run mode status upon each main process update.
+ */
+function* exportRunMode() {
+  const stateSlice = yield select((state: any) => ({
+    studentCodeStatus: state.info.studentCodeStatus,
+  }));
+  ipcRenderer.send('runModeUpdate', stateSlice);
+}
 
 /**
  * The root saga combines all the other sagas together into one.
@@ -571,9 +592,10 @@ export default function* rootSaga() {
     takeEvery('UPLOAD_CODE', uploadStudentCode),
     takeEvery('TOGGLE_FIELD_CONTROL', handleFieldControl),
     takeEvery('TIMESTAMP_CHECK', timestampBounceback),
+    takeEvery('EXPORT_RUN_MODE', exportRunMode),
     fork(runtimeHeartbeat),
-    fork(ansibleGamepads),
-    fork(ansibleSaga),
+    fork(runtimeGamepads),
+    fork(runtimeSaga),
   ]);
 }
 
@@ -589,6 +611,6 @@ export {
   runtimeHeartbeat,
   gamepadsState,
   updateMainProcess,
-  ansibleReceiver,
-  ansibleSaga,
+  runtimeReceiver,
+  runtimeSaga,
 }; // for tests

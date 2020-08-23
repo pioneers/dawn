@@ -28,12 +28,14 @@ const filter = new Set([PeripheralTypes.TeamFlag]);
 const handleAccordion = (array) => {
   const peripheralGroups = {};
 
-  array.filter(p => !filter.has(p.device_type)).forEach((p) => {
-    if (!(p.device_type in peripheralGroups)) {
-      peripheralGroups[p.device_type] = [];
+  // Filter and group peripherals by name (type)
+  array.filter(p => !filter.has(p.uid)).forEach((p) => {
+    if (!(p.name in peripheralGroups)) {
+      peripheralGroups[p.name] = [];
     }
-    peripheralGroups[p.device_type].push(p);
+    peripheralGroups[p.name].push(p);
   });
+
   return (
     _.map(Object.keys(peripheralGroups), groups => (
       <PanelGroup
@@ -53,9 +55,9 @@ const handleAccordion = (array) => {
                   <Peripheral
                     key={String(peripheral.uid)}
                     id={String(peripheral.uid)}
-                    device_name={peripheral.device_name}
-                    device_type={peripheral.device_type}
-                    param={peripheral.param_value}
+                    device_name={peripheral.name}
+                    device_type={peripheral.name}
+                    param={peripheral.params}
                   />
                 ))
               }
@@ -81,7 +83,7 @@ const PeripheralListComponent = (props) => {
   if (errorMsg) {
     panelBody = <p className="panelText">{errorMsg}</p>;
   } else {
-    panelBody = handleAccordion(_.sortBy(_.toArray(props.peripherals.peripheralList), ['device_type']));
+    panelBody = handleAccordion(_.sortBy(_.toArray(props.peripherals.peripheralList), ['name']));
   }
 
   return (

@@ -2,10 +2,10 @@
  * Defines the Dawn menu
  */
 
-import { app } from 'electron';
+import { app, MenuItemConstructorOptions } from 'electron';
 import RendererBridge from '../RendererBridge';
 
-const DawnMenu = {
+const DawnMenu: MenuItemConstructorOptions = {
   label: 'Dawn',
   submenu: [
     {

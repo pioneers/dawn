@@ -3,7 +3,6 @@ import { robotState, runtimeState, defaults } from '../utils/utils';
 import * as consts from '../consts';
 import {
   InfoPerMessageAction,
-  AnsibleDisconnectAction,
   RuntimeConnectAction,
   MasterStatusAction,
   RuntimeDisconnectAction,
@@ -15,7 +14,6 @@ import {
 
 type Actions =
   | InfoPerMessageAction
-  | AnsibleDisconnectAction
   | RuntimeConnectAction
   | MasterStatusAction
   | RuntimeDisconnectAction
@@ -56,16 +54,6 @@ export const info = (state: InfoState = initialInfoState, action: Actions) => {
       return {
         ...state,
         connectionStatus: true,
-        robotState: action.robotState,
-        isRunningCode:
-          action.robotState === runtimeState.STUDENT_RUNNING ||
-          action.robotState === runtimeState.TELEOP ||
-          action.robotState === runtimeState.AUTONOMOUS,
-      };
-    case consts.InfoActionsTypes.ANSIBLE_DISCONNECT:
-      return {
-        ...state,
-        connectionStatus: false,
       };
     case consts.InfoActionsTypes.NOTIFICATION_CHANGE:
       return {
@@ -77,38 +65,39 @@ export const info = (state: InfoState = initialInfoState, action: Actions) => {
         ...state,
         runtimeStatus: true,
       };
+    case consts.InfoActionsTypes.RUNTIME_DISCONNECT:
+      return {
+        ...state,
+        runtimeStatus: false,
+        connectionStatus: false,
+        studentCodeStatus: robotState.IDLE,
+      };
     case consts.InfoActionsTypes.MASTER_ROBOT:
       return {
         ...state,
         masterStatus: true,
       };
-    case consts.InfoActionsTypes.RUNTIME_DISCONNECT:
-      return {
-        ...state,
-        runtimeStatus: false,
-        studentCodeStatus: robotState.IDLE,
-      };
     case consts.InfoActionsTypes.CODE_STATUS:
-      ipcRenderer.send('studentCodeStatus', { studentCodeStatus: action.studentCodeStatus });
+      ipcRenderer.send('studentCodeStatus', action.studentCodeStatus);
       return {
         ...state,
         studentCodeStatus: action.studentCodeStatus,
       };
     case consts.InfoActionsTypes.IP_CHANGE:
-      ipcRenderer.send('ipAddress', { ipAddress: action.ipAddress });
+      ipcRenderer.send('ipAddress', action.ipAddress);
       return {
         ...state,
         ipAddress: action.ipAddress,
       };
     case consts.FieldActionsTypes.UPDATE_ROBOT: {
-      const stateChange = action.autonomous ? robotState.AUTONOMOUS : robotState.TELEOP;
-      ipcRenderer.send('studentCodeStatus', { studentCodeStatus: !action.enabled ? robotState.IDLE : stateChange });
+      const stateChange = (action.autonomous) ? robotState.AUTONOMOUS : robotState.TELEOP;
+      const codeStatus = (!action.enabled) ? robotState.IDLE : stateChange;
       return {
         ...state,
         fieldControlDirective: stateChange,
         fieldControlActivity: action.enabled,
         // eslint-disable-next-line no-nested-ternary
-        studentCodeStatus: !action.enabled ? robotState.IDLE : stateChange,
+        studentCodeStatus: codeStatus,
       };
     }
     default:

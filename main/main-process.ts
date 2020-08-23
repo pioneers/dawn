@@ -9,7 +9,7 @@ import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electro
 import RendererBridge from './RendererBridge';
 import { killFakeRuntime } from './MenuTemplate/DebugMenu';
 import Template from './MenuTemplate/Template';
-import Ansible from './networking/Ansible';
+import Runtime from './networking/Runtime';
 import FCObject from './networking/FieldControl';
 
 
@@ -18,15 +18,17 @@ app.on('window-all-closed', () => {
 });
 
 app.on('will-quit', () => {
-  Ansible.close();
-  FCObject.FCInternal.quit();
+  Runtime.close();
+  if (FCObject.FCInternal !== null) {
+    FCObject.FCInternal.quit();
+  }
 
   if (process.env.NODE_ENV === 'development') {
     killFakeRuntime();
   }
 });
 
-function initializeFC(event) { // eslint-disable-line no-unused-vars
+function initializeFC(_event: any) { // eslint-disable-line no-unused-vars
   try {
     FCObject.setup();
   } catch (err) {
@@ -34,14 +36,14 @@ function initializeFC(event) { // eslint-disable-line no-unused-vars
   }
 }
 
-function teardownFC(event) { // eslint-disable-line no-unused-vars
+function teardownFC(_event: any) { // eslint-disable-line no-unused-vars
   if (FCObject.FCInternal !== null) {
     FCObject.FCInternal.quit();
   }
 }
 
 export default function showAPI() {
-  let api = new BrowserWindow({
+  let api: BrowserWindow | null = new BrowserWindow({
     webPreferences: {
       nodeIntegration: false,
     },
@@ -54,12 +56,14 @@ export default function showAPI() {
   });
   api.loadURL(`file://${__dirname}/../static/website-robot-api-master/robot_api.html`);
   api.once('ready-to-show', () => {
-    api.show();
+    if (api) {
+      api.show();
+    }
   });
 }
 
 app.on('ready', () => {
-  Ansible.setup();
+  Runtime.setup();
   ipcMain.on('FC_CONFIG_CHANGE', FCObject.changeFCInfo);
   ipcMain.on('FC_INITIALIZE', initializeFC);
   ipcMain.on('FC_TEARDOWN', teardownFC);
@@ -76,15 +80,15 @@ app.on('ready', () => {
   Menu.setApplicationMenu(menu);
 
   if (process.env.NODE_ENV !== 'production') {
-    installExtension(REACT_DEVELOPER_TOOLS).then((name) => {
+    installExtension(REACT_DEVELOPER_TOOLS).then((name: string) => {
       console.log(`Added Extension:  ${name}`);
-    }).catch((err) => {
+    }).catch((err: Error) => {
       console.log('An error occurred: ', err);
     });
 
-    installExtension(REDUX_DEVTOOLS).then((name) => {
+    installExtension(REDUX_DEVTOOLS).then((name: string) => {
       console.log(`Added Extension:  ${name}`);
-    }).catch((err) => {
+    }).catch((err: Error) => {
       console.log('An error occurred: ', err);
     });
   }

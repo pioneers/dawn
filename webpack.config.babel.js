@@ -3,6 +3,11 @@ import * as path from 'path';
 const modules = {
   rules: [
     {
+      test: /\.ts$/,
+      exclude: /node_modules/,
+      use: [{ loader: 'ts-loader' }]
+    },
+    {
       test: /\.js$/,
       exclude: /node_modules/,
       enforce: 'pre',
