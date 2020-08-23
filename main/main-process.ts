@@ -28,7 +28,7 @@ app.on('will-quit', () => {
   }
 });
 
-function initializeFC(event: any) { // eslint-disable-line no-unused-vars
+function initializeFC(_event: any) { // eslint-disable-line no-unused-vars
   try {
     FCObject.setup();
   } catch (err) {
@@ -36,7 +36,7 @@ function initializeFC(event: any) { // eslint-disable-line no-unused-vars
   }
 }
 
-function teardownFC(event: any) { // eslint-disable-line no-unused-vars
+function teardownFC(_event: any) { // eslint-disable-line no-unused-vars
   if (FCObject.FCInternal !== null) {
     FCObject.FCInternal.quit();
   }

@@ -164,7 +164,7 @@ class SendSocket {
    * Sends messages when Gamepad information changes
    * or when 100 ms has passed (with 50 ms cooldown)
    */
-  sendGamepadMessages(event: any, data: protos.GpState[]) {
+  sendGamepadMessages(_event: any, data: protos.GpState[]) {
     const message = protos.GpState.encode(data[0]).finish();
     this.logger.debug(`Dawn sent UDP to ${this.runtimeIP}`);
     this.socket.send(message, SEND_PORT, this.runtimeIP);
@@ -174,7 +174,7 @@ class SendSocket {
    * IPC Connection with ConfigBox.ts' saveChanges()
    * Receives new IP Address to send messages to.
    */
-  ipAddressListener(event: any, ipAddress: string) {
+  ipAddressListener(_event: any, ipAddress: string) {
     this.runtimeIP = ipAddress;
   }
 
@@ -235,7 +235,7 @@ class TCPConn {
    * IPC Connection with sagas.js' exportRunMode()
    * Receives new run mode to send to Runtime
    */
-  sendRunMode(event: any, data: any) {
+  sendRunMode(_event: any, data: any) {
     const mode = data.studentCodeStatus;
     const message = createPacket(mode, MsgType.RUN_MODE);
     this.socket.write(message, () => {
@@ -243,7 +243,7 @@ class TCPConn {
     });
   }
 
-  sendDevicePreferences(event: any, data: any) {
+  sendDevicePreferences(_event: any, data: any) {
     // TODO: Get device preference filter from UI components, then sagas
     const message = createPacket(data, MsgType.DEVICE_DATA);
     this.socket.write(message, () => {
@@ -251,7 +251,7 @@ class TCPConn {
     });
   }
 
-  sendChallengeInputs(event: any, data: any) {
+  sendChallengeInputs(_event: any, data: any) {
     // TODO: Get challenge inputs from UI components, then sagas
     const message = createPacket(data, MsgType.CHALLENGE_DATA);
     this.socket.write(message, () => {
@@ -259,7 +259,7 @@ class TCPConn {
     });
   }
 
-  sendRobotStartPos(event: any, data: any) {
+  sendRobotStartPos(_event: any, data: any) {
     // TODO: Get start pos from sagas
     const message = createPacket(data, MsgType.START_POS);
     this.socket.write(message, () => {
