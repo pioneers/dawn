@@ -83,8 +83,7 @@ class FakeRuntime {
 
   onInterval() {
     const fakeData: IDevData = this.generateFakeData();
-    const udpData: IDevData = DevData.create(fakeData);
-    this.sendSocket.send(DevData.encode(udpData).finish(), SENDPORT, 'localhost');
+    this.sendSocket.send(DevData.encode(fakeData).finish(), SENDPORT, 'localhost');
     // TODO: Handle TCP writes to console
   }
 }

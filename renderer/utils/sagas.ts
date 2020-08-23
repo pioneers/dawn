@@ -241,10 +241,16 @@ function formatGamepads(newGamepads: (Gamepad | null)[]): GpState[] {
   // The filter on 'mapping' filters out the ghost gamepad.
   _.forEach(_.filter(newGamepads, { mapping: 'standard' }), (gamepad: Gamepad | null, indexGamepad: number) => {
     if (gamepad) {
+      let bitmap: number = 0;
+      gamepad.buttons.forEach((button, index) => {
+        if (button.pressed) {
+          bitmap |= (1 << index);
+        }
+      });
       formattedGamepads[indexGamepad] = new GpState({
         connected: gamepad.connected,
         axes: gamepad.axes.slice(),
-        buttons: _.map(gamepad.buttons, 'value')[0],
+        buttons: bitmap,
       });
     }
   });
