@@ -87,7 +87,7 @@ class ConfigBoxComponent extends React.Component<Props, State> {
     });
   }
 
-  saveChanges = (e: React.FormEvent<HTMLInputElement>) => {
+  saveChanges = (e: React.FormEvent<Form>) => {
     e.preventDefault();
 
     const { ipAddress } = this.state;
@@ -115,15 +115,15 @@ class ConfigBoxComponent extends React.Component<Props, State> {
     this.props.hide();
   };
 
-  handleIpChange = (e: { target: { value: string } }) => {
+  handleIpChange = (e: React.FormEvent<FormControl>) => {
     this.setState({ ipAddress: e.target.value });
   };
 
-  handleFcChange = (e: { target: { value: string } }) => {
+  handleFcChange = (e: React.FormEvent<FormControl>) => {
     this.setState({ fcAddress: e.target.value });
   };
 
-  handleStationChange = (e: { target: { value: number } }) => {
+  handleStationChange = (e: React.FormEvent<FormControl>) => {
     this.setState({ stationNumber: e.target.value });
   };
 
