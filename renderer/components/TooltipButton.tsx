@@ -9,7 +9,7 @@ import {
 interface StateProp{
   id: string;
   text: string;
-  onClick: Function;
+  onClick: () => void;
   glyph: string;
   disabled: boolean;
   bsStyle?: string;

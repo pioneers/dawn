@@ -1,10 +1,12 @@
 import React from 'react';
 import { Grid, Row, Col } from 'react-bootstrap';
 import PeripheralList from './PeripheralList';
-import GamepadList from './GamepadList';
+import { GamepadList } from './GamepadList';
 import { EditorContainer } from './EditorContainer';
 
 interface StateProps {
+  addSteps: (steps: Array<Object>) => void;
+  addTooltip: (data: object) => void;
   connectionStatus: boolean;
   runtimeStatus: boolean;
   isRunningCode: boolean;

@@ -2,7 +2,7 @@ import React from 'react';
 import { Panel } from 'react-bootstrap';
 
 interface StateProps {
-  toggleConsole: Function;
+  toggleConsole: () => void;
   disableScroll: boolean;
 }
 

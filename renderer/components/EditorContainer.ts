@@ -68,7 +68,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   onClearConsole: () => {
     dispatch(clearConsole());
   },
-  onUpdateCodeStatus: (status: string) => {
+  onUpdateCodeStatus: (status: number) => {
     dispatch(updateCodeStatus(status));
   },
   onIPChange: (ipAddress: string) => {

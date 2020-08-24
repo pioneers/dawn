@@ -6,6 +6,7 @@ import numeral from 'numeral';
 interface StateProps {
   connectionStatus: boolean;
   runtimeStatus: boolean;
+  masterStatus: boolean;
   batteryLevel: number;
   batterySafety: boolean;
   blueMasterTeamNumber: number;
