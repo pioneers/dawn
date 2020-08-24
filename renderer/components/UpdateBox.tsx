@@ -15,6 +15,7 @@ const { Client } = require('ssh2');
 interface StateProps {
   connectionStatus: boolean;
   runtimeStatus: boolean;
+  masterStatus: boolean;
   isRunningCode: boolean;
   ipAddress: string;
 }
@@ -35,7 +36,7 @@ interface State {
   updateFilepath: string;
 }
 
-class UpdateBox extends React.Component<Props, State> {
+class UpdateBoxContainer extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -47,7 +48,7 @@ class UpdateBox extends React.Component<Props, State> {
   chooseUpdate = () => {
     dialog.showOpenDialog({
       filters: [{ name: 'Update Package', extensions: ['gz', 'tar.gz'] }],
-    }, (filepaths) => {
+    }, (filepaths: string[]) => {
       if (filepaths === undefined) return;
       this.setState({ updateFilepath: filepaths[0] });
     });
@@ -154,4 +155,4 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   },
 });
 
-export const UpdateBoxContainer = connect(null, mapDispatchToProps)(UpdateBox);
+export const UpdateBox = connect(null, mapDispatchToProps)(UpdateBoxContainer);
