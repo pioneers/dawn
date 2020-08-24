@@ -7,14 +7,10 @@ import {
 } from 'react-bootstrap';
 import _ from 'lodash';
 import numeral from 'numeral';
-
-export interface GamepadObject{
-  axes: Array<String | number> | object;
-  buttons: Array<String | number> | object;
-}
+import { GpState } from '../../protos/protos';
 
 interface OwnProps {
-  gamepad: GamepadObject;
+  gamepad: GpState;
   index: number;
 }
 
