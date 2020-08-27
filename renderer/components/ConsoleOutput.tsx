@@ -15,6 +15,7 @@ interface OwnProps {
 type Props = StateProps & OwnProps;
 
 export class ConsoleOutput extends React.Component<Props> {
+  outerDiv: HTMLDivElement | null;
   constructor(props: Props) {
     super(props);
   }
@@ -35,7 +36,9 @@ export class ConsoleOutput extends React.Component<Props> {
 
   scrollToBottom = () => {
     if (!this.props.disableScroll) {
-      this.outerDiv.scrollTop = this.outerDiv.scrollHeight;
+      if (this.outerDiv !== null) {
+        this.outerDiv.scrollTop = this.outerDiv.scrollHeight;
+      }
     }
   }
 
