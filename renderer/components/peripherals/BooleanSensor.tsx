@@ -1,14 +1,14 @@
 /* eslint-disable camelcase */
 import React from 'react';
-import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { PeripheralTypes } from '../../consts';
+import { IParam, IDevice } from '../../../protos/protos';
 
 /**
  * Boolean Sensor Component
  */
-const formatBoolean = (peripheralType, peripheral) => {
-  let sensorValue = peripheral.ival;
+const formatBoolean = (peripheralType: any, peripheral: IParam) => {
+  let sensorValue: boolean | number | null | undefined = peripheral.ival;
   if (sensorValue === undefined) {
     sensorValue = peripheral.bval;
   }
@@ -18,18 +18,20 @@ const formatBoolean = (peripheralType, peripheral) => {
   return sensorValue;
 };
 
-const BooleanSensor = ({
-  id, device_type, param,
-}) => (
+export const BooleanSensor = ({
+  uid,
+  type,
+  params,
+}: IDevice) => (
   <div style={{ overflow: 'auto', width: '100%' }}>
     <h4 style={{ float: 'left' }}>
-      <div>{id}</div>
+      <div>{uid}</div>
     </h4>
     {
-      _.map(param, obj => (
-        <div key={`${obj.name}-${id}-Overall`}>
-          <h4 style={{ clear: 'right', float: 'right', height: '10px' }} key={`${obj.name}-${id}`}>
-            {`${obj.name}: ${formatBoolean(device_type, obj)}`}
+      _.map(params, obj => (
+        <div key={`${obj.name}-${uid}-Overall`}>
+          <h4 style={{ clear: 'right', float: 'right', height: '10px' }} key={`${obj.name}-${uid}`}>
+            {`${obj.name}: ${formatBoolean(type, obj)}`}
           </h4>
         </div>
       ))
@@ -37,10 +39,3 @@ const BooleanSensor = ({
   </div>
 );
 
-BooleanSensor.propTypes = {
-  device_type: PropTypes.string.isRequired,
-  id: PropTypes.string.isRequired,
-  param: PropTypes.array.isRequired,
-};
-
-export default BooleanSensor;
