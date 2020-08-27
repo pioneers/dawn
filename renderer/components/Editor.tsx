@@ -67,7 +67,7 @@ interface OwnProps {
   onChangeFontsize: (newFontsize: number) => void; 
   toggleConsole: () => void;
   onClearConsole: () => void;
-  onUpdateCodeStatus: (status: string) => void;
+  onUpdateCodeStatus: (status: number) => void;
   onDownloadCode: () => void;
   onUploadCode: () => void;
 }

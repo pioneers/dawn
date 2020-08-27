@@ -22,7 +22,7 @@ interface StateProps {
 }
 
 interface OwnProps {
-  startTour: Function;
+  startTour: () => void;
   fieldControlStatus: boolean;
 }
 
@@ -74,7 +74,8 @@ class DNavComponent extends React.Component<Props, State> {
       robotState,
       blueMasterTeamNumber,
       goldMasterTeamNumber,
-      fieldControlStatus } = this.props;
+      fieldControlStatus,
+      startTour } = this.props;
     const { showConfigModal, showUpdateModal } = this.state;
     
     return (
