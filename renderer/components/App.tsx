@@ -10,6 +10,7 @@ import joyrideSteps from './JoyrideSteps';
 import { removeAsyncAlert } from '../actions/AlertActions';
 import { updateFieldControl } from '../actions/FieldActions';
 import { logging, startLog } from '../utils/utils';
+import { FieldControlConfig } from '../types';
 
 const storage = remote.require('electron-json-storage');
 
@@ -29,7 +30,7 @@ interface StateProps {
 
 interface DispatchProps {
   onAlertDone: (id: number) => void;
-  onFCUpdate: (ipAddress: string) => void;
+  onFCUpdate: (param: FieldControlConfig) => void;
 }
 
 interface State {
@@ -68,7 +69,7 @@ class AppComponent extends React.Component<Props, State> {
       }
     });
 
-    storage.get('fieldControl', (err: any, data: string) => {
+    storage.get('fieldControl', (err: any, data: FieldControlConfig) => {
       if (err) {
         logging.log(err);
         return;
@@ -179,14 +180,15 @@ const mapStateToProps = (state: ApplicationState) => ({
   masterStatus: state.fieldStore.masterStatus,
   isRunningCode: state.info.isRunningCode,
   asyncAlerts: state.asyncAlerts,
+  stationNumber: state.fieldStore.stationNumber,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   onAlertDone: (id: number) => {
     dispatch(removeAsyncAlert(id));
   },
-  onFCUpdate: (ipAddress) => {
-    dispatch(updateFieldControl(ipAddress));
+  onFCUpdate: (param : FieldControlConfig) => {
+    dispatch(updateFieldControl(param));
   },
 });
 
