@@ -6,7 +6,7 @@ import { Gamepad } from './Gamepad';
 import { GpState } from '../../protos/protos';
 
 interface StateProps {
-  gamepads: GpState[];
+  gamepads: GpState[] | undefined;
 }
 
 type Props = StateProps;
