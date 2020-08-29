@@ -41,6 +41,8 @@ interface State {
 type Props = StateProps & DispatchProps;
 
 class AppComponent extends React.Component<Props, State> {
+  joyride: Joyride | null;
+  
   constructor(props: Props) {
     super(props);
     this.state = {
