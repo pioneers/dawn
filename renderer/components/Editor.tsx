@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes, { number } from 'prop-types';
 import {
   Panel,
   ButtonGroup,
@@ -83,7 +82,9 @@ interface State {
   fontsize?: number;
 };
 
-class Editor extends React.Component<Props, State> {
+export class Editor extends React.Component<Props, State> {
+  themes: string[];
+  CodeEditor: AceEditor;
   /*
    * ASCII Enforcement
    */
@@ -225,7 +226,7 @@ class Editor extends React.Component<Props, State> {
 
   getEditorHeight = () => {
     const windowNonEditorHeight = windowInfo.NONEDITOR +
-      (this.props.showConsole * (this.state.consoleHeight + windowInfo.CONSOLEPAD));
+      (+!!this.props.showConsole * (this.state.consoleHeight + windowInfo.CONSOLEPAD));
     return `${String(window.innerHeight - windowNonEditorHeight)}px`;
   }
 
@@ -399,11 +400,11 @@ class Editor extends React.Component<Props, State> {
     });
   }
 
-  handleChangeFontsize = (event: { target: {value: number}}) => {
+  handleChangeFontsize = (event: any) => {
     this.setState({ fontsize: event.target.value });
   }
 
-  handleSubmitFontsize = (event: React.FormEvent<HTMLInputElement>) => {
+  handleSubmitFontsize = (event: any) => {
     this.changeFontsizeToFont(Number(this.state.fontsize));
     event.preventDefault();
   }
@@ -610,31 +611,31 @@ class Editor extends React.Component<Props, State> {
                     id="choose-font-size"
                   >
                     <MenuItem
-                      class="dropdown-item"
+                      className="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(8)}
                     >8</MenuItem>
                     <MenuItem
-                      class="dropdown-item"
+                      className="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(12)}
                     >12</MenuItem>
                     <MenuItem
-                      class="dropdown-item"
+                      className="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(14)}
                     >14</MenuItem>
                     <MenuItem
-                      class="dropdown-item"
+                      className="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(16)}
                     >16</MenuItem>
                     <MenuItem
-                      class="dropdown-item"
+                      className="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(20)}
                     >20</MenuItem>
                     <MenuItem
-                      class="dropdown-item"
+                      className="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(24)}
                     >24</MenuItem>
                     <MenuItem
-                      class="dropdown-item"
+                      className="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(28)}
                     >28</MenuItem>
                   </DropdownButton>
@@ -642,7 +643,7 @@ class Editor extends React.Component<Props, State> {
               </InputGroup>
             </FormGroup>
             {' '}
-            <ButtonGroup id="editor-settings-buttons" class="form-inline">
+            <ButtonGroup id="editor-settings-buttons" className="form-inline">
               <TooltipButton
                 id="increase-font-size"
                 text="Increase font size"
@@ -680,7 +681,7 @@ class Editor extends React.Component<Props, State> {
             theme={this.props.editorTheme}
             width="100%"
             fontSize={this.props.fontSize}
-            ref={(input) => { this.CodeEditor = input; }}
+            ref={(input: AceEditor) => { this.CodeEditor = input; }}
             name="CodeEditor"
             height={this.state.editorHeight.toString()}
             value={this.props.editorCode}
@@ -700,33 +701,3 @@ class Editor extends React.Component<Props, State> {
     );
   }
 }
-
-Editor.propTypes = {
-  editorCode: PropTypes.string.isRequired,
-  editorTheme: PropTypes.string.isRequired,
-  filepath: PropTypes.string.isRequired,
-  fontSize: PropTypes.number.isRequired,
-  latestSaveCode: PropTypes.string.isRequired,
-  showConsole: PropTypes.bool.isRequired,
-  consoleData: PropTypes.array.isRequired,
-  onAlertAdd: PropTypes.func.isRequired,
-  onEditorUpdate: PropTypes.func.isRequired,
-  onSaveFile: PropTypes.func.isRequired,
-  onDragFile: PropTypes.func.isRequired,
-  onOpenFile: PropTypes.func.isRequired,
-  onCreateNewFile: PropTypes.func.isRequired,
-  onChangeTheme: PropTypes.func.isRequired,
-  onChangeFontsize: PropTypes.func.isRequired,
-  toggleConsole: PropTypes.func.isRequired,
-  onClearConsole: PropTypes.func.isRequired,
-  onUpdateCodeStatus: PropTypes.func.isRequired,
-  isRunningCode: PropTypes.bool.isRequired,
-  runtimeStatus: PropTypes.bool.isRequired,
-  fieldControlActivity: PropTypes.bool.isRequired,
-  onDownloadCode: PropTypes.func.isRequired,
-  onUploadCode: PropTypes.func.isRequired,
-  disableScroll: PropTypes.bool.isRequired,
-  consoleUnread: PropTypes.bool.isRequired,
-};
-
-export default Editor;
