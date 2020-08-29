@@ -1,10 +1,10 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { Panel, PanelGroup, ListGroup } from 'react-bootstrap';
 import { PeripheralTypes } from '../consts';
-import Peripheral from './Peripheral';
+import { Peripheral } from './Peripheral';
+import { Device } from '../../protos/protos';
 
 const cleanerNames = {};
 cleanerNames[PeripheralTypes.MOTOR_SCALAR] = 'Motors';
@@ -25,11 +25,17 @@ cleanerNames[PeripheralTypes.KoalaBear] = 'Koala Bear';
 
 const filter = new Set([PeripheralTypes.TeamFlag]);
 
-const handleAccordion = (array) => {
+interface StateProps{
+  connectionStatus: boolean;
+  runtimeStatus: boolean;
+  peripherals: { peripheralList: Array<{ [uid: string]: Device[] }>;}
+}
+
+const handleAccordion = (array: Device[]) => {
   const peripheralGroups = {};
 
   // Filter and group peripherals by name (type)
-  array.filter(p => !filter.has(p.uid)).forEach((p) => {
+  array.filter((p: Device) => !filter.has(p.uid)).forEach((p: Device) => {
     if (!(p.name in peripheralGroups)) {
       peripheralGroups[p.name] = [];
     }
@@ -57,7 +63,7 @@ const handleAccordion = (array) => {
                     id={String(peripheral.uid)}
                     device_name={peripheral.name}
                     device_type={peripheral.name}
-                    param={peripheral.params}
+                    params={peripheral.params}
                   />
                 ))
               }
@@ -70,7 +76,7 @@ const handleAccordion = (array) => {
 };
 
 
-const PeripheralListComponent = (props) => {
+const PeripheralListComponent = (props: StateProps) => {
   let errorMsg = null;
   if (!props.connectionStatus) {
     errorMsg = 'You are currently disconnected from the robot.';
@@ -101,13 +107,7 @@ const PeripheralListComponent = (props) => {
   );
 };
 
-PeripheralListComponent.propTypes = {
-  connectionStatus: PropTypes.bool.isRequired,
-  runtimeStatus: PropTypes.bool.isRequired,
-  peripherals: PropTypes.object.isRequired,
-};
-
-const mapStateToProps = state => ({
+const mapStateToProps = (state: ApplicationState) => ({
   peripherals: state.peripherals,
 });
 
