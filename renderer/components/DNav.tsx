@@ -114,8 +114,8 @@ class DNavComponent extends React.Component<Props, State> {
               connectionStatus={connectionStatus}
               runtimeStatus={runtimeStatus}
               masterStatus={masterStatus}
-              blueMaster={blueMasterTeamNumber}
-              goldMaster={goldMasterTeamNumber}
+              blueMasterTeamNumber={blueMasterTeamNumber}
+              goldMasterTeamNumber={goldMasterTeamNumber}
               ipAddress={ipAddress}
               fieldControlStatus={fieldControlStatus}
             />

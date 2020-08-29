@@ -28,14 +28,14 @@ const filter = new Set([PeripheralTypes.TeamFlag]);
 interface StateProps{
   connectionStatus: boolean;
   runtimeStatus: boolean;
-  peripherals: { peripheralList: Array<{ [uid: string]: Device[] }>;}
+  peripherals: {peripheralList: Device[]}
 }
 
 const handleAccordion = (array: Device[]) => {
   const peripheralGroups = {};
 
   // Filter and group peripherals by name (type)
-  array.filter((p: Device) => !filter.has(p.uid)).forEach((p: Device) => {
+  array.filter((p: Device) => !filter.has(p.uid)).forEach((p) => {
     if (!(p.name in peripheralGroups)) {
       peripheralGroups[p.name] = [];
     }
