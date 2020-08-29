@@ -7,8 +7,8 @@ interface StateProps {
   connectionStatus: boolean;
   runtimeStatus: boolean;
   masterStatus: boolean;
-  batteryLevel: number;
-  batterySafety: boolean;
+  batteryLevel?: number;
+  batterySafety?: boolean;
   blueMasterTeamNumber: number;
   goldMasterTeamNumber: number;
   ipAddress: string;
