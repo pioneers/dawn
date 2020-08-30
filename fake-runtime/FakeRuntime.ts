@@ -7,9 +7,9 @@
 /* eslint-disable camelcase */
 import { IParam, DevData, IDevData } from '../protos/protos';
 import { createSocket, Socket as UDPSocket } from 'dgram';
-import { createServer, Socket as TCPSocket, Server } from 'net';
+// import { createServer, Socket as TCPSocket, Server } from 'net';
 
-const TCPPORT = 1234;
+// const TCPPORT = 1234;
 const SENDPORT = 1235;
 const LISTENPORT = 1236;
 const MSGINTERVAL = 1000; // in ms
@@ -29,9 +29,9 @@ const param = (name: string, type: string, value: any) => ({ // eslint-disable-l
   bval: type === 'bool' ? value : undefined,
 });
 
-const print = (output: string) => {
-  console.log(`Fake Runtime: ${output}`);
-};
+// const print = (output: string) => {
+//   console.log(`Fake Runtime: ${output}`);
+// };
 
 
 class FakeRuntime {
@@ -43,7 +43,7 @@ class FakeRuntime {
     this.listenSocket = createSocket({ type: 'udp4', reuseAddr: true });
 
     // this.fakeState = null;
-    this.listenSocket.on('message', (msg: any) => {
+    this.listenSocket.on('message', (_msg: any) => {
       // TODO: Handle UDP gamepad recv
     });
     this.listenSocket.bind(LISTENPORT);
