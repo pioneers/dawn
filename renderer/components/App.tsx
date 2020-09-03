@@ -1,12 +1,12 @@
 import React from 'react';
-import Joyride from 'react-joyride';
+import Joyride, { Step } from 'react-joyride';
 import { remote, ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import smalltalk from 'smalltalk';
 import { Dashboard } from './Dashboard';
 import { DNav } from './DNav';
-import joyrideSteps from './JoyrideSteps';
+import { joyrideSteps } from './JoyrideSteps';
 import { removeAsyncAlert } from '../actions/AlertActions';
 import { updateFieldControl } from '../actions/FieldActions';
 import { logging, startLog } from '../utils/utils';
@@ -34,7 +34,7 @@ interface DispatchProps {
 }
 
 interface State {
-  steps: Array<Object>;
+  steps: Array<Step>;
   tourRunning: boolean;
 }
 
@@ -96,21 +96,17 @@ class AppComponent extends React.Component<Props, State> {
     return nextProps !== this.props || nextState !== this.state;
   }
 
-  addSteps = (steps: Array<Object>) => {
+  addSteps = (steps: Array<Step>) => {
     if (!Array.isArray(steps)) {
       steps = [steps];
     }
     if (steps.length === 0) {
       return;
     }
-    this.setState((currentState: {steps: Array<Object>}) => {
+    this.setState((currentState: {steps: Array<Step>}) => {
       currentState.steps = currentState.steps.concat(steps);
       return currentState;
     });
-  }
-
-  addTooltip = (data: object) => {
-    this.joyride.addTooltip(data);
   }
 
   startTour = () => {
@@ -118,9 +114,9 @@ class AppComponent extends React.Component<Props, State> {
   }
 
   joyrideCallback = (action: { type: string }) => {
+    // Confirm this still works
     if (action.type === 'finished') {
       this.setState({ tourRunning: false });
-      this.joyride.reset(false);
     }
   }
 
@@ -149,9 +145,8 @@ class AppComponent extends React.Component<Props, State> {
         <Joyride
           ref={(c: any) => { this.joyride = c; }}
           steps={this.state.steps}
-          type="continuous"
+          continuous={true}
           showSkipButton
-          autoStart
           run={tourRunning}
           callback={this.joyrideCallback}
           locale={{
@@ -166,7 +161,6 @@ class AppComponent extends React.Component<Props, State> {
         <Dashboard
           {...this.props}
           addSteps={this.addSteps}
-          addTooltip={this.addTooltip}
           connectionStatus={connectionStatus}
           runtimeStatus={runtimeStatus}
           isRunningCode={isRunningCode}
