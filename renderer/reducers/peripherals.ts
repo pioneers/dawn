@@ -1,9 +1,8 @@
 import * as consts from '../consts';
-import { UpdatePeripheralsAction, PeripheralRenameAction } from '../types';
+import { UpdatePeripheralsAction, PeripheralRenameAction, PeripheralList } from '../types';
 import { Device } from "../../protos/protos";
 
 type Actions = UpdatePeripheralsAction | PeripheralRenameAction;
-type PeripheralList = Array<{ [uid: string]: Device[] }>;
 
 const initialPeripheralList: PeripheralList = []
 

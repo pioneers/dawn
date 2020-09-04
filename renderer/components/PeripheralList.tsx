@@ -5,6 +5,7 @@ import { Panel, PanelGroup, ListGroup } from 'react-bootstrap';
 import { PeripheralTypes } from '../consts';
 import { Peripheral } from './Peripheral';
 import { Device } from '../../protos/protos';
+import { PeripheralList } from '../types';
 
 const cleanerNames = {};
 cleanerNames[PeripheralTypes.MOTOR_SCALAR] = 'Motors';
@@ -25,10 +26,10 @@ cleanerNames[PeripheralTypes.KoalaBear] = 'Koala Bear';
 
 const filter = new Set([PeripheralTypes.TeamFlag]);
 
-interface StateProps{
+interface StateProps {
   connectionStatus: boolean;
   runtimeStatus: boolean;
-  peripherals: {peripheralList: Device[]}
+  peripheralList: PeripheralList;
 }
 
 const handleAccordion = (array: Device[]) => {
@@ -89,7 +90,7 @@ const PeripheralListComponent = (props: StateProps) => {
   if (errorMsg) {
     panelBody = <p className="panelText">{errorMsg}</p>;
   } else {
-    panelBody = handleAccordion(_.sortBy(_.toArray(props.peripherals.peripheralList), ['name']));
+    panelBody = handleAccordion(_.sortBy(_.toArray(props.peripheralList), ['name']));
   }
 
   return (
@@ -108,7 +109,7 @@ const PeripheralListComponent = (props: StateProps) => {
 };
 
 const mapStateToProps = (state: ApplicationState) => ({
-  peripherals: state.peripherals,
+  peripheralList: state.peripherals.peripheralList,
 });
 
 const PeripheralList = connect(mapStateToProps)(PeripheralListComponent);
