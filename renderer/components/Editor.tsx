@@ -183,23 +183,24 @@ export class Editor extends React.Component<Props, State> {
     this.CodeEditor.editor.completers = [autoComplete];
 
     this.onWindowResize();
-    storage.get('editorTheme', (err: any, data: {theme: string}) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    storage.get('editorTheme', (err: any, data: { theme?: string }) => {
       if (err) {
         logging.log(err);
       } else if (!_.isEmpty(data)) {
-        this.props.onChangeTheme(data.theme);
+        this.props.onChangeTheme(data.theme ?? 'github');
       }
     });
 
-    storage.get('editorFontSize', (err: any, data: {editorFontSize: number}) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    storage.get('editorFontSize', (err: any, data: { editorFontSize?: number }) => {
       if (err) {
         logging.log(err);
       } else if (!_.isEmpty(data)) {
-        this.props.onChangeFontsize(data.editorFontSize);
+        this.props.onChangeFontsize(data.editorFontSize ?? 14);
         this.setState({ fontsize: this.props.fontSize });
       }
     });
-
 
     window.addEventListener('beforeunload', this.beforeUnload);
     window.addEventListener('resize', this.onWindowResize, { passive: true });
