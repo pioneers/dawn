@@ -23,8 +23,7 @@ cleanerNames[PeripheralTypes.GameValues] = 'Game Values';
 cleanerNames[PeripheralTypes.PolarBear] = 'Polar Bear';
 cleanerNames[PeripheralTypes.KoalaBear] = 'Koala Bear';
 
-
-const filter = new Set([PeripheralTypes.TeamFlag]);
+const filter = new Set();
 
 interface StateProps {
   connectionStatus: boolean;
@@ -32,77 +31,73 @@ interface StateProps {
   peripheralList: PeripheralList;
 }
 
-const handleAccordion = (array: Device[]) => {
-  const peripheralGroups = {};
+const handleAccordion = (devices: Device[]) => {
+  const peripheralGroups: { [peripheralName: string]: Device[] } = {};
 
   // Filter and group peripherals by name (type)
-  array.filter((p: Device) => !filter.has(p.uid)).forEach((p) => {
-    if (!(p.name in peripheralGroups)) {
-      peripheralGroups[p.name] = [];
-    }
-    peripheralGroups[p.name].push(p);
-  });
+  devices
+    .filter((p: Device) => !filter.has(p.uid))
+    .forEach((p) => {
+      const group: Device[] = peripheralGroups[p.name] ?? [];
+      group.push(p);
+      peripheralGroups[p.name] = group;
+    });
 
-  return (
-    _.map(Object.keys(peripheralGroups), groups => (
+  return Object.keys(peripheralGroups).map((groupName: string) => {
+    const groupNameCleaned = cleanerNames[groupName] as string;
+
+    return (
       <PanelGroup
         accordion
         style={{ marginBottom: '0px' }}
-        key={`${cleanerNames[groups] || 'Default'}-Accordion`}
-        id={`${cleanerNames[groups] || 'Default'}-Accordion`}
+        key={`${groupNameCleaned || 'Default'}-Accordion`}
+        id={`${groupNameCleaned || 'Default'}-Accordion`}
       >
-        <Panel key={`${cleanerNames[groups] || 'Default'}-Panel`} defaultExpanded>
+        <Panel key={`${groupNameCleaned || 'Default'}-Panel`} defaultExpanded>
           <Panel.Heading>
-            <Panel.Title toggle style={{ fontWeight: 'bold' }}>{cleanerNames[groups] || 'Generic'}</Panel.Title>
+            <Panel.Title toggle style={{ fontWeight: 'bold' }}>
+              {cleanerNames[groupName] || 'Generic'}
+            </Panel.Title>
           </Panel.Heading>
           <Panel.Collapse>
-            <Panel.Body style={{ padding: '10px' }} >
-              {
-                _.map(peripheralGroups[groups], peripheral => (
-                  <Peripheral
-                    key={String(peripheral.uid)}
-                    id={String(peripheral.uid)}
-                    device_name={peripheral.name}
-                    device_type={peripheral.name}
-                    params={peripheral.params}
-                  />
-                ))
-              }
+            <Panel.Body style={{ padding: '10px' }}>
+              {_.map(peripheralGroups[groupName], (peripheral) => (
+                <Peripheral
+                  key={String(peripheral.uid)}
+                  id={String(peripheral.uid)}
+                  device_name={peripheral.name}
+                  device_type={peripheral.name}
+                  params={peripheral.params}
+                />
+              ))}
             </Panel.Body>
           </Panel.Collapse>
         </Panel>
       </PanelGroup>
-    ))
-  );
+    );
+  });
 };
-
 
 const PeripheralListComponent = (props: StateProps) => {
   let errorMsg = null;
   if (!props.connectionStatus) {
     errorMsg = 'You are currently disconnected from the robot.';
   } else if (!props.runtimeStatus) {
-    errorMsg = 'There appears to be some sort of General error. ' +
-      'No data is being received.';
+    errorMsg = 'There appears to be some sort of General error. ' + 'No data is being received.';
   }
 
   let panelBody = null;
   if (errorMsg) {
     panelBody = <p className="panelText">{errorMsg}</p>;
   } else {
-    panelBody = handleAccordion(_.sortBy(_.toArray(props.peripheralList), ['name']));
+    panelBody = handleAccordion(Object.values(props.peripheralList));
   }
 
   return (
-    <Panel
-      id="peripherals-panel"
-      bsStyle="primary"
-    >
+    <Panel id="peripherals-panel" bsStyle="primary">
       <Panel.Heading>Peripherals</Panel.Heading>
       <Panel.Body style={{ padding: '0px' }}>
-        <ListGroup>
-          {panelBody}
-        </ListGroup>
+        <ListGroup>{panelBody}</ListGroup>
       </Panel.Body>
     </Panel>
   );
