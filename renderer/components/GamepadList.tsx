@@ -28,7 +28,6 @@ const GamepadListComponent = (props: Props) => {
   }
   return (
     <Panel
-      header="Gamepads"
       bsStyle="primary"
       id="gamepads-panel"
     >
