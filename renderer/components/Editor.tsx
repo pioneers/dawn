@@ -235,7 +235,7 @@ export class Editor extends React.Component<Props, State> {
     // If there are unsaved changes and the user tries to close Dawn,
     // check if they want to save their changes first.
     if (this.hasUnsavedChanges()) {
-      const clickedId = dialog.showMessageBox(currentWindow, {
+      dialog.showMessageBox(currentWindow, {
         type: 'warning',
         buttons: ['Save...', 'Don\'t Save', 'Cancel'],
         defaultId: 0,
@@ -243,19 +243,19 @@ export class Editor extends React.Component<Props, State> {
         title: 'You have unsaved changes!',
         message: 'Do you want to save the changes made to your program?',
         detail: 'Your changes will be lost if you don\'t save them.',
-      });
-
+      })      
       // NOTE: For whatever reason, `event.preventDefault()` does not work within
       // beforeunload events, so we use `event.returnValue = false` instead.
-      //
-      // `clickedId` is the index of the clicked button in the button list above.
-      if (clickedId === 0) {
-        // FIXME: Figure out a way to make Save and Close, well, close.
-        event.returnValue = false;
-        this.props.onSaveFile();
-      } else if (clickedId === 2) {
-        event.returnValue = false;
-      }
+      .then(clickedId => {
+        if (clickedId.response === 0) {
+          // FIXME: Figure out a way to make Save and Close, well, close.
+          event.returnValue = false;
+          this.props.onSaveFile();
+        } else if (clickedId.response === 2) {
+          event.returnValue = false;
+        }
+      })
+
     }
   }
 
