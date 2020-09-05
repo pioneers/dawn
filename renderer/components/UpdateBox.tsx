@@ -3,13 +3,12 @@ import {
   Modal,
   Button,
 } from 'react-bootstrap';
-import { remote } from 'electron';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import { addAsyncAlert } from '../actions/AlertActions';
 import { pathToName, defaults, logging } from '../utils/utils';
 
-const { dialog } = remote;
+const { dialog } = require('electron').remote;
 const { Client } = require('ssh2');
 
 interface StateProps {
@@ -47,7 +46,9 @@ class UpdateBoxContainer extends React.Component<Props, State> {
 
   chooseUpdate = () => {
     dialog.showOpenDialog({
-      filters: [{ name: 'Update Package', extensions: ['gz', 'tar.gz'] }],
+      filters: [
+        { name: 'Update Package', extensions: ['gz', 'tar.gz']}
+      ]
     }, (filepaths: string[]) => {
       if (filepaths === undefined) return;
       this.setState({ updateFilepath: filepaths[0] });
