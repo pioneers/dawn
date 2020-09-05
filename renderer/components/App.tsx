@@ -171,10 +171,8 @@ class AppComponent extends React.Component<Props, State> {
 }
 
 const mapStateToProps = (state: ApplicationState) => ({
-  connectionStatus: state.info.connectionStatus,
   runtimeStatus: state.info.runtimeStatus,
   masterStatus: state.fieldStore.masterStatus,
-  isRunningCode: state.info.isRunningCode,
   asyncAlerts: state.asyncAlerts,
   stationNumber: state.fieldStore.stationNumber,
 });

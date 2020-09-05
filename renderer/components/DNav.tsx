@@ -9,21 +9,22 @@ import { VERSION } from '../consts';
 import { runtimeState } from '../utils/utils';
 
 interface StateProps {
-  connectionStatus: boolean;
-  runtimeStatus: boolean;
-  masterStatus: boolean;
-  isRunningCode: boolean;
-  ipAddress: string;
   runtimeVersion: string;
   robotState: number;
   heart: boolean;
   blueMasterTeamNumber: number;
   goldMasterTeamNumber: number;
+  ipAddress: string;
+  fieldControlStatus: boolean;
 }
 
 interface OwnProps {
+  ipAddress: string;
   startTour: () => void;
-  fieldControlStatus: boolean;
+  runtimeStatus: boolean;
+  masterStatus: boolean;
+  connectionStatus: boolean;
+  isRunningCode: boolean;
 }
 
 interface State {
@@ -162,7 +163,6 @@ class DNavComponent extends React.Component<Props, State> {
 }
 
 const mapStateToProps = (state: ApplicationState) => ({
-  masterStatus: state.fieldStore.masterStatus,
   blueMasterTeamNumber: state.fieldStore.blueMasterTeamNumber,
   goldMasterTeamNumber: state.fieldStore.goldMasterTeamNumber,
   robotState: state.info.robotState,
