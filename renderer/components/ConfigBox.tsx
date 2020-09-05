@@ -115,16 +115,16 @@ class ConfigBoxComponent extends React.Component<Props, State> {
     this.props.hide();
   };
 
-  handleIpChange = (e: React.FormEvent<FormControl>) => {
-    this.setState({ ipAddress: e.target.value });
+  handleIpChange = (e: React.FormEvent<FormControl & HTMLInputElement>) => {
+    this.setState({ ipAddress: e.currentTarget.value });
   };
 
-  handleFcChange = (e: React.FormEvent<FormControl>) => {
-    this.setState({ fcAddress: e.target.value });
+  handleFcChange = (e: React.FormEvent<FormControl& HTMLInputElement>) => {
+    this.setState({ fcAddress: e.currentTarget.value });
   };
 
-  handleStationChange = (e: React.FormEvent<FormControl>) => {
-    this.setState({ stationNumber: e.target.value });
+  handleStationChange = (e: React.FormEvent<FormControl & HTMLInputElement>) => {
+    this.setState({ stationNumber: parseInt(e.currentTarget.value) });
   };
 
   handleClose = () => {
