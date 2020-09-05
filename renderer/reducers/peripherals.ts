@@ -4,7 +4,7 @@ import { Device } from "../../protos/protos";
 
 type Actions = UpdatePeripheralsAction | PeripheralRenameAction;
 
-const initialPeripheralList: PeripheralList = []
+const initialPeripheralList: PeripheralList = {};
 
 interface PeripheralState {
   peripheralList: PeripheralList;
