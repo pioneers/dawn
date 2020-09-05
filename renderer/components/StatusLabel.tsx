@@ -15,7 +15,8 @@ interface StateProps {
 }
 
 interface OwnProps {
-  fieldControlStatus: boolean;
+  fieldControlStatus?: boolean;
+  masterStatus: boolean;
 }
 
 type Props = StateProps & OwnProps;
@@ -63,11 +64,6 @@ const StatusLabelComponent = (props: Props) => {
 const mapStateToProps = (state: ApplicationState) => ({
   batteryLevel: state.peripherals.batteryLevel,
   batterySafety: state.peripherals.batterySafety,
-  masterStatus: state.fieldStore.masterStatus,
-  blueMasterTeamNumber: state.fieldStore.blueMasterTeamNumber,
-  goldMasterTeamNumber: state.fieldStore.goldMasterTeamNumber,
-  ipAddress: state.info.ipAddress,
-  fieldControlStatus: state.fieldStore.fieldControl,
 });
 
 export const StatusLabel = connect(mapStateToProps)(StatusLabelComponent);
