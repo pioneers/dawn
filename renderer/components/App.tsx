@@ -1,39 +1,63 @@
 import React from 'react';
-import Joyride from 'react-joyride';
-import PropTypes from 'prop-types';
+import Joyride, { Step } from 'react-joyride';
 import { remote, ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
+import { Dispatch } from 'redux';
 import smalltalk from 'smalltalk';
-import Dashboard from './Dashboard';
-import DNav from './DNav';
-import joyrideSteps from './JoyrideSteps';
+import { Dashboard } from './Dashboard';
+import { DNav } from './DNav';
+import { joyrideSteps } from './JoyrideSteps';
 import { removeAsyncAlert } from '../actions/AlertActions';
 import { updateFieldControl } from '../actions/FieldActions';
 import { logging, startLog } from '../utils/utils';
+import { FieldControlConfig } from '../types';
 
 const storage = remote.require('electron-json-storage');
 
-class AppComponent extends React.Component {
-  constructor(props) {
+interface AlertType {
+  heading: string;
+  message: string;
+  id: number;
+}
+
+interface StateProps {
+  connectionStatus: boolean;
+  runtimeStatus: boolean;
+  masterStatus: boolean;
+  isRunningCode: boolean;
+  asyncAlerts: Array<Object>
+}
+
+interface DispatchProps {
+  onAlertDone: (id: number) => void;
+  onFCUpdate: (param: FieldControlConfig) => void;
+}
+
+interface State {
+  steps: Array<Step>;
+  tourRunning: boolean;
+}
+
+type Props = StateProps & DispatchProps;
+
+class AppComponent extends React.Component<Props, State> {
+  joyride: Joyride | null;
+  
+  constructor(props: Props) {
     super(props);
     this.state = {
       steps: [],
       tourRunning: false,
     };
-    this.addSteps = this.addSteps.bind(this);
-    this.addTooltip = this.addTooltip.bind(this);
-    this.startTour = this.startTour.bind(this);
-    this.joyrideCallback = this.joyrideCallback.bind(this);
-    this.updateAlert = this.updateAlert.bind(this);
     startLog();
   }
 
-  componentDidMount() {
+  componentDidMount = () => {
     this.addSteps(joyrideSteps);
     ipcRenderer.on('start-interactive-tour', () => {
       this.startTour();
     });
-    storage.has('firstTime', (hasErr, hasKey) => {
+    storage.has('firstTime', (hasErr: any, hasKey: any) => {
       if (hasErr) {
         logging.log(hasErr);
         return;
@@ -41,13 +65,13 @@ class AppComponent extends React.Component {
 
       if (!hasKey) {
         this.startTour();
-        storage.set('firstTime', { first: true }, (setErr) => {
+        storage.set('firstTime', { first: true }, (setErr: any) => {
           if (setErr) logging.log(setErr);
         });
       }
     });
 
-    storage.get('fieldControl', (err, data) => {
+    storage.get('fieldControl', (err: any, data: FieldControlConfig) => {
       if (err) {
         logging.log(err);
         return;
@@ -57,50 +81,46 @@ class AppComponent extends React.Component {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps = (nextProps: Props) => {
     const { asyncAlerts } = nextProps;
     // If the alerts list has changed, display the latest one.
     if (asyncAlerts !== this.props.asyncAlerts) {
-      const latestAlert = asyncAlerts[asyncAlerts.length - 1];
+      const latestAlert = asyncAlerts[asyncAlerts.length - 1] as AlertType;
       if (latestAlert !== undefined) {
         this.updateAlert(latestAlert);
       }
     }
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate = (nextProps: Props, nextState: State) => {
     return nextProps !== this.props || nextState !== this.state;
   }
 
-  addSteps(steps) {
+  addSteps = (steps: Array<Step>) => {
     if (!Array.isArray(steps)) {
       steps = [steps];
     }
     if (steps.length === 0) {
       return;
     }
-    this.setState((currentState) => {
+    this.setState((currentState: {steps: Array<Step>}) => {
       currentState.steps = currentState.steps.concat(steps);
       return currentState;
     });
   }
 
-  addTooltip(data) {
-    this.joyride.addTooltip(data);
-  }
-
-  startTour() {
+  startTour = () => {
     this.setState({ tourRunning: true });
   }
 
-  joyrideCallback(action) {
+  joyrideCallback = (action: { type: string }) => {
+    // Confirm this still works
     if (action.type === 'finished') {
       this.setState({ tourRunning: false });
-      this.joyride.reset(false);
     }
   }
 
-  updateAlert(latestAlert) {
+  updateAlert = (latestAlert: AlertType) =>  {
     smalltalk.alert(latestAlert.heading, latestAlert.message).then(() => {
       this.props.onAlertDone(latestAlert.id);
     }, () => {
@@ -109,22 +129,25 @@ class AppComponent extends React.Component {
   }
 
   render() {
+
+    const { runtimeStatus, masterStatus, connectionStatus, isRunningCode } = this.props;
+    const { tourRunning } = this.state;
+
     return (
       <div>
         <DNav
           startTour={this.startTour}
-          runtimeStatus={this.props.runtimeStatus}
-          masterStatus={this.props.masterStatus}
-          connectionStatus={this.props.connectionStatus}
-          isRunningCode={this.props.isRunningCode}
+          runtimeStatus={runtimeStatus}
+          masterStatus={masterStatus}
+          connectionStatus={connectionStatus}
+          isRunningCode={isRunningCode}
         />
         <Joyride
-          ref={(c) => { this.joyride = c; }}
+          ref={(c: any) => { this.joyride = c; }}
           steps={this.state.steps}
-          type="continuous"
+          continuous={true}
           showSkipButton
-          autoStart
-          run={this.state.tourRunning}
+          run={tourRunning}
           callback={this.joyrideCallback}
           locale={{
             back: 'Previous',
@@ -138,43 +161,31 @@ class AppComponent extends React.Component {
         <Dashboard
           {...this.props}
           addSteps={this.addSteps}
-          addTooltip={this.addTooltip}
-          connectionStatus={this.props.connectionStatus}
-          runtimeStatus={this.props.runtimeStatus}
-          isRunningCode={this.props.isRunningCode}
+          connectionStatus={connectionStatus}
+          runtimeStatus={runtimeStatus}
+          isRunningCode={isRunningCode}
         />
       </div>
     );
   }
 }
 
-AppComponent.propTypes = {
-  connectionStatus: PropTypes.bool.isRequired,
-  runtimeStatus: PropTypes.bool.isRequired,
-  masterStatus: PropTypes.bool.isRequired,
-  isRunningCode: PropTypes.bool.isRequired,
-  asyncAlerts: PropTypes.array.isRequired,
-  onAlertDone: PropTypes.func.isRequired,
-  onFCUpdate: PropTypes.func.isRequired,
-};
-
-const mapStateToProps = state => ({
+const mapStateToProps = (state: ApplicationState) => ({
   connectionStatus: state.info.connectionStatus,
   runtimeStatus: state.info.runtimeStatus,
   masterStatus: state.fieldStore.masterStatus,
-  isRunningCode: state.info.isRunningCode,
   asyncAlerts: state.asyncAlerts,
+  stationNumber: state.fieldStore.stationNumber,
+  isRunningCode: state.info.isRunningCode
 });
 
-const mapDispatchToProps = dispatch => ({
-  onAlertDone(id) {
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  onAlertDone: (id: number) => {
     dispatch(removeAsyncAlert(id));
   },
-  onFCUpdate: (ipAddress) => {
-    dispatch(updateFieldControl(ipAddress));
+  onFCUpdate: (param : FieldControlConfig) => {
+    dispatch(updateFieldControl(param));
   },
 });
 
-const App = connect(mapStateToProps, mapDispatchToProps)(AppComponent);
-
-export default App;
+export const App = connect(mapStateToProps, mapDispatchToProps)(AppComponent);

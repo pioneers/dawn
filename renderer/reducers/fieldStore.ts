@@ -31,6 +31,8 @@ interface FieldState {
   mTeamNames: string[];
   teamNumber: number;
   teamColor: string;
+  blueMasterTeamNumber: number;
+  goldMasterTeamNumber: number;
 }
 
 const initialFieldState = {
@@ -46,6 +48,8 @@ const initialFieldState = {
   mTeamNames: ['Offline', 'Offline', 'Offline', 'Offline'],
   teamNumber: 0,
   teamColor: 'Unknown',
+  blueMasterTeamNumber: 0,
+  goldMasterTeamNumber: 0
 };
 
 export const fieldStore = (state: FieldState = initialFieldState, action: Actions) => {

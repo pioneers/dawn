@@ -1,46 +1,64 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
-import {
-  Navbar,
-  ButtonToolbar,
-  ButtonGroup,
-  Label,
-} from 'react-bootstrap';
-import ConfigBox from './ConfigBox';
-import UpdateBox from './UpdateBox';
-import StatusLabel from './StatusLabel';
-import TooltipButton from './TooltipButton';
+import { Navbar, ButtonToolbar, ButtonGroup, Label } from 'react-bootstrap';
+import { ConfigBox } from './ConfigBox';
+import { UpdateBox } from './UpdateBox';
+import { StatusLabel } from './StatusLabel';
+import { TooltipButton } from './TooltipButton';
 import { VERSION } from '../consts';
 import { runtimeState } from '../utils/utils';
 
-class DNavComponent extends React.Component {
-  constructor(props) {
+interface StateProps {
+  runtimeVersion: string;
+  robotState: number;
+  heart: boolean;
+  blueMasterTeamNumber: number;
+  goldMasterTeamNumber: number;
+  ipAddress: string;
+  fieldControlStatus: boolean;
+}
+
+interface OwnProps {
+  ipAddress: string;
+  startTour: () => void;
+  runtimeStatus: boolean;
+  masterStatus: boolean;
+  connectionStatus: boolean;
+  isRunningCode: boolean;
+}
+
+interface State {
+  showUpdateModal: boolean;
+  showConfigModal: boolean;
+}
+
+type Props = StateProps & OwnProps;
+
+class DNavComponent extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
-    this.toggleUpdateModal = this.toggleUpdateModal.bind(this);
-    this.toggleConfigModal = this.toggleConfigModal.bind(this);
     this.state = {
       showUpdateModal: false,
       showConfigModal: false,
     };
   }
 
-  toggleUpdateModal() {
+  toggleUpdateModal = () => {
     this.setState({ showUpdateModal: !this.state.showUpdateModal });
   }
 
-  toggleConfigModal() {
+  toggleConfigModal = () => {
     this.setState({ showConfigModal: !this.state.showConfigModal });
   }
 
-  createHeader() {
+  createHeader = () => {
     if (this.props.fieldControlStatus) {
       return `Dawn FC v${VERSION} ${(this.props.heart) ? '+' : '-'}`;
     }
     return `Dawn v${VERSION}`;
   }
 
-  createMaster() {
+  createMaster = () => {
     if (this.props.fieldControlStatus) {
       return this.props.masterStatus;
     }
@@ -48,20 +66,33 @@ class DNavComponent extends React.Component {
   }
 
   render() {
+    const { connectionStatus, 
+      runtimeStatus, 
+      masterStatus, 
+      isRunningCode,
+      ipAddress,
+      runtimeVersion,
+      robotState,
+      blueMasterTeamNumber,
+      goldMasterTeamNumber,
+      fieldControlStatus,
+      startTour } = this.props;
+    const { showConfigModal, showUpdateModal } = this.state;
+    
     return (
       <Navbar fixedTop fluid>
         <UpdateBox
-          isRunningCode={this.props.isRunningCode}
-          connectionStatus={this.props.connectionStatus}
-          runtimeStatus={this.props.runtimeStatus}
-          masterStatus={this.props.masterStatus}
-          shouldShow={this.state.showUpdateModal}
-          ipAddress={this.props.ipAddress}
+          isRunningCode={isRunningCode}
+          connectionStatus={connectionStatus}
+          runtimeStatus={runtimeStatus}
+          masterStatus={masterStatus}
+          shouldShow={showUpdateModal}
+          ipAddress={ipAddress}
           hide={this.toggleUpdateModal}
         />
         <ConfigBox
-          shouldShow={this.state.showConfigModal}
-          ipAddress={this.props.ipAddress}
+          shouldShow={showConfigModal}
+          ipAddress={ipAddress}
           hide={this.toggleConfigModal}
         />
         <Navbar.Header>
@@ -71,23 +102,23 @@ class DNavComponent extends React.Component {
           <Navbar.Toggle />
         </Navbar.Header>
         <Navbar.Collapse>
-          {this.props.runtimeStatus ?
+          {runtimeStatus ?
             <Navbar.Text id="runtime-version">
               <Label bsStyle="info">{
-                `Runtime v${this.props.runtimeVersion}: ${runtimeState[this.props.robotState]}`
+                `Runtime v${runtimeVersion}: ${runtimeState[robotState]}`
               }
               </Label>
             </Navbar.Text> : ''
           }
           <Navbar.Text id="battery-indicator">
             <StatusLabel
-              connectionStatus={this.props.connectionStatus}
-              runtimeStatus={this.props.runtimeStatus}
-              masterStatus={this.props.masterStatus}
-              blueMaster={this.props.blueMaster}
-              goldMaster={this.props.goldMaster}
-              ipAddress={this.props.ipAddress}
-              fieldControlStatus={this.props.fieldControlStatus}
+              connectionStatus={connectionStatus}
+              runtimeStatus={runtimeStatus}
+              masterStatus={masterStatus}
+              blueMasterTeamNumber={blueMasterTeamNumber}
+              goldMasterTeamNumber={goldMasterTeamNumber}
+              ipAddress={ipAddress}
+              fieldControlStatus={fieldControlStatus}
             />
           </Navbar.Text>
           <Navbar.Form
@@ -99,7 +130,7 @@ class DNavComponent extends React.Component {
                   placement="bottom"
                   text="Tour"
                   bsStyle="info"
-                  onClick={this.props.startTour}
+                  onClick={startTour}
                   id="tour-button"
                   glyph="info-sign"
                   disabled={false}
@@ -118,7 +149,7 @@ class DNavComponent extends React.Component {
                   text="Upload Upgrade"
                   bsStyle="info"
                   onClick={this.toggleUpdateModal}
-                  disabled={!this.props.runtimeStatus}
+                  disabled={!runtimeStatus}
                   id="update-software-button"
                   glyph="cloud-upload"
                 />
@@ -131,25 +162,9 @@ class DNavComponent extends React.Component {
   }
 }
 
-DNavComponent.propTypes = {
-  connectionStatus: PropTypes.bool.isRequired,
-  runtimeStatus: PropTypes.bool.isRequired,
-  masterStatus: PropTypes.bool.isRequired,
-  isRunningCode: PropTypes.bool.isRequired,
-  ipAddress: PropTypes.string.isRequired,
-  startTour: PropTypes.func.isRequired,
-  runtimeVersion: PropTypes.string.isRequired,
-  robotState: PropTypes.number.isRequired,
-  heart: PropTypes.bool.isRequired,
-  fieldControlStatus: PropTypes.bool.isRequired,
-  blueMaster: PropTypes.number.isRequired,
-  goldMaster: PropTypes.number.isRequired,
-};
-
-const mapStateToProps = state => ({
-  masterStatus: state.fieldStore.masterStatus,
-  blueMaster: state.fieldStore.blueMaster,
-  goldMaster: state.fieldStore.goldMaster,
+const mapStateToProps = (state: ApplicationState) => ({
+  blueMasterTeamNumber: state.fieldStore.blueMasterTeamNumber,
+  goldMasterTeamNumber: state.fieldStore.goldMasterTeamNumber,
   robotState: state.info.robotState,
   heart: state.fieldStore.heart,
   ipAddress: state.info.ipAddress,
@@ -158,6 +173,4 @@ const mapStateToProps = state => ({
 });
 
 
-const DNav = connect(mapStateToProps)(DNavComponent);
-
-export default DNav;
+export const DNav = connect(mapStateToProps)(DNavComponent);

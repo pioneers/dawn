@@ -48,7 +48,7 @@ const initialInfoState = {
   fieldControlActivity: false,
 };
 
-export const info = (state: InfoState = initialInfoState, action: Actions) => {
+export const info = (state: InfoState = initialInfoState, action: Actions): InfoState => {
   switch (action.type) {
     case consts.InfoActionsTypes.PER_MESSAGE:
       return {

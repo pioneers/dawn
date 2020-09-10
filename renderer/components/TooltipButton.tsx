@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {
   Button,
   Glyphicon,
@@ -7,7 +6,17 @@ import {
   Tooltip,
 } from 'react-bootstrap';
 
-const TooltipButton = (props) => {
+interface StateProp{
+  id: string;
+  text: string;
+  onClick: () => void;
+  glyph: string;
+  disabled: boolean;
+  bsStyle?: string;
+  placement?: string;
+}
+
+export const TooltipButton = (props: StateProp) => {
   const tooltip = (
     <Tooltip id={`tooltip-editor-button-${props.id}`}>{props.text}</Tooltip>
   );
@@ -27,14 +36,3 @@ const TooltipButton = (props) => {
   );
 };
 
-TooltipButton.propTypes = {
-  id: PropTypes.string.isRequired,
-  text: PropTypes.string.isRequired,
-  onClick: PropTypes.func.isRequired,
-  glyph: PropTypes.string.isRequired,
-  disabled: PropTypes.bool.isRequired,
-  bsStyle: PropTypes.string,
-  placement: PropTypes.string,
-};
-
-export default TooltipButton;

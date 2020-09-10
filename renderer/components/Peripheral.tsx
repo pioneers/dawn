@@ -6,13 +6,13 @@
  */
 
 import React from 'react';
-import PropTypes from 'prop-types';
 import { ListGroupItem } from 'react-bootstrap';
 import { PeripheralTypes } from '../consts';
-import BooleanSensor from './peripherals/BooleanSensor';
-import GenericPeripheral from './peripherals/GenericPeripheral';
-import GameValues from './peripherals/GameValues';
-import Motor from './peripherals/Motor';
+import { BooleanSensor } from './peripherals/BooleanSensor';
+import { GenericPeripheral } from './peripherals/GenericPeripheral';
+import { GameValues } from './peripherals/GameValues';
+import { Motor } from './peripherals/Motor';
+import { Param } from '../../protos/protos';
 
 // Mapping between peripheral types and components
 const typesToComponents = {};
@@ -21,8 +21,15 @@ typesToComponents[PeripheralTypes.SENSOR_BOOLEAN] = BooleanSensor;
 typesToComponents[PeripheralTypes.LimitSwitch] = BooleanSensor;
 typesToComponents[PeripheralTypes.GameValues] = GameValues;
 
+interface OwnProps{
+  key: string;
+  id: string;
+  device_name: string;
+  device_type: string;
+  params: Param[];
+}
 
-const Peripheral = (props) => {
+export const Peripheral = (props: OwnProps) => {
   const ActualPeripheral = typesToComponents[props.device_type] || GenericPeripheral;
   return (
     <ListGroupItem style={{ padding: '0px 0px 15px 0px', border: 'none' }}>
@@ -31,8 +38,3 @@ const Peripheral = (props) => {
   );
 };
 
-Peripheral.propTypes = {
-  device_type: PropTypes.string.isRequired,
-};
-
-export default Peripheral;

@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import Editor from './Editor';
+import  { Editor } from './Editor';
 import {
   editorUpdate,
   saveFile,
@@ -11,7 +11,7 @@ import {
 } from '../actions/EditorActions';
 import {
   changeTheme,
-  changeFontsize,
+  changeFontSize,
 } from '../actions/SettingsActions';
 import {
   toggleConsole,
@@ -19,47 +19,48 @@ import {
 } from '../actions/ConsoleActions';
 import { addAsyncAlert } from '../actions/AlertActions';
 import { updateCodeStatus, ipChange } from '../actions/InfoActions';
+import { Dispatch } from 'redux';
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: ApplicationState) => ({
   editorCode: state.editor.editorCode,
   editorTheme: state.settings.editorTheme,
   filepath: state.editor.filepath,
   fontSize: state.settings.fontSize,
   latestSaveCode: state.editor.latestSaveCode,
-  showConsole: state.studentConsole.showConsole,
-  consoleData: state.studentConsole.consoleData,
+  showConsole: state.console.showConsole,
+  consoleData: state.console.consoleData,
   ipAddress: state.info.ipAddress,
   connectionStatus: state.info.connectionStatus,
   notificationHold: state.info.notificationHold,
   fieldControlActivity: state.info.fieldControlActivity,
-  disableScroll: state.studentConsole.disableScroll,
-  consoleUnread: state.studentConsole.consoleUnread,
+  disableScroll: state.console.disableScroll,
+  consoleUnread: state.console.consoleUnread,
 });
 
-const mapDispatchToProps = dispatch => ({
-  onAlertAdd: (heading, message) => {
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  onAlertAdd: (heading: string, message: string) => {
     dispatch(addAsyncAlert(heading, message));
   },
-  onEditorUpdate: (newVal) => {
+  onEditorUpdate: (newVal: string) => {
     dispatch(editorUpdate(newVal));
   },
-  onSaveFile: (saveAs) => {
+  onSaveFile: (saveAs?: boolean) => {
     dispatch(saveFile(saveAs));
   },
   onOpenFile: () => {
     dispatch(openFile());
   },
-  onDragFile: (filepath) => {
+  onDragFile: (filepath: string) => {
     dispatch(dragFile(filepath));
   },
   onCreateNewFile: () => {
     dispatch(createNewFile());
   },
-  onChangeTheme: (theme) => {
+  onChangeTheme: (theme: string) => {
     dispatch(changeTheme(theme));
   },
-  onChangeFontsize: (newFontsize) => {
-    dispatch(changeFontsize(newFontsize));
+  onChangeFontsize: (newFontsize: number) => {
+    dispatch(changeFontSize(newFontsize));
   },
   toggleConsole: () => {
     dispatch(toggleConsole());
@@ -67,10 +68,10 @@ const mapDispatchToProps = dispatch => ({
   onClearConsole: () => {
     dispatch(clearConsole());
   },
-  onUpdateCodeStatus: (status) => {
+  onUpdateCodeStatus: (status: number) => {
     dispatch(updateCodeStatus(status));
   },
-  onIPChange: (ipAddress) => {
+  onIPChange: (ipAddress: string) => {
     dispatch(ipChange(ipAddress));
   },
   onDownloadCode: () => {
@@ -81,6 +82,5 @@ const mapDispatchToProps = dispatch => ({
   },
 });
 
-const EditorContainer = connect(mapStateToProps, mapDispatchToProps)(Editor);
+export const EditorContainer = connect(mapStateToProps, mapDispatchToProps)(Editor);
 
-export default EditorContainer;
