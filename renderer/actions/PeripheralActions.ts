@@ -1,8 +1,8 @@
 import * as consts from '../consts';
 import { PeripheralActions } from '../types';
-import { IDevice } from '../../protos/protos';
+import { Device } from '../../protos/protos';
 
-export const updatePeripherals: PeripheralActions['updatePeripherals'] = (sensors: IDevice[]) => ({
+export const updatePeripherals: PeripheralActions['updatePeripherals'] = (sensors: Device[]) => ({
   type: consts.PeripheralActionsTypes.UPDATE_PERIPHERALS,
   peripherals: sensors,
 });

@@ -2,14 +2,14 @@
 import React from 'react';
 import _ from 'lodash';
 import numeral from 'numeral';
-import { IDevice } from '../../../protos/protos';
+import { Device } from '../../../protos/protos';
 
 /**
  * Generic Peripheral for General Case
  */
 export const GenericPeripheral = ({
   uid, params,
-}: IDevice) => (
+}: Device) => (
   <div style={{ overflow: 'auto', width: '100%' }}>
     <h4 style={{ float: 'left' }}>
       <div>{uid}</div>

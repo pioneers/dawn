@@ -3,13 +3,13 @@ import React from 'react';
 import _ from 'lodash';
 import numeral from 'numeral';
 import { ProgressBar } from 'react-bootstrap';
-import { IDevice } from '../../../protos/protos';
+import { Device } from '../../../protos/protos';
 
 /**
  *  Motor Component
  */
 
-export const Motor = ({ uid, params }: IDevice) => (
+export const Motor = ({ uid, params }: Device) => (
   <div style={{ overflow: 'auto', width: '100%' }}>
     <h4 style={{ float: 'left' }}>
       <div>{uid}</div>

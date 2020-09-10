@@ -12,7 +12,7 @@ import { BooleanSensor } from './peripherals/BooleanSensor';
 import { GenericPeripheral } from './peripherals/GenericPeripheral';
 import { GameValues } from './peripherals/GameValues';
 import { Motor } from './peripherals/Motor';
-import { IParam } from '../../protos/protos';
+import { Param } from '../../protos/protos';
 
 // Mapping between peripheral types and components
 const typesToComponents = {};
@@ -26,7 +26,7 @@ interface OwnProps{
   id: string;
   device_name: string;
   device_type: string;
-  params: IParam[]
+  params: Param[];
 }
 
 export const Peripheral = (props: OwnProps) => {

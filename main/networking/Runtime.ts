@@ -100,7 +100,7 @@ class ListenSocket {
     this.socket.on('message', (msg: Uint8Array) => {
       try {
         RendererBridge.reduxDispatch(infoPerMessage());
-        const sensorData: protos.IDevice[] = protos.DevData.decode(msg).devices;
+        const sensorData: protos.Device[] = protos.DevData.decode(msg).devices;
         this.logger.debug('Dawn received UDP sensor data');
         RendererBridge.reduxDispatch(updatePeripherals(sensorData));
       } catch (err) {

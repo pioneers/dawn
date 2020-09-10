@@ -1,14 +1,14 @@
 /* eslint-disable camelcase */
 import React from 'react';
 import _ from 'lodash';
-import { IDevice } from '../../../protos/protos';
+import { Device } from '../../../protos/protos';
 
 /**
  * Generic Peripheral for General Case
  */
 export const GameValues = ({
   name, params,
-}: IDevice) => (
+}: Device) => (
   <div style={{ overflow: 'auto', width: '100%' }}>
     <h4 style={{ float: 'left' }}>
       <div>{name}</div>

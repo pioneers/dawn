@@ -2,12 +2,12 @@
 import React from 'react';
 import _ from 'lodash';
 import { PeripheralTypes } from '../../consts';
-import { IParam, IDevice } from '../../../protos/protos';
+import { Param, Device } from '../../../protos/protos';
 
 /**
  * Boolean Sensor Component
  */
-const formatBoolean = (peripheralType: any, peripheral: IParam) => {
+const formatBoolean = (peripheralType: any, peripheral: Param) => {
   let sensorValue: boolean | number | null | undefined = peripheral.ival;
   if (sensorValue === undefined) {
     sensorValue = peripheral.bval;
@@ -22,7 +22,7 @@ export const BooleanSensor = ({
   uid,
   type,
   params,
-}: IDevice) => (
+}: Device) => (
   <div style={{ overflow: 'auto', width: '100%' }}>
     <h4 style={{ float: 'left' }}>
       <div>{uid}</div>
