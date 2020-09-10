@@ -22,7 +22,7 @@ export const Motor = ({ uid, params }: IDevice) => (
             {`${obj.name}: ${numeral(obj.fval).format('+0.00')}`}
 
           </h4>
-          <ProgressBar style={{ clear: 'right', height: '20px' }} now={obj.fval} min={-100} />
+          <ProgressBar style={{ clear: 'right', height: '20px' }} now={obj.fval ?? 0} min={-100} />
         </div>
       ))
     }

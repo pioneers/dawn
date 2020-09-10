@@ -473,7 +473,7 @@ export class Editor extends React.Component<Props, State> {
                   onClick={this.props.onOpenFile}
                 >Open</MenuItem>
                 <MenuItem
-                  onClick={this.props.onSaveFile}
+                  onClick={_.partial(this.props.onSaveFile,false)}
                 >Save</MenuItem>
                 <MenuItem
                   onClick={_.partial(this.props.onSaveFile, true)}
