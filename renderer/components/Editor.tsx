@@ -89,13 +89,8 @@ export class Editor extends React.Component<Props, State> {
   /*
    * ASCII Enforcement
    */
-<<<<<<< Updated upstream
   static onEditorPaste(pasteData: { text: string }) {
     let correctedText = pasteData.text;
-=======
-  static onEditorPaste(correctedText: string) {
-    //let correctedText = pasteData.text;
->>>>>>> Stashed changes
     correctedText = correctedText.normalize('NFD');
     correctedText = correctedText.replace(/[”“]/g, '"');
     correctedText = correctedText.replace(/[‘’]/g, "'");
