@@ -93,7 +93,7 @@ export class Editor extends React.Component<Props, State> {
     correctedText = correctedText.normalize('NFD');
     correctedText = correctedText.replace(/[”“]/g, '"');
     correctedText = correctedText.replace(/[‘’]/g, "'");
-    correctedText = Editor.correctText(correctedText);
+    Editor.correctText(correctedText);
     // TODO: Create some notification that an attempt was made at correcting non-ASCII chars.
     //pasteData.text = correctedText; // eslint-disable-line no-param-reassign
   }
