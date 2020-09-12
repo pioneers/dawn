@@ -45,7 +45,7 @@ function teardownFC(_event: any) { // eslint-disable-line no-unused-vars
 export default function showAPI() {
   let api: BrowserWindow | null = new BrowserWindow({
     webPreferences: {
-      nodeIntegration: false,
+      nodeIntegration: true,
     },
     width: 1400,
     height: 900,
@@ -68,7 +68,11 @@ app.on('ready', () => {
   ipcMain.on('FC_INITIALIZE', initializeFC);
   ipcMain.on('FC_TEARDOWN', teardownFC);
 
-  const mainWindow = new BrowserWindow();
+  const mainWindow = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,
+    }
+  });
 
   // Binding for the main process to inject into Redux workflow
   RendererBridge.registerWindow(mainWindow);
