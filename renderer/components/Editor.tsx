@@ -12,9 +12,11 @@ import {
   Tooltip,
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
+import { Ace } from 'ace-builds'
 import { remote, clipboard } from 'electron';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
+
 
 // React-ace extensions and modes
 import 'ace-builds/src-noconflict/ext-language_tools';
@@ -87,14 +89,19 @@ export class Editor extends React.Component<Props, State> {
   /*
    * ASCII Enforcement
    */
+<<<<<<< Updated upstream
   static onEditorPaste(pasteData: { text: string }) {
     let correctedText = pasteData.text;
+=======
+  static onEditorPaste(correctedText: string) {
+    //let correctedText = pasteData.text;
+>>>>>>> Stashed changes
     correctedText = correctedText.normalize('NFD');
     correctedText = correctedText.replace(/[”“]/g, '"');
     correctedText = correctedText.replace(/[‘’]/g, "'");
     correctedText = Editor.correctText(correctedText);
     // TODO: Create some notification that an attempt was made at correcting non-ASCII chars.
-    pasteData.text = correctedText; // eslint-disable-line no-param-reassign
+    //pasteData.text = correctedText; // eslint-disable-line no-param-reassign
   }
 
   // TODO: Take onEditorPaste items and move to utils?
@@ -134,7 +141,7 @@ export class Editor extends React.Component<Props, State> {
       enableLiveAutocompletion: true,
     });
     const autoComplete = {
-      getCompletions(editor, session, pos, prefix, callback) {
+      getCompletions(_editor: Ace.Editor, _session: Ace.EditSession, _pos: Ace.Point, _prefix: string, callback: Ace.CompleterCallback) {
         callback(null, [
           { value: 'Robot', score: 1000, meta: 'PiE API' },
           { value: 'get_value', score: 900, meta: 'PiE API' },
