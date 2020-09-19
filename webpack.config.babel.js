@@ -3,6 +3,14 @@ import * as path from 'path';
 const modules = {
   rules: [
     {
+      test: /\.css$/,
+      use: ['style-loader', 'css-loader'],
+    },
+    {
+      test: /\.(png|jpe?g|gif)$/i,
+      use: ['file-loader'],
+    },
+    {
       test: /\.(ts|tsx)?$/,
       exclude: /node_modules/,
       use: [{ loader: 'ts-loader' }]
@@ -29,7 +37,7 @@ export default [
     entry: './renderer/index.tsx',
     devtool: 'cheap-module-eval-source-map',
     resolve: {
-      extensions: [ '.tsx', '.ts', '.js' ],
+      extensions: ['.tsx', '.ts', '.js'],
     },
     output: {
       path: path.join(__dirname, 'build'),
@@ -41,7 +49,7 @@ export default [
   {
     entry: './main/main-process.ts',
     resolve: {
-      extensions: [ '.tsx', '.ts', '.js' ],
+      extensions: ['.tsx', '.ts', '.js'],
     },
     output: {
       path: path.join(__dirname, 'build'),
