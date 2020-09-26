@@ -12,6 +12,7 @@ import { updateFieldControl } from '../actions/FieldActions';
 import { logging, startLog } from '../utils/utils';
 import { FieldControlConfig } from '../types';
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 const storage = remote.require('electron-json-storage');
 
 interface AlertType {

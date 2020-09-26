@@ -68,7 +68,12 @@ app.on('ready', () => {
   ipcMain.on('FC_INITIALIZE', initializeFC);
   ipcMain.on('FC_TEARDOWN', teardownFC);
 
-  const mainWindow = new BrowserWindow();
+  const mainWindow = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,
+      enableRemoteModule: true
+    }
+  });
 
   // Binding for the main process to inject into Redux workflow
   RendererBridge.registerWindow(mainWindow);
