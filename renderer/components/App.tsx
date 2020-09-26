@@ -1,6 +1,7 @@
 import React from 'react';
 import Joyride, { Step } from 'react-joyride';
 import { remote, ipcRenderer } from 'electron';
+import * as electronJSONStorage from 'electron-json-storage';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import smalltalk from 'smalltalk';
@@ -12,8 +13,9 @@ import { updateFieldControl } from '../actions/FieldActions';
 import { logging, startLog } from '../utils/utils';
 import { FieldControlConfig } from '../types';
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-const storage = remote.require('electron-json-storage');
+type ElectronJSONStorage = typeof electronJSONStorage;
+
+const storage = remote.require('electron-json-storage') as ElectronJSONStorage;
 
 interface AlertType {
   heading: string;
