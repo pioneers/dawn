@@ -74,13 +74,15 @@ class AppComponent extends React.Component<Props, State> {
       }
     });
 
-    storage.get('fieldControl', (err: any, data: FieldControlConfig) => {
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    storage.get('fieldControl', (err: any, data: object) => {
       if (err) {
         logging.log(err);
         return;
       }
-      this.props.onFCUpdate(data);
-      ipcRenderer.send('FC_CONFIG_CHANGE', data);
+      const fieldControlConfig = data as FieldControlConfig;
+      this.props.onFCUpdate(fieldControlConfig);
+      ipcRenderer.send('FC_CONFIG_CHANGE', fieldControlConfig);
     });
   };
 
