@@ -21,13 +21,17 @@ let runtimeIP = defaults.IPADDRESS;
  * Define message ID constants, which must match with Runtime
  */
 enum MsgType {
-  RUN_MODE, START_POS, CHALLENGE_DATA, LOG, DEVICE_DATA
+  RUN_MODE,
+  START_POS,
+  CHALLENGE_DATA,
+  LOG,
+  DEVICE_DATA,
 }
 
 interface TCPPacket {
-  messageType: MsgType,
-  messageLength: number,
-  payload: Buffer,
+  messageType: MsgType;
+  messageLength: number;
+  payload: Buffer;
 }
 
 /**
@@ -266,21 +270,17 @@ class UDPConn {
   }
 }
 
+const RuntimeConnections: Array<UDPConn | TCPConn> = [];
 
-const ConnsInit: (UDPConn | TCPConn)[] = [];
-
-const Runtime = {
-  conns: ConnsInit,
+export const Runtime = {
+  conns: RuntimeConnections,
   logger: new Logger('runtime', 'Runtime Debug'),
+
   setup() {
-    this.conns = [
-      new UDPConn(this.logger),
-      new TCPConn(this.logger),
-    ];
+    this.conns = [new UDPConn(this.logger), new TCPConn(this.logger)];
   },
+
   close() {
-    this.conns.forEach(conn => conn.close()); // Logger's fs closes automatically
+    this.conns.forEach((conn) => conn.close()); // Logger's fs closes automatically
   },
 };
-
-export default Runtime;

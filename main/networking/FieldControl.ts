@@ -57,7 +57,7 @@ class FCInternals {
 
 const FCInternalInit: any = null;
 
-const FCObject = {
+export const FCObject = {
   FCInternal: FCInternalInit,
   stationNumber: 4,
   bridgeAddress: 'localhost',
@@ -81,6 +81,3 @@ const FCObject = {
     }
   },
 };
-
-
-export default FCObject;

@@ -9,9 +9,7 @@ import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electro
 import RendererBridge from './RendererBridge';
 import { killFakeRuntime } from './MenuTemplate/DebugMenu';
 import Template from './MenuTemplate/Template';
-import Runtime from './networking/Runtime';
-import FCObject from './networking/FieldControl';
-
+import { FCObject, Runtime } from './networking';
 
 app.on('window-all-closed', () => {
   app.quit();
