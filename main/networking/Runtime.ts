@@ -1,5 +1,5 @@
 import { createSocket, Socket as UDPSocket } from 'dgram';
-import { createServer, Socket as TCPSocket, Server, createConnection } from 'net';
+import { Socket as TCPSocket } from 'net';
 import { ipcMain, IpcMainEvent } from 'electron';
 import * as protos from '../../protos/protos';
 
@@ -142,6 +142,8 @@ class TCPConn {
     });
   };
 
+  // TODO: We can possibly combine below methods into single handler.
+
   /**
    * IPC Connection with sagas.js' exportRunMode()
    * Receives new run mode to send to Runtime
@@ -200,6 +202,9 @@ class TCPConn {
   };
 }
 
+/**
+ * UDPConn contains socket methods for both sending to and receiving from Runtime.
+ */
 class UDPConn {
   logger: Logger;
   socket: UDPSocket;
@@ -207,9 +212,6 @@ class UDPConn {
   constructor(logger: Logger) {
     this.logger = logger;
     this.socket = createSocket({ type: 'udp4', reuseAddr: true });
-
-    this.sendGamepadMessages = this.sendGamepadMessages.bind(this);
-    this.close = this.close.bind(this);
 
     this.socket.on('error', (err: string) => {
       this.logger.log('UDP connection error');
@@ -223,9 +225,8 @@ class UDPConn {
 
     /**
      * Runtime UDP Message Handler.
-     * Sets runtime connection, decodes device message,
-     * cleans UIDs from uint64, and sends to sensor
-     * array to reducer.
+     * In other words, this is where we handle data that we receive from Runtime.
+     * Sets runtime connection, decodes device message, cleans UIDs from uint64, and sends sensor data array to reducer.
      */
     this.socket.on('message', (msg: Uint8Array) => {
       try {
@@ -253,16 +254,19 @@ class UDPConn {
    * Sends messages when Gamepad information changes
    * or when 100 ms has passed (with 50 ms cooldown)
    */
-  sendGamepadMessages(_event: any, data: protos.GpState[]) {
+  sendGamepadMessages = (_event: IpcMainEvent, data: protos.GpState[]) => {
     if (data.length === 0) {
-      data.push(protos.GpState.create({
-        connected: false,
-      }));
+      data.push(
+        protos.GpState.create({
+          connected: false,
+        })
+      );
     }
+
     const message = protos.GpState.encode(data[0]).finish();
     this.logger.debug(`Dawn sent UDP to ${runtimeIP}`);
     this.socket.send(message, SEND_PORT, runtimeIP);
-  }
+  };
 
   close() {
     this.socket.close();
