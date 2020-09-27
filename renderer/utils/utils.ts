@@ -116,7 +116,7 @@ export class Logger {
       this.log_file.write(`${prefix} ${output}`);
       this.lastStr = output;
     } else {
-      this.log_file.write('*');
+      // this.log_file.write('*');
     }
   }
 }

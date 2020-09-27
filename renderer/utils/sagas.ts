@@ -207,9 +207,9 @@ function* runtimeHeartbeat() {
     // runtime. Only the winner will have a value.
     const result = yield race({
       update: take('PER_MESSAGE'),
-      timeout: call(delay, TIMEOUT),
+      timeout: delay(TIMEOUT),
     });
-
+    console.log(`runtime heartbeat winner ${result.update}`);
     // If update wins, we assume we are connected, otherwise disconnected.
     if (result.update) {
       yield put(runtimeConnect());
@@ -278,7 +278,7 @@ function* runtimeGamepads() {
       }
     }
 
-    yield call(delay, 50); // wait 50 ms before updating again.
+    yield delay(50); // wait 50 ms before updating again.
   }
 }
 
@@ -317,9 +317,7 @@ function* runtimeSaga() {
   }
 }
 
-const gamepadsState = (state: any) => ({
-  gamepads: state.gamepads.gamepads,
-});
+const gamepadsState = (state: any) => state.gamepads.gamepads;
 
 /**
  * Send the store to the main process whenever it changes.
