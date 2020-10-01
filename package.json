@@ -19,7 +19,7 @@
   "main": "build/main.js",
   "scripts": {
     "start": "better-npm-run start",
-    "build": "tsc --build",
+    "build": "rm -rf build && tsc --build",
     "lint-actions": "eslint renderer/actions/**/*.ts",
     "lint-reducers": "eslint renderer/reducers/**/*.ts",
     "lint-types": "eslint renderer/types/**/*.ts",
