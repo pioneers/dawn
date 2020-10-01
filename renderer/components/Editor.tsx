@@ -12,26 +12,27 @@ import {
   Tooltip,
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
+import { Ace } from 'ace-builds'
 import { remote, clipboard } from 'electron';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
 
 
 // React-ace extensions and modes
-import 'brace/ext/language_tools';
-import 'brace/ext/searchbox';
-import 'brace/mode/python';
+import 'ace-builds/src-noconflict/ext-language_tools';
+import 'ace-builds/src-noconflict/ext-searchbox';
+import 'ace-builds/src-noconflict/mode-python';
 // React-ace themes
-import 'brace/theme/monokai';
-import 'brace/theme/github';
-import 'brace/theme/tomorrow';
-import 'brace/theme/kuroir';
-import 'brace/theme/twilight';
-import 'brace/theme/xcode';
-import 'brace/theme/textmate';
-import 'brace/theme/solarized_dark';
-import 'brace/theme/solarized_light';
-import 'brace/theme/terminal';
+import 'ace-builds/src-noconflict/theme-monokai';
+import 'ace-builds/src-noconflict/theme-github';
+import 'ace-builds/src-noconflict/theme-tomorrow';
+import 'ace-builds/src-noconflict/theme-kuroir';
+import 'ace-builds/src-noconflict/theme-twilight';
+import 'ace-builds/src-noconflict/theme-xcode';
+import 'ace-builds/src-noconflict/theme-textmate';
+import 'ace-builds/src-noconflict/theme-solarized_dark';
+import 'ace-builds/src-noconflict/theme-solarized_light';
+import 'ace-builds/src-noconflict/theme-terminal';
 
 import { ConsoleOutput } from './ConsoleOutput';
 import { TooltipButton } from './TooltipButton';
@@ -88,14 +89,13 @@ export class Editor extends React.Component<Props, State> {
   /*
    * ASCII Enforcement
    */
-  static onEditorPaste(pasteData) {
-    let correctedText = pasteData.text;
+  static onEditorPaste(correctedText: string) {
     correctedText = correctedText.normalize('NFD');
     correctedText = correctedText.replace(/[”“]/g, '"');
     correctedText = correctedText.replace(/[‘’]/g, "'");
-    correctedText = Editor.correctText(correctedText);
+    Editor.correctText(correctedText);
     // TODO: Create some notification that an attempt was made at correcting non-ASCII chars.
-    pasteData.text = correctedText; // eslint-disable-line no-param-reassign
+    //pasteData.text = correctedText; // eslint-disable-line no-param-reassign
   }
 
   // TODO: Take onEditorPaste items and move to utils?
@@ -135,7 +135,7 @@ export class Editor extends React.Component<Props, State> {
       enableLiveAutocompletion: true,
     });
     const autoComplete = {
-      getCompletions(editor, session, pos, prefix, callback) {
+      getCompletions(_editor: Ace.Editor, _session: Ace.EditSession, _pos: Ace.Point, _prefix: string, callback: Ace.CompleterCallback) {
         callback(null, [
           { value: 'Robot', score: 1000, meta: 'PiE API' },
           { value: 'get_value', score: 900, meta: 'PiE API' },

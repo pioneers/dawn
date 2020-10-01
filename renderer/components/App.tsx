@@ -28,7 +28,7 @@ interface StateProps {
   runtimeStatus: boolean;
   masterStatus: boolean;
   isRunningCode: boolean;
-  asyncAlerts: Array<Object>
+  asyncAlerts: Array<Object>;
 }
 
 interface DispatchProps {
@@ -45,7 +45,7 @@ type Props = StateProps & DispatchProps;
 
 class AppComponent extends React.Component<Props, State> {
   joyride: Joyride | null;
-  
+
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -74,15 +74,17 @@ class AppComponent extends React.Component<Props, State> {
       }
     });
 
-    storage.get('fieldControl', (err: any, data: FieldControlConfig) => {
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    storage.get('fieldControl', (err: any, data: object) => {
       if (err) {
         logging.log(err);
         return;
       }
-      this.props.onFCUpdate(data);
-      ipcRenderer.send('FC_CONFIG_CHANGE', data);
+      const fieldControlConfig = data as FieldControlConfig;
+      this.props.onFCUpdate(fieldControlConfig);
+      ipcRenderer.send('FC_CONFIG_CHANGE', fieldControlConfig);
     });
-  }
+  };
 
   componentWillReceiveProps = (nextProps: Props) => {
     const { asyncAlerts } = nextProps;
@@ -93,11 +95,11 @@ class AppComponent extends React.Component<Props, State> {
         this.updateAlert(latestAlert);
       }
     }
-  }
+  };
 
   shouldComponentUpdate = (nextProps: Props, nextState: State) => {
     return nextProps !== this.props || nextState !== this.state;
-  }
+  };
 
   addSteps = (steps: Array<Step>) => {
     if (!Array.isArray(steps)) {
@@ -106,33 +108,35 @@ class AppComponent extends React.Component<Props, State> {
     if (steps.length === 0) {
       return;
     }
-    this.setState((currentState: {steps: Array<Step>}) => {
+    this.setState((currentState: { steps: Array<Step> }) => {
       currentState.steps = currentState.steps.concat(steps);
       return currentState;
     });
-  }
+  };
 
   startTour = () => {
     this.setState({ tourRunning: true });
-  }
+  };
 
   joyrideCallback = (action: { type: string }) => {
     // Confirm this still works
     if (action.type === 'finished') {
       this.setState({ tourRunning: false });
     }
-  }
+  };
 
-  updateAlert = (latestAlert: AlertType) =>  {
-    smalltalk.alert(latestAlert.heading, latestAlert.message).then(() => {
-      this.props.onAlertDone(latestAlert.id);
-    }, () => {
-      this.props.onAlertDone(latestAlert.id);
-    });
-  }
+  updateAlert = (latestAlert: AlertType) => {
+    smalltalk.alert(latestAlert.heading, latestAlert.message).then(
+      () => {
+        this.props.onAlertDone(latestAlert.id);
+      },
+      () => {
+        this.props.onAlertDone(latestAlert.id);
+      }
+    );
+  };
 
   render() {
-
     const { runtimeStatus, masterStatus, connectionStatus, isRunningCode } = this.props;
     const { tourRunning } = this.state;
 
@@ -146,7 +150,9 @@ class AppComponent extends React.Component<Props, State> {
           isRunningCode={isRunningCode}
         />
         <Joyride
-          ref={(c: any) => { this.joyride = c; }}
+          ref={(c: any) => {
+            this.joyride = c;
+          }}
           steps={this.state.steps}
           continuous={true}
           showSkipButton
@@ -179,14 +185,14 @@ const mapStateToProps = (state: ApplicationState) => ({
   masterStatus: state.fieldStore.masterStatus,
   asyncAlerts: state.asyncAlerts,
   stationNumber: state.fieldStore.stationNumber,
-  isRunningCode: state.info.isRunningCode
+  isRunningCode: state.info.isRunningCode,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   onAlertDone: (id: number) => {
     dispatch(removeAsyncAlert(id));
   },
-  onFCUpdate: (param : FieldControlConfig) => {
+  onFCUpdate: (param: FieldControlConfig) => {
     dispatch(updateFieldControl(param));
   },
 });

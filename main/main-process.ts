@@ -45,7 +45,7 @@ function teardownFC(_event: any) { // eslint-disable-line no-unused-vars
 export default function showAPI() {
   let api: BrowserWindow | null = new BrowserWindow({
     webPreferences: {
-      nodeIntegration: false,
+      nodeIntegration: true,
     },
     width: 1400,
     height: 900,
