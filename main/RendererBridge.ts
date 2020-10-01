@@ -10,17 +10,15 @@ import { BrowserWindow } from "electron";
 class RendererBridge {
   registeredWindow: BrowserWindow | null = null;
 
-  registerWindow(electronWindow: BrowserWindow) {
+  registerWindow = (electronWindow: BrowserWindow) => {
     this.registeredWindow = electronWindow;
-  }
+  };
 
-  reduxDispatch(action: any) {
+  reduxDispatch = (action: any) => {
     if (this.registeredWindow) {
       this.registeredWindow.webContents.send('dispatch', action);
     }
-  }
+  };
 };
-
-// _.bindAll(RendererBridge, ['registerWindow', 'reduxDispatch']);
 
 export default new RendererBridge();
