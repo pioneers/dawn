@@ -207,9 +207,9 @@ function* runtimeHeartbeat() {
     // runtime. Only the winner will have a value.
     const result = yield race({
       update: take('PER_MESSAGE'),
-      timeout: delay(TIMEOUT),
-    });
-    console.log(`runtime heartbeat winner ${result.update}`);
+      // timeout: delay(TIMEOUT),
+    }); 
+    console.log(`runtime heartbeat winner ${JSON.stringify(result.update)}`);
     // If update wins, we assume we are connected, otherwise disconnected.
     if (result.update) {
       yield put(runtimeConnect());

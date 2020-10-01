@@ -100,6 +100,10 @@ class TCPConn {
       this.logger.log('Runtime disconnected');
     });
 
+    this.socket.on('error', (err: string) => {
+      this.logger.log(err);
+    });
+
     /**
      * Runtime TCP Message Handler.
      * TODO: Distinguish between challenge outputs and console logs
