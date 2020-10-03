@@ -1,6 +1,6 @@
 import { fork, ChildProcess } from 'child_process';
 import RendererBridge from '../RendererBridge';
-import FCObject from '../networking/FieldControl';
+import { FCObject } from '../networking/FieldControl';
 import { MenuItemConstructorOptions } from 'electron';
 
 let fakeRuntime: ChildProcess | null = null;
