@@ -8,6 +8,7 @@ import fs, { readFile, writeFile } from 'fs';
 import _ from 'lodash';
 import { eventChannel } from 'redux-saga';
 import { all, call, cps, delay, fork, put, race, select, take, takeEvery } from 'redux-saga/effects';
+import { Client } from 'ssh2';
 import { ipcRenderer, OpenDialogReturnValue, SaveDialogReturnValue, MessageBoxReturnValue, remote } from 'electron';
 import { addAsyncAlert } from '../actions/AlertActions';
 import { openFileSucceeded, saveFileSucceeded } from '../actions/EditorActions';
@@ -16,9 +17,6 @@ import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
 import { TIMEOUT, defaults, logging } from '../utils/utils';
 import { GpState } from '../../protos/protos';
-
-
-const { Client } = require('ssh2');
 
 let timestamp = Date.now();
 

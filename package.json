@@ -65,6 +65,7 @@
     "@types/react-redux": "^7.1.9",
     "@types/seedrandom": "^2.4.28",
     "@types/socket.io-client": "^1.4.33",
+    "@types/ssh2": "^0.5.44",
     "@typescript-eslint/eslint-plugin": "^3.7.0",
     "@typescript-eslint/parser": "^3.8.0",
     "babel-core": "6.26.0",
@@ -126,7 +127,7 @@
     "seedrandom": "2.4.3",
     "smalltalk": "^4.0.6",
     "socket.io-client": "^2.3.0",
-    "ssh2": "0.5.5",
+    "ssh2": "^0.8.9",
     "superagent": "3.8.2",
     "utf-8-validate": "^5.0.2",
     "ws": "4.0.0"
