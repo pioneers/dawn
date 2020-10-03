@@ -31,7 +31,8 @@ export const peripherals = (state: PeripheralState = initialPeripheralState, act
   switch (action.type) {
     case consts.PeripheralActionsTypes.UPDATE_PERIPHERALS: {
       const keys: string[] = [];
-      action.peripherals.forEach((peripheral: Device) => {
+
+      (action.peripherals ?? []).forEach((peripheral: Device) => {
         if (peripheral.name === consts.PeripheralTypes.BatteryBuzzer) {
           const batteryParams = peripheral.params;
           if (batteryParams[IS_UNSAFE] && batteryParams[IS_UNSAFE].bval) {
@@ -44,14 +45,17 @@ export const peripherals = (state: PeripheralState = initialPeripheralState, act
           // const version = peripheral.params;
           // nextState.runtimeVersion = `${version['major']}.${version['minor']}.${version['patch']}`;
         } else {
-          const key: string = peripheral.uid.toString();
-          keys.push(key);
-          if (key in nextPeripherals) {
-            peripheral.name = nextPeripherals[key].name; // ensures that the device keeps the name, if it was a custom name
+          if (peripheral.uid !== undefined) {
+            const key: string = peripheral.uid.toString();
+            keys.push(key);
+            if (key in nextPeripherals) {
+              peripheral.name = nextPeripherals[key].name; // ensures that the device keeps the name, if it was a custom name
+            }
+            nextPeripherals[key] = peripheral;
           }
-          nextPeripherals[key] = peripheral;
         }
       });
+
       Object.keys(nextPeripherals).forEach((uid: string) => {
         if (keys.indexOf(uid) === -1) {
           delete nextPeripherals[uid]; // Delete old devices
