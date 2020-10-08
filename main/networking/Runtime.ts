@@ -99,15 +99,15 @@ class TCPConn {
     this.socket.setTimeout(5000);
 
     setInterval(() => {
-      console.log('in set interval');
       if (!this.socket.connecting && this.socket.pending) {
-        console.log('Trying to TCP connect');
-        console.log('runtimeIP', runtimeIP);
-        this.socket.connect(TCP_PORT, runtimeIP, () => {
-          this.logger.log('Runtime connected');
-          this.socket.write(new Uint8Array([1])); // Runtime needs first byte to be 1 to recognize client as Dawn (instead of Shepherd)
-          }
-        )
+        console.log('Trying to TCP connect to ', runtimeIP);
+        if (runtimeIP !== defaults.IPADDRESS) {
+          this.socket.connect(TCP_PORT, runtimeIP, () => {
+            this.logger.log('Runtime connected');
+            this.socket.write(new Uint8Array([1])); // Runtime needs first byte to be 1 to recognize client as Dawn (instead of Shepherd)
+            }
+          )
+        }
       }
     }, 1000);
 
@@ -163,7 +163,7 @@ class TCPConn {
    * Receives new run mode to send to Runtime
    */
   sendRunMode = (_event: IpcMainEvent, runModeData: protos.IRunMode) => {
-    if (!this.socket.connecting) {
+    if (this.socket.pending) {
       return;
     }
 
@@ -175,7 +175,7 @@ class TCPConn {
 
   sendDevicePreferences = (_event: IpcMainEvent, deviceData: protos.IDevData) => {
     // TODO: Get device preference filter from UI components, then sagas
-    if (!this.socket.connecting) {
+    if (this.socket.pending) {
       return;
     }
 
@@ -187,7 +187,7 @@ class TCPConn {
 
   sendChallengeInputs = (_event: IpcMainEvent, textData: protos.IText) => {
     // TODO: Get challenge inputs from UI components, then sagas
-    if (!this.socket.connecting) {
+    if (this.socket.pending) {
       return;
     }
 
@@ -199,7 +199,7 @@ class TCPConn {
 
   sendRobotStartPos = (_event: IpcMainEvent, startPosData: protos.IStartPos) => {
     // TODO: Get start pos from sagas
-    if (!this.socket.connecting) {
+    if (this.socket.pending) {
       return;
     }
 
@@ -225,6 +225,7 @@ class UDPConn {
 
   constructor(logger: Logger) {
     this.logger = logger;
+
     this.socket = createSocket({ type: 'udp4', reuseAddr: true });
 
     this.socket.on('error', (err: string) => {
@@ -249,7 +250,7 @@ class UDPConn {
         RendererBridge.reduxDispatch(updatePeripherals(sensorData));
       } catch (err) {
         this.logger.log('Error decoding UDP');
-        this.logger.debug(err);
+        this.logger.log(err);
       }
     });
 

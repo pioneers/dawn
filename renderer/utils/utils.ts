@@ -61,7 +61,7 @@ export const defaults = {
   PORT: 22,
   USERNAME: 'pi',
   PASSWORD: 'raspberry',
-  IPADDRESS: '192.168.0.2',
+  IPADDRESS: '192.168.0.0',
   STUDENTCODELOC: './storage/studentcode.py',
 };
 
