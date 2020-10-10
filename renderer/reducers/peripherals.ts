@@ -46,21 +46,15 @@ export const peripherals = (state: PeripheralState = initialPeripheralState, act
           // const version = peripheral.params;
           // nextState.runtimeVersion = `${version['major']}.${version['minor']}.${version['patch']}`;
         } else {
-          if (peripheral.uid !== undefined) {
-            // Object.setPrototypeOf(peripheral.uid, new Long());
-            // peripheral.uid.__proto__ = Long.__proto__;
-            // console.log('long key', typeof peripheral.uid, typeof peripheral, peripheral.uid as Long);
-            const key: string = (peripheral.uid as Long).toString(); //peripheral.uid.toString();
-            keys.push(key);
-            if (key in nextPeripherals) {
-              peripheral.name = nextPeripherals[key].name; // ensures that the device keeps the name, if it was a custom name
-            }
-            nextPeripherals[key] = peripheral;
+          const key: string = typeof peripheral.uid === 'number' ? peripheral.uid.toString() : (peripheral.uid.high || '').toString() + peripheral.uid.low.toString();
+          keys.push(key);
+          if (key in nextPeripherals) {
+            peripheral.name = nextPeripherals[key].name; // ensures that the device keeps the name, if it was a custom name
           }
+          nextPeripherals[key] = peripheral;
         }
       });
-      console.log('keys', keys);
-      console.log('next periphs', JSON.stringify(nextPeripherals));
+
       Object.keys(nextPeripherals).forEach((uid: string) => {
         if (keys.indexOf(uid) === -1) {
           delete nextPeripherals[uid]; // Delete old devices
