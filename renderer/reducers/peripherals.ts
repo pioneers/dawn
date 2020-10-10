@@ -1,3 +1,5 @@
+import Long from 'long';
+
 import * as consts from '../consts';
 import { UpdatePeripheralsAction, PeripheralRenameAction, PeripheralList } from '../types';
 import { Device } from "../../protos/protos";
@@ -31,7 +33,7 @@ export const peripherals = (state: PeripheralState = initialPeripheralState, act
   switch (action.type) {
     case consts.PeripheralActionsTypes.UPDATE_PERIPHERALS: {
       const keys: string[] = [];
-      action.peripherals.forEach((peripheral: Device) => {
+      (action.peripherals ?? []).forEach((peripheral: Device) => {
         if (peripheral.name === consts.PeripheralTypes.BatteryBuzzer) {
           const batteryParams = peripheral.params;
           if (batteryParams[IS_UNSAFE] && batteryParams[IS_UNSAFE].bval) {
@@ -44,7 +46,7 @@ export const peripherals = (state: PeripheralState = initialPeripheralState, act
           // const version = peripheral.params;
           // nextState.runtimeVersion = `${version['major']}.${version['minor']}.${version['patch']}`;
         } else {
-          const key: string = peripheral.uid.toString();
+          const key: string = typeof peripheral.uid === 'number' ? peripheral.uid.toString() : (peripheral.uid.high || '').toString() + peripheral.uid.low.toString();
           keys.push(key);
           if (key in nextPeripherals) {
             peripheral.name = nextPeripherals[key].name; // ensures that the device keeps the name, if it was a custom name
@@ -52,6 +54,7 @@ export const peripherals = (state: PeripheralState = initialPeripheralState, act
           nextPeripherals[key] = peripheral;
         }
       });
+
       Object.keys(nextPeripherals).forEach((uid: string) => {
         if (keys.indexOf(uid) === -1) {
           delete nextPeripherals[uid]; // Delete old devices

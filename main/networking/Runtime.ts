@@ -1,6 +1,6 @@
 import { createSocket, Socket as UDPSocket } from 'dgram';
-import { createServer, Socket as TCPSocket, Server } from 'net';
-import { ipcMain } from 'electron';
+import { Socket as TCPSocket } from 'net';
+import { ipcMain, IpcMainEvent } from 'electron';
 import * as protos from '../../protos/protos';
 
 import RendererBridge from '../RendererBridge';
@@ -8,25 +8,34 @@ import { updateConsole } from '../../renderer/actions/ConsoleActions';
 import { runtimeDisconnect, infoPerMessage } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { Logger, defaults } from '../../renderer/utils/utils';
+import { peripherals } from '../../build/renderer/reducers/peripherals';
 
 /**
  * Define port constants, which must match with Runtime
  */
-const LISTEN_PORT = 1235;
 const SEND_PORT = 9000;
-const TCP_PORT = 1234;
+const TCP_PORT = 8101;
+
+/**
+ * Runtime IP Address used for TCP and UDP connections
+ */
+let runtimeIP = defaults.IPADDRESS;
 
 /**
  * Define message ID constants, which must match with Runtime
  */
 enum MsgType {
-  RUN_MODE, START_POS, CHALLENGE_DATA, LOG, DEVICE_DATA
+  RUN_MODE,
+  START_POS,
+  CHALLENGE_DATA,
+  LOG,
+  DEVICE_DATA,
 }
 
 interface TCPPacket {
-  messageType: MsgType,
-  messageLength: number,
-  payload: Buffer,
+  messageType: MsgType;
+  messageLength: number;
+  payload: Buffer;
 }
 
 /**
@@ -51,157 +60,64 @@ function readPacket(data: any): TCPPacket {
  * Create TCP packet header and prepend to
  * payload to send to Runtime.
  */
-function createPacket(payload: any, messageType: MsgType): Buffer {
+function createPacket(payload: unknown, messageType: MsgType): Buffer {
   let encodedPayload: Uint8Array;
   switch (messageType) {
     case MsgType.DEVICE_DATA:
-      encodedPayload = protos.DevData.encode(payload).finish();
+      encodedPayload = protos.DevData.encode(payload as protos.IDevData).finish();
       break;
     case MsgType.RUN_MODE:
-      encodedPayload = protos.RunMode.encode(payload).finish();
+      encodedPayload = protos.RunMode.encode(payload as protos.IRunMode).finish();
       break;
     case MsgType.START_POS:
-      encodedPayload = protos.StartPos.encode(payload).finish();
+      encodedPayload = protos.StartPos.encode(payload as protos.IStartPos).finish();
       break;
     case MsgType.CHALLENGE_DATA:
-      encodedPayload = protos.Text.encode(payload).finish();
+      encodedPayload = protos.Text.encode(payload as protos.IText).finish();
       break;
     default:
-      console.log("ERROR: trying to create TCP Packet with type LOG")
+      console.log('ERROR: trying to create TCP Packet with type LOG');
       encodedPayload = new Uint8Array();
       break;
   }
   const msgLength = Buffer.byteLength(encodedPayload);
 
   const msgTypeArr = new Uint8Array([messageType]);
-  const msgLengthArr = new Uint8Array([msgLength & 0x00FF, msgLength & 0xFF00]); // Assuming little-endian byte order, since runs on x64
+  const msgLengthArr = new Uint8Array([msgLength & 0x00ff, msgLength & 0xff00]); // Assuming little-endian byte order, since runs on x64
   const encodedPayloadArr = new Uint8Array(encodedPayload);
+
   return Buffer.concat([msgTypeArr, msgLengthArr, encodedPayloadArr], msgLength + 3);
-}
-
-class ListenSocket {
-  logger: Logger;
-  socket: UDPSocket;
-  statusUpdateTimeout: number;
-
-  constructor(logger: Logger) {
-    this.logger = logger;
-    this.statusUpdateTimeout = 0;
-    this.socket = createSocket({ type: 'udp4', reuseAddr: true });
-
-    this.close = this.close.bind(this);
-
-    /**
-     * Runtime UDP Message Handler.
-     * Sets runtime connection, decodes device message,
-     * cleans UIDs from uint64, and sends to sensor
-     * array to reducer.
-     */
-    this.socket.on('message', (msg: Uint8Array) => {
-      try {
-        RendererBridge.reduxDispatch(infoPerMessage());
-        const sensorData: protos.Device[] = protos.DevData.decode(msg).devices;
-        this.logger.debug('Dawn received UDP sensor data');
-        RendererBridge.reduxDispatch(updatePeripherals(sensorData));
-      } catch (err) {
-        this.logger.log('Error decoding UDP');
-        this.logger.debug(err);
-      }
-    });
-
-    this.socket.on('error', (err: string) => {
-      this.logger.log('UDP listening error');
-      this.logger.debug(err);
-    });
-
-    this.socket.on('close', () => {
-      RendererBridge.reduxDispatch(runtimeDisconnect());
-      this.logger.log('UDP listening closed');
-    });
-
-    this.socket.bind(LISTEN_PORT, () => {
-      this.logger.log(`UDP Bound to ${LISTEN_PORT}`);
-    });
-  }
-
-  close() {
-    this.socket.close();
-  }
-}
-
-class SendSocket {
-  logger: Logger;
-  socket: UDPSocket;
-  runtimeIP: string;
-
-  constructor(logger: Logger) {
-    this.logger = logger;
-    this.runtimeIP = defaults.IPADDRESS;
-    this.socket = createSocket({ type: 'udp4', reuseAddr: true });
-
-    this.sendGamepadMessages = this.sendGamepadMessages.bind(this);
-    this.ipAddressListener = this.ipAddressListener.bind(this);
-    this.close = this.close.bind(this);
-
-    this.socket.on('error', (err: string) => {
-      this.logger.log('UDP sending error');
-      this.logger.log(err);
-    });
-
-    this.socket.on('close', () => {
-      this.logger.log('UDP sending closed');
-    });
-
-    /**
-     * UDP Send Socket IPC Connections
-     */
-    ipcMain.on('stateUpdate', this.sendGamepadMessages);
-    ipcMain.on('ipAddress', this.ipAddressListener);
-  }
-
-  /**
-   * IPC Connection with sagas.ts' runtimeGamepads()
-   * Sends messages when Gamepad information changes
-   * or when 100 ms has passed (with 50 ms cooldown)
-   */
-  sendGamepadMessages(_event: any, data: protos.GpState[]) {
-    const message = protos.GpState.encode(data[0]).finish();
-    this.logger.debug(`Dawn sent UDP to ${this.runtimeIP}`);
-    this.socket.send(message, SEND_PORT, this.runtimeIP);
-  }
-
-  /**
-   * IPC Connection with ConfigBox.ts' saveChanges()
-   * Receives new IP Address to send messages to.
-   */
-  ipAddressListener(_event: any, ipAddress: string) {
-    this.runtimeIP = ipAddress;
-  }
-
-  close() {
-    this.socket.close();
-    ipcMain.removeListener('stateUpdate', this.sendGamepadMessages);
-    ipcMain.removeListener('ipAddress', this.ipAddressListener);
-  }
 }
 
 class TCPConn {
   logger: Logger;
   socket: TCPSocket;
 
-  constructor(socket: TCPSocket, logger: Logger) {
+  constructor(logger: Logger) {
     this.logger = logger;
-    this.socket = socket;
+    this.socket = new TCPSocket();
 
-    this.sendRunMode = this.sendRunMode.bind(this);
-    this.sendDevicePreferences = this.sendDevicePreferences.bind(this);
-    this.sendChallengeInputs = this.sendChallengeInputs.bind(this);
-    this.sendRobotStartPos = this.sendRobotStartPos.bind(this);
-    this.close = this.close.bind(this);
+    this.socket.setTimeout(5000);
 
-    this.logger.log('Runtime connected');
+    setInterval(() => {
+      if (!this.socket.connecting && this.socket.pending) {
+        console.log('Trying to TCP connect to ', runtimeIP);
+        if (runtimeIP !== defaults.IPADDRESS) {
+          this.socket.connect(TCP_PORT, runtimeIP, () => {
+            this.logger.log('Runtime connected');
+            this.socket.write(new Uint8Array([1])); // Runtime needs first byte to be 1 to recognize client as Dawn (instead of Shepherd)
+            }
+          )
+        }
+      }
+    }, 1000);
+
     this.socket.on('end', () => {
       this.logger.log('Runtime disconnected');
+    });
+
+    this.socket.on('error', (err: string) => {
+      this.logger.log(err);
     });
 
     /**
@@ -225,100 +141,173 @@ class TCPConn {
           break;
       }
     });
+
     /**
      * TCP Socket IPC Connections
      */
     ipcMain.on('runModeUpdate', this.sendRunMode);
+    ipcMain.on('ipAddress', this.ipAddressListener);
   }
+
+  /**
+   * IPC Connection with ConfigBox.ts' saveChanges()
+   * Receives new IP Address to send messages to.
+   */
+  ipAddressListener = (_event: IpcMainEvent, ipAddress: string) => {
+    runtimeIP = ipAddress;
+  };
+
+  // TODO: We can possibly combine below methods into single handler.
 
   /**
    * IPC Connection with sagas.js' exportRunMode()
    * Receives new run mode to send to Runtime
    */
-  sendRunMode(_event: any, data: any) {
-    const mode = data.studentCodeStatus;
-    const message = createPacket(mode, MsgType.RUN_MODE);
-    this.socket.write(message, () => {
-      this.logger.debug(`Run Mode message sent: ${mode}`);
-    });
-  }
+  sendRunMode = (_event: IpcMainEvent, runModeData: protos.IRunMode) => {
+    if (this.socket.pending) {
+      return;
+    }
 
-  sendDevicePreferences(_event: any, data: any) {
+    const message = createPacket(runModeData, MsgType.RUN_MODE);
+    this.socket.write(message, () => {
+      this.logger.debug(`Run Mode message sent: ${runModeData.toString()}`);
+    });
+  };
+
+  sendDevicePreferences = (_event: IpcMainEvent, deviceData: protos.IDevData) => {
     // TODO: Get device preference filter from UI components, then sagas
-    const message = createPacket(data, MsgType.DEVICE_DATA);
-    this.socket.write(message, () => {
-      this.logger.debug(`Device preferences sent: ${data}`);
-    });
-  }
+    if (this.socket.pending) {
+      return;
+    }
 
-  sendChallengeInputs(_event: any, data: any) {
+    const message = createPacket(deviceData, MsgType.DEVICE_DATA);
+    this.socket.write(message, () => {
+      this.logger.debug(`Device preferences sent: ${deviceData.toString()}`);
+    });
+  };
+
+  sendChallengeInputs = (_event: IpcMainEvent, textData: protos.IText) => {
     // TODO: Get challenge inputs from UI components, then sagas
-    const message = createPacket(data, MsgType.CHALLENGE_DATA);
+    if (this.socket.pending) {
+      return;
+    }
+
+    const message = createPacket(textData, MsgType.CHALLENGE_DATA);
     this.socket.write(message, () => {
-      this.logger.debug(`Challenge inputs sent: ${data}`);
+      this.logger.debug(`Challenge inputs sent: ${textData.toString()}`);
     });
   }
 
-  sendRobotStartPos(_event: any, data: any) {
+  sendRobotStartPos = (_event: IpcMainEvent, startPosData: protos.IStartPos) => {
     // TODO: Get start pos from sagas
-    const message = createPacket(data, MsgType.START_POS);
-    this.socket.write(message, () => {
-      this.logger.debug(`Start position sent: ${data}`);
-    });
-  }
+    if (this.socket.pending) {
+      return;
+    }
 
-  close() {
+    const message = createPacket(startPosData, MsgType.START_POS);
+    this.socket.write(message, () => {
+      this.logger.debug(`Start position sent: ${startPosData.toString()}`);
+    });
+  };
+
+  close = () => {
     this.socket.end();
     ipcMain.removeListener('runModeUpdate', this.sendRunMode);
-  }
+    ipcMain.removeListener('ipAddress', this.ipAddressListener);
+  };
 }
 
-class TCPServer {
+/**
+ * UDPConn contains socket methods for both sending to and receiving from Runtime.
+ */
+class UDPConn {
   logger: Logger;
-  tcp: Server;
-  conn: TCPConn;
+  socket: UDPSocket;
 
   constructor(logger: Logger) {
-    this.close = this.close.bind(this);
-    this.tcp = createServer((socket) => {
-      this.conn = new TCPConn(socket, logger);
-    });
-
     this.logger = logger;
 
-    this.tcp.on('error', (err: string) => {
-      this.logger.log('TCP error');
+    this.socket = createSocket({ type: 'udp4', reuseAddr: true });
+
+    this.socket.on('error', (err: string) => {
+      this.logger.log('UDP connection error');
       this.logger.log(err);
     });
 
-    this.tcp.listen(TCP_PORT, () => {
-      this.logger.log(`Dawn listening on port ${TCP_PORT}`);
+    this.socket.on('close', () => {
+      RendererBridge.reduxDispatch(runtimeDisconnect());
+      this.logger.log('UDP connection closed');
     });
+
+    /**
+     * Runtime UDP Message Handler.
+     * In other words, this is where we handle data that we receive from Runtime.
+     * Sets runtime connection, decodes device message, cleans UIDs from uint64, and sends sensor data array to reducer.
+     */
+    this.socket.on('message', (msg: Uint8Array) => {
+      try {
+        RendererBridge.reduxDispatch(infoPerMessage());
+        const sensorData: protos.Device[] = protos.DevData.decode(msg).devices;
+        
+        sensorData.forEach((device) => {
+          if (device.uid.toString() === '0') {
+            device.uid = 0;
+          }
+        });
+
+        RendererBridge.reduxDispatch(updatePeripherals(sensorData));
+      } catch (err) {
+        this.logger.log('Error decoding UDP');
+        this.logger.log(err);
+      }
+    });
+
+    this.socket.bind(() => {
+      this.logger.log(`UDP connection bound`);
+    });
+
+    /**
+     * UDP Send Socket IPC Connections
+     */
+    ipcMain.on('stateUpdate', this.sendGamepadMessages);
   }
 
-  close() {
-    if (this.conn) {
-      this.conn.close();
+  /**
+   * IPC Connection with sagas.ts' runtimeGamepads()
+   * Sends messages when Gamepad information changes
+   * or when 100 ms has passed (with 50 ms cooldown)
+   */
+  sendGamepadMessages = (_event: IpcMainEvent, data: protos.GpState[]) => {
+    if (data.length === 0) {
+      data.push(
+        protos.GpState.create({
+          connected: false,
+        })
+      );
     }
-    this.tcp.close();
+
+    const message = protos.GpState.encode(data[0]).finish();
+    this.logger.debug(`Dawn sent UDP to ${runtimeIP}`);
+    this.socket.send(message, SEND_PORT, runtimeIP);
+  };
+
+  close() {
+    this.socket.close();
+    ipcMain.removeListener('stateUpdate', this.sendGamepadMessages);
   }
 }
 
-const ConnsInit: (ListenSocket|SendSocket|TCPServer)[] = [];
+const RuntimeConnections: Array<UDPConn | TCPConn> = [];
 
-const Runtime = {
-  conns: ConnsInit,
+export const Runtime = {
+  conns: RuntimeConnections,
   logger: new Logger('runtime', 'Runtime Debug'),
+
   setup() {
-    this.conns = [
-      new ListenSocket(this.logger),
-      new SendSocket(this.logger),
-      new TCPServer(this.logger),
-    ];
+    this.conns = [new UDPConn(this.logger), new TCPConn(this.logger)];
   },
+
   close() {
-    this.conns.forEach(conn => conn.close()); // Logger's fs closes automatically
+    this.conns.forEach((conn) => conn.close()); // Logger's fs closes automatically
   },
 };
-
-export default Runtime;

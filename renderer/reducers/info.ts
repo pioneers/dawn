@@ -78,7 +78,6 @@ export const info = (state: InfoState = initialInfoState, action: Actions): Info
         masterStatus: true,
       };
     case consts.InfoActionsTypes.CODE_STATUS:
-      ipcRenderer.send('studentCodeStatus', action.studentCodeStatus);
       return {
         ...state,
         studentCodeStatus: action.studentCodeStatus,

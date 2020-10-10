@@ -8,6 +8,7 @@ import fs, { readFile, writeFile } from 'fs';
 import _ from 'lodash';
 import { eventChannel } from 'redux-saga';
 import { all, call, cps, delay, fork, put, race, select, take, takeEvery } from 'redux-saga/effects';
+import { Client } from 'ssh2';
 import { ipcRenderer, OpenDialogReturnValue, SaveDialogReturnValue, MessageBoxReturnValue, remote } from 'electron';
 import { addAsyncAlert } from '../actions/AlertActions';
 import { openFileSucceeded, saveFileSucceeded } from '../actions/EditorActions';
@@ -16,9 +17,6 @@ import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
 import { TIMEOUT, defaults, logging } from '../utils/utils';
 import { GpState } from '../../protos/protos';
-
-
-const { Client } = require('ssh2');
 
 let timestamp = Date.now();
 
@@ -207,8 +205,8 @@ function* runtimeHeartbeat() {
     // runtime. Only the winner will have a value.
     const result = yield race({
       update: take('PER_MESSAGE'),
-      timeout: call(delay, TIMEOUT),
-    });
+      timeout: delay(TIMEOUT)
+    }); 
 
     // If update wins, we assume we are connected, otherwise disconnected.
     if (result.update) {
@@ -278,7 +276,7 @@ function* runtimeGamepads() {
       }
     }
 
-    yield call(delay, 50); // wait 50 ms before updating again.
+    yield delay(50); // wait 50 ms before updating again.
   }
 }
 
@@ -307,6 +305,7 @@ function runtimeReceiver() {
 function* runtimeSaga() {
   try {
     const chan = yield call(runtimeReceiver);
+
     while (true) {
       const action = yield take(chan);
       // dispatch the action
@@ -317,9 +316,7 @@ function* runtimeSaga() {
   }
 }
 
-const gamepadsState = (state: any) => ({
-  gamepads: state.gamepads.gamepads,
-});
+const gamepadsState = (state: any) => state.gamepads.gamepads;
 
 /**
  * Send the store to the main process whenever it changes.
