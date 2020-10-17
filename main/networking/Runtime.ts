@@ -1,4 +1,5 @@
 import { createSocket, Socket as UDPSocket } from 'dgram';
+import Long from 'long';
 import { Socket as TCPSocket } from 'net';
 import { ipcMain, IpcMainEvent } from 'electron';
 import * as protos from '../../protos/protos';
@@ -9,6 +10,7 @@ import { runtimeDisconnect, infoPerMessage } from '../../renderer/actions/InfoAc
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { Logger, defaults } from '../../renderer/utils/utils';
 import { peripherals } from '../../build/renderer/reducers/peripherals';
+import { Peripheral } from '../../renderer/types';
 
 /**
  * Define port constants, which must match with Runtime
@@ -180,6 +182,7 @@ class TCPConn {
       return;
     }
 
+    // Serialize uid from string -> Long type
     const message = createPacket(deviceData, MsgType.DEVICE_DATA);
     this.socket.write(message, () => {
       this.logger.debug(`Device preferences sent: ${deviceData.toString()}`);
@@ -244,6 +247,8 @@ class UDPConn {
      * In other words, this is where we handle data that we receive from Runtime.
      * Sets runtime connection, decodes device message, cleans UIDs from uint64, and sends sensor data array to reducer.
      */
+    // type Overwrite<T, U> = Pick<T, Exclude<keyof T, keyof U>> & U;
+    // type Device = Overwrite<protos.Device, { uid: string }>;
     this.socket.on('message', (msg: Uint8Array) => {
       try {
         RendererBridge.reduxDispatch(infoPerMessage());

@@ -1,4 +1,4 @@
-import * as $protobuf from "protobufjs/minimal";
+const $protobuf = require("protobufjs/minimal");
 
 // Common aliases
 const $Reader = $protobuf.Reader, $Writer = $protobuf.Writer, $util = $protobuf.util;
@@ -297,7 +297,7 @@ export const Device = $root.Device = (() => {
      * @exports IDevice
      * @interface IDevice
      * @property {string|null} [name] Device name
-     * @property {number|Long|null} [uid] Device uid
+     * @property {number|null} [uid] Device uid
      * @property {number|null} [type] Device type
      * @property {Array.<IParam>|null} [params] Device params
      */

@@ -38,13 +38,13 @@
   },
   "betterScripts": {
     "start": {
-      "command": "cp ./protos/*.proto ./build && electron build/main.js",
+      "command": "cp ./protos/*.proto ./build/protos && electron build/main.js",
       "env": {
         "NODE_ENV": "development"
       }
     },
     "build": {
-      "command": "mkdir -p ./build && cp ./protos/*.proto ./build && webpack --mode production --progress",
+      "command": "mkdir -p ./build && cp ./protos/*.proto ./build/protos && webpack --mode production --progress",
       "env": {
         "NODE_ENV": "production"
       }
