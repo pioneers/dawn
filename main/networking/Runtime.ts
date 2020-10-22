@@ -1,5 +1,4 @@
 import { createSocket, Socket as UDPSocket } from 'dgram';
-import Long from 'long';
 import { Socket as TCPSocket } from 'net';
 import { ipcMain, IpcMainEvent } from 'electron';
 import * as protos from '../../protos/protos';
@@ -9,8 +8,6 @@ import { updateConsole } from '../../renderer/actions/ConsoleActions';
 import { runtimeDisconnect, infoPerMessage } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { Logger, defaults } from '../../renderer/utils/utils';
-import { peripherals } from '../../build/renderer/reducers/peripherals';
-import { Peripheral } from '../../renderer/types';
 
 /**
  * Define port constants, which must match with Runtime

@@ -1,11 +1,10 @@
 import React from 'react';
 import _ from 'lodash';
-import { connect, MapStateToProps } from 'react-redux';
 import { Panel, PanelGroup, ListGroup } from 'react-bootstrap';
 import { PeripheralTypes } from '../consts';
 import { Peripheral as PeripheralComponent } from './Peripheral';
 import { Peripheral, PeripheralList } from '../types';
-import { State } from 'seedrandom';
+import { connect } from 'react-redux';
 
 const cleanerNames = {};
 cleanerNames[PeripheralTypes.MOTOR_SCALAR] = 'Motors';
@@ -35,7 +34,6 @@ interface StateProps {
 }
 
 const handleAccordion = (devices: Peripheral[]) => {
-  console.log('devices', devices);
   const peripheralGroups: { [peripheralName: string]: Peripheral[] } = {};
 
   // Filter and group peripherals by name (type)
@@ -43,15 +41,13 @@ const handleAccordion = (devices: Peripheral[]) => {
     // .filter((p: Peripheral) => !filter.has(p.uid))
     .forEach((peripheral) => {
       const group: Peripheral[] = peripheralGroups[peripheral.name] ?? [];
-      console.log('group', group);
       group.push(peripheral);
       peripheralGroups[peripheral.name] = group;
     });
 
-  console.log('peripheral groups', peripheralGroups);
 
   return Object.keys(peripheralGroups).map((groupName: string) => {
-    const groupNameCleaned = cleanerNames[groupName] as string;
+    const groupNameCleaned = groupName; //cleanerNames[groupName] as string;
 
     return (
       <PanelGroup
@@ -63,7 +59,7 @@ const handleAccordion = (devices: Peripheral[]) => {
         <Panel key={`${groupNameCleaned || 'Default'}-Panel`} defaultExpanded>
           <Panel.Heading>
             <Panel.Title toggle style={{ fontWeight: 'bold' }}>
-              {cleanerNames[groupName] || 'Generic'}
+              {groupName || 'Generic'}
             </Panel.Title>
           </Panel.Heading>
           <Panel.Collapse>
@@ -72,8 +68,8 @@ const handleAccordion = (devices: Peripheral[]) => {
                 <PeripheralComponent
                   key={String(peripheral.uid)}
                   id={String(peripheral.uid)}
-                  device_name={peripheral.name}
-                  device_type={peripheral.name}
+                  name={peripheral.name}
+                  type={peripheral.name}
                   params={peripheral.params}
                 />
               ))}
@@ -98,14 +94,7 @@ const PeripheralListComponent = (props: StateProps & OwnProps) => {
   if (errorMsg) {
     panelBody = <p className="panelText">{errorMsg}</p>;
   } else {
-    const keys = Object.keys(props.peripheralList);
-    console.log('keys', keys);
     console.log('peripheral list', props.peripheralList);
-    console.log('typeof peripheral list', typeof props.peripheralList);
-    console.log('peripheral', props.peripheralList[2]);
-    console.log('stringify', JSON.stringify(props.peripheralList));
-    console.log('keys', Object.keys(props.peripheralList));
-    console.log('values', Object.getOwnPropertyNames(props.peripheralList));
     panelBody = handleAccordion(_.toArray(props.peripheralList));
   }
 
@@ -119,14 +108,9 @@ const PeripheralListComponent = (props: StateProps & OwnProps) => {
   );
 };
 
-const mapStateToProps: MapStateToProps<StateProps, OwnProps, ApplicationState> = (state: ApplicationState) => {
-  console.log('map state to props', state.peripherals.peripheralList);
-  // console.log('state.peripherals.peripheralList type', typeof(state.peripherals.peripheralList));
-
-  return {
-    peripheralList: state.peripherals.peripheralList
-  };
-};
+const mapStateToProps = (state: ApplicationState) => ({
+  peripheralList: Object.assign({}, state.peripherals.peripheralList)
+});
 
 const PeripheralListContainer = connect<StateProps, {}, OwnProps, ApplicationState>(mapStateToProps, {})(PeripheralListComponent);
 

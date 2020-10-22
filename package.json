@@ -38,7 +38,7 @@
   },
   "betterScripts": {
     "start": {
-      "command": "cp ./protos/*.proto ./build/protos && electron build/main.js",
+      "command": "mkdir -p ./build/protos && cp ./protos/*.proto ./build/protos && electron build/main.js",
       "env": {
         "NODE_ENV": "development"
       }

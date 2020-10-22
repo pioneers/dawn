@@ -43,13 +43,12 @@ export const peripherals = (state: PeripheralState = initialPeripheralState, act
           // const version = peripheral.params;
           // nextState.runtimeVersion = `${version['major']}.${version['minor']}.${version['patch']}`;
         } else {
-          const key: string = '2'; // typeof peripheral.uid === 'number' ? peripheral.uid.toString() : (peripheral.uid.high || '').toString() + peripheral.uid.low.toString();
+          const key =  typeof peripheral.uid === 'number' ? peripheral.uid.toString() : (peripheral.uid.high || '').toString() + peripheral.uid.low.toString();
           keys.push(key);
           if (key in nextPeripherals) {
             peripheral.name = nextPeripherals[key].name; // ensures that the device keeps the name, if it was a custom name
           }
           nextPeripherals[key] = { ...peripheral, uid: key };
-          console.log('next peripheral values', Object.values(nextPeripherals));
         }
       });
 
