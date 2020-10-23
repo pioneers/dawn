@@ -45,14 +45,13 @@ class UpdateBoxContainer extends React.Component<Props, State> {
   }
 
   chooseUpdate = () => {
-    dialog.showOpenDialog({
+    const filepaths: string[] | undefined = dialog.showOpenDialog({
       filters: [
-        { name: 'Update Package', extensions: ['gz', 'tar.gz']}
-      ]
-    }, (filepaths: string[]) => {
-      if (filepaths === undefined) return;
-      this.setState({ updateFilepath: filepaths[0] });
+        { name: 'Update Package', extensions: ['zip']}
+      ],
     });
+    if (filepaths === undefined) return;
+    this.setState({ updateFilepath: filepaths[0] });
   }
 
   upgradeSoftware = () => {
@@ -67,7 +66,7 @@ class UpdateBoxContainer extends React.Component<Props, State> {
           logging.log('SSH Connection');
           sftp.fastPut(
             this.state.updateFilepath,
-            `./updates/${update}`, (err2: any) => {
+            '/tmp/runtime.zip', (err2: any) => {
               conn.end();
               this.setState({ isUploading: false });
               this.props.hide();
@@ -82,7 +81,7 @@ class UpdateBoxContainer extends React.Component<Props, State> {
                 this.props.onAlertAdd(
                   'Robot Update Initiated',
                   `Update is installing and Runtime will restart soon.
-                  Please leave your robot on for the next two minutes.`,
+                  Please leave your robot on for the next 1 minute.`,
                 );
               }
             },
@@ -99,6 +98,7 @@ class UpdateBoxContainer extends React.Component<Props, State> {
   }
 
   disableUploadUpdate = () => {
+    console.log(this.state.updateFilepath, this.state.isUploading, this.props.connectionStatus, this.props.runtimeStatus, this.props.isRunningCode);
     return (
       !(this.state.updateFilepath) ||
       this.state.isUploading ||
@@ -122,7 +122,7 @@ class UpdateBoxContainer extends React.Component<Props, State> {
     } else {
       modalBody = (
         <Modal.Body>
-          <h4>Update Package (tar.gz file)</h4>
+          <h4>Update Package (.zip file)</h4>
           <h5>{updateFilepath ? updateFilepath : ''}</h5>
           <Button type="button" onClick={this.chooseUpdate}>Choose File</Button>
           <br />
