@@ -1,3 +1,4 @@
+import { OpenDialogReturnValue } from 'electron';
 import React from 'react';
 import {
   Modal,
@@ -45,13 +46,17 @@ class UpdateBoxContainer extends React.Component<Props, State> {
   }
 
   chooseUpdate = () => {
-    const filepaths: string[] | undefined = dialog.showOpenDialog({
+    dialog.showOpenDialog({
       filters: [
         { name: 'Update Package', extensions: ['zip']}
       ],
+    }).then((dialogReturn: OpenDialogReturnValue) => {
+      if (dialogReturn.filePaths.length === 0) {
+        return;
+      } else {
+        this.setState({ updateFilepath: dialogReturn.filePaths[0] })
+      }
     });
-    if (filepaths === undefined) return;
-    this.setState({ updateFilepath: filepaths[0] });
   }
 
   upgradeSoftware = () => {
