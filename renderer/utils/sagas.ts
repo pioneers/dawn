@@ -569,7 +569,7 @@ function timestampBounceback() {
  */
 function* exportRunMode() {
   const stateSlice = yield select((state: any) => ({
-    studentCodeStatus: state.info.studentCodeStatus,
+    mode: state.info.studentCodeStatus,
   }));
   ipcRenderer.send('runModeUpdate', stateSlice);
 }
