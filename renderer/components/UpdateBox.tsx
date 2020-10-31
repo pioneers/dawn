@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import { Client, SFTPWrapper } from 'ssh2';
 import { addAsyncAlert } from '../actions/AlertActions';
-import { pathToName, defaults, logging } from '../utils/utils';
+import { defaults, logging } from '../utils/utils';
 
 interface StateProps {
   connectionStatus: boolean;
@@ -57,7 +57,6 @@ class UpdateBoxContainer extends React.Component<Props, State> {
 
   upgradeSoftware = () => {
     this.setState({ isUploading: true });
-    const update = pathToName(this.state.updateFilepath);
     const RUNTIME_ZIP_REMOTE_PATH = '/tmp/runtime.zip';
 
     const conn = new Client();

@@ -1,5 +1,3 @@
-import Long from 'long';
-
 import * as consts from '../consts';
 import { UpdatePeripheralsAction, PeripheralRenameAction, PeripheralList } from '../types';
 import { Device } from "../../protos/protos";
