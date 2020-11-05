@@ -164,7 +164,6 @@ class TCPConn {
    * Receives new run mode to send to Runtime
    */
   sendRunMode = (_event: IpcMainEvent, runModeData: protos.IRunMode) => {
-    // @ts-ignore
     if (this.socket.pending) {
       return;
     }
@@ -177,7 +176,6 @@ class TCPConn {
 
   sendDevicePreferences = (_event: IpcMainEvent, deviceData: protos.IDevData) => {
     // TODO: Get device preference filter from UI components, then sagas
-    // @ts-ignore
     if (this.socket.pending) {
       return;
     }
@@ -191,7 +189,6 @@ class TCPConn {
 
   sendChallengeInputs = (_event: IpcMainEvent, textData: protos.IText) => {
     // TODO: Get challenge inputs from UI components, then sagas
-    // @ts-ignore
     if (this.socket.pending) {
       return;
     }
@@ -204,7 +201,6 @@ class TCPConn {
 
   sendRobotStartPos = (_event: IpcMainEvent, startPosData: protos.IStartPos) => {
     // TODO: Get start pos from sagas
-    // @ts-ignore
     if (this.socket.pending) {
       return;
     }
