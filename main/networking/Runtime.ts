@@ -99,6 +99,7 @@ class TCPConn {
     this.socket.setTimeout(5000);
 
     setInterval(() => {
+      // @ts-ignore
       if (!this.socket.connecting && this.socket.pending) {
         console.log('Trying to TCP connect to ', runtimeIP);
         if (runtimeIP !== defaults.IPADDRESS) {
@@ -163,6 +164,7 @@ class TCPConn {
    * Receives new run mode to send to Runtime
    */
   sendRunMode = (_event: IpcMainEvent, runModeData: protos.IRunMode) => {
+    // @ts-ignore
     if (this.socket.pending) {
       return;
     }
@@ -175,10 +177,12 @@ class TCPConn {
 
   sendDevicePreferences = (_event: IpcMainEvent, deviceData: protos.IDevData) => {
     // TODO: Get device preference filter from UI components, then sagas
+    // @ts-ignore
     if (this.socket.pending) {
       return;
     }
 
+    // Serialize uid from string -> Long type
     const message = createPacket(deviceData, MsgType.DEVICE_DATA);
     this.socket.write(message, () => {
       this.logger.debug(`Device preferences sent: ${deviceData.toString()}`);
@@ -187,6 +191,7 @@ class TCPConn {
 
   sendChallengeInputs = (_event: IpcMainEvent, textData: protos.IText) => {
     // TODO: Get challenge inputs from UI components, then sagas
+    // @ts-ignore
     if (this.socket.pending) {
       return;
     }
@@ -199,6 +204,7 @@ class TCPConn {
 
   sendRobotStartPos = (_event: IpcMainEvent, startPosData: protos.IStartPos) => {
     // TODO: Get start pos from sagas
+    // @ts-ignore
     if (this.socket.pending) {
       return;
     }
@@ -243,6 +249,8 @@ class UDPConn {
      * In other words, this is where we handle data that we receive from Runtime.
      * Sets runtime connection, decodes device message, cleans UIDs from uint64, and sends sensor data array to reducer.
      */
+    // type Overwrite<T, U> = Pick<T, Exclude<keyof T, keyof U>> & U;
+    // type Device = Overwrite<protos.Device, { uid: string }>;
     this.socket.on('message', (msg: Uint8Array) => {
       try {
         RendererBridge.reduxDispatch(infoPerMessage());
