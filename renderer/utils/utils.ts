@@ -33,10 +33,10 @@ export const uploadStatus = {
 export const robotState = {
   IDLE: 0,
   SIMSTR: 'Simulation',
-  TELEOP: 1,
-  TELEOPSTR: 'Tele-Operated',
-  AUTONOMOUS: 2,
+  AUTONOMOUS: 1,
   AUTOSTR: 'Autonomous',
+  TELEOP: 2,
+  TELEOPSTR: 'Tele-Operated',
   ESTOP: 3,
   ESTOPSTR: 'ESTOP',
 };
@@ -62,7 +62,7 @@ export const defaults = {
   USERNAME: 'pi',
   PASSWORD: 'raspberry',
   IPADDRESS: '192.168.0.0',
-  STUDENTCODELOC: './storage/studentcode.py',
+  STUDENTCODELOC: '/home/pi/runtime/executor/studentcode.py',
 };
 
 export const timings = {

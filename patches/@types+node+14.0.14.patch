@@ -1,0 +1,12 @@
+diff --git a/node_modules/@types/node/net.d.ts b/node_modules/@types/node/net.d.ts
+index c45aaa2..668c68e 100644
+--- a/node_modules/@types/node/net.d.ts
++++ b/node_modules/@types/node/net.d.ts
+@@ -79,6 +79,7 @@ declare module "net" {
+         readonly bytesRead: number;
+         readonly bytesWritten: number;
+         readonly connecting: boolean;
++        readonly pending: boolean;
+         readonly destroyed: boolean;
+         readonly localAddress: string;
+         readonly localPort: number;
