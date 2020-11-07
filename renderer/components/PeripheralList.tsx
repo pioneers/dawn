@@ -67,7 +67,7 @@ const handleAccordion = (devices: Peripheral[]) => {
               {_.map(peripheralGroups[groupName], (peripheral) => (
                 <PeripheralComponent
                   key={String(peripheral.uid)}
-                  id={String(peripheral.uid)}
+                  uid={String(peripheral.uid)}
                   name={peripheral.name}
                   type={peripheral.name}
                   params={peripheral.params}

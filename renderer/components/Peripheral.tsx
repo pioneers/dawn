@@ -23,7 +23,7 @@ typesToComponents[PeripheralTypes.GameValues] = GameValues;
 
 interface OwnProps{
   key: string;
-  id: string;
+  uid: string;
   name: string;
   type: string;
   params: Param[];
