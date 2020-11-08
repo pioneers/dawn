@@ -12,7 +12,8 @@ import { Logger, defaults } from '../../renderer/utils/utils';
 /**
  * Define port constants, which must match with Runtime
  */
-const SEND_PORT = 9000;
+const UDP_SEND_PORT = 9000;
+const UDP_LISTEN_PORT = 9001;
 const TCP_PORT = 8101;
 
 /**
@@ -100,7 +101,7 @@ class TCPConn {
 
     setInterval(() => {
       if (!this.socket.connecting && this.socket.pending) {
-        console.log('Trying to TCP connect to ', runtimeIP);
+        // console.log('Trying to TCP connect to ', runtimeIP);
         if (runtimeIP !== defaults.IPADDRESS) {
           this.socket.connect(TCP_PORT, runtimeIP, () => {
             this.logger.log('Runtime connected');
@@ -264,7 +265,7 @@ class UDPConn {
       }
     });
 
-    this.socket.bind(() => {
+    this.socket.bind(UDP_LISTEN_PORT, () => {
       this.logger.log(`UDP connection bound`);
     });
 
@@ -290,7 +291,7 @@ class UDPConn {
 
     const message = protos.GpState.encode(data[0]).finish();
     this.logger.debug(`Dawn sent UDP to ${runtimeIP}`);
-    this.socket.send(message, SEND_PORT, runtimeIP);
+    this.socket.send(message, UDP_SEND_PORT, runtimeIP);
   };
 
   close() {
