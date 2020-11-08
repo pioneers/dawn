@@ -52,8 +52,6 @@ export const peripherals = (state: PeripheralState = initialPeripheralState, act
         }
       });
 
-      // console.log('keys', Object.keys(nextPeripherals));
-
       Object.keys(nextPeripherals).forEach((uid: string) => {
         if (keys.indexOf(uid) === -1) {
           delete nextPeripherals[uid]; // Delete old devices

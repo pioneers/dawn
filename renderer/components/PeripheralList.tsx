@@ -87,15 +87,14 @@ const PeripheralListComponent = (props: StateProps & OwnProps) => {
   if (!props.connectionStatus) {
     errorMsg = 'You are currently disconnected from the robot.';
   } else if (!props.runtimeStatus) {
-    errorMsg = 'There appears to be some sort of General error. ' + 'No data is being received.';
+    errorMsg = 'There appears to be some sort of General error. No data is being received.';
   }
 
   let panelBody = null;
   if (errorMsg) {
     panelBody = <p className="panelText">{errorMsg}</p>;
   } else {
-    console.log('peripheral list', props.peripheralList);
-    panelBody = handleAccordion(_.toArray(props.peripheralList));
+    panelBody = handleAccordion(Object.values(props.peripheralList));
   }
 
   return (

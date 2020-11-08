@@ -1,10 +1,3 @@
-/**
- * Outer Component for Individual Peripherals
- *
- * Sets common interface for type-specific components
- * Wraps such components in ListGroupItem for PeripheralList.js
- */
-
 import React from 'react';
 import { ListGroupItem } from 'react-bootstrap';
 import { PeripheralTypes } from '../consts';
@@ -21,7 +14,7 @@ typesToComponents[PeripheralTypes.SENSOR_BOOLEAN] = BooleanSensor;
 typesToComponents[PeripheralTypes.LimitSwitch] = BooleanSensor;
 typesToComponents[PeripheralTypes.GameValues] = GameValues;
 
-interface OwnProps{
+interface OwnProps {
   key: string;
   uid: string;
   name: string;
@@ -29,6 +22,12 @@ interface OwnProps{
   params: Param[];
 }
 
+/**
+ * Outer Component for Individual Peripherals
+ *
+ * Sets common interface for type-specific components
+ * Wraps such components in ListGroupItem for PeripheralList.js
+ */
 export const Peripheral = (props: OwnProps) => {
   const ActualPeripheral = typesToComponents[props.type] || GenericPeripheral;
 

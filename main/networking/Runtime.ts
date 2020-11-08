@@ -101,7 +101,7 @@ class TCPConn {
 
     setInterval(() => {
       if (!this.socket.connecting && this.socket.pending) {
-        // console.log('Trying to TCP connect to ', runtimeIP);
+        console.log('Trying to TCP connect to ', runtimeIP);
         if (runtimeIP !== defaults.IPADDRESS) {
           this.socket.connect(TCP_PORT, runtimeIP, () => {
             this.logger.log('Runtime connected');
@@ -180,7 +180,7 @@ class TCPConn {
       return;
     }
 
-    // Serialize uid from string -> Long type
+    // TODO: Serialize uid from string -> Long type
     const message = createPacket(deviceData, MsgType.DEVICE_DATA);
     this.socket.write(message, () => {
       this.logger.debug(`Device preferences sent: ${deviceData.toString()}`);
@@ -245,8 +245,6 @@ class UDPConn {
      * In other words, this is where we handle data that we receive from Runtime.
      * Sets runtime connection, decodes device message, cleans UIDs from uint64, and sends sensor data array to reducer.
      */
-    // type Overwrite<T, U> = Pick<T, Exclude<keyof T, keyof U>> & U;
-    // type Device = Overwrite<protos.Device, { uid: string }>;
     this.socket.on('message', (msg: Uint8Array) => {
       try {
         RendererBridge.reduxDispatch(infoPerMessage());

@@ -12,7 +12,7 @@ import { createServer, Server as TCPServer } from 'net';
 const TCP_PORT = 8101;
 const UDP_SEND_PORT = 9001;
 const UDP_LISTEN_PORT = 9000;
-const MSGINTERVAL = 1000; // 1 sec in in msec
+const MSGINTERVAL = 1000; // 1 sec in msec
 
 const randomFloat = (min: number, max: number) => (max - min) * Math.random() + min;
 const sensor = (name: string, type: number, params: Param[], uid: number): Device => ({
@@ -56,7 +56,6 @@ class FakeRuntime {
     })
 
     setInterval(this.onInterval, MSGINTERVAL);
-    this.generateFakeData = this.generateFakeData;
   }
 
   generateFakeData = () => {
