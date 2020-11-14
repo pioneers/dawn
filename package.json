@@ -39,13 +39,13 @@
   },
   "betterScripts": {
     "start": {
-      "command": "cp ./protos/*.proto ./build && electron build/main.js",
+      "command": "mkdir -p ./build/protos && cp ./protos/*.proto ./build/protos && electron build/main.js",
       "env": {
         "NODE_ENV": "development"
       }
     },
     "build": {
-      "command": "mkdir -p ./build && cp ./protos/*.proto ./build && webpack --mode production --progress",
+      "command": "mkdir -p ./build && cp ./protos/*.proto ./build/protos && webpack --mode production --progress",
       "env": {
         "NODE_ENV": "production"
       }
@@ -132,6 +132,7 @@
     "socket.io-client": "^2.3.0",
     "ssh2": "^0.8.9",
     "superagent": "3.8.2",
+    "ts-node": "^9.0.0",
     "utf-8-validate": "^5.0.2",
     "ws": "4.0.0"
   }

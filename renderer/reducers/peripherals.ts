@@ -1,10 +1,8 @@
 import * as consts from '../consts';
 import { UpdatePeripheralsAction, PeripheralRenameAction, PeripheralList } from '../types';
-import { Device } from "../../protos/protos";
+import { Device } from '../../protos/protos';
 
 type Actions = UpdatePeripheralsAction | PeripheralRenameAction;
-
-const initialPeripheralList: PeripheralList = {};
 
 interface PeripheralState {
   peripheralList: PeripheralList;
@@ -14,7 +12,7 @@ interface PeripheralState {
 }
 
 const initialPeripheralState: PeripheralState = {
-  peripheralList: initialPeripheralList,
+  peripheralList: {},
   batterySafety: false,
   batteryLevel: 0,
   runtimeVersion: '1.0.0',
@@ -31,6 +29,7 @@ export const peripherals = (state: PeripheralState = initialPeripheralState, act
   switch (action.type) {
     case consts.PeripheralActionsTypes.UPDATE_PERIPHERALS: {
       const keys: string[] = [];
+
       (action.peripherals ?? []).forEach((peripheral: Device) => {
         if (peripheral.name === consts.PeripheralTypes.BatteryBuzzer) {
           const batteryParams = peripheral.params;
@@ -44,12 +43,12 @@ export const peripherals = (state: PeripheralState = initialPeripheralState, act
           // const version = peripheral.params;
           // nextState.runtimeVersion = `${version['major']}.${version['minor']}.${version['patch']}`;
         } else {
-          const key: string = typeof peripheral.uid === 'number' ? peripheral.uid.toString() : (peripheral.uid.high || '').toString() + peripheral.uid.low.toString();
+          const key =  typeof peripheral.uid === 'number' ? peripheral.uid.toString() : (peripheral.uid.high || '').toString() + peripheral.uid.low.toString();
           keys.push(key);
           if (key in nextPeripherals) {
             peripheral.name = nextPeripherals[key].name; // ensures that the device keeps the name, if it was a custom name
           }
-          nextPeripherals[key] = peripheral;
+          nextPeripherals[key] = { ...peripheral, uid: key };
         }
       });
 
@@ -58,6 +57,7 @@ export const peripherals = (state: PeripheralState = initialPeripheralState, act
           delete nextPeripherals[uid]; // Delete old devices
         }
       });
+
       return nextState;
     }
     // Note: This is not being used since NameEdit is still broken
