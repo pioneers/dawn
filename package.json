@@ -14,7 +14,8 @@
     "printWidth": 140,
     "arrowParens": "always",
     "parser": "typescript",
-    "bracketSpacing": true
+    "bracketSpacing": true,
+    "trailingComma": "none"
   },
   "main": "build/main.js",
   "scripts": {
@@ -78,6 +79,7 @@
     "eslint-plugin-jsx-a11y": "6.0.3",
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-react": "7.5.1",
+    "eslint-plugin-react-hooks": "^4.2.0",
     "file-loader": "^6.1.0",
     "fs-extra": "5.0.0",
     "jszip": "3.1.5",
