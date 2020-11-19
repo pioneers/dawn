@@ -33,7 +33,7 @@ const GamepadListComponent = (props: Props) => {
 };
 
 const mapStateToProps = (state: ApplicationState) => ({
-  gamepads: state.gamepads.gamepads,
+  gamepads: state.gamepads.gamepads
 });
 
 export const GamepadList = connect(mapStateToProps)(GamepadListComponent);

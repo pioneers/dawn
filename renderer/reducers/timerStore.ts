@@ -14,7 +14,7 @@ const initialTimerState = {
   timeLeft: 0,
   computedTime: 0, // TODO: Questionable if this should even be in the store
   totalTime: 0,
-  stage: '',
+  stage: ''
 };
 
 export const timerStore = (state: TimerState = initialTimerState, action: UpdateTimerAction) => {
@@ -26,7 +26,7 @@ export const timerStore = (state: TimerState = initialTimerState, action: Update
         timeLeft: action.timeLeft,
         computedTime: action.timeLeft,
         stage: action.stage,
-        totalTime: action.totalTime,
+        totalTime: action.totalTime
       };
     default:
       return state;

@@ -9,7 +9,7 @@ import {
   Form,
   InputGroup,
   OverlayTrigger,
-  Tooltip,
+  Tooltip
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import { Ace } from 'ace-builds';
@@ -114,14 +114,14 @@ export class Editor extends React.Component<Props, State> {
       'textmate',
       'solarized_dark',
       'solarized_light',
-      'terminal',
+      'terminal'
     ];
     this.state = {
       consoleHeight: windowInfo.CONSOLESTART,
       editorHeight: 0, // Filled in later during componentDidMount
       mode: robotState.TELEOP,
       modeDisplay: robotState.TELEOPSTR,
-      simulate: false,
+      simulate: false
     };
   }
 
@@ -131,7 +131,7 @@ export class Editor extends React.Component<Props, State> {
   componentDidMount = () => {
     this.CodeEditor.editor.setOptions({
       enableBasicAutocompletion: true,
-      enableLiveAutocompletion: true,
+      enableLiveAutocompletion: true
     });
     const autoComplete = {
       getCompletions(_editor: Ace.Editor, _session: Ace.EditSession, _pos: Ace.Point, _prefix: string, callback: Ace.CompleterCallback) {
@@ -175,9 +175,9 @@ export class Editor extends React.Component<Props, State> {
           { value: 'abs', score: 1000, meta: 'Python3' },
           { value: 'len', score: 1000, meta: 'Python3' },
           { value: 'round', score: 1000, meta: 'Python3' },
-          { value: 'set()', score: 1000, meta: 'Python3' },
+          { value: 'set()', score: 1000, meta: 'Python3' }
         ]);
-      },
+      }
     };
     this.CodeEditor.editor.completers = [autoComplete];
 
@@ -241,7 +241,7 @@ export class Editor extends React.Component<Props, State> {
           cancelId: 2,
           title: 'You have unsaved changes!',
           message: 'Do you want to save the changes made to your program?',
-          detail: "Your changes will be lost if you don't save them.",
+          detail: "Your changes will be lost if you don't save them."
         })
         // NOTE: For whatever reason, `event.preventDefault()` does not work within
         // beforeunload events, so we use `event.returnValue = false` instead.
@@ -295,7 +295,7 @@ export class Editor extends React.Component<Props, State> {
   stopRobot = () => {
     this.setState({
       simulate: false,
-      modeDisplay: this.state.mode === robotState.AUTONOMOUS ? robotState.AUTOSTR : robotState.TELEOPSTR,
+      modeDisplay: this.state.mode === robotState.AUTONOMOUS ? robotState.AUTOSTR : robotState.TELEOPSTR
     });
     this.props.onUpdateCodeStatus(robotState.IDLE);
   };

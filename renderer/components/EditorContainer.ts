@@ -20,7 +20,7 @@ const mapStateToProps = (state: ApplicationState) => ({
   notificationHold: state.info.notificationHold,
   fieldControlActivity: state.info.fieldControlActivity,
   disableScroll: state.console.disableScroll,
-  consoleUnread: state.console.consoleUnread,
+  consoleUnread: state.console.consoleUnread
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
@@ -65,7 +65,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   },
   onUploadCode: () => {
     dispatch(uploadCode());
-  },
+  }
 });
 
 export const EditorContainer = connect(mapStateToProps, mapDispatchToProps)(Editor);

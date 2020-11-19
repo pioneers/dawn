@@ -10,19 +10,19 @@ const EditMenu: MenuItemConstructorOptions = {
     {
       label: 'Cut',
       accelerator: 'CommandOrControl+X',
-      role: 'cut',
+      role: 'cut'
     },
     {
       label: 'Copy',
       accelerator: 'CommandOrControl+C',
-      role: 'copy',
+      role: 'copy'
     },
     {
       label: 'Paste',
       accelerator: 'CommandOrControl+V',
-      role: 'paste',
-    },
-  ],
+      role: 'paste'
+    }
+  ]
 };
 
 export default EditMenu;

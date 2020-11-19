@@ -52,7 +52,7 @@ export class ConsoleOutput extends React.Component<Props> {
           style={{
             display: show ? 'block' : 'none',
             marginBottom: '0',
-            borderRadius: '0',
+            borderRadius: '0'
           }}
         >
           <Panel.Body>
@@ -60,7 +60,7 @@ export class ConsoleOutput extends React.Component<Props> {
               style={{
                 position: 'relative',
                 margin: '0',
-                height,
+                height
               }}
             >
               <div
@@ -70,7 +70,7 @@ export class ConsoleOutput extends React.Component<Props> {
                   maxHeight: height,
                   overflowY: 'auto',
                   padding: '20px',
-                  width: '99%',
+                  width: '99%'
                 }}
                 ref={(el) => {
                   this.outerDiv = el;

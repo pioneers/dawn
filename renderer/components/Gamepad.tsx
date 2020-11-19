@@ -41,7 +41,7 @@ export class Gamepad extends React.Component<Props, State> {
 
     return {
       axes: _.map(this.props.gamepad.axes, (axis: number) => numeral(axis).format('0.00000')),
-      buttons: gamepadButtons,
+      buttons: gamepadButtons
     };
   };
 

@@ -27,7 +27,6 @@ app.on('will-quit', () => {
 });
 
 function initializeFC(_event: any) {
-  // eslint-disable-line no-unused-vars
   try {
     FCObject.setup();
   } catch (err) {
@@ -45,18 +44,18 @@ function teardownFC(_event: any) {
 export default function showAPI() {
   let api: BrowserWindow | null = new BrowserWindow({
     webPreferences: {
-      nodeIntegration: true,
+      nodeIntegration: true
     },
     width: 1400,
     height: 900,
-    show: false,
+    show: false
   });
   api.on('closed', () => {
     api = null;
   });
-  api.loadURL(`file://${__dirname}/../static/website-robot-api-master/robot_api.html`);
+  void api.loadURL(`file://${__dirname}/../static/website-robot-api-master/robot_api.html`);
   api.once('ready-to-show', () => {
-    if (api) {
+    if (api !== null) {
       api.show();
     }
   });
@@ -71,15 +70,15 @@ app.on('ready', () => {
   const mainWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
-      enableRemoteModule: true,
-    },
+      enableRemoteModule: true
+    }
   });
 
   // Binding for the main process to inject into Redux workflow
   RendererBridge.registerWindow(mainWindow);
 
   mainWindow.maximize();
-  mainWindow.loadURL(`file://${__dirname}/../static/index.html`);
+  void mainWindow.loadURL(`file://${__dirname}/../static/index.html`);
 
   const menu = Menu.buildFromTemplate(Template);
   Menu.setApplicationMenu(menu);

@@ -12,7 +12,7 @@ export {
   DeleteFileAction,
   CreateNewFileAction,
   DownloadCodeAction,
-  UploadCodeAction,
+  UploadCodeAction
 } from './editor-actions';
 export { GamepadsActions, UpdateGamepadsAction } from './gamepads-actions';
 export { SettingsActions, ChangeFontSizeAction, ChangeThemeAction } from './settings-actions';
@@ -24,7 +24,7 @@ export {
   UpdateMatchAction,
   UpdateRobotAction,
   ToggleFieldControlAction,
-  UpdateFieldControlAction,
+  UpdateFieldControlAction
 } from './field-actions';
 export {
   InfoActions,
@@ -34,5 +34,5 @@ export {
   RuntimeDisconnectAction,
   UpdateCodeStatusAction,
   IpChangeAction,
-  NotificationChangeAction,
+  NotificationChangeAction
 } from './info-actions';

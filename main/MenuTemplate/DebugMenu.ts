@@ -23,15 +23,15 @@ const DebugMenu: MenuItemConstructorOptions = {
           RendererBridge.registeredWindow.webContents.toggleDevTools();
         }
       },
-      accelerator: 'CommandOrControl+alt+I',
+      accelerator: 'CommandOrControl+alt+I'
     },
     {
       label: 'Restart Runtime',
       click() {
         RendererBridge.reduxDispatch({
-          type: 'RESTART_RUNTIME',
+          type: 'RESTART_RUNTIME'
         });
-      },
+      }
     },
     {
       label: 'Restart FC',
@@ -42,15 +42,15 @@ const DebugMenu: MenuItemConstructorOptions = {
         } else {
           console.log('Field Control not active');
         }
-      },
+      }
     },
     {
       label: 'Toggle Console Autoscroll',
       click() {
         RendererBridge.reduxDispatch({
-          type: 'TOGGLE_SCROLL',
+          type: 'TOGGLE_SCROLL'
         });
-      },
+      }
     },
 
     {
@@ -60,18 +60,18 @@ const DebugMenu: MenuItemConstructorOptions = {
         if (RendererBridge.registeredWindow) {
           RendererBridge.registeredWindow.reload();
         }
-      },
+      }
     },
 
     {
       label: 'Full Stack Timestamp',
       click() {
         RendererBridge.reduxDispatch({
-          type: 'TIMESTAMP_CHECK',
+          type: 'TIMESTAMP_CHECK'
         });
-      },
-    },
-  ],
+      }
+    }
+  ]
 };
 
 if (process.env.NODE_ENV === 'development') {
@@ -84,7 +84,7 @@ if (process.env.NODE_ENV === 'development') {
       } else {
         fakeRuntime = fork('./fake-runtime/FakeRuntime.ts', [], { execArgv: ['-r', 'ts-node/register'] });
       }
-    },
+    }
   });
 }
 

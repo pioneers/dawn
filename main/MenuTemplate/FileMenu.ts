@@ -14,30 +14,30 @@ const FileMenu: MenuItemConstructorOptions = {
       click() {
         RendererBridge.reduxDispatch(createNewFile());
       },
-      accelerator: 'CommandOrControl+N',
+      accelerator: 'CommandOrControl+N'
     },
     {
       label: 'Open file',
       click() {
         RendererBridge.reduxDispatch(openFile());
       },
-      accelerator: 'CommandOrControl+O',
+      accelerator: 'CommandOrControl+O'
     },
     {
       label: 'Save file',
       click() {
         RendererBridge.reduxDispatch(saveFile());
       },
-      accelerator: 'CommandOrControl+S',
+      accelerator: 'CommandOrControl+S'
     },
     {
       label: 'Save file as',
       click() {
         RendererBridge.reduxDispatch(saveFile(true));
       },
-      accelerator: 'CommandOrControl+Shift+S',
-    },
-  ],
+      accelerator: 'CommandOrControl+Shift+S'
+    }
+  ]
 };
 
 export default FileMenu;

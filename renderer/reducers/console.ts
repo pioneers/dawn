@@ -17,7 +17,7 @@ const initialState = {
   showConsole: false,
   consoleData: [],
   disableScroll: false,
-  consoleUnread: false,
+  consoleUnread: false
 };
 
 export const console = (state: ConsoleState = initialState, action: Actions) => {
@@ -26,23 +26,23 @@ export const console = (state: ConsoleState = initialState, action: Actions) => 
       return {
         ...state,
         consoleData: [...state.consoleData, ...action.consoleOutput],
-        consoleUnread: !state.showConsole,
+        consoleUnread: !state.showConsole
       };
     case consts.ConsoleActionsTypes.CLEAR_CONSOLE:
       return {
         ...state,
-        consoleData: [],
+        consoleData: []
       };
     case consts.ConsoleActionsTypes.TOGGLE_CONSOLE:
       return {
         ...state,
         showConsole: !state.showConsole,
-        consoleUnread: false,
+        consoleUnread: false
       };
     case consts.ConsoleActionsTypes.TOGGLE_SCROLL:
       return {
         ...state,
-        disableScroll: !state.disableScroll,
+        disableScroll: !state.disableScroll
       };
     default:
       return state;

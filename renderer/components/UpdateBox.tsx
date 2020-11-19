@@ -36,14 +36,14 @@ class UpdateBoxContainer extends React.Component<Props, State> {
     super(props);
     this.state = {
       isUploading: false,
-      updateFilepath: '',
+      updateFilepath: ''
     };
   }
 
   chooseUpdate = () => {
     remote.dialog
       .showOpenDialog({
-        filters: [{ name: 'Update Package', extensions: ['zip'] }],
+        filters: [{ name: 'Update Package', extensions: ['zip'] }]
       })
       .then((dialogReturn: OpenDialogReturnValue) => {
         if (dialogReturn.filePaths.length > 0) {
@@ -93,7 +93,7 @@ class UpdateBoxContainer extends React.Component<Props, State> {
         host: this.props.ipAddress,
         port: defaults.PORT,
         username: defaults.USERNAME,
-        password: defaults.PASSWORD,
+        password: defaults.PASSWORD
       });
   };
 
@@ -149,7 +149,7 @@ class UpdateBoxContainer extends React.Component<Props, State> {
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   onAlertAdd: (heading: string, message: string) => {
     dispatch(addAsyncAlert(heading, message));
-  },
+  }
 });
 
 export const UpdateBox = connect(null, mapDispatchToProps)(UpdateBoxContainer);

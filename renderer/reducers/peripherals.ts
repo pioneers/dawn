@@ -15,7 +15,7 @@ const initialPeripheralState: PeripheralState = {
   peripheralList: {},
   batterySafety: false,
   batteryLevel: 0,
-  runtimeVersion: '1.0.0',
+  runtimeVersion: '1.0.0'
 };
 
 // Taken from runtime_util.c in Runtime repo

@@ -22,5 +22,5 @@ export const GameValues = ({ name, params }: Device) => (
 );
 
 GameValues.defaultProps = {
-  device_name: 'Unknown Device',
+  device_name: 'Unknown Device'
 };

@@ -2,7 +2,6 @@ import seedrandom from 'seedrandom';
 import { expect } from 'chai';
 import { addAsyncAlert, removeAsyncAlert } from '../AlertActions';
 
-
 describe('alerts action creator', () => {
   // Needs to be using the same seed as the action creator.
   const rng = seedrandom('alertseed');

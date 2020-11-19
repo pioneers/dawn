@@ -11,10 +11,10 @@ export const addAsyncAlert: AlertActions['addAsyncAlert'] = (heading: string, me
   type: consts.AlertActionsTypes.ADD_ASYNC_ALERT,
   id: rng.int32(),
   heading,
-  message,
+  message
 });
 
 export const removeAsyncAlert: AlertActions['removeAsyncAlert'] = (id: number) => ({
   type: consts.AlertActionsTypes.REMOVE_ASYNC_ALERT,
-  id,
+  id
 });

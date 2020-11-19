@@ -32,7 +32,7 @@ function openFileDialog() {
   return new Promise((resolve, reject) => {
     remote.dialog
       .showOpenDialog({
-        filters: [{ name: 'python', extensions: ['py'] }],
+        filters: [{ name: 'python', extensions: ['py'] }]
       })
       .then((openDialogReturnValue: OpenDialogReturnValue) => {
         const { filePaths } = openDialogReturnValue;
@@ -59,7 +59,7 @@ function saveFileDialog() {
   return new Promise((resolve, reject) => {
     remote.dialog
       .showSaveDialog({
-        filters: [{ name: 'python', extensions: ['py'] }],
+        filters: [{ name: 'python', extensions: ['py'] }]
       })
       .then((saveDialogReturnValue: SaveDialogReturnValue) => {
         const { filePath } = saveDialogReturnValue;
@@ -92,7 +92,7 @@ function unsavedDialog(action: string) {
         buttons: [`Save and ${action}`, `Discard and ${action}`, 'Cancel action'],
         title: 'You have unsaved changes!',
         message: `You are trying to ${action} a new file, but you have unsaved changes to
-your current one. What do you want to do?`,
+your current one. What do you want to do?`
       })
       .then((messageBoxReturnValue: MessageBoxReturnValue) => {
         const { response } = messageBoxReturnValue;
@@ -117,7 +117,7 @@ function* writeCodeToFile(filepath: string, code: string): Generator<any, void, 
 
 const editorState = (state: any) => ({
   filepath: state.editor.filepath,
-  code: state.editor.editorCode,
+  code: state.editor.editorCode
 });
 
 function* saveFile(action: any) {
@@ -140,7 +140,7 @@ function* saveFile(action: any) {
 
 const editorSavedState = (state: any) => ({
   savedCode: state.editor.latestSaveCode,
-  code: state.editor.editorCode,
+  code: state.editor.editorCode
 });
 
 function* openFile(action: any) {
@@ -152,7 +152,7 @@ function* openFile(action: any) {
     if (res === 0) {
       yield* saveFile({
         type: 'SAVE_FILE',
-        saveAs: false,
+        saveAs: false
       });
     }
   }
@@ -181,7 +181,7 @@ function* dragFile(action: any) {
     if (res === 0) {
       yield* saveFile({
         type: 'SAVE_FILE',
-        saveAs: false,
+        saveAs: false
       });
     }
   }
@@ -212,7 +212,7 @@ function* runtimeHeartbeat() {
     // runtime. Only the winner will have a value.
     const result = yield race({
       update: take('PER_MESSAGE'),
-      timeout: delay(TIMEOUT),
+      timeout: delay(TIMEOUT)
     });
 
     // If update wins, we assume we are connected, otherwise disconnected.
@@ -255,7 +255,7 @@ function formatGamepads(newGamepads: (Gamepad | null)[]): GpState[] {
       formattedGamepads[indexGamepad] = new GpState({
         connected: gamepad.connected,
         axes: gamepad.axes.slice(),
-        buttons: bitmap,
+        buttons: bitmap
       });
     }
   });
@@ -337,7 +337,7 @@ function* restartRuntime() {
   const conn = new Client();
   const stateSlice = yield select((state: any) => ({
     runtimeStatus: state.info.runtimeStatus,
-    ipAddress: state.info.ipAddress,
+    ipAddress: state.info.ipAddress
   }));
   if (stateSlice.runtimeStatus && stateSlice.ipAddress !== defaults.IPADDRESS) {
     const network = yield call(
@@ -364,7 +364,7 @@ function* restartRuntime() {
               host: stateSlice.ipAddress,
               port: defaults.PORT,
               username: defaults.USERNAME,
-              password: defaults.PASSWORD,
+              password: defaults.PASSWORD
             });
         })
     );
@@ -378,7 +378,7 @@ function* downloadStudentCode() {
   const conn = new Client();
   const stateSlice = yield select((state: any) => ({
     runtimeStatus: state.info.runtimeStatus,
-    ipAddress: state.info.ipAddress,
+    ipAddress: state.info.ipAddress
   }));
   const path = `${require('electron').remote.app.getPath('desktop')}/Dawn`; // eslint-disable-line global-require
   try {
@@ -419,7 +419,7 @@ function* downloadStudentCode() {
               host: stateSlice.ipAddress,
               port: defaults.PORT,
               username: defaults.USERNAME,
-              password: defaults.PASSWORD,
+              password: defaults.PASSWORD
             });
         })
     );
@@ -458,7 +458,7 @@ function* uploadStudentCode() {
   const stateSlice = yield select((state: any) => ({
     runtimeStatus: state.info.runtimeStatus,
     ipAddress: state.info.ipAddress,
-    filepath: state.editor.filepath,
+    filepath: state.editor.filepath
   }));
   if (stateSlice.runtimeStatus) {
     logging.log(`Uploading ${stateSlice.filepath}`);
@@ -493,7 +493,7 @@ function* uploadStudentCode() {
               host: stateSlice.ipAddress,
               port: defaults.PORT,
               username: defaults.USERNAME,
-              password: defaults.PASSWORD,
+              password: defaults.PASSWORD
             });
         })
     );
@@ -528,7 +528,7 @@ function* uploadStudentCode() {
 
 function* handleFieldControl() {
   const stateSlice = yield select((state: any) => ({
-    fieldControlStatus: state.fieldStore.fieldControl,
+    fieldControlStatus: state.fieldStore.fieldControl
   }));
   if (stateSlice.fieldControlStatus) {
     yield put(toggleFieldControl(false));
@@ -549,7 +549,7 @@ function timestampBounceback() {
  */
 function* exportRunMode() {
   const stateSlice = yield select((state: any) => ({
-    mode: state.info.studentCodeStatus,
+    mode: state.info.studentCodeStatus
   }));
   ipcRenderer.send('runModeUpdate', stateSlice);
 }
@@ -572,7 +572,7 @@ export default function* rootSaga() {
     takeEvery('EXPORT_RUN_MODE', exportRunMode),
     fork(runtimeHeartbeat),
     fork(runtimeGamepads),
-    fork(runtimeSaga),
+    fork(runtimeSaga)
   ]);
 }
 
@@ -589,5 +589,5 @@ export {
   gamepadsState,
   updateMainProcess,
   runtimeReceiver,
-  runtimeSaga,
+  runtimeSaga
 }; // for tests

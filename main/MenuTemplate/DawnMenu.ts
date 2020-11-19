@@ -13,17 +13,17 @@ const DawnMenu: MenuItemConstructorOptions = {
       accelerator: 'CommandOrControl+Q',
       click() {
         app.quit();
-      },
+      }
     },
     {
       label: 'Field Control Mode',
       click() {
         RendererBridge.reduxDispatch({
-          type: 'TOGGLE_FIELD_CONTROL',
+          type: 'TOGGLE_FIELD_CONTROL'
         });
-      },
-    },
-  ],
+      }
+    }
+  ]
 };
 
 export default DawnMenu;

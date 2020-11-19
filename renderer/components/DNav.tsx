@@ -39,7 +39,7 @@ class DNavComponent extends React.Component<Props, State> {
     super(props);
     this.state = {
       showUpdateModal: false,
-      showConfigModal: false,
+      showConfigModal: false
     };
   }
 
@@ -77,7 +77,7 @@ class DNavComponent extends React.Component<Props, State> {
       blueMasterTeamNumber,
       goldMasterTeamNumber,
       fieldControlStatus,
-      startTour,
+      startTour
     } = this.props;
     const { showConfigModal, showUpdateModal } = this.state;
 
@@ -162,7 +162,7 @@ const mapStateToProps = (state: ApplicationState) => ({
   heart: state.fieldStore.heart,
   ipAddress: state.info.ipAddress,
   fieldControlStatus: state.fieldStore.fieldControl,
-  runtimeVersion: state.peripherals.runtimeVersion,
+  runtimeVersion: state.peripherals.runtimeVersion
 });
 
 export const DNav = connect(mapStateToProps)(DNavComponent);

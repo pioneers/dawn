@@ -29,7 +29,7 @@ enum MsgType {
   START_POS,
   CHALLENGE_DATA,
   LOG,
-  DEVICE_DATA,
+  DEVICE_DATA
 }
 
 interface TCPPacket {
@@ -52,7 +52,7 @@ function readPacket(data: any): TCPPacket {
   return {
     messageType: msgType,
     messageLength: msgLength,
-    payload: load,
+    payload: load
   };
 }
 
@@ -281,7 +281,7 @@ class UDPConn {
     if (data.length === 0) {
       data.push(
         protos.GpState.create({
-          connected: false,
+          connected: false
         })
       );
     }
@@ -309,5 +309,5 @@ export const Runtime = {
 
   close() {
     this.conns.forEach((conn) => conn.close()); // Logger's fs closes automatically
-  },
+  }
 };

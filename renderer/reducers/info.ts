@@ -9,7 +9,7 @@ import {
   UpdateCodeStatusAction,
   IpChangeAction,
   UpdateRobotAction,
-  NotificationChangeAction,
+  NotificationChangeAction
 } from '../types';
 
 type Actions =
@@ -45,7 +45,7 @@ const initialInfoState = {
   masterStatus: false,
   notificationHold: 0,
   fieldControlDirective: robotState.TELEOP,
-  fieldControlActivity: false,
+  fieldControlActivity: false
 };
 
 export const info = (state: InfoState = initialInfoState, action: Actions): InfoState => {
@@ -53,40 +53,40 @@ export const info = (state: InfoState = initialInfoState, action: Actions): Info
     case consts.InfoActionsTypes.PER_MESSAGE:
       return {
         ...state,
-        connectionStatus: true,
+        connectionStatus: true
       };
     case consts.InfoActionsTypes.NOTIFICATION_CHANGE:
       return {
         ...state,
-        notificationHold: action.notificationHold,
+        notificationHold: action.notificationHold
       };
     case consts.InfoActionsTypes.RUNTIME_CONNECT:
       return {
         ...state,
-        runtimeStatus: true,
+        runtimeStatus: true
       };
     case consts.InfoActionsTypes.RUNTIME_DISCONNECT:
       return {
         ...state,
         runtimeStatus: false,
         connectionStatus: false,
-        studentCodeStatus: robotState.IDLE,
+        studentCodeStatus: robotState.IDLE
       };
     case consts.InfoActionsTypes.MASTER_ROBOT:
       return {
         ...state,
-        masterStatus: true,
+        masterStatus: true
       };
     case consts.InfoActionsTypes.CODE_STATUS:
       return {
         ...state,
-        studentCodeStatus: action.studentCodeStatus,
+        studentCodeStatus: action.studentCodeStatus
       };
     case consts.InfoActionsTypes.IP_CHANGE:
       ipcRenderer.send('ipAddress', action.ipAddress);
       return {
         ...state,
-        ipAddress: action.ipAddress,
+        ipAddress: action.ipAddress
       };
     case consts.FieldActionsTypes.UPDATE_ROBOT: {
       const stateChange = action.autonomous ? robotState.AUTONOMOUS : robotState.TELEOP;
@@ -96,7 +96,7 @@ export const info = (state: InfoState = initialInfoState, action: Actions): Info
         fieldControlDirective: stateChange,
         fieldControlActivity: action.enabled,
         // eslint-disable-next-line no-nested-ternary
-        studentCodeStatus: codeStatus,
+        studentCodeStatus: codeStatus
       };
     }
     default:

@@ -10,7 +10,7 @@ interface SettingState {
 
 const initialState = {
   fontSize: 14,
-  editorTheme: 'tomorrow',
+  editorTheme: 'tomorrow'
 };
 
 export const settings = (state: SettingState = initialState, action: Actions) => {
@@ -18,12 +18,12 @@ export const settings = (state: SettingState = initialState, action: Actions) =>
     case consts.SettingsActionsTypes.CHANGE_FONT_SIZE:
       return {
         ...state,
-        fontSize: action.newFontSize,
+        fontSize: action.newFontSize
       };
     case consts.SettingsActionsTypes.CHANGE_THEME:
       return {
         ...state,
-        editorTheme: action.theme,
+        editorTheme: action.theme
       };
     default:
       return state;
