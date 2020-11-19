@@ -49,7 +49,7 @@ const initialFieldState = {
   teamNumber: 0,
   teamColor: 'Unknown',
   blueMasterTeamNumber: 0,
-  goldMasterTeamNumber: 0
+  goldMasterTeamNumber: 0,
 };
 
 export const fieldStore = (state: FieldState = initialFieldState, action: Actions) => {

@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 /*
  * Fake Runtime is not handled by webpack like most of the other JS code but instead
  * will be run "as is" as a child-process of the rest of the application.
@@ -53,7 +55,7 @@ class FakeRuntime {
     });
     this.tcpServer.listen(TCP_PORT, () => {
       print('server bound');
-    })
+    });
 
     setInterval(this.onInterval, MSGINTERVAL);
   }
@@ -82,13 +84,13 @@ class FakeRuntime {
         // sensor('Ignored', 5, [param('is_unsafe', 'bool', Math.random() < 0.5), param('v_batt', 'float', randomFloat(0, 15))], 0),
       ],
     };
-  }
+  };
 
   onInterval = () => {
     const fakeData: DevData = this.generateFakeData();
     this.sendSocket.send(DevData.encode(fakeData).finish(), UDP_SEND_PORT, 'localhost');
     // TODO: Handle TCP writes to console
-  }
+  };
 }
 
 new FakeRuntime(); // eslint-disable-line no-new

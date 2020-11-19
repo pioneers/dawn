@@ -104,11 +104,11 @@ export class Logger {
 
   log = (output: string) => {
     console.log(output);
-    this._write(output, `\n[${(new Date()).toString()}]`);
-  }
+    this._write(output, `\n[${new Date().toString()}]`);
+  };
   debug = (output: string) => {
-    this._write(output, `\n[${(new Date()).toString()} DEBUG]`);
-  }
+    this._write(output, `\n[${new Date().toString()} DEBUG]`);
+  };
 
   _write = (output: string, prefix: string) => {
     output = String(output);
@@ -118,7 +118,7 @@ export class Logger {
     } else {
       // this.log_file.write('*');
     }
-  }
+  };
 }
 
 export let logging: Logger; // eslint-disable-line import/no-mutable-exports

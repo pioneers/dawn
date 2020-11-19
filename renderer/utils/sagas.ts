@@ -30,19 +30,22 @@ let timestamp = Date.now();
  */
 function openFileDialog() {
   return new Promise((resolve, reject) => {
-    remote.dialog.showOpenDialog({
-      filters: [{ name: 'python', extensions: ['py'] }],
-    }).then((openDialogReturnValue: OpenDialogReturnValue) => {
-      const { filePaths } = openDialogReturnValue; 
-      // If filepaths is undefined, the user did not specify a file.
-      if (_.isEmpty(filePaths)) {
-        reject();
-      } else {
-        resolve(filePaths[0]);
-      }
-    }).catch((error) => {
-      reject(error);
-    });
+    remote.dialog
+      .showOpenDialog({
+        filters: [{ name: 'python', extensions: ['py'] }],
+      })
+      .then((openDialogReturnValue: OpenDialogReturnValue) => {
+        const { filePaths } = openDialogReturnValue;
+        // If filepaths is undefined, the user did not specify a file.
+        if (_.isEmpty(filePaths)) {
+          reject();
+        } else {
+          resolve(filePaths[0]);
+        }
+      })
+      .catch((error) => {
+        reject(error);
+      });
   });
 }
 
@@ -54,22 +57,24 @@ function openFileDialog() {
  */
 function saveFileDialog() {
   return new Promise((resolve, reject) => {
-    remote.dialog.showSaveDialog({
-      filters: [{ name: 'python', extensions: ['py'] }],
-    }).then((saveDialogReturnValue: SaveDialogReturnValue) => {
-      const { filePath } = saveDialogReturnValue; 
-      // If filepath is undefined, the user did not specify a file.
-      if (filePath === undefined) {
-        reject();
-        return;
-      }
+    remote.dialog
+      .showSaveDialog({
+        filters: [{ name: 'python', extensions: ['py'] }],
+      })
+      .then((saveDialogReturnValue: SaveDialogReturnValue) => {
+        const { filePath } = saveDialogReturnValue;
+        // If filepath is undefined, the user did not specify a file.
+        if (filePath === undefined) {
+          reject();
+          return;
+        }
 
-      // Automatically append .py extension if they don't have it
-      if (!filePath.endsWith('.py')) {
-        resolve(`${filePath}.py`);
-      }
-      resolve(filePath);
-    });
+        // Automatically append .py extension if they don't have it
+        if (!filePath.endsWith('.py')) {
+          resolve(`${filePath}.py`);
+        }
+        resolve(filePath);
+      });
   });
 }
 
@@ -81,21 +86,23 @@ function saveFileDialog() {
  */
 function unsavedDialog(action: string) {
   return new Promise((resolve, reject) => {
-    remote.dialog.showMessageBox({
-      type: 'warning',
-      buttons: [`Save and ${action}`, `Discard and ${action}`, 'Cancel action'],
-      title: 'You have unsaved changes!',
-      message: `You are trying to ${action} a new file, but you have unsaved changes to
+    remote.dialog
+      .showMessageBox({
+        type: 'warning',
+        buttons: [`Save and ${action}`, `Discard and ${action}`, 'Cancel action'],
+        title: 'You have unsaved changes!',
+        message: `You are trying to ${action} a new file, but you have unsaved changes to
 your current one. What do you want to do?`,
-    }).then((messageBoxReturnValue: MessageBoxReturnValue) => {
-      const { response } = messageBoxReturnValue;
-      // 'res' is an integer corrseponding to index in button list above.
-      if (response === 0 || response === 1 || response === 2) {
-        resolve(response);
-      } else {
-        reject();
-      }
-    })
+      })
+      .then((messageBoxReturnValue: MessageBoxReturnValue) => {
+        const { response } = messageBoxReturnValue;
+        // 'res' is an integer corrseponding to index in button list above.
+        if (response === 0 || response === 1 || response === 2) {
+          resolve(response);
+        } else {
+          reject();
+        }
+      });
   });
 }
 
@@ -137,7 +144,7 @@ const editorSavedState = (state: any) => ({
 });
 
 function* openFile(action: any) {
-  const type = (action.type === 'OPEN_FILE') ? 'open' : 'create';
+  const type = action.type === 'OPEN_FILE' ? 'open' : 'create';
   const result = yield select(editorSavedState);
   let res = 1;
   if (result.code !== result.savedCode) {
@@ -205,8 +212,8 @@ function* runtimeHeartbeat() {
     // runtime. Only the winner will have a value.
     const result = yield race({
       update: take('PER_MESSAGE'),
-      timeout: delay(TIMEOUT)
-    }); 
+      timeout: delay(TIMEOUT),
+    });
 
     // If update wins, we assume we are connected, otherwise disconnected.
     if (result.update) {
@@ -221,7 +228,7 @@ const _timestamps: Array<number | null> = [0, 0, 0, 0];
 
 function _needToUpdate(newGamepads: (Gamepad | null)[]): boolean {
   return _.some(newGamepads, (gamepad, index) => {
-    if (gamepad != null && (gamepad.timestamp > (_timestamps[index] ?? 0))) {
+    if (gamepad != null && gamepad.timestamp > (_timestamps[index] ?? 0)) {
       _timestamps[index] = gamepad.timestamp;
       return true;
     } else if (gamepad == null && _timestamps[index] != null) {
@@ -233,16 +240,16 @@ function _needToUpdate(newGamepads: (Gamepad | null)[]): boolean {
 }
 
 function formatGamepads(newGamepads: (Gamepad | null)[]): GpState[] {
-  let formattedGamepads: GpState[] = [];
+  const formattedGamepads: GpState[] = [];
   // Currently there is a bug on windows where navigator.getGamepads()
   // returns a second, 'ghost' gamepad even when only one is connected.
   // The filter on 'mapping' filters out the ghost gamepad.
   _.forEach(_.filter(newGamepads, { mapping: 'standard' }), (gamepad: Gamepad | null, indexGamepad: number) => {
     if (gamepad) {
-      let bitmap: number = 0;
+      let bitmap = 0;
       gamepad.buttons.forEach((button, index) => {
         if (button.pressed) {
-          bitmap |= (1 << index);
+          bitmap |= 1 << index;
         }
       });
       formattedGamepads[indexGamepad] = new GpState({
@@ -333,37 +340,36 @@ function* restartRuntime() {
     ipAddress: state.info.ipAddress,
   }));
   if (stateSlice.runtimeStatus && stateSlice.ipAddress !== defaults.IPADDRESS) {
-    const network = yield call(() => new Promise((resolve) => {
-      conn.on('ready', () => {
-        conn.exec(
-          'sudo systemctl restart runtime.service',
-          { pty: true }, (uperr: any, stream: any) => {
-            if (uperr) {
-              resolve(1);
-            }
-            stream.write(`${defaults.PASSWORD}\n`);
-            stream.on('exit', (code: any) => {
-              logging.log(`Runtime Restart: Returned ${code}`);
-              conn.end();
-              resolve(0);
+    const network = yield call(
+      () =>
+        new Promise((resolve) => {
+          conn
+            .on('ready', () => {
+              conn.exec('sudo systemctl restart runtime.service', { pty: true }, (uperr: any, stream: any) => {
+                if (uperr) {
+                  resolve(1);
+                }
+                stream.write(`${defaults.PASSWORD}\n`);
+                stream.on('exit', (code: any) => {
+                  logging.log(`Runtime Restart: Returned ${code}`);
+                  conn.end();
+                  resolve(0);
+                });
+              });
+            })
+            .connect({
+              debug: (inpt: any) => {
+                logging.log(inpt);
+              },
+              host: stateSlice.ipAddress,
+              port: defaults.PORT,
+              username: defaults.USERNAME,
+              password: defaults.PASSWORD,
             });
-          },
-        );
-      }).connect({
-        debug: (inpt: any) => {
-          logging.log(inpt);
-        },
-        host: stateSlice.ipAddress,
-        port: defaults.PORT,
-        username: defaults.USERNAME,
-        password: defaults.PASSWORD,
-      });
-    }));
+        })
+    );
     if (network === 1) {
-      yield addAsyncAlert(
-        'Runtime Restart Error',
-        'Dawn was unable to run restart commands. Please check your robot connectivity.',
-      );
+      yield addAsyncAlert('Runtime Restart Error', 'Dawn was unable to run restart commands. Please check your robot connectivity.');
     }
   }
 }
@@ -382,75 +388,62 @@ function* downloadStudentCode() {
   }
   if (stateSlice.runtimeStatus) {
     logging.log(`Downloading to ${path}`);
-    const errors = yield call(() => new Promise((resolve) => {
-      conn.on('error', (err: any) => {
-        logging.log(err);
-        resolve(3);
-      });
-
-      conn.on('ready', () => {
-        conn.sftp((err: any, sftp: any) => {
-          if (err) {
+    const errors = yield call(
+      () =>
+        new Promise((resolve) => {
+          conn.on('error', (err: any) => {
             logging.log(err);
-            resolve(1);
-          }
-          sftp.fastGet(
-            defaults.STUDENTCODELOC, `${path}/robotCode.py`,
-            (err2: any) => {
-              if (err2) {
-                logging.log(err2);
-                resolve(2);
-              }
-              resolve(0);
-            },
-          );
-        });
-      }).connect({
-        debug: (inpt: any) => {
-          logging.log(inpt);
-        },
-        host: stateSlice.ipAddress,
-        port: defaults.PORT,
-        username: defaults.USERNAME,
-        password: defaults.PASSWORD,
-      });
-    }));
+            resolve(3);
+          });
+
+          conn
+            .on('ready', () => {
+              conn.sftp((err: any, sftp: any) => {
+                if (err) {
+                  logging.log(err);
+                  resolve(1);
+                }
+                sftp.fastGet(defaults.STUDENTCODELOC, `${path}/robotCode.py`, (err2: any) => {
+                  if (err2) {
+                    logging.log(err2);
+                    resolve(2);
+                  }
+                  resolve(0);
+                });
+              });
+            })
+            .connect({
+              debug: (inpt: any) => {
+                logging.log(inpt);
+              },
+              host: stateSlice.ipAddress,
+              port: defaults.PORT,
+              username: defaults.USERNAME,
+              password: defaults.PASSWORD,
+            });
+        })
+    );
     switch (errors) {
       case 0: {
         const data = yield cps(fs.readFile, `${path}/robotCode.py`);
         yield put(openFileSucceeded(data, `${path}/robotCode.py`));
-        yield put(addAsyncAlert(
-          'Download Success',
-          'File Downloaded Successfully',
-        ));
+        yield put(addAsyncAlert('Download Success', 'File Downloaded Successfully'));
         break;
       }
       case 1: {
-        yield put(addAsyncAlert(
-          'Download Issue',
-          'SFTP session could not be initiated',
-        ));
+        yield put(addAsyncAlert('Download Issue', 'SFTP session could not be initiated'));
         break;
       }
       case 2: {
-        yield put(addAsyncAlert(
-          'Download Issue',
-          'File failed to be downloaded',
-        ));
+        yield put(addAsyncAlert('Download Issue', 'File failed to be downloaded'));
         break;
       }
       case 3: {
-        yield put(addAsyncAlert(
-          'Download Issue',
-          'Robot could not be connected.',
-        ));
+        yield put(addAsyncAlert('Download Issue', 'Robot could not be connected.'));
         break;
       }
       default: {
-        yield put(addAsyncAlert(
-          'Download Issue',
-          'Unknown Error',
-        ));
+        yield put(addAsyncAlert('Download Issue', 'Unknown Error'));
         break;
       }
     }
@@ -469,74 +462,61 @@ function* uploadStudentCode() {
   }));
   if (stateSlice.runtimeStatus) {
     logging.log(`Uploading ${stateSlice.filepath}`);
-    const errors = yield call(() => new Promise((resolve) => {
-      conn.on('error', (err: any) => {
-        logging.log(err);
-        resolve(3);
-      });
-
-      conn.on('ready', () => {
-        conn.sftp((err: any, sftp: any) => {
-          if (err) {
+    const errors = yield call(
+      () =>
+        new Promise((resolve) => {
+          conn.on('error', (err: any) => {
             logging.log(err);
-            resolve(1);
-          }
-          sftp.fastPut(
-            stateSlice.filepath, defaults.STUDENTCODELOC,
-            (err2: any) => {
-              if (err2) {
-                logging.log(err2);
-                resolve(2);
-              }
-              resolve(0);
-            },
-          );
-        });
-      }).connect({
-        debug: (input: any) => {
-          logging.log(input);
-        },
-        host: stateSlice.ipAddress,
-        port: defaults.PORT,
-        username: defaults.USERNAME,
-        password: defaults.PASSWORD,
-      });
-    }));
+            resolve(3);
+          });
+
+          conn
+            .on('ready', () => {
+              conn.sftp((err: any, sftp: any) => {
+                if (err) {
+                  logging.log(err);
+                  resolve(1);
+                }
+                sftp.fastPut(stateSlice.filepath, defaults.STUDENTCODELOC, (err2: any) => {
+                  if (err2) {
+                    logging.log(err2);
+                    resolve(2);
+                  }
+                  resolve(0);
+                });
+              });
+            })
+            .connect({
+              debug: (input: any) => {
+                logging.log(input);
+              },
+              host: stateSlice.ipAddress,
+              port: defaults.PORT,
+              username: defaults.USERNAME,
+              password: defaults.PASSWORD,
+            });
+        })
+    );
 
     switch (errors) {
       case 0: {
-        yield put(addAsyncAlert(
-          'Upload Success',
-          'File Uploaded Successfully',
-        ));
+        yield put(addAsyncAlert('Upload Success', 'File Uploaded Successfully'));
         break;
       }
       case 1: {
-        yield put(addAsyncAlert(
-          'Upload Issue',
-          'SFTP session could not be initiated',
-        ));
+        yield put(addAsyncAlert('Upload Issue', 'SFTP session could not be initiated'));
         break;
       }
       case 2: {
-        yield put(addAsyncAlert(
-          'Upload Issue',
-          'File failed to be transmitted',
-        ));
+        yield put(addAsyncAlert('Upload Issue', 'File failed to be transmitted'));
         break;
       }
       case 3: {
-        yield put(addAsyncAlert(
-          'Upload Issue',
-          'Robot could not be connected',
-        ));
+        yield put(addAsyncAlert('Upload Issue', 'Robot could not be connected'));
         break;
       }
       default: {
-        yield put(addAsyncAlert(
-          'Upload Issue',
-          'Unknown Error',
-        ));
+        yield put(addAsyncAlert('Upload Issue', 'Unknown Error'));
         break;
       }
     }

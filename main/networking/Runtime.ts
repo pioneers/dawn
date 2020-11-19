@@ -106,8 +106,7 @@ class TCPConn {
           this.socket.connect(TCP_PORT, runtimeIP, () => {
             this.logger.log('Runtime connected');
             this.socket.write(new Uint8Array([1])); // Runtime needs first byte to be 1 to recognize client as Dawn (instead of Shepherd)
-            }
-          )
+          });
         }
       }
     }, 1000);
@@ -197,7 +196,7 @@ class TCPConn {
     this.socket.write(message, () => {
       this.logger.debug(`Challenge inputs sent: ${textData.toString()}`);
     });
-  }
+  };
 
   sendRobotStartPos = (_event: IpcMainEvent, startPosData: protos.IStartPos) => {
     // TODO: Get start pos from sagas
@@ -249,7 +248,7 @@ class UDPConn {
       try {
         RendererBridge.reduxDispatch(infoPerMessage());
         const sensorData: protos.Device[] = protos.DevData.decode(msg).devices;
-        
+
         sensorData.forEach((device) => {
           if (device.uid.toString() === '0') {
             device.uid = 0;

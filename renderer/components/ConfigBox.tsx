@@ -119,7 +119,7 @@ class ConfigBoxComponent extends React.Component<Props, State> {
     this.setState({ ipAddress: e.currentTarget.value });
   };
 
-  handleFcChange = (e: React.FormEvent<FormControl& HTMLInputElement>) => {
+  handleFcChange = (e: React.FormEvent<FormControl & HTMLInputElement>) => {
     this.setState({ fcAddress: e.currentTarget.value });
   };
 

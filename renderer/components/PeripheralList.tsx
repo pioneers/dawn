@@ -45,7 +45,6 @@ const handleAccordion = (devices: Peripheral[]) => {
       peripheralGroups[peripheral.name] = group;
     });
 
-
   return Object.keys(peripheralGroups).map((groupName: string) => {
     const groupNameCleaned = groupName; //cleanerNames[groupName] as string;
 
@@ -108,7 +107,7 @@ const PeripheralListComponent = (props: StateProps & OwnProps) => {
 };
 
 const mapStateToProps = (state: ApplicationState) => ({
-  peripheralList: Object.assign({}, state.peripherals.peripheralList)
+  peripheralList: Object.assign({}, state.peripherals.peripheralList),
 });
 
 const PeripheralListContainer = connect<StateProps, {}, OwnProps, ApplicationState>(mapStateToProps, {})(PeripheralListComponent);

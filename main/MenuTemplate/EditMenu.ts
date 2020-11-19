@@ -2,7 +2,7 @@
  * Defines the edit menu.
  */
 
-import { MenuItemConstructorOptions } from "electron";
+import { MenuItemConstructorOptions } from 'electron';
 
 const EditMenu: MenuItemConstructorOptions = {
   label: 'Edit',

@@ -12,11 +12,10 @@ import {
   Tooltip,
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
-import { Ace } from 'ace-builds'
+import { Ace } from 'ace-builds';
 import { remote, clipboard } from 'electron';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
-
 
 // React-ace extensions and modes
 import 'ace-builds/src-noconflict/ext-language_tools';
@@ -43,7 +42,7 @@ const currentWindow = remote.getCurrentWindow();
 
 interface StateProps {
   editorTheme: string;
-  editorCode: string;  
+  editorCode: string;
   latestSaveCode: string;
   filepath: string;
   fontSize: number;
@@ -60,11 +59,11 @@ interface OwnProps {
   onAlertAdd: (heading: string, message: string) => void;
   onEditorUpdate: (newVal: string) => void;
   onSaveFile: (saveAs?: boolean) => void;
-  onDragFile: (filepath: string) => void; 
-  onOpenFile: () => void; 
+  onDragFile: (filepath: string) => void;
+  onOpenFile: () => void;
   onCreateNewFile: () => void;
   onChangeTheme: (theme: string) => void;
-  onChangeFontsize: (newFontsize: number) => void; 
+  onChangeFontsize: (newFontsize: number) => void;
   toggleConsole: () => void;
   onClearConsole: () => void;
   onUpdateCodeStatus: (status: number) => void;
@@ -81,7 +80,7 @@ interface State {
   modeDisplay: string;
   simulate: boolean;
   fontsize?: number;
-};
+}
 
 export class Editor extends React.Component<Props, State> {
   themes: string[];
@@ -213,107 +212,98 @@ export class Editor extends React.Component<Props, State> {
       this.props.onDragFile(e.dataTransfer.files[0].path);
       return false;
     });
-  }
+  };
 
   componentWillUnmount = () => {
     window.removeEventListener('beforeunload', this.beforeUnload);
     window.removeEventListener('resize', this.onWindowResize);
-  }
+  };
 
   onWindowResize = () => {
     // Trigger editor to re-render on window resizing.
     this.setState({ editorHeight: this.getEditorHeight() });
-  }
+  };
 
   getEditorHeight = () => {
-    const windowNonEditorHeight = windowInfo.NONEDITOR +
-      (+!!this.props.showConsole * (this.state.consoleHeight + windowInfo.CONSOLEPAD));
+    const windowNonEditorHeight = windowInfo.NONEDITOR + +!!this.props.showConsole * (this.state.consoleHeight + windowInfo.CONSOLEPAD);
     return `${String(window.innerHeight - windowNonEditorHeight)}px`;
-  }
+  };
 
   beforeUnload = (event: any) => {
     // If there are unsaved changes and the user tries to close Dawn,
     // check if they want to save their changes first.
     if (this.hasUnsavedChanges()) {
-      dialog.showMessageBox(currentWindow, {
-        type: 'warning',
-        buttons: ['Save...', 'Don\'t Save', 'Cancel'],
-        defaultId: 0,
-        cancelId: 2,
-        title: 'You have unsaved changes!',
-        message: 'Do you want to save the changes made to your program?',
-        detail: 'Your changes will be lost if you don\'t save them.',
-      })      
-      // NOTE: For whatever reason, `event.preventDefault()` does not work within
-      // beforeunload events, so we use `event.returnValue = false` instead.
-      .then(clickedId => {
-        if (clickedId.response === 0) {
-          // FIXME: Figure out a way to make Save and Close, well, close.
-          event.returnValue = false;
-          this.props.onSaveFile();
-        } else if (clickedId.response === 2) {
-          event.returnValue = false;
-        }
-      })
-
+      dialog
+        .showMessageBox(currentWindow, {
+          type: 'warning',
+          buttons: ['Save...', "Don't Save", 'Cancel'],
+          defaultId: 0,
+          cancelId: 2,
+          title: 'You have unsaved changes!',
+          message: 'Do you want to save the changes made to your program?',
+          detail: "Your changes will be lost if you don't save them.",
+        })
+        // NOTE: For whatever reason, `event.preventDefault()` does not work within
+        // beforeunload events, so we use `event.returnValue = false` instead.
+        .then((clickedId) => {
+          if (clickedId.response === 0) {
+            // FIXME: Figure out a way to make Save and Close, well, close.
+            event.returnValue = false;
+            this.props.onSaveFile();
+          } else if (clickedId.response === 2) {
+            event.returnValue = false;
+          }
+        });
     }
-  }
+  };
 
   toggleConsole = () => {
     this.props.toggleConsole();
     // Resize since the console overlaps with the editor, but enough time for console changes
     setTimeout(() => this.onWindowResize(), 0.01);
-  }
+  };
 
   upload = () => {
     const { filepath } = this.props;
     if (filepath === '') {
-      this.props.onAlertAdd(
-        'Not Working on a File',
-        'Please save first',
-      );
+      this.props.onAlertAdd('Not Working on a File', 'Please save first');
       logging.log('Upload: Not Working on File');
       return;
     }
     if (this.hasUnsavedChanges()) {
-      this.props.onAlertAdd(
-        'Unsaved File',
-        'Please save first',
-      );
+      this.props.onAlertAdd('Unsaved File', 'Please save first');
       logging.log('Upload: Not Working on Saved File');
       return;
     }
     if (Editor.correctText(this.props.editorCode) !== this.props.editorCode) {
       this.props.onAlertAdd(
         'Invalid characters detected',
-        'Your code has non-ASCII characters, which won\'t work on the robot. ' +
-        'Please remove them and try again.',
+        "Your code has non-ASCII characters, which won't work on the robot. " + 'Please remove them and try again.'
       );
       logging.log('Upload: Non-ASCII Issue');
       return;
     }
 
     this.props.onUploadCode();
-  }
+  };
 
   startRobot = () => {
     this.props.onUpdateCodeStatus(this.state.mode);
     this.props.onClearConsole();
-  }
+  };
 
   stopRobot = () => {
     this.setState({
       simulate: false,
-      modeDisplay: (this.state.mode === robotState.AUTONOMOUS) ?
-        robotState.AUTOSTR : robotState.TELEOPSTR,
+      modeDisplay: this.state.mode === robotState.AUTONOMOUS ? robotState.AUTOSTR : robotState.TELEOPSTR,
     });
     this.props.onUpdateCodeStatus(robotState.IDLE);
-  }
+  };
 
   estop = () => {
     this.setState({ simulate: false, modeDisplay: robotState.ESTOPSTR });
     this.props.onUpdateCodeStatus(robotState.ESTOP);
-  }
+  };
 
   simulateCompetition = () => {
     this.setState({ simulate: true, modeDisplay: robotState.SIMSTR });
@@ -336,62 +326,69 @@ export class Editor extends React.Component<Props, State> {
       }, timings.SEC);
     });
 
-    simulation.then(() =>
-      new Promise((resolve, reject) => {
-        logging.log(`Beginning ${timings.IDLE}s Cooldown`);
-        this.props.onUpdateCodeStatus(robotState.IDLE);
-        const timestamp = Date.now();
-        const coolInt = setInterval(() => {
-          const diff = Math.trunc((Date.now() - timestamp) / timings.SEC);
-          if (diff > timings.IDLE) {
-            clearInterval(coolInt);
-            resolve();
-          } else if (!this.state.simulate) {
-            clearInterval(coolInt);
-            logging.log('Cooldown Quit');
-            reject();
-          } else {
-            this.setState({ modeDisplay: `Cooldown: ${timings.IDLE - diff}` });
+    simulation
+      .then(
+        () =>
+          new Promise((resolve, reject) => {
+            logging.log(`Beginning ${timings.IDLE}s Cooldown`);
+            this.props.onUpdateCodeStatus(robotState.IDLE);
+            const timestamp = Date.now();
+            const coolInt = setInterval(() => {
+              const diff = Math.trunc((Date.now() - timestamp) / timings.SEC);
+              if (diff > timings.IDLE) {
+                clearInterval(coolInt);
+                resolve();
+              } else if (!this.state.simulate) {
+                clearInterval(coolInt);
+                logging.log('Cooldown Quit');
+                reject();
+              } else {
+                this.setState({ modeDisplay: `Cooldown: ${timings.IDLE - diff}` });
+              }
+            }, timings.SEC);
+          })
+      )
+      .then(() => {
+        new Promise((resolve, reject) => {
+          logging.log(`Beginning ${timings.TELEOP}s ${robotState.TELEOPSTR}`);
+          this.props.onUpdateCodeStatus(robotState.TELEOP);
+          const timestamp = Date.now();
+          const teleInt = setInterval(() => {
+            const diff = Math.trunc((Date.now() - timestamp) / timings.SEC);
+            if (diff > timings.TELEOP) {
+              clearInterval(teleInt);
+              resolve();
+            } else if (!this.state.simulate) {
+              clearInterval(teleInt);
+              logging.log(`${robotState.TELEOPSTR} Quit`);
+              reject();
+            } else {
+              this.setState({ modeDisplay: `${robotState.TELEOPSTR}: ${timings.TELEOP - diff}` });
+            }
+          }, timings.SEC);
+        }).then(
+          () => {
+            logging.log('Simulation Finished');
+            this.props.onUpdateCodeStatus(robotState.IDLE);
+          },
+          () => {
+            logging.log('Simulation Aborted');
+            this.props.onUpdateCodeStatus(robotState.IDLE);
           }
-        }, timings.SEC);
-      })).then(() => {
-      new Promise((resolve, reject) => {
-        logging.log(`Beginning ${timings.TELEOP}s ${robotState.TELEOPSTR}`);
-        this.props.onUpdateCodeStatus(robotState.TELEOP);
-        const timestamp = Date.now();
-        const teleInt = setInterval(() => {
-          const diff = Math.trunc((Date.now() - timestamp) / timings.SEC);
-          if (diff > timings.TELEOP) {
-            clearInterval(teleInt);
-            resolve();
-          } else if (!this.state.simulate) {
-            clearInterval(teleInt);
-            logging.log(`${robotState.TELEOPSTR} Quit`);
-            reject();
-          } else {
-            this.setState({ modeDisplay: `${robotState.TELEOPSTR}: ${timings.TELEOP - diff}` });
-          }
-        }, timings.SEC);
-      }).then(() => {
-        logging.log('Simulation Finished');
-        this.props.onUpdateCodeStatus(robotState.IDLE);
-      }, () => {
-        logging.log('Simulation Aborted');
-        this.props.onUpdateCodeStatus(robotState.IDLE);
+        );
       });
-    });
-  }
+  };
 
   hasUnsavedChanges = () => {
-    return (this.props.latestSaveCode !== this.props.editorCode);
-  }
+    return this.props.latestSaveCode !== this.props.editorCode;
+  };
 
   changeTheme = (theme: string) => {
     this.props.onChangeTheme(theme);
     storage.set('editorTheme', { theme }, (err: any) => {
       if (err) logging.log(err);
     });
-  }
+  };
 
   increaseFontsize = () => {
     this.setState({ fontsize: this.props.fontSize + 1 });
@@ -399,16 +396,16 @@ export class Editor extends React.Component<Props, State> {
     storage.set('editorFontSize', { editorFontSize: this.props.fontSize + 1 }, (err: any) => {
       if (err) logging.log(err);
     });
-  }
+  };
 
   handleChangeFontsize = (event: any) => {
     this.setState({ fontsize: event.target.value });
-  }
+  };
 
   handleSubmitFontsize = (event: any) => {
     this.changeFontsizeToFont(Number(this.state.fontsize));
     event.preventDefault();
-  }
+  };
 
   changeFontsizeToFont = (fontSize: number) => {
     if (fontSize > 28) {
@@ -422,23 +419,23 @@ export class Editor extends React.Component<Props, State> {
     storage.set('editorFontSize', { editorFontSize: fontSize }, (err: any) => {
       if (err) logging.log(err);
     });
-  }
+  };
 
   raiseConsole = () => {
     this.setState({ consoleHeight: this.state.consoleHeight + windowInfo.UNIT }, () => {
       this.onWindowResize();
     });
-  }
+  };
 
   lowerConsole = () => {
     this.setState({ consoleHeight: this.state.consoleHeight - windowInfo.UNIT }, () => {
       this.onWindowResize();
     });
-  }
+  };
 
   copyConsole = () => {
     clipboard.writeText(this.props.consoleData.join(''));
-  }
+  };
 
   decreaseFontsize = () => {
     this.setState({ fontsize: this.props.fontSize - 1 });
@@ -446,7 +443,7 @@ export class Editor extends React.Component<Props, State> {
     storage.set('editorFontSize', { editorFontSize: this.props.fontSize - 1 }, (err: any) => {
       if (err) logging.log(err);
     });
-  }
+  };
 
   render() {
     const changeMarker = this.hasUnsavedChanges() ? '*' : '';
@@ -456,36 +453,20 @@ export class Editor extends React.Component<Props, State> {
     return (
       <Panel bsStyle="primary">
         <Panel.Heading>
-          <Panel.Title style={{ fontSize: '14px' }}>Editing: {pathToName(this.props.filepath) ? pathToName(this.props.filepath) : '[ New File ]' } {changeMarker}</Panel.Title>
+          <Panel.Title style={{ fontSize: '14px' }}>
+            Editing: {pathToName(this.props.filepath) ? pathToName(this.props.filepath) : '[ New File ]'} {changeMarker}
+          </Panel.Title>
         </Panel.Heading>
         <Panel.Body>
           <Form inline onSubmit={this.handleSubmitFontsize}>
             <ButtonGroup id="file-operations-buttons">
-              <DropdownButton
-                title="File"
-                bsSize="small"
-                id="choose-theme"
-              >
-                <MenuItem
-                  onClick={this.props.onCreateNewFile}
-                >New File</MenuItem>
-                <MenuItem
-                  onClick={this.props.onOpenFile}
-                >Open</MenuItem>
-                <MenuItem
-                  onClick={_.partial(this.props.onSaveFile,false)}
-                >Save</MenuItem>
-                <MenuItem
-                  onClick={_.partial(this.props.onSaveFile, true)}
-                >Save As</MenuItem>
+              <DropdownButton title="File" bsSize="small" id="choose-theme">
+                <MenuItem onClick={this.props.onCreateNewFile}>New File</MenuItem>
+                <MenuItem onClick={this.props.onOpenFile}>Open</MenuItem>
+                <MenuItem onClick={_.partial(this.props.onSaveFile, false)}>Save</MenuItem>
+                <MenuItem onClick={_.partial(this.props.onSaveFile, true)}>Save As</MenuItem>
               </DropdownButton>
-              <TooltipButton
-                id="upload"
-                text="Upload"
-                onClick={this.upload}
-                glyph="upload"
-                disabled={false}
-              />
+              <TooltipButton id="upload" text="Upload" onClick={this.upload} glyph="upload" disabled={false} />
               <TooltipButton
                 id="download"
                 text="Download from Robot"
@@ -493,17 +474,14 @@ export class Editor extends React.Component<Props, State> {
                 glyph="download"
                 disabled={!this.props.runtimeStatus}
               />
-            </ButtonGroup>
-            {' '}
+            </ButtonGroup>{' '}
             <ButtonGroup id="code-execution-buttons">
               <TooltipButton
                 id="run"
                 text="Run"
                 onClick={this.startRobot}
                 glyph="play"
-                disabled={this.props.isRunningCode
-                || !this.props.runtimeStatus
-                || this.props.fieldControlActivity}
+                disabled={this.props.isRunningCode || !this.props.runtimeStatus || this.props.fieldControlActivity}
               />
               <TooltipButton
                 id="stop"
@@ -517,9 +495,7 @@ export class Editor extends React.Component<Props, State> {
                 bsSize="small"
                 key="dropdown"
                 id="modeDropdown"
-                disabled={this.state.simulate
-                || this.props.fieldControlActivity
-                || !this.props.runtimeStatus}
+                disabled={this.state.simulate || this.props.fieldControlActivity || !this.props.runtimeStatus}
               >
                 <MenuItem
                   eventKey="1"
@@ -539,23 +515,12 @@ export class Editor extends React.Component<Props, State> {
                 >
                   Autonomous
                 </MenuItem>
-                <MenuItem
-                  eventKey="3"
-                  active={this.state.simulate}
-                  onClick={this.simulateCompetition}
-                >
+                <MenuItem eventKey="3" active={this.state.simulate} onClick={this.simulateCompetition}>
                   Simulate Competition
                 </MenuItem>
               </DropdownButton>
-              <TooltipButton
-                id="e-stop"
-                text="E-STOP"
-                onClick={this.estop}
-                glyph="fire"
-                disabled={false}
-              />
-            </ButtonGroup>
-            {' '}
+              <TooltipButton id="e-stop" text="E-STOP" onClick={this.estop} glyph="fire" disabled={false} />
+            </ButtonGroup>{' '}
             <ButtonGroup id="console-buttons">
               <TooltipButton
                 id="toggle-console"
@@ -565,13 +530,7 @@ export class Editor extends React.Component<Props, State> {
                 disabled={false}
                 bsStyle={this.props.consoleUnread ? 'danger' : ''}
               />
-              <TooltipButton
-                id="clear-console"
-                text="Clear Console"
-                onClick={this.props.onClearConsole}
-                glyph="remove"
-                disabled={false}
-              />
+              <TooltipButton id="clear-console" text="Clear Console" onClick={this.props.onClearConsole} glyph="remove" disabled={false} />
               <TooltipButton
                 id="raise-console"
                 text="Raise Console"
@@ -586,15 +545,8 @@ export class Editor extends React.Component<Props, State> {
                 glyph="arrow-down"
                 disabled={this.state.consoleHeight < windowInfo.CONSOLEMIN}
               />
-              <TooltipButton
-                id="copy-console"
-                text="Copy Console"
-                onClick={this.copyConsole}
-                glyph="copy"
-                disabled={false}
-              />
-            </ButtonGroup>
-            {' '}
+              <TooltipButton id="copy-console" text="Copy Console" onClick={this.copyConsole} glyph="copy" disabled={false} />
+            </ButtonGroup>{' '}
             <FormGroup>
               <InputGroup>
                 <FormControl
@@ -605,45 +557,32 @@ export class Editor extends React.Component<Props, State> {
                   style={{ width: 32, padding: 6 }}
                 />
                 <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip">Text Size</Tooltip>}>
-                  <DropdownButton
-                    componentClass={InputGroup.Button}
-                    title=""
-                    bsSize="small"
-                    id="choose-font-size"
-                  >
-                    <MenuItem
-                      className="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(8)}
-                    >8</MenuItem>
-                    <MenuItem
-                      className="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(12)}
-                    >12</MenuItem>
-                    <MenuItem
-                      className="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(14)}
-                    >14</MenuItem>
-                    <MenuItem
-                      className="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(16)}
-                    >16</MenuItem>
-                    <MenuItem
-                      className="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(20)}
-                    >20</MenuItem>
-                    <MenuItem
-                      className="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(24)}
-                    >24</MenuItem>
-                    <MenuItem
-                      className="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(28)}
-                    >28</MenuItem>
+                  <DropdownButton componentClass={InputGroup.Button} title="" bsSize="small" id="choose-font-size">
+                    <MenuItem className="dropdown-item" onClick={() => this.changeFontsizeToFont(8)}>
+                      8
+                    </MenuItem>
+                    <MenuItem className="dropdown-item" onClick={() => this.changeFontsizeToFont(12)}>
+                      12
+                    </MenuItem>
+                    <MenuItem className="dropdown-item" onClick={() => this.changeFontsizeToFont(14)}>
+                      14
+                    </MenuItem>
+                    <MenuItem className="dropdown-item" onClick={() => this.changeFontsizeToFont(16)}>
+                      16
+                    </MenuItem>
+                    <MenuItem className="dropdown-item" onClick={() => this.changeFontsizeToFont(20)}>
+                      20
+                    </MenuItem>
+                    <MenuItem className="dropdown-item" onClick={() => this.changeFontsizeToFont(24)}>
+                      24
+                    </MenuItem>
+                    <MenuItem className="dropdown-item" onClick={() => this.changeFontsizeToFont(28)}>
+                      28
+                    </MenuItem>
                   </DropdownButton>
                 </OverlayTrigger>
               </InputGroup>
-            </FormGroup>
-            {' '}
+            </FormGroup>{' '}
             <ButtonGroup id="editor-settings-buttons" className="form-inline">
               <TooltipButton
                 id="increase-font-size"
@@ -659,17 +598,9 @@ export class Editor extends React.Component<Props, State> {
                 glyph="zoom-out"
                 disabled={this.props.fontSize <= 8}
               />
-              <DropdownButton
-                title="Theme"
-                bsSize="small"
-                id="choose-theme"
-              >
+              <DropdownButton title="Theme" bsSize="small" id="choose-theme">
                 {this.themes.map((theme: string) => (
-                  <MenuItem
-                    active={theme === this.props.editorTheme}
-                    onClick={_.partial(this.changeTheme, theme)}
-                    key={theme}
-                  >
+                  <MenuItem active={theme === this.props.editorTheme} onClick={_.partial(this.changeTheme, theme)} key={theme}>
                     {theme}
                   </MenuItem>
                 ))}
@@ -682,7 +613,9 @@ export class Editor extends React.Component<Props, State> {
             theme={this.props.editorTheme}
             width="100%"
             fontSize={this.props.fontSize}
-            ref={(input: AceEditor) => { this.CodeEditor = input; }}
+            ref={(input: AceEditor) => {
+              this.CodeEditor = input;
+            }}
             name="CodeEditor"
             height={this.state.editorHeight.toString()}
             value={this.props.editorCode}

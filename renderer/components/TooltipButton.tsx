@@ -1,12 +1,7 @@
 import React from 'react';
-import {
-  Button,
-  Glyphicon,
-  OverlayTrigger,
-  Tooltip,
-} from 'react-bootstrap';
+import { Button, Glyphicon, OverlayTrigger, Tooltip } from 'react-bootstrap';
 
-interface StateProp{
+interface StateProp {
   id: string;
   text: string;
   onClick: () => void;
@@ -17,9 +12,7 @@ interface StateProp{
 }
 
 export const TooltipButton = (props: StateProp) => {
-  const tooltip = (
-    <Tooltip id={`tooltip-editor-button-${props.id}`}>{props.text}</Tooltip>
-  );
+  const tooltip = <Tooltip id={`tooltip-editor-button-${props.id}`}>{props.text}</Tooltip>;
   return (
     <OverlayTrigger placement={props.placement || 'top'} overlay={tooltip}>
       <Button
@@ -35,4 +28,3 @@ export const TooltipButton = (props: StateProp) => {
     </OverlayTrigger>
   );
 };
-

@@ -45,30 +45,31 @@ class DNavComponent extends React.Component<Props, State> {
 
   toggleUpdateModal = () => {
     this.setState({ showUpdateModal: !this.state.showUpdateModal });
-  }
+  };
 
   toggleConfigModal = () => {
     this.setState({ showConfigModal: !this.state.showConfigModal });
-  }
+  };
 
   createHeader = () => {
     if (this.props.fieldControlStatus) {
-      return `Dawn FC v${VERSION} ${(this.props.heart) ? '+' : '-'}`;
+      return `Dawn FC v${VERSION} ${this.props.heart ? '+' : '-'}`;
     }
     return `Dawn v${VERSION}`;
-  }
+  };
 
   createMaster = () => {
     if (this.props.fieldControlStatus) {
       return this.props.masterStatus;
     }
     return false;
-  }
+  };
 
   render() {
-    const { connectionStatus, 
-      runtimeStatus, 
-      masterStatus, 
+    const {
+      connectionStatus,
+      runtimeStatus,
+      masterStatus,
       isRunningCode,
       ipAddress,
       runtimeVersion,
@@ -76,9 +77,10 @@ class DNavComponent extends React.Component<Props, State> {
       blueMasterTeamNumber,
       goldMasterTeamNumber,
       fieldControlStatus,
-      startTour } = this.props;
+      startTour,
+    } = this.props;
     const { showConfigModal, showUpdateModal } = this.state;
-    
+
     return (
       <Navbar fixedTop fluid>
         <UpdateBox
@@ -90,26 +92,19 @@ class DNavComponent extends React.Component<Props, State> {
           ipAddress={ipAddress}
           hide={this.toggleUpdateModal}
         />
-        <ConfigBox
-          shouldShow={showConfigModal}
-          ipAddress={ipAddress}
-          hide={this.toggleConfigModal}
-        />
+        <ConfigBox shouldShow={showConfigModal} ipAddress={ipAddress} hide={this.toggleConfigModal} />
         <Navbar.Header>
-          <Navbar.Brand id="header-title">
-            {this.createHeader()}
-          </Navbar.Brand>
+          <Navbar.Brand id="header-title">{this.createHeader()}</Navbar.Brand>
           <Navbar.Toggle />
         </Navbar.Header>
         <Navbar.Collapse>
-          {runtimeStatus ?
+          {runtimeStatus ? (
             <Navbar.Text id="runtime-version">
-              <Label bsStyle="info">{
-                `Runtime v${runtimeVersion}: ${runtimeState[robotState]}`
-              }
-              </Label>
-            </Navbar.Text> : ''
-          }
+              <Label bsStyle="info">{`Runtime v${runtimeVersion}: ${runtimeState[robotState]}`}</Label>
+            </Navbar.Text>
+          ) : (
+            ''
+          )}
           <Navbar.Text id="battery-indicator">
             <StatusLabel
               connectionStatus={connectionStatus}
@@ -121,9 +116,7 @@ class DNavComponent extends React.Component<Props, State> {
               fieldControlStatus={fieldControlStatus}
             />
           </Navbar.Text>
-          <Navbar.Form
-            pullRight
-          >
+          <Navbar.Form pullRight>
             <ButtonToolbar>
               <ButtonGroup>
                 <TooltipButton
@@ -171,6 +164,5 @@ const mapStateToProps = (state: ApplicationState) => ({
   fieldControlStatus: state.fieldStore.fieldControl,
   runtimeVersion: state.peripherals.runtimeVersion,
 });
-
 
 export const DNav = connect(mapStateToProps)(DNavComponent);

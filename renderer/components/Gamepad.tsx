@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  Modal,
-  Button,
-  ListGroupItem,
-  Table,
-} from 'react-bootstrap';
+import { Modal, Button, ListGroupItem, Table } from 'react-bootstrap';
 import _ from 'lodash';
 import numeral from 'numeral';
 import { GpState } from '../../protos/protos';
@@ -31,24 +26,24 @@ export class Gamepad extends React.Component<Props, State> {
 
   closeModal = () => {
     this.setState({ showModal: false });
-  }
+  };
 
   openModal = () => {
     this.setState({ showModal: true });
-  }
+  };
 
   roundedValues = () => {
     const gamepadButtons: string[] = [];
-  
+
     for (let i = 0; i < 32; i++) {
       gamepadButtons.push(numeral(this.props.gamepad.buttons | (1 << i)).format('0'));
     }
 
     return {
       axes: _.map(this.props.gamepad.axes, (axis: number) => numeral(axis).format('0.00000')),
-      buttons: gamepadButtons
+      buttons: gamepadButtons,
     };
-  }
+  };
 
   renderHeader = () => {
     return (
@@ -56,15 +51,14 @@ export class Gamepad extends React.Component<Props, State> {
         <h4 style={{ display: 'inline' }}> Gamepad {this.props.index} </h4>
       </div>
     );
-  }
+  };
 
   render() {
-
     const { gamepad } = this.props;
     const { showModal } = this.state;
 
     if (!gamepad) {
-      return (<div />);
+      return <div />;
     }
     const values = this.roundedValues();
     return (
@@ -85,11 +79,15 @@ export class Gamepad extends React.Component<Props, State> {
               <tbody>
                 <tr>
                   <th>Button</th>
-                  {_.range(NUM_GAMEPAD_BUTTONS).map((gamepadButtonNumber: number) => <td>{gamepadButtonNumber}</td>)}
+                  {_.range(NUM_GAMEPAD_BUTTONS).map((gamepadButtonNumber: number) => (
+                    <td>{gamepadButtonNumber}</td>
+                  ))}
                 </tr>
                 <tr>
                   <th>Value</th>
-                  {_.range(NUM_GAMEPAD_BUTTONS).map((gamepadButtonNumber: number) => <td>{values.buttons[gamepadButtonNumber]}</td>)}
+                  {_.range(NUM_GAMEPAD_BUTTONS).map((gamepadButtonNumber: number) => (
+                    <td>{values.buttons[gamepadButtonNumber]}</td>
+                  ))}
                 </tr>
               </tbody>
             </Table>
@@ -97,12 +95,15 @@ export class Gamepad extends React.Component<Props, State> {
               <tbody>
                 <tr>
                   <th>Axis</th>
-                  {_.range(NUM_GAMEPAD_AXES).map((gamepadButtonAxis: number) => <td>{gamepadButtonAxis}</td>)}
-
+                  {_.range(NUM_GAMEPAD_AXES).map((gamepadButtonAxis: number) => (
+                    <td>{gamepadButtonAxis}</td>
+                  ))}
                 </tr>
                 <tr>
                   <th>Value</th>
-                  {_.range(NUM_GAMEPAD_AXES).map((gamepadButtonAxis: number) => <td>{values.buttons[gamepadButtonAxis]}</td>)}
+                  {_.range(NUM_GAMEPAD_AXES).map((gamepadButtonAxis: number) => (
+                    <td>{values.buttons[gamepadButtonAxis]}</td>
+                  ))}
                 </tr>
               </tbody>
             </Table>
@@ -111,4 +112,4 @@ export class Gamepad extends React.Component<Props, State> {
       </ListGroupItem>
     );
   }
-};
+}

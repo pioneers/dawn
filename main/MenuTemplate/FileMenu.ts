@@ -3,11 +3,7 @@
  */
 
 import RendererBridge from '../RendererBridge';
-import {
-  openFile,
-  saveFile,
-  createNewFile,
-} from '../../renderer/actions/EditorActions';
+import { openFile, saveFile, createNewFile } from '../../renderer/actions/EditorActions';
 import { MenuItemConstructorOptions } from 'electron';
 
 const FileMenu: MenuItemConstructorOptions = {

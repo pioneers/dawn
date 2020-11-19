@@ -8,7 +8,7 @@ interface StateProps {
 
 interface OwnProps {
   height: number;
-  output: Array<any>
+  output: Array<any>;
   show: boolean;
 }
 
@@ -22,17 +22,17 @@ export class ConsoleOutput extends React.Component<Props> {
 
   componentDidMount = () => {
     this.scrollToBottom();
-  }
+  };
 
   componentWillReceiveProps = (nextProps: Props) => {
     if (this.props.output.length === 0 && nextProps.output.length > 0 && !this.props.show) {
       this.props.toggleConsole();
     }
-  }
+  };
 
   componentDidUpdate = () => {
     this.scrollToBottom();
-  }
+  };
 
   scrollToBottom = () => {
     if (!this.props.disableScroll) {
@@ -40,8 +40,7 @@ export class ConsoleOutput extends React.Component<Props> {
         this.outerDiv.scrollTop = this.outerDiv.scrollHeight;
       }
     }
-  }
-
+  };
 
   render() {
     const { show, output } = this.props;
@@ -73,9 +72,11 @@ export class ConsoleOutput extends React.Component<Props> {
                   padding: '20px',
                   width: '99%',
                 }}
-                ref={(el) => { this.outerDiv = el; }}
+                ref={(el) => {
+                  this.outerDiv = el;
+                }}
               >
-                {output.map(line => (
+                {output.map((line) => (
                   <code key={`${line}-Code-${Math.random()}`}>{line}</code>
                 ))}
               </div>

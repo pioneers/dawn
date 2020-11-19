@@ -89,8 +89,8 @@ export const info = (state: InfoState = initialInfoState, action: Actions): Info
         ipAddress: action.ipAddress,
       };
     case consts.FieldActionsTypes.UPDATE_ROBOT: {
-      const stateChange = (action.autonomous) ? robotState.AUTONOMOUS : robotState.TELEOP;
-      const codeStatus = (!action.enabled) ? robotState.IDLE : stateChange;
+      const stateChange = action.autonomous ? robotState.AUTONOMOUS : robotState.TELEOP;
+      const codeStatus = !action.enabled ? robotState.IDLE : stateChange;
       return {
         ...state,
         fieldControlDirective: stateChange,

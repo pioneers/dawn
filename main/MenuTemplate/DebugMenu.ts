@@ -75,13 +75,14 @@ const DebugMenu: MenuItemConstructorOptions = {
 };
 
 if (process.env.NODE_ENV === 'development') {
-  (DebugMenu.submenu as MenuItemConstructorOptions[]).push({ // Need to type cast since submenu's type isn't always array
+  (DebugMenu.submenu as MenuItemConstructorOptions[]).push({
+    // Need to type cast since submenu's type isn't always array
     label: 'Toggle Fake Runtime',
     click() {
       if (fakeRuntime) {
         killFakeRuntime();
       } else {
-        fakeRuntime = fork('./fake-runtime/FakeRuntime.ts', [], { execArgv: ['-r', 'ts-node/register']});
+        fakeRuntime = fork('./fake-runtime/FakeRuntime.ts', [], { execArgv: ['-r', 'ts-node/register'] });
       }
     },
   });

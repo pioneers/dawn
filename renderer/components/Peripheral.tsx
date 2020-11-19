@@ -33,8 +33,7 @@ export const Peripheral = (props: OwnProps) => {
 
   return (
     <ListGroupItem style={{ padding: '0px 0px 15px 0px', border: 'none' }}>
-      <ActualPeripheral{...props} />
+      <ActualPeripheral {...props} />
     </ListGroupItem>
   );
 };
-

@@ -26,7 +26,8 @@ app.on('will-quit', () => {
   }
 });
 
-function initializeFC(_event: any) { // eslint-disable-line no-unused-vars
+function initializeFC(_event: any) {
+  // eslint-disable-line no-unused-vars
   try {
     FCObject.setup();
   } catch (err) {
@@ -34,7 +35,8 @@ function initializeFC(_event: any) { // eslint-disable-line no-unused-vars
   }
 }
 
-function teardownFC(_event: any) { // eslint-disable-line no-unused-vars
+function teardownFC(_event: any) {
+  // eslint-disable-line no-unused-vars
   if (FCObject.FCInternal !== null) {
     FCObject.FCInternal.quit();
   }
@@ -69,8 +71,8 @@ app.on('ready', () => {
   const mainWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
-      enableRemoteModule: true
-    }
+      enableRemoteModule: true,
+    },
   });
 
   // Binding for the main process to inject into Redux workflow
@@ -83,16 +85,20 @@ app.on('ready', () => {
   Menu.setApplicationMenu(menu);
 
   if (process.env.NODE_ENV !== 'production') {
-    installExtension(REACT_DEVELOPER_TOOLS).then((name: string) => {
-      console.log(`Added Extension:  ${name}`);
-    }).catch((err: Error) => {
-      console.log('An error occurred: ', err);
-    });
+    installExtension(REACT_DEVELOPER_TOOLS)
+      .then((name: string) => {
+        console.log(`Added Extension:  ${name}`);
+      })
+      .catch((err: Error) => {
+        console.log('An error occurred: ', err);
+      });
 
-    installExtension(REDUX_DEVTOOLS).then((name: string) => {
-      console.log(`Added Extension:  ${name}`);
-    }).catch((err: Error) => {
-      console.log('An error occurred: ', err);
-    });
+    installExtension(REDUX_DEVTOOLS)
+      .then((name: string) => {
+        console.log(`Added Extension:  ${name}`);
+      })
+      .catch((err: Error) => {
+        console.log('An error occurred: ', err);
+      });
   }
 });

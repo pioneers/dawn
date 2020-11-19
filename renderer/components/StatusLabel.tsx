@@ -26,8 +26,7 @@ const StatusLabelComponent = (props: Props) => {
   let labelText = 'Disconnected';
   const masterRobotHeader = 'Master Robot: Team ';
   const teamIP = props.ipAddress.substring(props.ipAddress.length - 2, props.ipAddress.length);
-  const shouldDisplayMaster = (teamNumber: number) => parseInt(teamIP, 10) === teamNumber
-                                            && props.fieldControlStatus;
+  const shouldDisplayMaster = (teamNumber: number) => parseInt(teamIP, 10) === teamNumber && props.fieldControlStatus;
   let masterRobot = null;
   let masterRobotStyle = ' ';
   if (shouldDisplayMaster(props.blueMasterTeamNumber)) {
@@ -52,8 +51,7 @@ const StatusLabelComponent = (props: Props) => {
   }
   return (
     <div id="parent">
-      <Label bsStyle={labelStyle}>{labelText}</Label>
-      {' '}
+      <Label bsStyle={labelStyle}>{labelText}</Label>{' '}
       <Label bsStyle={masterRobotStyle !== ' ' ? masterRobotStyle : labelStyle}>
         {masterRobot !== null ? masterRobotHeader + masterRobot : null}
       </Label>

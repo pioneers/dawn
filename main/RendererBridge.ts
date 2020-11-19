@@ -5,7 +5,7 @@
  */
 
 import _ from 'lodash';
-import { BrowserWindow } from "electron";
+import { BrowserWindow } from 'electron';
 
 class RendererBridge {
   registeredWindow: BrowserWindow | null = null;
@@ -19,6 +19,6 @@ class RendererBridge {
       this.registeredWindow.webContents.send('dispatch', action);
     }
   };
-};
+}
 
 export default new RendererBridge();
