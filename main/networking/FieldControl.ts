@@ -78,7 +78,7 @@ export const FCObject: FCObjectInterface = {
     this.FCInternal.init();
   },
 
-  changeFCInfo(_event: IpcMainEvent, args: any) {
+  changeFCInfo(_event: IpcMainEvent, args: { stationNumber: number; bridgeAddress: string }) {
     if (args.stationNumber !== null) {
       FCObject.stationNumber = args.stationNumber;
       FCObject.logger.log(`stationNumber set to ${FCObject.stationNumber}`);
