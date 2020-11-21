@@ -41,7 +41,6 @@ janus.attach(
                                         // it's sendrecv for audio and video
                                 success: function(jsep) {
                                         // Got our SDP! Send our OFFER to the plugin
-                                        echotest.send({"message": body, "jsep": jsep});
                                 },
                                 error: function(error) {
                                         console.log(error);
