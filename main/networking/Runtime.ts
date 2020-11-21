@@ -81,12 +81,11 @@ function createPacket(payload: unknown, messageType: MsgType): Buffer {
       break;
   }
   const msgLength = Buffer.byteLength(encodedPayload);
-
+  
   const msgTypeArr = new Uint8Array([messageType]);
   const msgLengthArr = new Uint8Array([msgLength & 0x00ff, msgLength & 0xff00]); // Assuming little-endian byte order, since runs on x64
-  const encodedPayloadArr = new Uint8Array(encodedPayload);
 
-  return Buffer.concat([msgTypeArr, msgLengthArr, encodedPayloadArr], msgLength + 3);
+  return Buffer.concat([msgTypeArr, msgLengthArr, encodedPayload], msgLength + 3);
 }
 
 class TCPConn {
@@ -106,8 +105,7 @@ class TCPConn {
           this.socket.connect(TCP_PORT, runtimeIP, () => {
             this.logger.log('Runtime connected');
             this.socket.write(new Uint8Array([1])); // Runtime needs first byte to be 1 to recognize client as Dawn (instead of Shepherd)
-            }
-          )
+          })
         }
       }
     }, 1000);
@@ -170,7 +168,7 @@ class TCPConn {
 
     const message = createPacket(runModeData, MsgType.RUN_MODE);
     this.socket.write(message, () => {
-      this.logger.debug(`Run Mode message sent: ${runModeData.toString()}`);
+      this.logger.log(`Run Mode message sent: ${runModeData.toString()}`);
     });
   };
 
@@ -183,7 +181,7 @@ class TCPConn {
     // TODO: Serialize uid from string -> Long type
     const message = createPacket(deviceData, MsgType.DEVICE_DATA);
     this.socket.write(message, () => {
-      this.logger.debug(`Device preferences sent: ${deviceData.toString()}`);
+      this.logger.log(`Device preferences sent: ${deviceData.toString()}`);
     });
   };
 
@@ -195,7 +193,7 @@ class TCPConn {
 
     const message = createPacket(textData, MsgType.CHALLENGE_DATA);
     this.socket.write(message, () => {
-      this.logger.debug(`Challenge inputs sent: ${textData.toString()}`);
+      this.logger.log(`Challenge inputs sent: ${textData.toString()}`);
     });
   }
 
@@ -207,7 +205,7 @@ class TCPConn {
 
     const message = createPacket(startPosData, MsgType.START_POS);
     this.socket.write(message, () => {
-      this.logger.debug(`Start position sent: ${startPosData.toString()}`);
+      this.logger.log(`Start position sent: ${startPosData.toString()}`);
     });
   };
 

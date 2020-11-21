@@ -522,30 +522,30 @@ export class Editor extends React.Component<Props, State> {
                 || !this.props.runtimeStatus}
               >
                 <MenuItem
+                  eventKey="0"
+                  onClick={() => {
+                    this.setState({ mode: robotState.IDLE, modeDisplay: robotState.IDLESTR })
+                  }}
+                >Idle</MenuItem>
+                <MenuItem
                   eventKey="1"
                   active={this.state.mode === robotState.TELEOP && !this.state.simulate}
                   onClick={() => {
                     this.setState({ mode: robotState.TELEOP, modeDisplay: robotState.TELEOPSTR });
                   }}
-                >
-                  Tele-Operated
-                </MenuItem>
+                >Tele-Operated</MenuItem>
                 <MenuItem
                   eventKey="2"
                   active={this.state.mode === robotState.AUTONOMOUS && !this.state.simulate}
                   onClick={() => {
                     this.setState({ mode: robotState.AUTONOMOUS, modeDisplay: robotState.AUTOSTR });
                   }}
-                >
-                  Autonomous
-                </MenuItem>
+                >Autonomous</MenuItem>
                 <MenuItem
                   eventKey="3"
                   active={this.state.simulate}
                   onClick={this.simulateCompetition}
-                >
-                  Simulate Competition
-                </MenuItem>
+                >Simulate Competition</MenuItem>
               </DropdownButton>
               <TooltipButton
                 id="e-stop"
