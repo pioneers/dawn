@@ -11,24 +11,18 @@ import { joyrideSteps } from './JoyrideSteps';
 import { removeAsyncAlert } from '../actions/AlertActions';
 import { updateFieldControl } from '../actions/FieldActions';
 import { logging, startLog } from '../utils/utils';
-import { FieldControlConfig } from '../types';
+import { AlertType, FieldControlConfig } from '../types';
 
 type ElectronJSONStorage = typeof electronJSONStorage;
 
 const storage = remote.require('electron-json-storage') as ElectronJSONStorage;
-
-interface AlertType {
-  heading: string;
-  message: string;
-  id: number;
-}
 
 interface StateProps {
   connectionStatus: boolean;
   runtimeStatus: boolean;
   masterStatus: boolean;
   isRunningCode: boolean;
-  asyncAlerts: Array<Object>;
+  asyncAlerts: Array<AlertType>;
 }
 
 interface DispatchProps {
@@ -90,7 +84,7 @@ class AppComponent extends React.Component<Props, State> {
     const { asyncAlerts } = nextProps;
     // If the alerts list has changed, display the latest one.
     if (asyncAlerts !== this.props.asyncAlerts) {
-      const latestAlert = asyncAlerts[asyncAlerts.length - 1] as AlertType;
+      const latestAlert = asyncAlerts[asyncAlerts.length - 1];
       if (latestAlert !== undefined) {
         this.updateAlert(latestAlert);
       }
@@ -126,12 +120,12 @@ class AppComponent extends React.Component<Props, State> {
   };
 
   updateAlert = (latestAlert: AlertType) => {
-    smalltalk.alert(latestAlert.heading, latestAlert.message).then(
+    smalltalk.alert(latestAlert.heading ?? 'General', latestAlert.message ?? '').then(
       () => {
-        this.props.onAlertDone(latestAlert.id);
+        this.props.onAlertDone(latestAlert?.id ?? 0);
       },
       () => {
-        this.props.onAlertDone(latestAlert.id);
+        this.props.onAlertDone(latestAlert?.id ?? 0);
       }
     );
   };
@@ -150,9 +144,6 @@ class AppComponent extends React.Component<Props, State> {
           isRunningCode={isRunningCode}
         />
         <Joyride
-          ref={(c: any) => {
-            this.joyride = c;
-          }}
           steps={this.state.steps}
           continuous={true}
           showSkipButton

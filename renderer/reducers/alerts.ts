@@ -3,15 +3,11 @@
  */
 
 import * as consts from '../consts';
-import { AddAsyncAlertAction, RemoveAsyncAlertAction } from '../types';
+import { AddAsyncAlertAction, AlertType, RemoveAsyncAlertAction } from '../types';
 
 type Actions = AddAsyncAlertAction | RemoveAsyncAlertAction;
 
-type AsyncAlertsState = Array<{
-  id?: number;
-  heading?: string;
-  message?: string;
-}>;
+type AsyncAlertsState = Array<AlertType>;
 
 const initialState: AsyncAlertsState = [];
 
