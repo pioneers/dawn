@@ -298,22 +298,14 @@ export class Editor extends React.Component<Props, State> {
 
   startRobot = () => {
     this.props.onUpdateCodeStatus(this.state.mode);
-    this.props.onClearConsole();
+    // this.props.onClearConsole();
   }
 
   stopRobot = () => {
-    this.setState({
-      simulate: false,
-      modeDisplay: (this.state.mode === robotState.AUTONOMOUS) ?
-        robotState.AUTOSTR : robotState.TELEOPSTR,
-    });
+    this.setState({ simulate: false, mode: robotState.IDLE, modeDisplay: robotState.IDLESTR })
     this.props.onUpdateCodeStatus(robotState.IDLE);
   }
 
-  estop = () => {
-    this.setState({ simulate: false, modeDisplay: robotState.ESTOPSTR });
-    this.props.onUpdateCodeStatus(robotState.ESTOP);
-  }
 
   simulateCompetition = () => {
     this.setState({ simulate: true, modeDisplay: robotState.SIMSTR });
@@ -522,12 +514,6 @@ export class Editor extends React.Component<Props, State> {
                 || !this.props.runtimeStatus}
               >
                 <MenuItem
-                  eventKey="0"
-                  onClick={() => {
-                    this.setState({ mode: robotState.IDLE, modeDisplay: robotState.IDLESTR })
-                  }}
-                >Idle</MenuItem>
-                <MenuItem
                   eventKey="1"
                   active={this.state.mode === robotState.TELEOP && !this.state.simulate}
                   onClick={() => {
@@ -547,13 +533,6 @@ export class Editor extends React.Component<Props, State> {
                   onClick={this.simulateCompetition}
                 >Simulate Competition</MenuItem>
               </DropdownButton>
-              <TooltipButton
-                id="e-stop"
-                text="E-STOP"
-                onClick={this.estop}
-                glyph="fire"
-                disabled={false}
-              />
             </ButtonGroup>
             {' '}
             <ButtonGroup id="console-buttons">

@@ -168,7 +168,7 @@ class TCPConn {
 
     const message = createPacket(runModeData, MsgType.RUN_MODE);
     this.socket.write(message, () => {
-      this.logger.log(`Run Mode message sent: ${runModeData.toString()}`);
+      this.logger.log(`Run Mode message sent: ${JSON.stringify(runModeData)}`);
     });
   };
 

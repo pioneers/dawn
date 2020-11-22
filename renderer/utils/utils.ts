@@ -37,8 +37,6 @@ export const robotState = {
   AUTOSTR: 'Autonomous',
   TELEOP: 2,
   TELEOPSTR: 'Tele-Operated',
-  ESTOP: 3,
-  ESTOPSTR: 'ESTOP',
   SIMSTR: 'Simulation',
 };
 
@@ -54,8 +52,6 @@ export const runtimeState = {
   3: 'Tele-Operated',
   AUTONOMOUS: 4,
   4: 'Autonomous',
-  ESTOP: 5,
-  5: 'E-Stop',
 };
 
 export const defaults = {
