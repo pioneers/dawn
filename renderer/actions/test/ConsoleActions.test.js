@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import { toggleConsole, updateConsole, clearConsole } from '../ConsoleActions';
 
-
 describe('console actions creator', () => {
   it('should create an action to update console', () => {
     const expectedAction = {

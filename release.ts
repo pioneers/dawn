@@ -12,7 +12,7 @@ async function pack(platform: string, arch: string) {
     name: 'dawn',
     icon: './icons/pieicon',
     asar: true,
-    out: path.resolve('..'), // build in the parent dir
+    out: path.resolve('..') // build in the parent dir
   };
 
   if (!platform || !arch) {
@@ -26,15 +26,17 @@ async function pack(platform: string, arch: string) {
 
   const appPaths: string[] = await packager(packageOptions);
 
-  Promise.all(appPaths.map((appPath: string) => {
-    console.log(`Zipping ${appPath}`);
-    
-    return new Promise((resolve) => {
-      exec(`cd .. && zip -r ${appPath}.zip ${path.basename(appPath)}`, (err, stdout, stderr) => {
-        resolve(err ? stdout : stderr);
-      })
+  Promise.all(
+    appPaths.map((appPath: string) => {
+      console.log(`Zipping ${appPath}`);
+
+      return new Promise((resolve) => {
+        exec(`cd .. && zip -r ${appPath}.zip ${path.basename(appPath)}`, (err, stdout, stderr) => {
+          resolve(err ? stdout : stderr);
+        });
+      });
     })
-  }));
+  );
 }
 
 async function main() {

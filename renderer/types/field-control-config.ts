@@ -1,4 +1,4 @@
 export interface FieldControlConfig {
-    stationNumber: number;
-    bridgeAddress: string;
-  }
+  stationNumber: number;
+  bridgeAddress: string;
+}

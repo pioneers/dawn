@@ -6,7 +6,7 @@ import {
   UpdateMatchAction,
   UpdateRobotAction,
   ToggleFieldControlAction,
-  UpdateFieldControlAction,
+  UpdateFieldControlAction
 } from '../types';
 
 type Actions =
@@ -58,24 +58,24 @@ export const fieldStore = (state: FieldState = initialFieldState, action: Action
       return {
         ...state,
         stationNumber: action.stationNumber,
-        bridgeAddress: action.bridgeAddress,
+        bridgeAddress: action.bridgeAddress
       };
     case consts.FieldActionsTypes.FIELD_CONTROL:
       return {
         ...state,
-        fieldControl: action.fieldControl,
+        fieldControl: action.fieldControl
       };
     case consts.FieldActionsTypes.UPDATE_HEART:
       return {
         ...state,
-        heart: !state.heart,
+        heart: !state.heart
       };
     case consts.FieldActionsTypes.UPDATE_MASTER:
       return {
         ...state,
         masterStatus: true,
         blueMasterTeamNumber: action.blueMasterTeamNumber,
-        goldMasterTeamNumber: action.goldMasterTeamNumber,
+        goldMasterTeamNumber: action.goldMasterTeamNumber
       };
     case consts.FieldActionsTypes.UPDATE_MATCH:
       return {
@@ -84,7 +84,7 @@ export const fieldStore = (state: FieldState = initialFieldState, action: Action
         mTeamNumbers: action.teamNumbers,
         mTeamNames: action.teamNames,
         rTeamNumber: action.teamNumbers[state.stationNumber],
-        rTeamName: action.teamNames[state.stationNumber],
+        rTeamName: action.teamNames[state.stationNumber]
       };
     default:
       return state;

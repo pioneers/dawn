@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import * as $protobuf from 'protobufjs';
 /** Properties of a Param. */
 export interface IParam {

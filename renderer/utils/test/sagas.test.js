@@ -31,10 +31,12 @@ describe('filesystem sagas', () => {
     const type = 'open';
     const expect = fromGenerator(assert, openFile(action));
     expect.next().select(editorSavedState);
-    expect.next({
-      savedCode: 'this was last code saved',
-      code: 'this is new modifications after last save',
-    }).call(unsavedDialog, type);
+    expect
+      .next({
+        savedCode: 'this was last code saved',
+        code: 'this is new modifications after last save',
+      })
+      .call(unsavedDialog, type);
     expect.next(1).call(openFileDialog);
     expect.next('mock-path').cps(fs.readFile, 'mock-path', 'utf8');
     expect.next('mock-data').put(openFileSucceeded('mock-data', 'mock-path'));
@@ -48,10 +50,12 @@ describe('filesystem sagas', () => {
     const type = 'create';
     const expect = fromGenerator(assert, openFile(action));
     expect.next().select(editorSavedState);
-    expect.next({
-      savedCode: 'this was last code saved',
-      code: 'this is new modifications after last save',
-    }).call(unsavedDialog, type);
+    expect
+      .next({
+        savedCode: 'this was last code saved',
+        code: 'this is new modifications after last save',
+      })
+      .call(unsavedDialog, type);
     expect.next(1).put(openFileSucceeded('', null));
     expect.next().returns();
   });
@@ -71,10 +75,12 @@ describe('filesystem sagas', () => {
     const expect = fromGenerator(assert, saveFile(action));
     expect.next().select(editorState);
     // follows to writeFile
-    expect.next({
-      filepath: 'mock-path',
-      code: 'mock-code',
-    }).cps(fs.writeFile, 'mock-path', 'mock-code');
+    expect
+      .next({
+        filepath: 'mock-path',
+        code: 'mock-code',
+      })
+      .cps(fs.writeFile, 'mock-path', 'mock-code');
   });
 
   it('should yield effects for saving file as (saveAs true)', () => {
@@ -84,10 +90,12 @@ describe('filesystem sagas', () => {
     };
     const expect = fromGenerator(assert, saveFile(action));
     expect.next().select(editorState);
-    expect.next({
-      filepath: 'mock-path',
-      code: 'mock-code',
-    }).call(saveFileDialog);
+    expect
+      .next({
+        filepath: 'mock-path',
+        code: 'mock-code',
+      })
+      .call(saveFileDialog);
     // follows to writeFile
     expect.next('mock-new-path').cps(fs.writeFile, 'mock-new-path', 'mock-code');
   });
@@ -99,10 +107,12 @@ describe('filesystem sagas', () => {
     };
     const expect = fromGenerator(assert, saveFile(action));
     expect.next().select(editorState);
-    expect.next({
-      filepath: null,
-      code: 'mock-code',
-    }).call(saveFileDialog);
+    expect
+      .next({
+        filepath: null,
+        code: 'mock-code',
+      })
+      .call(saveFileDialog);
     // follows to writeFile
     expect.next('mock-path').cps(fs.writeFile, 'mock-path', 'mock-code');
   });
@@ -115,11 +125,13 @@ describe('runtime sagas', () => {
       update: take('PER_MESSAGE'),
       timeout: call(delay, TIMEOUT),
     });
-    expect.next({
-      update: {
-        type: 'PER_MESSAGE',
-      },
-    }).put(runtimeConnect());
+    expect
+      .next({
+        update: {
+          type: 'PER_MESSAGE',
+        },
+      })
+      .put(runtimeConnect());
   });
 
   it('should yield effects for runtime heartbeat, disconnected', () => {
@@ -128,9 +140,11 @@ describe('runtime sagas', () => {
       update: take('PER_MESSAGE'),
       timeout: call(delay, TIMEOUT),
     });
-    expect.next({
-      timeout: TIMEOUT,
-    }).put(runtimeDisconnect());
+    expect
+      .next({
+        timeout: TIMEOUT,
+      })
+      .put(runtimeDisconnect());
   });
 
   it('should update main process of store changes', () => {

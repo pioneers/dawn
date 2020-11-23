@@ -15,16 +15,15 @@ export const Motor = ({ uid, params }: Device) => (
       <div>{uid}</div>
       <small>Motor</small>
     </h4>
-    {
-      _.map(params, obj => ( // TODO: Figure out if a ProgressBar is useful
-        <div key={`${obj.name}-${uid}-Overall`}>
-          <h4 style={{ clear: 'right', float: 'right', height: '50px' }} key={`${obj.name}-${uid}`}>
-            {`${obj.name}: ${numeral(obj.fval).format('+0.00')}`}
-
-          </h4>
-          <ProgressBar style={{ clear: 'right', height: '20px' }} now={obj.fval ?? 0} min={-100} />
-        </div>
-      ))
-    }
+    {_.map(params, (
+      obj // TODO: Figure out if a ProgressBar is useful
+    ) => (
+      <div key={`${obj.name}-${uid}-Overall`}>
+        <h4 style={{ clear: 'right', float: 'right', height: '50px' }} key={`${obj.name}-${uid}`}>
+          {`${obj.name}: ${numeral(obj.fval).format('+0.00')}`}
+        </h4>
+        <ProgressBar style={{ clear: 'right', height: '20px' }} now={obj.fval ?? 0} min={-100} />
+      </div>
+    ))}
   </div>
 );

@@ -12,7 +12,7 @@ import {
   DeleteFileAction,
   CreateNewFileAction,
   DownloadCodeAction,
-  UploadCodeAction,
+  UploadCodeAction
 } from '../types';
 
 type Actions =
@@ -36,7 +36,7 @@ interface EditorState {
 const defaultEditorState = {
   filepath: '',
   latestSaveCode: '',
-  editorCode: '',
+  editorCode: ''
 };
 
 export const editor = (state: EditorState = defaultEditorState, action: Actions) => {
@@ -44,20 +44,20 @@ export const editor = (state: EditorState = defaultEditorState, action: Actions)
     case consts.EditorActionsTypes.UPDATE_EDITOR:
       return {
         ...state,
-        editorCode: action.code,
+        editorCode: action.code
       };
     case consts.EditorActionsTypes.OPEN_FILE_SUCCEEDED:
       return {
         ...state,
         editorCode: action.code,
         filepath: action.filepath,
-        latestSaveCode: action.code,
+        latestSaveCode: action.code
       };
     case consts.EditorActionsTypes.SAVE_FILE_SUCCEEDED:
       return {
         ...state,
         filepath: action.filepath,
-        latestSaveCode: action.code,
+        latestSaveCode: action.code
       };
     default:
       return state;

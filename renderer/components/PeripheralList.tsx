@@ -45,7 +45,6 @@ const handleAccordion = (devices: Peripheral[]) => {
       peripheralGroups[peripheral.name] = group;
     });
 
-
   return Object.keys(peripheralGroups).map((groupName: string) => {
     const groupNameCleaned = groupName; //cleanerNames[groupName] as string;
 

@@ -15,16 +15,16 @@ const HelpMenu: MenuItemConstructorOptions = {
           RendererBridge.registeredWindow.webContents.send('start-interactive-tour');
         }
       },
-      accelerator: 'CommandOrControl+T',
+      accelerator: 'CommandOrControl+T'
     },
     {
       label: 'PiE API',
       click() {
         showAPI();
       },
-      accelerator: 'CommandOrControl+P',
-    },
-  ],
+      accelerator: 'CommandOrControl+P'
+    }
+  ]
 };
 
 export default HelpMenu;

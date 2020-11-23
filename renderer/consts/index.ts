@@ -6,7 +6,7 @@ export {
   GamepadsActionsTypes,
   SettingsActionsTypes,
   InfoActionsTypes,
-  FieldActionsTypes,
+  FieldActionsTypes
 } from './actions';
 export { PeripheralTypes } from './peripheral-types';
 export { VERSION } from './version';

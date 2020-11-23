@@ -1,7 +1,18 @@
+import { IpcMainEvent } from 'electron';
 import io from 'socket.io-client';
 import { updateRobot, updateHeart, updateMaster } from '../../renderer/actions/FieldActions';
 import RendererBridge from '../RendererBridge';
 import { Logger } from '../../renderer/utils/utils';
+
+interface FCObjectInterface {
+  FCInternal: FCInternals | null;
+  stationNumber: number;
+  bridgeAddress: string;
+  logger: Logger;
+
+  setup: () => void;
+  changeFCInfo: (_event: IpcMainEvent, arg: any) => void;
+}
 
 class FCInternals {
   socket: SocketIOClient.Socket | null;
@@ -15,11 +26,9 @@ class FCInternals {
     this.bridgeAddress = bridgeAddress;
     this.logger = logger;
     this.logger.log(`Field Control: SN-${this.stationNumber} BA-${this.bridgeAddress}`);
-    this.init = this.init.bind(this);
-    this.quit = this.quit.bind(this);
   }
 
-  init() {
+  init = () => {
     this.socket = io(`http://${this.bridgeAddress}:7000`);
     this.socket.on('connect', () => {
       this.logger.log('Connected to Field Control Socket');
@@ -41,9 +50,9 @@ class FCInternals {
         RendererBridge.reduxDispatch(updateMaster(JSON.parse(data)));
       });
     });
-  }
+  };
 
-  quit() {
+  quit = () => {
     try {
       if (this.socket) {
         this.socket.close();
@@ -52,32 +61,32 @@ class FCInternals {
       this.logger.log(err);
     }
     this.socket = null;
-  }
+  };
 }
 
-const FCInternalInit: any = null;
-
-export const FCObject = {
-  FCInternal: FCInternalInit,
+export const FCObject: FCObjectInterface = {
+  FCInternal: null,
   stationNumber: 4,
   bridgeAddress: 'localhost',
   logger: new Logger('fieldControl', 'Field Control Debug'),
+
   setup() {
     if (this.FCInternal !== null) {
-      this.FCInternal.quit();
+      this.FCInternal!.quit();
     }
     this.FCInternal = new FCInternals(this.stationNumber, this.bridgeAddress, FCObject.logger);
     this.FCInternal.init();
   },
-  changeFCInfo(_event: any, arg: any) {
-    if (arg.stationNumber !== null) {
-      FCObject.stationNumber = arg.stationNumber;
+
+  changeFCInfo(_event: IpcMainEvent, args: any) {
+    if (args.stationNumber !== null) {
+      FCObject.stationNumber = args.stationNumber;
       FCObject.logger.log(`stationNumber set to ${FCObject.stationNumber}`);
     }
 
-    if (arg.bridgeAddress !== null) {
-      FCObject.bridgeAddress = arg.bridgeAddress;
+    if (args.bridgeAddress !== null) {
+      FCObject.bridgeAddress = args.bridgeAddress;
       FCObject.logger.log(`bridgeAddress set to ${FCObject.bridgeAddress}`);
     }
-  },
+  }
 };

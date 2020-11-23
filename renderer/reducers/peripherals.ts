@@ -15,12 +15,12 @@ const initialPeripheralState: PeripheralState = {
   peripheralList: {},
   batterySafety: false,
   batteryLevel: 0,
-  runtimeVersion: '1.0.0',
+  runtimeVersion: '1.0.0'
 };
 
 // Taken from runtime_util.c in Runtime repo
-const IS_UNSAFE: number = 0;
-const V_BATT: number = 5;
+const IS_UNSAFE = 0;
+const V_BATT = 5;
 
 // TODO: Handle runtimeVersion since no longer sent
 export const peripherals = (state: PeripheralState = initialPeripheralState, action: Actions) => {
@@ -34,16 +34,19 @@ export const peripherals = (state: PeripheralState = initialPeripheralState, act
         if (peripheral.name === consts.PeripheralTypes.BatteryBuzzer) {
           const batteryParams = peripheral.params;
           if (batteryParams[IS_UNSAFE] && batteryParams[IS_UNSAFE].bval) {
-            nextState.batterySafety = batteryParams[IS_UNSAFE].bval!;
+            nextState.batterySafety = batteryParams[IS_UNSAFE].bval;
           }
           if (batteryParams[V_BATT] && batteryParams[V_BATT].fval) {
-            nextState.batteryLevel = batteryParams[V_BATT].fval!;
+            nextState.batteryLevel = batteryParams[V_BATT].fval;
           }
         } else if (peripheral.uid === -1) {
           // const version = peripheral.params;
           // nextState.runtimeVersion = `${version['major']}.${version['minor']}.${version['patch']}`;
         } else {
-          const key =  typeof peripheral.uid === 'number' ? peripheral.uid.toString() : (peripheral.uid.high || '').toString() + peripheral.uid.low.toString();
+          const key =
+            typeof peripheral.uid === 'number'
+              ? peripheral.uid.toString()
+              : (peripheral.uid.high || '').toString() + peripheral.uid.low.toString();
           keys.push(key);
           if (key in nextPeripherals) {
             peripheral.name = nextPeripherals[key].name; // ensures that the device keeps the name, if it was a custom name

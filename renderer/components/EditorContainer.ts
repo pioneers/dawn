@@ -1,22 +1,8 @@
 import { connect } from 'react-redux';
-import  { Editor } from './Editor';
-import {
-  editorUpdate,
-  saveFile,
-  openFile,
-  dragFile,
-  createNewFile,
-  downloadCode,
-  uploadCode,
-} from '../actions/EditorActions';
-import {
-  changeTheme,
-  changeFontSize,
-} from '../actions/SettingsActions';
-import {
-  toggleConsole,
-  clearConsole,
-} from '../actions/ConsoleActions';
+import { Editor } from './Editor';
+import { editorUpdate, saveFile, openFile, dragFile, createNewFile, downloadCode, uploadCode } from '../actions/EditorActions';
+import { changeTheme, changeFontSize } from '../actions/SettingsActions';
+import { toggleConsole, clearConsole } from '../actions/ConsoleActions';
 import { addAsyncAlert } from '../actions/AlertActions';
 import { updateCodeStatus, ipChange } from '../actions/InfoActions';
 import { Dispatch } from 'redux';
@@ -34,7 +20,7 @@ const mapStateToProps = (state: ApplicationState) => ({
   notificationHold: state.info.notificationHold,
   fieldControlActivity: state.info.fieldControlActivity,
   disableScroll: state.console.disableScroll,
-  consoleUnread: state.console.consoleUnread,
+  consoleUnread: state.console.consoleUnread
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
@@ -79,8 +65,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   },
   onUploadCode: () => {
     dispatch(uploadCode());
-  },
+  }
 });
 
 export const EditorContainer = connect(mapStateToProps, mapDispatchToProps)(Editor);
-

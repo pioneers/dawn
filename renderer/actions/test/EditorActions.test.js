@@ -1,12 +1,5 @@
 import { expect } from 'chai';
-import {
-  openFile,
-  saveFile,
-  deleteFile,
-  createNewFile,
-  editorUpdate,
-} from '../EditorActions';
-
+import { openFile, saveFile, deleteFile, createNewFile, editorUpdate } from '../EditorActions';
 
 describe('editor actions creator', () => {
   it('should create an action to open file', () => {

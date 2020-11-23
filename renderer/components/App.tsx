@@ -50,7 +50,7 @@ class AppComponent extends React.Component<Props, State> {
     super(props);
     this.state = {
       steps: [],
-      tourRunning: false,
+      tourRunning: false
     };
     startLog();
   }
@@ -163,7 +163,7 @@ class AppComponent extends React.Component<Props, State> {
             close: 'Close',
             last: 'End Tour',
             next: 'Next',
-            skip: 'Skip Tour',
+            skip: 'Skip Tour'
           }}
         />
         <div style={{ height: '35px', marginBottom: '21px' }} />
@@ -185,7 +185,7 @@ const mapStateToProps = (state: ApplicationState) => ({
   masterStatus: state.fieldStore.masterStatus,
   asyncAlerts: state.asyncAlerts,
   stationNumber: state.fieldStore.stationNumber,
-  isRunningCode: state.info.isRunningCode,
+  isRunningCode: state.info.isRunningCode
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
@@ -194,7 +194,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   },
   onFCUpdate: (param: FieldControlConfig) => {
     dispatch(updateFieldControl(param));
-  },
+  }
 });
 
 export const App = connect(mapStateToProps, mapDispatchToProps)(AppComponent);

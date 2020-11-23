@@ -26,7 +26,7 @@ app.on('will-quit', () => {
   }
 });
 
-function initializeFC(_event: any) { // eslint-disable-line no-unused-vars
+function initializeFC(_event: any) {
   try {
     FCObject.setup();
   } catch (err) {
@@ -34,7 +34,8 @@ function initializeFC(_event: any) { // eslint-disable-line no-unused-vars
   }
 }
 
-function teardownFC(_event: any) { // eslint-disable-line no-unused-vars
+function teardownFC(_event: any) {
+  // eslint-disable-line no-unused-vars
   if (FCObject.FCInternal !== null) {
     FCObject.FCInternal.quit();
   }
@@ -43,18 +44,18 @@ function teardownFC(_event: any) { // eslint-disable-line no-unused-vars
 export default function showAPI() {
   let api: BrowserWindow | null = new BrowserWindow({
     webPreferences: {
-      nodeIntegration: true,
+      nodeIntegration: true
     },
     width: 1400,
     height: 900,
-    show: false,
+    show: false
   });
   api.on('closed', () => {
     api = null;
   });
-  api.loadURL(`file://${__dirname}/../static/website-robot-api-master/robot_api.html`);
+  void api.loadURL(`file://${__dirname}/../static/website-robot-api-master/robot_api.html`);
   api.once('ready-to-show', () => {
-    if (api) {
+    if (api !== null) {
       api.show();
     }
   });
@@ -77,22 +78,26 @@ app.on('ready', () => {
   RendererBridge.registerWindow(mainWindow);
 
   mainWindow.maximize();
-  mainWindow.loadURL(`file://${__dirname}/../static/index.html`);
+  void mainWindow.loadURL(`file://${__dirname}/../static/index.html`);
 
   const menu = Menu.buildFromTemplate(Template);
   Menu.setApplicationMenu(menu);
 
   if (process.env.NODE_ENV !== 'production') {
-    installExtension(REACT_DEVELOPER_TOOLS).then((name: string) => {
-      console.log(`Added Extension:  ${name}`);
-    }).catch((err: Error) => {
-      console.log('An error occurred: ', err);
-    });
+    installExtension(REACT_DEVELOPER_TOOLS)
+      .then((name: string) => {
+        console.log(`Added Extension:  ${name}`);
+      })
+      .catch((err: Error) => {
+        console.log('An error occurred: ', err);
+      });
 
-    installExtension(REDUX_DEVTOOLS).then((name: string) => {
-      console.log(`Added Extension:  ${name}`);
-    }).catch((err: Error) => {
-      console.log('An error occurred: ', err);
-    });
+    installExtension(REDUX_DEVTOOLS)
+      .then((name: string) => {
+        console.log(`Added Extension:  ${name}`);
+      })
+      .catch((err: Error) => {
+        console.log('An error occurred: ', err);
+      });
   }
 });

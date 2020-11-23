@@ -1,9 +1,6 @@
 import { OpenDialogReturnValue, remote } from 'electron';
 import React from 'react';
-import {
-  Modal,
-  Button,
-} from 'react-bootstrap';
+import { Modal, Button } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import { Client, SFTPWrapper } from 'ssh2';
@@ -39,36 +36,35 @@ class UpdateBoxContainer extends React.Component<Props, State> {
     super(props);
     this.state = {
       isUploading: false,
-      updateFilepath: '',
+      updateFilepath: ''
     };
   }
 
   chooseUpdate = () => {
-    remote.dialog.showOpenDialog({
-      filters: [
-        { name: 'Update Package', extensions: ['zip']}
-      ],
-    }).then((dialogReturn: OpenDialogReturnValue) => {
-      if (dialogReturn.filePaths.length > 0) {
-        this.setState({ updateFilepath: dialogReturn.filePaths[0] });
-      }
-    });
-  }
+    remote.dialog
+      .showOpenDialog({
+        filters: [{ name: 'Update Package', extensions: ['zip'] }]
+      })
+      .then((dialogReturn: OpenDialogReturnValue) => {
+        if (dialogReturn.filePaths.length > 0) {
+          this.setState({ updateFilepath: dialogReturn.filePaths[0] });
+        }
+      });
+  };
 
   upgradeSoftware = () => {
     this.setState({ isUploading: true });
     const RUNTIME_ZIP_REMOTE_PATH = '/tmp/runtime.zip';
 
     const conn = new Client();
-    conn.on('ready', () => {
-      conn.sftp((err: Error | undefined, sftp: SFTPWrapper) => {
-        if (err) {
-          logging.log(err.message);
-        } else {
-          logging.log('SSH Connection');
-          sftp.fastPut(
-            this.state.updateFilepath,
-            RUNTIME_ZIP_REMOTE_PATH, (err2: any) => {
+    conn
+      .on('ready', () => {
+        conn.sftp((err: Error | undefined, sftp: SFTPWrapper) => {
+          if (err) {
+            logging.log(err.message);
+          } else {
+            logging.log('SSH Connection');
+            sftp.fastPut(this.state.updateFilepath, RUNTIME_ZIP_REMOTE_PATH, (err2: any) => {
               conn.end();
               this.setState({ isUploading: false });
               this.props.hide();
@@ -76,28 +72,30 @@ class UpdateBoxContainer extends React.Component<Props, State> {
                 this.props.onAlertAdd(
                   'Robot Connectivity Error',
                   `Dawn was unable to upload the update to the robot.
-                  Please check your connectivity, or try restarting the robot.`,
+                  Please check your connectivity, or try restarting the robot.`
                 );
                 logging.log(err2);
               } else {
                 this.props.onAlertAdd(
                   'Robot Update Initiated',
                   `Update is installing and Runtime will restart soon.
-                  Please leave your robot on for the next 1 minute.`,
+                  Please leave your robot on for the next 1 minute.`
                 );
               }
-            },
-          );
-        }
+            });
+          }
+        });
+      })
+      .connect({
+        debug: (debugInfo: string) => {
+          logging.log(debugInfo);
+        },
+        host: this.props.ipAddress,
+        port: defaults.PORT,
+        username: defaults.USERNAME,
+        password: defaults.PASSWORD
       });
-    }).connect({
-      debug: (debugInfo: string) => { logging.log(debugInfo); },
-      host: this.props.ipAddress,
-      port: defaults.PORT,
-      username: defaults.USERNAME,
-      password: defaults.PASSWORD,
-    });
-  }
+  };
 
   disableUploadUpdate = () => {
     return (
@@ -106,7 +104,7 @@ class UpdateBoxContainer extends React.Component<Props, State> {
       !(this.props.connectionStatus && this.props.runtimeStatus) ||
       this.props.isRunningCode
     );
-  }
+  };
 
   render() {
     const { shouldShow, hide } = this.props;
@@ -125,7 +123,9 @@ class UpdateBoxContainer extends React.Component<Props, State> {
         <Modal.Body>
           <h4>Update Package (.zip file)</h4>
           <h5>{updateFilepath ? updateFilepath : ''}</h5>
-          <Button type="button" onClick={this.chooseUpdate}>Choose File</Button>
+          <Button type="button" onClick={this.chooseUpdate}>
+            Choose File
+          </Button>
           <br />
         </Modal.Body>
       );
@@ -137,12 +137,7 @@ class UpdateBoxContainer extends React.Component<Props, State> {
         </Modal.Header>
         {modalBody}
         <Modal.Footer>
-          <Button
-            type="button"
-            bsStyle="primary"
-            onClick={this.upgradeSoftware}
-            disabled={this.disableUploadUpdate()}
-          >
+          <Button type="button" bsStyle="primary" onClick={this.upgradeSoftware} disabled={this.disableUploadUpdate()}>
             {isUploading ? 'Uploading...' : 'Upload Files'}
           </Button>
         </Modal.Footer>
@@ -154,7 +149,7 @@ class UpdateBoxContainer extends React.Component<Props, State> {
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   onAlertAdd: (heading: string, message: string) => {
     dispatch(addAsyncAlert(heading, message));
-  },
+  }
 });
 
 export const UpdateBox = connect(null, mapDispatchToProps)(UpdateBoxContainer);

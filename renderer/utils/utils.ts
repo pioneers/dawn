@@ -27,7 +27,7 @@ export const getValidationState = (testIPAddress: string) => {
 export const uploadStatus = {
   RECEIVED: 0,
   SENT: 1,
-  ERROR: 2,
+  ERROR: 2
 };
 
 export const robotState = {
@@ -38,7 +38,7 @@ export const robotState = {
   TELEOP: 2,
   TELEOPSTR: 'Tele-Operated',
   ESTOP: 3,
-  ESTOPSTR: 'ESTOP',
+  ESTOPSTR: 'ESTOP'
 };
 
 // TODO: Synchronize this and the above state
@@ -54,7 +54,7 @@ export const runtimeState = {
   AUTONOMOUS: 4,
   4: 'Autonomous',
   ESTOP: 5,
-  5: 'E-Stop',
+  5: 'E-Stop'
 };
 
 export const defaults = {
@@ -62,14 +62,14 @@ export const defaults = {
   USERNAME: 'pi',
   PASSWORD: 'raspberry',
   IPADDRESS: '192.168.0.0',
-  STUDENTCODELOC: '/home/pi/runtime/executor/studentcode.py',
+  STUDENTCODELOC: '/home/pi/runtime/executor/studentcode.py'
 };
 
 export const timings = {
   AUTO: 30,
   IDLE: 5,
   TELEOP: 120,
-  SEC: 1000,
+  SEC: 1000
 };
 
 export const windowInfo = {
@@ -78,7 +78,7 @@ export const windowInfo = {
   CONSOLEPAD: 40,
   CONSOLESTART: 250,
   CONSOLEMAX: 350,
-  CONSOLEMIN: 100,
+  CONSOLEMIN: 100
 };
 
 export class Logger {
@@ -104,11 +104,11 @@ export class Logger {
 
   log = (output: string) => {
     console.log(output);
-    this._write(output, `\n[${(new Date()).toString()}]`);
-  }
+    this._write(output, `\n[${new Date().toString()}]`);
+  };
   debug = (output: string) => {
-    this._write(output, `\n[${(new Date()).toString()} DEBUG]`);
-  }
+    this._write(output, `\n[${new Date().toString()} DEBUG]`);
+  };
 
   _write = (output: string, prefix: string) => {
     output = String(output);
@@ -118,7 +118,7 @@ export class Logger {
     } else {
       // this.log_file.write('*');
     }
-  }
+  };
 }
 
 export let logging: Logger; // eslint-disable-line import/no-mutable-exports

@@ -51,7 +51,7 @@ class ConfigBoxComponent extends React.Component<Props, State> {
       stationNumber: this.props.stationNumber,
       originalIPAddress: this.props.ipAddress,
       originalStationNumber: this.props.stationNumber,
-      originalFCAddress: this.props.fcAddress,
+      originalFCAddress: this.props.fcAddress
     };
   }
 
@@ -66,7 +66,7 @@ class ConfigBoxComponent extends React.Component<Props, State> {
         this.props.onIPChange(ipAddress);
         this.setState({
           ipAddress: ipAddress,
-          originalIPAddress: ipAddress,
+          originalIPAddress: ipAddress
         });
       }
     });
@@ -81,7 +81,7 @@ class ConfigBoxComponent extends React.Component<Props, State> {
           fcAddress: bridgeAddress,
           originalFCAddress: bridgeAddress,
           stationNumber: stationNumber,
-          originalStationNumber: stationNumber,
+          originalStationNumber: stationNumber
         });
       }
     });
@@ -100,12 +100,12 @@ class ConfigBoxComponent extends React.Component<Props, State> {
 
     const newConfig = {
       stationNumber: this.state.stationNumber,
-      bridgeAddress: this.state.fcAddress,
+      bridgeAddress: this.state.fcAddress
     };
     this.props.onFCUpdate(newConfig);
     this.setState({
       originalStationNumber: this.state.stationNumber,
-      originalFCAddress: this.state.fcAddress,
+      originalFCAddress: this.state.fcAddress
     });
     storage.set('fieldControl', newConfig, (err: any) => {
       if (err) logging.log(err);
@@ -119,7 +119,7 @@ class ConfigBoxComponent extends React.Component<Props, State> {
     this.setState({ ipAddress: e.currentTarget.value });
   };
 
-  handleFcChange = (e: React.FormEvent<FormControl& HTMLInputElement>) => {
+  handleFcChange = (e: React.FormEvent<FormControl & HTMLInputElement>) => {
     this.setState({ fcAddress: e.currentTarget.value });
   };
 
@@ -131,7 +131,7 @@ class ConfigBoxComponent extends React.Component<Props, State> {
     this.setState({
       ipAddress: this.state.originalIPAddress,
       stationNumber: this.state.originalStationNumber,
-      fcAddress: this.state.originalFCAddress,
+      fcAddress: this.state.originalFCAddress
     });
     this.props.hide();
   };
@@ -195,12 +195,12 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   },
   onFCUpdate: (config: Config) => {
     dispatch(updateFieldControl(config));
-  },
+  }
 });
 
 const mapStateToProps = (state: ApplicationState) => ({
   stationNumber: state.fieldStore.stationNumber,
-  fcAddress: state.fieldStore.bridgeAddress,
+  fcAddress: state.fieldStore.bridgeAddress
 });
 
 export const ConfigBox = connect(mapStateToProps, mapDispatchToProps)(ConfigBoxComponent);
