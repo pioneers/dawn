@@ -49,7 +49,6 @@ interface StateProps {
   fontSize: number;
   showConsole: boolean;
   consoleData: string[];
-  isRunningCode: boolean;
   runtimeStatus: boolean;
   fieldControlActivity: boolean;
   disableScroll: boolean;
@@ -80,6 +79,7 @@ interface State {
   mode: number;
   modeDisplay: string;
   simulate: boolean;
+  isRunning: boolean;
   fontsize?: number;
 };
 
@@ -122,6 +122,7 @@ export class Editor extends React.Component<Props, State> {
       editorHeight: 0, // Filled in later during componentDidMount
       mode: robotState.TELEOP,
       modeDisplay: robotState.TELEOPSTR,
+      isRunning: false,
       simulate: false,
     };
   }
@@ -297,12 +298,18 @@ export class Editor extends React.Component<Props, State> {
   }
 
   startRobot = () => {
+    this.setState({ isRunning: true });
     this.props.onUpdateCodeStatus(this.state.mode);
     // this.props.onClearConsole();
   }
 
   stopRobot = () => {
-    this.setState({ simulate: false, mode: robotState.IDLE, modeDisplay: robotState.IDLESTR })
+    this.setState({
+      simulate: false,
+      isRunning: false,
+      modeDisplay: (this.state.mode === robotState.AUTONOMOUS) ?
+        robotState.AUTOSTR : robotState.TELEOPSTR,
+    });
     this.props.onUpdateCodeStatus(robotState.IDLE);
   }
 
@@ -493,7 +500,7 @@ export class Editor extends React.Component<Props, State> {
                 text="Run"
                 onClick={this.startRobot}
                 glyph="play"
-                disabled={this.props.isRunningCode
+                disabled={this.state.isRunning
                 || !this.props.runtimeStatus
                 || this.props.fieldControlActivity}
               />
@@ -502,14 +509,14 @@ export class Editor extends React.Component<Props, State> {
                 text="Stop"
                 onClick={this.stopRobot}
                 glyph="stop"
-                disabled={!(this.props.isRunningCode || this.state.simulate)}
+                disabled={!(this.state.isRunning || this.state.simulate)}
               />
               <DropdownButton
                 title={this.state.modeDisplay}
                 bsSize="small"
                 key="dropdown"
                 id="modeDropdown"
-                disabled={this.state.simulate
+                disabled={this.state.isRunning || this.state.simulate
                 || this.props.fieldControlActivity
                 || !this.props.runtimeStatus}
               >
