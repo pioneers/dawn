@@ -32,36 +32,33 @@ janus.attach(
         plugin: "janus.plugin.videoroom",
         success: function(pluginHandle){
                 // Negotiate WebRTC
-                videoRoom = pluginHandle;
+                var videoRoom = pluginHandle;
                 var body = { "audio": true, "video": true };
                 videoRoom.send({"message": body});
                 videoRoom.createOffer(
                         {
-                                // No media property provided: by default,
-                                        // it's sendrecv for audio and video
+                                media: {
+                                        audioSend: true,
+                                        videoSend: true,
+                                        audioRecv: false,
+                                        videoRecv: false,
+                                },
                                 success: function(jsep) {
                                         // Got our SDP! Send our OFFER to the plugin
+                                        videoRoom.send({"message": body, "jsep": jsep});
                                 },
                                 error: function(error) {
                                         console.log(error);
                                 },
-                                customizeSdp: function(jsep) {
-                                        // if you want to modify the original sdp, do as the following
-                                        // oldSdp = jsep.sdp;
-                                        // jsep.sdp = yourNewSdp;
-                                }
                         });
         },
         onlocalstream: function(stream) {
                 // Invoked after createOffer
                 // This is our video
         },
-        onremotestream: function(stream) {
+/*         onremotestream: function(stream) {
                 // Invoked after handleRemoteJsep has got us a PeerConnection
                 // This is the remote video
-        },
+        }, */
 });
 
-
-
-//janus.createoffer.....
