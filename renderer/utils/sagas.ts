@@ -153,8 +153,8 @@ function* openFile(action: any) {
     if (type === 'open') {
       try {
         const filepath: string = yield call(openFileDialog);
-        const data = yield cps([fs, readFile], filepath);
-        yield put(openFileSucceeded(data, filepath));
+        const data: Buffer = yield cps([fs, readFile], filepath);
+        yield put(openFileSucceeded(data.toString(), filepath));
       } catch (e) {
         logging.log('No filename specified, no file opened.');
       }
