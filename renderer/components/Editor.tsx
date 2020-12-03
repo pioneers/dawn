@@ -9,7 +9,8 @@ import {
   Form,
   InputGroup,
   OverlayTrigger,
-  Tooltip, FormControlProps
+  Tooltip,
+  FormControlProps
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import { Ace } from 'ace-builds';
