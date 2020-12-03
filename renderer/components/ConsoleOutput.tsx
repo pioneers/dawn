@@ -8,7 +8,7 @@ interface StateProps {
 
 interface OwnProps {
   height: number;
-  output: Array<any>;
+  output: string[];
   show: boolean;
 }
 
