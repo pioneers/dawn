@@ -8,7 +8,10 @@ import { Motor } from './peripherals/Motor';
 import { Param } from '../../protos/protos';
 
 // Mapping between peripheral types and components
-const typesToComponents = {};
+const typesToComponents: Record<string, JSX.Element> = {
+  [PeripheralTypes.MOTOR_SCALAR]: Motor,
+  
+};
 typesToComponents[PeripheralTypes.MOTOR_SCALAR] = Motor;
 typesToComponents[PeripheralTypes.SENSOR_BOOLEAN] = BooleanSensor;
 typesToComponents[PeripheralTypes.LimitSwitch] = BooleanSensor;

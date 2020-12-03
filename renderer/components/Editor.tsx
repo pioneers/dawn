@@ -234,7 +234,7 @@ export class Editor extends React.Component<Props, State> {
     // If there are unsaved changes and the user tries to close Dawn,
     // check if they want to save their changes first.
     if (this.hasUnsavedChanges()) {
-      void dialog
+      dialog
         .showMessageBox(currentWindow, {
           type: 'warning',
           buttons: ['Save...', "Don't Save", 'Cancel'],
@@ -327,7 +327,7 @@ export class Editor extends React.Component<Props, State> {
       }, timings.SEC);
     });
 
-    void simulation
+    simulation
       .then(
         () =>
           new Promise((resolve, reject) => {

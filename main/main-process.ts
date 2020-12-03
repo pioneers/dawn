@@ -53,7 +53,7 @@ export default function showAPI() {
   api.on('closed', () => {
     api = null;
   });
-  void api.loadURL(`file://${__dirname}/../static/website-robot-api-master/robot_api.html`);
+  api.loadURL(`file://${__dirname}/../static/website-robot-api-master/robot_api.html`);
   api.once('ready-to-show', () => {
     if (api !== null) {
       api.show();
@@ -78,7 +78,7 @@ app.on('ready', () => {
   RendererBridge.registerWindow(mainWindow);
 
   mainWindow.maximize();
-  void mainWindow.loadURL(`file://${__dirname}/../static/index.html`);
+  mainWindow.loadURL(`file://${__dirname}/../static/index.html`);
 
   const menu = Menu.buildFromTemplate(Template);
   Menu.setApplicationMenu(menu);
