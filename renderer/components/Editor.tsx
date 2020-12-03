@@ -9,7 +9,7 @@ import {
   Form,
   InputGroup,
   OverlayTrigger,
-  Tooltip
+  Tooltip, FormControlProps
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import { Ace } from 'ace-builds';
@@ -203,13 +203,13 @@ export class Editor extends React.Component<Props, State> {
 
     window.addEventListener('beforeunload', this.beforeUnload);
     window.addEventListener('resize', this.onWindowResize, { passive: true });
-    window.addEventListener('dragover', (e: any) => {
-      e.preventDefault();
+    window.addEventListener('dragover', (event: Event) => {
+      event.preventDefault();
       return false;
     });
-    window.addEventListener('drop', (e: any) => {
-      e.preventDefault();
-      this.props.onDragFile(e.dataTransfer.files[0].path);
+    window.addEventListener('drop', (dragEvent: DragEvent) => {
+      dragEvent.preventDefault();
+      this.props.onDragFile(dragEvent.dataTransfer?.files[0].path ?? '');
       return false;
     });
   };
@@ -229,11 +229,11 @@ export class Editor extends React.Component<Props, State> {
     return `${String(window.innerHeight - windowNonEditorHeight)}px`;
   };
 
-  beforeUnload = (event: any) => {
+  beforeUnload = (event: Event) => {
     // If there are unsaved changes and the user tries to close Dawn,
     // check if they want to save their changes first.
     if (this.hasUnsavedChanges()) {
-      dialog
+      void dialog
         .showMessageBox(currentWindow, {
           type: 'warning',
           buttons: ['Save...', "Don't Save", 'Cancel'],
@@ -326,7 +326,7 @@ export class Editor extends React.Component<Props, State> {
       }, timings.SEC);
     });
 
-    simulation
+    void simulation
       .then(
         () =>
           new Promise((resolve, reject) => {
@@ -398,11 +398,11 @@ export class Editor extends React.Component<Props, State> {
     });
   };
 
-  handleChangeFontsize = (event: any) => {
-    this.setState({ fontsize: event.target.value });
+  handleChangeFontsize = (event: React.ChangeEvent<FormControlProps>) => {
+    this.setState({ fontsize: Number(event.target.value) ?? 12 });
   };
 
-  handleSubmitFontsize = (event: any) => {
+  handleSubmitFontsize = (event: React.FormEvent<FormControlProps>) => {
     this.changeFontsizeToFont(Number(this.state.fontsize));
     event.preventDefault();
   };
