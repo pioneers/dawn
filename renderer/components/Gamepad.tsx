@@ -80,13 +80,13 @@ export class Gamepad extends React.Component<Props, State> {
                 <tr>
                   <th>Button</th>
                   {_.range(NUM_GAMEPAD_BUTTONS).map((gamepadButtonNumber: number) => (
-                    <td>{gamepadButtonNumber}</td>
+                    <td key={gamepadButtonNumber}>{gamepadButtonNumber}</td>
                   ))}
                 </tr>
                 <tr>
                   <th>Value</th>
                   {_.range(NUM_GAMEPAD_BUTTONS).map((gamepadButtonNumber: number) => (
-                    <td>{values.buttons[gamepadButtonNumber]}</td>
+                    <td key={gamepadButtonNumber}>{values.buttons[gamepadButtonNumber]}</td>
                   ))}
                 </tr>
               </tbody>
@@ -96,13 +96,13 @@ export class Gamepad extends React.Component<Props, State> {
                 <tr>
                   <th>Axis</th>
                   {_.range(NUM_GAMEPAD_AXES).map((gamepadButtonAxis: number) => (
-                    <td>{gamepadButtonAxis}</td>
+                    <td key={gamepadButtonAxis}>{gamepadButtonAxis}</td>
                   ))}
                 </tr>
                 <tr>
                   <th>Value</th>
                   {_.range(NUM_GAMEPAD_AXES).map((gamepadButtonAxis: number) => (
-                    <td>{values.buttons[gamepadButtonAxis]}</td>
+                    <td key={gamepadButtonAxis}>{values.buttons[gamepadButtonAxis]}</td>
                   ))}
                 </tr>
               </tbody>
