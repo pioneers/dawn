@@ -139,7 +139,7 @@ class UpdateBoxContainer extends React.Component<Props, State> {
         <Modal.Footer>
           <Button
             type="button"
-            bsStyle="primary"
+            variant="primary"
             onClick={this.upgradeSoftware}
             disabled={this.disableUploadUpdate()}
           >
