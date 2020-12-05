@@ -367,7 +367,7 @@ function* restartRuntime() {
                 }
                 stream.write(`${defaults.PASSWORD}\n`);
                 stream.on('exit', (code: number | null) => {
-                  logging.log(`Runtime Restart: Returned ${code}`);
+                  logging.log(`Runtime Restart: Returned ${code ?? -1}`);
                   conn.end();
                   resolve(0);
                 });
