@@ -182,8 +182,8 @@ function* dragFile(action: any) {
   if (res === 0 || res === 1) {
     try {
       const { filepath } = action;
-      const data = yield cps([fs, readFile], filepath);
-      yield put(openFileSucceeded(data, filepath));
+      const data: Buffer = yield cps([fs, readFile], filepath);
+      yield put(openFileSucceeded(data.toString(), filepath));
     } catch (e) {
       logging.log('Failure to Drag File In');
     }
@@ -417,8 +417,8 @@ function* downloadStudentCode() {
     }));
     switch (errors) {
       case 0: {
-        const data = yield cps(fs.readFile, `${path}/robotCode.py`);
-        yield put(openFileSucceeded(data, `${path}/robotCode.py`));
+        const data: Buffer = yield cps(fs.readFile, `${path}/robotCode.py`);
+        yield put(openFileSucceeded(data.toString(), `${path}/robotCode.py`));
         yield put(addAsyncAlert(
           'Download Success',
           'File Downloaded Successfully',
