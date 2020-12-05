@@ -1,6 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
-import { Panel, PanelGroup, ListGroup } from 'react-bootstrap';
+import { Accordion, Card, CardGroup, ListGroup } from 'react-bootstrap';
 import { PeripheralTypes } from '../consts';
 import { Peripheral as PeripheralComponent } from './Peripheral';
 import { Peripheral, PeripheralList } from '../types';
@@ -46,37 +46,40 @@ const handleAccordion = (devices: Peripheral[]) => {
     });
 
 
-  return Object.keys(peripheralGroups).map((groupName: string) => {
+  return Object.keys(peripheralGroups).map((groupName: string, index: number) => {
     const groupNameCleaned = groupName; //cleanerNames[groupName] as string;
 
     return (
-      <PanelGroup
-        accordion
-        style={{ marginBottom: '0px' }}
-        key={`${groupNameCleaned || 'Default'}-Accordion`}
-        id={`${groupNameCleaned || 'Default'}-Accordion`}
-      >
-        <Panel key={`${groupNameCleaned || 'Default'}-Panel`} defaultExpanded>
-          <Panel.Heading>
-            <Panel.Title toggle style={{ fontWeight: 'bold' }}>
-              {groupName || 'Generic'}
-            </Panel.Title>
-          </Panel.Heading>
-          <Panel.Collapse>
-            <Panel.Body style={{ padding: '10px' }}>
-              {_.map(peripheralGroups[groupName], (peripheral) => (
-                <PeripheralComponent
-                  key={String(peripheral.uid)}
-                  uid={String(peripheral.uid)}
-                  name={peripheral.name}
-                  type={peripheral.name}
-                  params={peripheral.params}
-                />
-              ))}
-            </Panel.Body>
-          </Panel.Collapse>
-        </Panel>
-      </PanelGroup>
+      <Accordion>
+        <CardGroup
+          style={{ marginBottom: '0px' }}
+          key={`${groupNameCleaned || 'Default'}-Accordion`}
+          id={`${groupNameCleaned || 'Default'}-Accordion`}
+        >
+          <Card key={`${groupNameCleaned || 'Default'}-Panel`}>
+            <Accordion.Toggle eventKey={index.toString()}>
+              <Card.Header>
+                <Card.Title style={{ fontWeight: 'bold' }}>
+                  {groupName || 'Generic'}
+                </Card.Title>
+              </Card.Header>
+            </Accordion.Toggle>
+            <Accordion.Collapse eventKey={index.toString()}>
+              <Card.Body style={{ padding: '10px' }}>
+                {_.map(peripheralGroups[groupName], (peripheral) => (
+                  <PeripheralComponent
+                    key={String(peripheral.uid)}
+                    uid={String(peripheral.uid)}
+                    name={peripheral.name}
+                    type={peripheral.name}
+                    params={peripheral.params}
+                  />
+                ))}
+              </Card.Body>
+            </Accordion.Collapse>
+          </Card>
+        </CardGroup>
+      </Accordion>
     );
   });
 };
@@ -98,12 +101,12 @@ const PeripheralListComponent = (props: StateProps & OwnProps) => {
   }
 
   return (
-    <Panel id="peripherals-panel" bsStyle="primary">
-      <Panel.Heading>Peripherals</Panel.Heading>
-      <Panel.Body style={{ padding: '0px' }}>
+    <Card id="peripherals-panel" bg="primary">
+      <Card.Header>Peripherals</Card.Header>
+      <Card.Body style={{ padding: '0px' }}>
         <ListGroup>{panelBody}</ListGroup>
-      </Panel.Body>
-    </Panel>
+      </Card.Body>
+    </Card>
   );
 };
 
