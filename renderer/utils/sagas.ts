@@ -1,22 +1,26 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 /**
  * Redux sagas are how we handle complicated asynchronous stuff with redux.
- * See http://yelouafi.github.io/redux-saga/index.html for docs.
+ * See https://redux-saga.js.org/docs/api/ for docs.
  * Sagas use ES6 generator functions, which have the '*' in their declaration.
  */
 
+import * as consts from '../consts';
 import fs, { readFile, writeFile } from 'fs';
 import _ from 'lodash';
 import { eventChannel } from 'redux-saga';
-import { all, call, cps, delay, fork, put, race, select, take, takeEvery } from 'redux-saga/effects';
-import { Client } from 'ssh2';
+import { all, call, cps, delay, fork, put, race, select, take, TakeEffect, takeEvery } from 'redux-saga/effects';
+import { Client, ClientChannel, ClientErrorExtensions, SFTPWrapper } from 'ssh2';
 import { ipcRenderer, OpenDialogReturnValue, SaveDialogReturnValue, MessageBoxReturnValue, remote } from 'electron';
 import { addAsyncAlert } from '../actions/AlertActions';
 import { openFileSucceeded, saveFileSucceeded } from '../actions/EditorActions';
 import { toggleFieldControl } from '../actions/FieldActions';
 import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
-import { TIMEOUT, defaults, logging } from '../utils/utils';
+import { TIMEOUT_MSEC, defaults, logging } from '../utils/utils';
 import { GpState } from '../../protos/protos';
+import { DragFileAction, OpenFileAction, SaveFileAction } from '../types';
 
 let timestamp = Date.now();
 
@@ -115,16 +119,17 @@ function* writeCodeToFile(filepath: string, code: string): Generator<any, void, 
   yield put(saveFileSucceeded(code, filepath));
 }
 
-const editorState = (state: any) => ({
+const editorState = (state: ApplicationState) => ({
   filepath: state.editor.filepath,
   code: state.editor.editorCode
 });
 
-function* saveFile(action: any) {
-  const result = yield select(editorState);
+function* saveFile(action: SaveFileAction) {
+  const result: ReturnType<typeof editorState> = yield select(editorState);
   let { filepath } = result;
   const { code } = result;
-  // If the action is a "save as" OR there is no filepath (ie, a new file)
+
+  // If the action is a "save as" OR there is no filepath (i.e. a new file)
   // then we open the save file dialog so the user can specify a filename before saving.
   if (action.saveAs === true || !filepath) {
     try {
@@ -138,29 +143,35 @@ function* saveFile(action: any) {
   }
 }
 
-const editorSavedState = (state: any) => ({
+const editorSavedState = (state: ApplicationState) => ({
   savedCode: state.editor.latestSaveCode,
   code: state.editor.editorCode
 });
 
-function* openFile(action: any) {
-  const type = action.type === 'OPEN_FILE' ? 'open' : 'create';
-  const result = yield select(editorSavedState);
-  let res = 1;
+function* openFile(action: OpenFileAction) {
+  const type = action.type === consts.EditorActionsTypes.OPEN_FILE ? 'open' : 'create';
+  const result: ReturnType<typeof editorSavedState> = yield select(editorSavedState);
+
+  /** buttonIndex refers to the corresponding index (0, 1, 2) of the buttons in the Unsaved Dialog.*/
+  let buttonIndex = 1;
+
   if (result.code !== result.savedCode) {
-    res = yield call(unsavedDialog, type);
-    if (res === 0) {
+    buttonIndex = yield call(unsavedDialog, type);
+
+    if (buttonIndex === 0) {
       yield* saveFile({
-        type: 'SAVE_FILE',
+        type: consts.EditorActionsTypes.SAVE_FILE,
         saveAs: false
       });
     }
   }
-  if (res === 0 || res === 1) {
+
+  // TODO: Add a comment explaining what's happening here.
+  if (buttonIndex === 0 || buttonIndex === 1) {
     if (type === 'open') {
       try {
         const filepath: string = yield call(openFileDialog);
-        const data = yield cps([fs, readFile], filepath);
+        const data: string = yield cps([fs, readFile], filepath);
         yield put(openFileSucceeded(data, filepath));
       } catch (e) {
         logging.log('No filename specified, no file opened.');
@@ -173,23 +184,24 @@ function* openFile(action: any) {
   }
 }
 
-function* dragFile(action: any) {
-  const result = yield select(editorSavedState);
-  let res = 1; // Refers to unsavedDialog choices
+function* dragFile(action: DragFileAction) {
+  const result: ReturnType<typeof editorSavedState> = yield select(editorSavedState);
+  let buttonIndex = 1; // Refers to unsavedDialog choices
+
   if (result.code !== result.savedCode) {
-    res = yield call(unsavedDialog, 'open');
-    if (res === 0) {
+    buttonIndex = yield call(unsavedDialog, 'open');
+    if (buttonIndex === 0) {
       yield* saveFile({
-        type: 'SAVE_FILE',
+        type: consts.EditorActionsTypes.SAVE_FILE,
         saveAs: false
       });
     }
   }
 
-  if (res === 0 || res === 1) {
+  if (buttonIndex === 0 || buttonIndex === 1) {
     try {
       const { filepath } = action;
-      const data = yield cps([fs, readFile], filepath);
+      const data: string = yield cps([fs, readFile], filepath);
       yield put(openFileSucceeded(data, filepath));
     } catch (e) {
       logging.log('Failure to Drag File In');
@@ -210,13 +222,13 @@ function* runtimeHeartbeat() {
   while (true) {
     // Start a race between a delay and receiving an UPDATE_STATUS action from
     // runtime. Only the winner will have a value.
-    const result = yield race({
-      update: take('PER_MESSAGE'),
-      timeout: delay(TIMEOUT)
+    const { update }: { update: TakeEffect } = yield race({
+      update: take(consts.InfoActionsTypes.PER_MESSAGE),
+      timeout: delay(TIMEOUT_MSEC)
     });
 
     // If update wins, we assume we are connected, otherwise disconnected.
-    if (result.update) {
+    if (update) {
       yield put(runtimeConnect());
     } else {
       yield put(runtimeDisconnect());
@@ -226,7 +238,7 @@ function* runtimeHeartbeat() {
 
 const _timestamps: Array<number | null> = [0, 0, 0, 0];
 
-function _needToUpdate(newGamepads: (Gamepad | null)[]): boolean {
+function _needToUpdate(newGamepads: Array<Gamepad | null>): boolean {
   return _.some(newGamepads, (gamepad, index) => {
     if (gamepad != null && gamepad.timestamp > (_timestamps[index] ?? 0)) {
       _timestamps[index] = gamepad.timestamp;
@@ -239,7 +251,7 @@ function _needToUpdate(newGamepads: (Gamepad | null)[]): boolean {
   });
 }
 
-function formatGamepads(newGamepads: (Gamepad | null)[]): GpState[] {
+function formatGamepads(newGamepads: Array<Gamepad | null>): GpState[] {
   const formattedGamepads: GpState[] = [];
   // Currently there is a bug on windows where navigator.getGamepads()
   // returns a second, 'ghost' gamepad even when only one is connected.
@@ -293,7 +305,7 @@ function* runtimeGamepads() {
  */
 function runtimeReceiver() {
   return eventChannel((emitter) => {
-    const listener = (_event: any, action: any) => {
+    const listener = (_event: Electron.IpcRendererEvent, action: any) => {
       emitter(action);
     };
     // Suscribe listener to dispatches from main process.
@@ -311,7 +323,7 @@ function runtimeReceiver() {
  */
 function* runtimeSaga() {
   try {
-    const chan = yield call(runtimeReceiver);
+    const chan: ReturnType<typeof runtimeReceiver> = yield call(runtimeReceiver);
 
     while (true) {
       const action = yield take(chan);
@@ -319,38 +331,42 @@ function* runtimeSaga() {
       yield put(action);
     }
   } catch (e) {
-    logging.log(e.stack);
+    logging.log(e);
   }
 }
 
-const gamepadsState = (state: any) => state.gamepads.gamepads;
+const getGamepadsState = (state: ApplicationState) => state.gamepads.gamepads;
 
 /**
  * Send the store to the main process whenever it changes.
  */
 function* updateMainProcess() {
-  const stateSlice = yield select(gamepadsState); // Get gamepads from Redux state store
+  const stateSlice: ReturnType<typeof getGamepadsState> = yield select(getGamepadsState); // Get gamepads from Redux state store
   ipcRenderer.send('stateUpdate', stateSlice);
 }
 
+const getSSHConfig = (state: ApplicationState) => ({
+  runtimeStatus: state.info.runtimeStatus,
+  ipAddress: state.info.ipAddress,
+  filepath: state.editor.filepath
+});
+
 function* restartRuntime() {
   const conn = new Client();
-  const stateSlice = yield select((state: any) => ({
-    runtimeStatus: state.info.runtimeStatus,
-    ipAddress: state.info.ipAddress
-  }));
+  const stateSlice: ReturnType<typeof getSSHConfig> = yield select(getSSHConfig);
+
   if (stateSlice.runtimeStatus && stateSlice.ipAddress !== defaults.IPADDRESS) {
     const network = yield call(
       () =>
         new Promise((resolve) => {
           conn
             .on('ready', () => {
-              conn.exec('sudo systemctl restart runtime.service', { pty: true }, (uperr: any, stream: any) => {
+              conn.exec('sudo systemctl restart runtime.service', { pty: true }, (uperr: Error | undefined, stream: ClientChannel) => {
                 if (uperr) {
                   resolve(1);
                 }
                 stream.write(`${defaults.PASSWORD}\n`);
-                stream.on('exit', (code: any) => {
+                stream.on('exit', (code: number | null) => {
                   logging.log(`Runtime Restart: Returned ${code}`);
                   conn.end();
                   resolve(0);
@@ -376,11 +392,9 @@ function* restartRuntime() {
 
 function* downloadStudentCode() {
   const conn = new Client();
-  const stateSlice = yield select((state: any) => ({
-    runtimeStatus: state.info.runtimeStatus,
-    ipAddress: state.info.ipAddress
-  }));
-  const path = `${require('electron').remote.app.getPath('desktop')}/Dawn`; // eslint-disable-line global-require
+  const stateSlice: ReturnType<typeof getSSHConfig> = yield select(getSSHConfig);
+  const path = `${remote.app.getPath('desktop')}/Dawn`;
+
   try {
     fs.statSync(path);
   } catch (fileErr) {
@@ -391,16 +405,16 @@ function* downloadStudentCode() {
     const errors = yield call(
       () =>
         new Promise((resolve) => {
-          conn.on('error', (err: any) => {
-            logging.log(err);
+          conn.on('error', (err: Error & ClientErrorExtensions) => {
+            logging.log(err.description ?? err.message);
             resolve(3);
           });
 
           conn
             .on('ready', () => {
-              conn.sftp((err: any, sftp: any) => {
+              conn.sftp((err: Error | undefined, sftp: SFTPWrapper) => {
                 if (err) {
-                  logging.log(err);
+                  logging.log(err.message);
                   resolve(1);
                 }
                 sftp.fastGet(defaults.STUDENTCODELOC, `${path}/robotCode.py`, (err2: any) => {
@@ -455,11 +469,8 @@ function* downloadStudentCode() {
 
 function* uploadStudentCode() {
   const conn = new Client();
-  const stateSlice = yield select((state: any) => ({
-    runtimeStatus: state.info.runtimeStatus,
-    ipAddress: state.info.ipAddress,
-    filepath: state.editor.filepath
-  }));
+  const stateSlice: ReturnType<typeof getSSHConfig> = yield select(getSSHConfig);
+
   if (stateSlice.runtimeStatus) {
     logging.log(`Uploading ${stateSlice.filepath}`);
     const errors = yield call(
@@ -472,9 +483,9 @@ function* uploadStudentCode() {
 
           conn
             .on('ready', () => {
-              conn.sftp((err: any, sftp: any) => {
+              conn.sftp((err: Error | undefined, sftp: SFTPWrapper) => {
                 if (err) {
-                  logging.log(err);
+                  logging.log(err.message);
                   resolve(1);
                 }
                 sftp.fastPut(stateSlice.filepath, defaults.STUDENTCODELOC, (err2: any) => {
@@ -487,7 +498,7 @@ function* uploadStudentCode() {
               });
             })
             .connect({
-              debug: (input: any) => {
+              debug: (input: string) => {
                 logging.log(input);
               },
               host: stateSlice.ipAddress,
@@ -526,10 +537,11 @@ function* uploadStudentCode() {
   }
 }
 
+const getFieldControlStatus = (state: ApplicationState) => ({ fieldControlStatus: state.fieldStore.fieldControl });
+
 function* handleFieldControl() {
-  const stateSlice = yield select((state: any) => ({
-    fieldControlStatus: state.fieldStore.fieldControl
-  }));
+  const stateSlice: ReturnType<typeof getFieldControlStatus> = yield select(getFieldControlStatus);
+
   if (stateSlice.fieldControlStatus) {
     yield put(toggleFieldControl(false));
     ipcRenderer.send('FC_TEARDOWN');
@@ -548,9 +560,10 @@ function timestampBounceback() {
  * Sends run mode status upon each main process update.
  */
 function* exportRunMode() {
-  const stateSlice = yield select((state: any) => ({
+  const stateSlice = yield select((state: ApplicationState) => ({
     mode: state.info.studentCodeStatus
   }));
+
   ipcRenderer.send('runModeUpdate', stateSlice);
 }
 

@@ -1,7 +1,7 @@
 import { app, remote } from 'electron';
 import fs from 'fs';
 
-export const TIMEOUT = 5000;
+export const TIMEOUT_MSEC = 5000;
 
 export const pathToName = (filepath: string) => {
   if (filepath !== null && filepath !== '') {
