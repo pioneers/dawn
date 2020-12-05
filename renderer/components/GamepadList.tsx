@@ -1,5 +1,5 @@
 import React from 'react';
-import { Panel, ListGroup } from 'react-bootstrap';
+import { Card, ListGroup } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import { Gamepad } from './Gamepad';
@@ -27,17 +27,17 @@ const GamepadListComponent = (props: Props) => {
     );
   }
   return (
-    <Panel
-      bsStyle="primary"
+    <Card
+      bg="primary"
       id="gamepads-panel"
     >
-      <Panel.Heading>Gamepads</Panel.Heading>
-      <Panel.Body style={{ padding: '0px' }}>
+      <Card.Header>Gamepads</Card.Header>
+      <Card.Body style={{ padding: '0px' }}>
         <ListGroup style={{ marginBottom: '5px' }}>
           {interior}
         </ListGroup>
-      </Panel.Body>
-    </Panel>
+      </Card.Body>
+    </Card>
   );
 };
 
