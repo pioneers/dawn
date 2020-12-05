@@ -30,6 +30,7 @@ interface OwnProps {
 interface State {
   showUpdateModal: boolean;
   showConfigModal: boolean;
+  showChallengeModal: boolean;
 }
 
 type Props = StateProps & OwnProps;
@@ -40,6 +41,7 @@ class DNavComponent extends React.Component<Props, State> {
     this.state = {
       showUpdateModal: false,
       showConfigModal: false,
+      showChallengeModal: false,
     };
   }
 
@@ -49,6 +51,10 @@ class DNavComponent extends React.Component<Props, State> {
 
   toggleConfigModal = () => {
     this.setState({ showConfigModal: !this.state.showConfigModal });
+  }
+
+  toggleChallengeModal = () => {
+    this.setState({ showChallengeModal: !this.state.showChallengeModal });
   }
 
   createHeader = () => {
@@ -152,6 +158,15 @@ class DNavComponent extends React.Component<Props, State> {
                   disabled={!runtimeStatus}
                   id="update-software-button"
                   glyph="cloud-upload"
+                />
+                <TooltipButton
+                  placement= "bottom"
+                  text="Check Code Challenges"
+                  bsStyle="info"
+                  onClick={this.toggleChallengeModal}
+                  disabled={false}
+                  id="check-code-challenges"
+                  glyph="check"
                 />
               </ButtonGroup>
             </ButtonToolbar>
