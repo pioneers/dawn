@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Button, FormGroup, Form, FormControl, ControlLabel } from 'react-bootstrap';
+import { Modal, Button, Form, FormControl, FormGroup } from 'react-bootstrap';
 import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
@@ -31,6 +31,8 @@ interface OwnProps {
 }
 
 type Props = StateProps & DispatchProps & OwnProps;
+
+type FormControlElement = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 
 interface State {
   ipAddress: string;
@@ -87,7 +89,7 @@ class ConfigBoxComponent extends React.Component<Props, State> {
     });
   }
 
-  saveChanges = (e: React.FormEvent<Form>) => {
+  saveChanges = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const { ipAddress } = this.state;
@@ -115,15 +117,15 @@ class ConfigBoxComponent extends React.Component<Props, State> {
     this.props.hide();
   };
 
-  handleIpChange = (e: React.FormEvent<FormControl & HTMLInputElement>) => {
+  handleIpChange = (e: React.FormEvent<FormControlElement>) => {
     this.setState({ ipAddress: e.currentTarget.value });
   };
 
-  handleFcChange = (e: React.FormEvent<FormControl& HTMLInputElement>) => {
+  handleFcChange = (e: React.FormEvent<FormControlElement>) => {
     this.setState({ fcAddress: e.currentTarget.value });
   };
 
-  handleStationChange = (e: React.FormEvent<FormControl & HTMLInputElement>) => {
+  handleStationChange = (e: React.FormEvent<FormControlElement>) => {
     this.setState({ stationNumber: parseInt(e.currentTarget.value) });
   };
 
@@ -160,26 +162,26 @@ class ConfigBoxComponent extends React.Component<Props, State> {
               connect to the same IP Address)
             </p>
             <FormGroup controlId="ipAddress" validationState={getValidationState(ipAddress)}>
-              <ControlLabel>IP Address</ControlLabel>
+              <Form.Label>IP Address</Form.Label>
               <FormControl type="text" value={ipAddress} placeholder="i.e. 192.168.100.13" onChange={this.handleIpChange} />
               <FormControl.Feedback />
             </FormGroup>
 
             <p>Field Control Settings</p>
             <FormGroup controlId="fcAddress" validationState={getValidationState(fcAddress)}>
-              <ControlLabel>Field Control IP Address</ControlLabel>
+              <Form.Label>Field Control IP Address</Form.Label>
               <FormControl type="text" value={fcAddress} placeholder="i.e. 192.168.100.13" onChange={this.handleFcChange} />
               <FormControl.Feedback />
             </FormGroup>
 
             <FormGroup controlId="stationNumber" validationState={stationNumber >= 0 && stationNumber <= 4 ? 'success' : 'error'}>
-              <ControlLabel>Field Control Station Number</ControlLabel>
+              <Form.Label>Field Control Station Number</Form.Label>
               <FormControl type="number" value={stationNumber} placeholder="An integer from 0 to 4" onChange={this.handleStationChange} />
               <FormControl.Feedback />
             </FormGroup>
           </Modal.Body>
           <Modal.Footer>
-            <Button type="submit" bsStyle="primary" disabled={this.disableUploadUpdate()}>
+            <Button type="submit" variant="primary" disabled={this.disableUploadUpdate()}>
               Update
             </Button>
           </Modal.Footer>
