@@ -68,7 +68,7 @@ const handleAccordion = (devices: Peripheral[]) => {
                   key={String(peripheral.uid)}
                   uid={String(peripheral.uid)}
                   name={peripheral.name}
-                  type={peripheral.name}
+                  type={peripheral.type}
                   params={peripheral.params}
                 />
               ))}

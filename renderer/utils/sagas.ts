@@ -599,7 +599,7 @@ export {
   saveFileDialog,
   saveFile,
   runtimeHeartbeat,
-  gamepadsState,
+  getGamepadsState,
   updateMainProcess,
   runtimeReceiver,
   runtimeSaga

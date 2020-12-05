@@ -15,7 +15,7 @@ import {
   saveFileDialog,
   saveFile,
   runtimeHeartbeat,
-  gamepadsState,
+  getGamepadsState,
   updateMainProcess,
   runtimeReceiver,
   runtimeSaga,
@@ -149,7 +149,7 @@ describe('runtime sagas', () => {
 
   it('should update main process of store changes', () => {
     const expect = fromGenerator(assert, updateMainProcess());
-    expect.next().select(gamepadsState);
+    expect.next().select(getGamepadsState);
   });
 
   it('should take data from runtimeReceiver and dispatch to store', () => {
