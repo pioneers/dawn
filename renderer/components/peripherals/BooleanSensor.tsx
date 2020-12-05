@@ -2,7 +2,8 @@
 import React from 'react';
 import _ from 'lodash';
 import { PeripheralTypes } from '../../consts';
-import { Param, Device } from '../../../protos/protos';
+import { Param } from '../../../protos/protos';
+import { Peripheral } from '../../types';
 
 /**
  * Boolean Sensor Component
@@ -18,7 +19,7 @@ const formatBoolean = (peripheralType: any, peripheral: Param) => {
   return sensorValue;
 };
 
-export const BooleanSensor = ({ uid, type, params }: Device) => (
+export const BooleanSensor = ({ uid, type, params }: Peripheral) => (
   <div style={{ overflow: 'auto', width: '100%' }}>
     <h4 style={{ float: 'left' }}>
       <div>{uid}</div>

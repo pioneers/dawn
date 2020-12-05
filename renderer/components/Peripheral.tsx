@@ -8,20 +8,18 @@ import { Motor } from './peripherals/Motor';
 import { Param } from '../../protos/protos';
 
 // Mapping between peripheral types and components
-const typesToComponents: Record<string, JSX.Element> = {
+const typesToComponents: Record<string, typeof Motor | typeof BooleanSensor | typeof GameValues> = {
   [PeripheralTypes.MOTOR_SCALAR]: Motor,
-  
+  [PeripheralTypes.SENSOR_BOOLEAN]: BooleanSensor,
+  [PeripheralTypes.LimitSwitch]: BooleanSensor,
+  [PeripheralTypes.GameValues]: GameValues
 };
-typesToComponents[PeripheralTypes.MOTOR_SCALAR] = Motor;
-typesToComponents[PeripheralTypes.SENSOR_BOOLEAN] = BooleanSensor;
-typesToComponents[PeripheralTypes.LimitSwitch] = BooleanSensor;
-typesToComponents[PeripheralTypes.GameValues] = GameValues;
 
 interface OwnProps {
   key: string;
   uid: string;
   name: string;
-  type: string;
+  type: number;
   params: Param[];
 }
 
