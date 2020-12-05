@@ -71,7 +71,7 @@ export class Gamepad extends React.Component<Props, State> {
       <ListGroupItem>
         <div style={{ overflow: 'auto', width: '100%' }}>
           <span style={{ float: 'left' }}>{this.renderHeader()}</span>
-          <Button type="button" bsSize="small" onClick={this.openModal} style={{ float: 'right' }}>
+          <Button type="button" size="sm" onClick={this.openModal} style={{ float: 'right' }}>
             Details
           </Button>
         </div>
