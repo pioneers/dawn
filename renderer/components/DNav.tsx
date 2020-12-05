@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Navbar, ButtonToolbar, ButtonGroup, Label } from 'react-bootstrap';
+import { Form, Badge, ButtonToolbar, ButtonGroup, Navbar } from 'react-bootstrap';
 import { ConfigBox } from './ConfigBox';
 import { UpdateBox } from './UpdateBox';
 import { StatusLabel } from './StatusLabel';
@@ -80,7 +80,7 @@ class DNavComponent extends React.Component<Props, State> {
     const { showConfigModal, showUpdateModal } = this.state;
     
     return (
-      <Navbar fixedTop fluid>
+      <Navbar fixed="top">
         <UpdateBox
           isRunningCode={isRunningCode}
           connectionStatus={connectionStatus}
@@ -95,19 +95,17 @@ class DNavComponent extends React.Component<Props, State> {
           ipAddress={ipAddress}
           hide={this.toggleConfigModal}
         />
-        <Navbar.Header>
-          <Navbar.Brand id="header-title">
-            {this.createHeader()}
-          </Navbar.Brand>
-          <Navbar.Toggle />
-        </Navbar.Header>
+        <Navbar.Brand id="header-title">
+          {this.createHeader()}
+        </Navbar.Brand>
+        <Navbar.Toggle />
         <Navbar.Collapse>
           {runtimeStatus ?
             <Navbar.Text id="runtime-version">
-              <Label bsStyle="info">{
+              <Badge variant="info">{
                 `Runtime v${runtimeVersion}: ${runtimeState[robotState]}`
               }
-              </Label>
+              </Badge>
             </Navbar.Text> : ''
           }
           <Navbar.Text id="battery-indicator">
@@ -121,9 +119,7 @@ class DNavComponent extends React.Component<Props, State> {
               fieldControlStatus={fieldControlStatus}
             />
           </Navbar.Text>
-          <Navbar.Form
-            pullRight
-          >
+          <Form className="align-items-right">
             <ButtonToolbar>
               <ButtonGroup>
                 <TooltipButton
@@ -155,7 +151,7 @@ class DNavComponent extends React.Component<Props, State> {
                 />
               </ButtonGroup>
             </ButtonToolbar>
-          </Navbar.Form>
+          </Form>
         </Navbar.Collapse>
       </Navbar>
     );
