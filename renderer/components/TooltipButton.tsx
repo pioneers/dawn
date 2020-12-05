@@ -1,10 +1,11 @@
 import React from 'react';
 import {
   Button,
-  Glyphicon,
+  // Glyphicon,
   OverlayTrigger,
   Tooltip,
 } from 'react-bootstrap';
+import { Placement } from 'react-overlays/usePopper';
 
 interface StateProp{
   id: string;
@@ -13,7 +14,7 @@ interface StateProp{
   glyph: string;
   disabled: boolean;
   bsStyle?: string;
-  placement?: string;
+  placement?: Placement;
 }
 
 export const TooltipButton = (props: StateProp) => {
@@ -24,13 +25,13 @@ export const TooltipButton = (props: StateProp) => {
     <OverlayTrigger placement={props.placement || 'top'} overlay={tooltip}>
       <Button
         type="button"
-        bsStyle={props.bsStyle || 'default'}
-        bsSize="small"
+        variant={props.bsStyle || 'default'}
+        size="sm"
         onClick={props.onClick}
         disabled={props.disabled}
         id={props.id}
       >
-        <Glyphicon glyph={props.glyph} />
+        {/* <Glyphicon glyph={props.glyph} /> */}
       </Button>
     </OverlayTrigger>
   );
