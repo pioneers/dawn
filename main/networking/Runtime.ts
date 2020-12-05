@@ -62,6 +62,7 @@ function readPacket(data: any): TCPPacket {
  */
 function createPacket(payload: unknown, messageType: MsgType): Buffer {
   let encodedPayload: Uint8Array;
+  
   switch (messageType) {
     case MsgType.DEVICE_DATA:
       encodedPayload = protos.DevData.encode(payload as protos.IDevData).finish();
@@ -80,10 +81,10 @@ function createPacket(payload: unknown, messageType: MsgType): Buffer {
       encodedPayload = new Uint8Array();
       break;
   }
-  const msgLength = Buffer.byteLength(encodedPayload);
   
-  const msgTypeArr = new Uint8Array([messageType]);
+  const msgLength = Buffer.byteLength(encodedPayload);
   const msgLengthArr = new Uint8Array([msgLength & 0x00ff, msgLength & 0xff00]); // Assuming little-endian byte order, since runs on x64
+  const msgTypeArr = new Uint8Array([messageType]);
 
   return Buffer.concat([msgTypeArr, msgLengthArr, encodedPayload], msgLength + 3);
 }
