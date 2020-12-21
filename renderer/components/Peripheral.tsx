@@ -29,7 +29,7 @@ interface OwnProps {
  * Wraps such components in ListGroupItem for PeripheralList.js
  */
 export const Peripheral = (props: OwnProps) => {
-  const ActualPeripheral = typesToComponents[props.type] || GenericPeripheral;
+  const ActualPeripheral = typesToComponents[props.type] ?? GenericPeripheral;
 
   return (
     <ListGroupItem style={{ padding: '0px 0px 15px 0px', border: 'none' }}>
