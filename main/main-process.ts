@@ -77,7 +77,7 @@ app.on('ready', () => {
   RendererBridge.registerWindow(mainWindow);
 
   mainWindow.maximize();
-  mainWindow.loadURL(`file://${__dirname}/../static/index.html`);
+  mainWindow.loadURL(`file://${__dirname}/../static/index.html?main`);
 
   const menu = Menu.buildFromTemplate(Template);
   Menu.setApplicationMenu(menu);
