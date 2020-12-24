@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Modal, Row, Col, FormControl, Form, FormGroup } from "react-bootstrap";
+import { connect } from "react-redux";
 
 interface OwnProps {
     shouldShow: boolean;
@@ -9,7 +10,7 @@ interface OwnProps {
 type Props = OwnProps;
   
 
-const CheckCodeChallengesModal = (props: Props) => {
+const CheckCodeChallengesModalComponent = (props: Props) => {
 
     const [inputs, changeInputs] = useState({});
     const [outputs, changeOutputs] = useState({}); //to be done later. 
@@ -19,13 +20,17 @@ const CheckCodeChallengesModal = (props: Props) => {
         //this is where we will parse the code. Regex time maaaaaaannnn
     }
 
-    const handleInputChange = (e: React.FormEvent<FormControl & HTMLInputElement>) => {
-        //changeInputs({ *FunctionNameHere* : parseInt(e.currentTarget.value) });
+    const handleInputChange = (functionName: string) => {
+        const handleInputChangeEvent = (e: React.FormEvent<FormControl & HTMLInputElement>) => {
+            changeInputs({ [functionName]: parseInt(e.currentTarget.value) })
+        }
+        
+        return handleInputChangeEvent
     }
 
-    return(   
+    return(
             <div>
-                <Modal show={shouldShow} onHide={hide}>
+                <Modal show={props.shouldShow} onHide={props.hide}>
                 <Form>
                     <Modal.Title> Challenge Inputs</Modal.Title>
                     <Modal.Body>
@@ -33,7 +38,7 @@ const CheckCodeChallengesModal = (props: Props) => {
                         {Object.keys(inputs).map((functionName) => (
                             <Row>
                                 <Col>{functionName}</Col>
-                                <Col><FormControl type="text" placeholder="Input" onChange = {handleInputChange}/></Col> 
+                                <Col><FormControl type="text" placeholder="Input" onChange = {handleInputChange(functionName)}/></Col> 
                                 <Col><FormControl type="text" placeholder="Output"/> </Col>
                             </Row>
                         ))}
@@ -43,5 +48,11 @@ const CheckCodeChallengesModal = (props: Props) => {
                 </Modal>
             </div>
         
-        );
+    );
 };
+
+const mapStateToProps = (state: ApplicationState) => {
+    //redux ;)
+}
+
+export const CheckCodeChallengesModal = connect(mapStateToProps)(CheckCodeChallengesModalComponent);
