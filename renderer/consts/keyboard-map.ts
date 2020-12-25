@@ -1,0 +1,28 @@
+//taken from Runtime keyboard code
+export const keyboardMap = {
+    "BUTTON_A" : 0,
+    "BUTTON_B" : 1,
+    "BUTTON_X" : 2,
+    "BUTTON_Y" : 3,
+    "L_BUMPER" : 4,
+    "R_BUMPER" : 5,
+    "L_TRIGGER" : 6,
+    "R_TRIGGER" : 7,
+    "BUTTON_BACK" : 8,
+    "BUTTON_START" : 9,
+    "L_STICK" : 10,
+    "R_STICK" : 11,
+    "DPAD_UP" : 12,
+    "DPAD_DOWN" : 13,
+    "DPAD_LEFT" : 14,
+    "DPAD_RIGHT" : 15,
+    "BUTTON_XBOX" : 16,
+    "JOYSTICK_LEFT_X_RIGHT" : 17,
+    "JOYSTICK_LEFT_X_LEFT" : 18,
+    "JOYSTICK_LEFT_Y_DOWN" : 19,
+    "JOYSTICK_LEFT_Y_UP" : 20,
+    "JOYSTICK_RIGHT_X_LEFT" : 21,
+    "JOYSTICK_RIGHT_X_RIGHT" : 22,
+    "JOYSTICK_RIGHT_Y_DOWN" : 23,
+    "JOYSTICK_RIGHT_Y_UP" : 24
+}
