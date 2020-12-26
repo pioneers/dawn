@@ -17,7 +17,6 @@ import { remote, clipboard } from 'electron';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
 
-
 // React-ace extensions and modes
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/ext-searchbox';
@@ -57,7 +56,7 @@ interface StateProps {
   consoleUnread: boolean;
 }
 
-interface OwnProps {
+interface DispatchProps {
   onAlertAdd: (heading: string, message: string) => void;
   onEditorUpdate: (newVal: string) => void;
   onSaveFile: (saveAs?: boolean) => void;
@@ -65,7 +64,7 @@ interface OwnProps {
   onOpenFile: () => void; 
   onCreateNewFile: () => void;
   onChangeTheme: (theme: string) => void;
-  onChangeFontsize: (newFontsize: number) => void; 
+  onChangeFontsize: (newFonOwnPropstsize: number) => void; 
   toggleConsole: () => void;
   onClearConsole: () => void;
   onUpdateCodeStatus: (status: number) => void;
@@ -73,7 +72,7 @@ interface OwnProps {
   onUploadCode: () => void;
 }
 
-type Props = StateProps & OwnProps;
+type Props = StateProps & DispatchProps;
 
 interface State {
   consoleHeight: number;
