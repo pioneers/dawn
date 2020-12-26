@@ -35,7 +35,7 @@
     "build-protos": "pbjs -t static-module -w es6 -o protos/protos.js protos/*.proto && pbts -o protos/protos.d.ts protos/protos.js ",
     "watch": "webpack --mode development --watch --progress",
     "test": "mocha --require babel-core/register --recursive renderer/**/test/*.test.js",
-    "release": "node release.ts",
+    "release": "ts-node release.ts",
     "version": "echo $npm_package_version"
   },
   "betterScripts": {
