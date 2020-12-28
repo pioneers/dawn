@@ -100,6 +100,7 @@ class DNavComponent extends React.Component<Props, State> {
         <Navbar.Collapse>
           {runtimeStatus ? (
             <Navbar.Text id="runtime-version">
+              {/* TODO: Better typing for runtimeState[robotState] below} */}
               <Label bsStyle="info">{`Runtime v${runtimeVersion}: ${runtimeState[robotState]}`}</Label>
             </Navbar.Text>
           ) : (

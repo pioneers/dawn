@@ -110,6 +110,7 @@ const mapStateToProps = (state: ApplicationState) => ({
   peripheralList: Object.assign({}, state.peripherals.peripheralList)
 });
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 const PeripheralListContainer = connect<StateProps, {}, OwnProps, ApplicationState>(mapStateToProps, {})(PeripheralListComponent);
 
 export default PeripheralListContainer;
