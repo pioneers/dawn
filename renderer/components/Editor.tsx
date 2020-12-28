@@ -621,6 +621,7 @@ export class Editor extends React.Component<Props, State> {
             height={this.state.editorHeight.toString()}
             value={this.props.editorCode}
             onChange={this.props.onEditorUpdate}
+            // TODO: Fix lint error unbound method
             onPaste={Editor.onEditorPaste}
             editorProps={{ $blockScrolling: Infinity }}
           />

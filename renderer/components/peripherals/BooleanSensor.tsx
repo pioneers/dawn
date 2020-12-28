@@ -16,7 +16,7 @@ const formatBoolean = (peripheralType: any, peripheral: Param) => {
   if (peripheralType === PeripheralTypes.LimitSwitch) {
     return sensorValue ? 'Closed' : 'Open';
   }
-  return sensorValue;
+  return String(sensorValue);
 };
 
 export const BooleanSensor = ({ uid, type, params }: Peripheral) => (
