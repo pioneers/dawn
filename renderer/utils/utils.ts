@@ -32,13 +32,12 @@ export const uploadStatus = {
 
 export const robotState = {
   IDLE: 0,
-  SIMSTR: 'Simulation',
+  IDLESTR: 'Idle',
   AUTONOMOUS: 1,
   AUTOSTR: 'Autonomous',
   TELEOP: 2,
   TELEOPSTR: 'Tele-Operated',
-  ESTOP: 3,
-  ESTOPSTR: 'ESTOP',
+  SIMSTR: 'Simulation',
 };
 
 // TODO: Synchronize this and the above state
@@ -53,8 +52,6 @@ export const runtimeState = {
   3: 'Tele-Operated',
   AUTONOMOUS: 4,
   4: 'Autonomous',
-  ESTOP: 5,
-  5: 'E-Stop',
 };
 
 export const defaults = {

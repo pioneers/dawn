@@ -19,7 +19,6 @@ import { remote, clipboard } from 'electron';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
 
-
 // React-ace extensions and modes
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/ext-searchbox';
@@ -43,6 +42,8 @@ import { pathToName, robotState, timings, logging, windowInfo } from '../utils/u
 const { dialog } = remote;
 const currentWindow = remote.getCurrentWindow();
 
+const FONT_SIZES = [8, 12, 14, 16, 20, 24, 28];
+
 interface StateProps {
   editorTheme: string;
   editorCode: string;  
@@ -57,7 +58,7 @@ interface StateProps {
   consoleUnread: boolean;
 }
 
-interface OwnProps {
+interface DispatchProps {
   onAlertAdd: (heading: string, message: string) => void;
   onEditorUpdate: (newVal: string) => void;
   onSaveFile: (saveAs?: boolean) => void;
@@ -65,7 +66,7 @@ interface OwnProps {
   onOpenFile: () => void; 
   onCreateNewFile: () => void;
   onChangeTheme: (theme: string) => void;
-  onChangeFontsize: (newFontsize: number) => void; 
+  onChangeFontsize: (newFonOwnPropstsize: number) => void; 
   toggleConsole: () => void;
   onClearConsole: () => void;
   onUpdateCodeStatus: (status: number) => void;
@@ -73,7 +74,7 @@ interface OwnProps {
   onUploadCode: () => void;
 }
 
-type Props = StateProps & OwnProps;
+type Props = StateProps & DispatchProps;
 
 interface State {
   consoleHeight: number;
@@ -613,34 +614,10 @@ export class Editor extends React.Component<Props, State> {
                     bsSize="small"
                     id="choose-font-size"
                   >
-                    <MenuItem
+                    {FONT_SIZES.map((fontSize: number) => <MenuItem
                       className="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(8)}
-                    >8</MenuItem>
-                    <MenuItem
-                      className="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(12)}
-                    >12</MenuItem>
-                    <MenuItem
-                      className="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(14)}
-                    >14</MenuItem>
-                    <MenuItem
-                      className="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(16)}
-                    >16</MenuItem>
-                    <MenuItem
-                      className="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(20)}
-                    >20</MenuItem>
-                    <MenuItem
-                      className="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(24)}
-                    >24</MenuItem>
-                    <MenuItem
-                      className="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(28)}
-                    >28</MenuItem>
+                      onClick={() => this.changeFontsizeToFont(fontSize)}
+                    >{fontSize}</MenuItem>)}
                   </DropdownButton>
                 </OverlayTrigger>
               </InputGroup>

@@ -7,6 +7,7 @@ import { StatusLabel } from './StatusLabel';
 import { TooltipButton } from './TooltipButton';
 import { VERSION } from '../consts';
 import { runtimeState } from '../utils/utils';
+import { CheckCodeChallengesModal } from './CheckCodeChallengesModal';
 
 interface StateProps {
   runtimeVersion: string;
@@ -83,7 +84,7 @@ class DNavComponent extends React.Component<Props, State> {
       goldMasterTeamNumber,
       fieldControlStatus,
       startTour } = this.props;
-    const { showConfigModal, showUpdateModal } = this.state;
+    const { showConfigModal, showUpdateModal, showChallengeModal } = this.state;
     
     return (
       <Navbar fixedTop fluid>
@@ -100,6 +101,10 @@ class DNavComponent extends React.Component<Props, State> {
           shouldShow={showConfigModal}
           ipAddress={ipAddress}
           hide={this.toggleConfigModal}
+        />
+        <CheckCodeChallengesModal
+          shouldShow={showChallengeModal}
+          hide={this.toggleChallengeModal}
         />
         <Navbar.Header>
           <Navbar.Brand id="header-title">
