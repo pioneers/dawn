@@ -41,13 +41,13 @@
   },
   "betterScripts": {
     "start": {
-      "command": "mkdir -p ./build/protos && cp ./protos/*.proto ./build/protos && electron build/main.js",
+      "command": "\"mkdir\" -p .\\build\\protos && cp ./protos/*.proto ./build/protos && electron build/main.js",
       "env": {
         "NODE_ENV": "development"
       }
     },
     "build": {
-      "command": "mkdir -p ./build/protos && cp ./protos/*.proto ./build/protos && webpack --mode production --progress",
+      "command": "\"mkdir\" -p .\\build\\protos && cp ./protos/*.proto ./build/protos && webpack --mode production --progress",
       "env": {
         "NODE_ENV": "production"
       }
