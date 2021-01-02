@@ -1,5 +1,6 @@
 {
   "name": "dawn",
+  "productName": "Dawn",
   "version": "2.1.0",
   "description": "Frontend for PIE Robotics System",
   "license": "Apache-2.0",
@@ -14,12 +15,13 @@
     "printWidth": 140,
     "arrowParens": "always",
     "parser": "typescript",
-    "bracketSpacing": true
+    "bracketSpacing": true,
+    "trailingComma": "none"
   },
   "main": "build/main.js",
   "scripts": {
     "start": "better-npm-run start",
-    "build": "rm -rf build && tsc --build",
+    "build": "rm -rf build && better-npm-run build",
     "lint-actions": "eslint renderer/actions/**/*.ts",
     "lint-reducers": "eslint renderer/reducers/**/*.ts",
     "lint-types": "eslint renderer/types/**/*.ts",
@@ -34,7 +36,7 @@
     "build-protos": "pbjs -t static-module -w es6 -o protos/protos.js protos/*.proto && pbts -o protos/protos.d.ts protos/protos.js ",
     "watch": "webpack --mode development --watch --progress",
     "test": "mocha --require babel-core/register --recursive renderer/**/test/*.test.js",
-    "release": "node release.ts",
+    "release": "yarn build && ts-node release.ts",
     "version": "echo $npm_package_version"
   },
   "betterScripts": {
@@ -45,7 +47,7 @@
       }
     },
     "build": {
-      "command": "mkdir -p ./build && cp ./protos/*.proto ./build/protos && webpack --mode production --progress",
+      "command": "mkdir -p ./build/protos && cp ./protos/*.proto ./build/protos && webpack --mode production --progress",
       "env": {
         "NODE_ENV": "production"
       }
@@ -77,15 +79,19 @@
     "better-npm-run": "0.1.0",
     "chai": "4.1.2",
     "css-loader": "^4.3.0",
+    "electron": ">=7.2.4",
     "electron-devtools-installer": "^3.1.1",
-    "electron-packager": "^15.0.0",
+    "electron-packager": "^15.2.0",
+    "eslint": "^7.5.0",
     "eslint-config-airbnb": "16.1.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-loader": "2.0.0",
     "eslint-plugin-import": "2.8.0",
+    "eslint-plugin-jsdoc": "^30.2.1",
     "eslint-plugin-jsx-a11y": "6.0.3",
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-react": "7.5.1",
+    "eslint-plugin-react-hooks": "^4.2.0",
     "file-loader": "^6.1.0",
     "fs-extra": "5.0.0",
     "jszip": "3.1.5",
@@ -103,10 +109,7 @@
     "ace-builds": "^1.4.12",
     "bufferutil": "4.0.1",
     "create-react-class": "15.6.2",
-    "electron": ">=7.2.4",
     "electron-json-storage": "4.0.2",
-    "eslint": "^7.5.0",
-    "eslint-plugin-jsdoc": "^30.2.1",
     "immutable": "3.8.2",
     "json-loader": "0.5.7",
     "keymirror": "0.1.1",
