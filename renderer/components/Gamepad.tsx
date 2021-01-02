@@ -41,7 +41,7 @@ export class Gamepad extends React.Component<Props, State> {
     const gamepadButtons: string[] = [];
   
     for (let i = 0; i < 32; i++) {
-      gamepadButtons.push(numeral(this.props.gamepad.buttons | (1 << i)).format('0'));
+      gamepadButtons.push(numeral((this.props.gamepad.buttons & (1 << i)) >> i).format('0'));
     }
 
     return {
@@ -102,7 +102,7 @@ export class Gamepad extends React.Component<Props, State> {
                 </tr>
                 <tr>
                   <th>Value</th>
-                  {_.range(NUM_GAMEPAD_AXES).map((gamepadButtonAxis: number) => <td>{values.buttons[gamepadButtonAxis]}</td>)}
+                  {_.range(NUM_GAMEPAD_AXES).map((gamepadButtonAxis: number) => <td>{values.axes[gamepadButtonAxis]}</td>)}
                 </tr>
               </tbody>
             </Table>
