@@ -1,63 +1,89 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
+import { OpenDialogReturnValue, remote } from 'electron';
+import React from 'react';
 import {
   Modal,
   Button,
 } from 'react-bootstrap';
-import { remote } from 'electron';
 import { connect } from 'react-redux';
+import { Dispatch } from 'redux';
+import { Client, SFTPWrapper } from 'ssh2';
 import { addAsyncAlert } from '../actions/AlertActions';
-import { pathToName, defaults, logging } from '../utils/utils';
+import { defaults, logging } from '../utils/utils';
 
-const { dialog } = remote;
-const { Client } = require('ssh2');
+interface StateProps {
+  connectionStatus: boolean;
+  runtimeStatus: boolean;
+  masterStatus: boolean;
+  isRunningCode: boolean;
+  ipAddress: string;
+}
 
-function UpdateBox (props) {
+interface DispatchProps {
+  onAlertAdd: (heading: string, message: string) => void;
+}
 
-  const [isUploading, setIsUploading] = useState(false)
-  const [updateFilePath, setUpdateFilePath] = useState('')
+interface OwnProps {
+  shouldShow: boolean;
+  hide: () => void;
+}
 
-  // this.chooseUpdate = this.chooseUpdate.bind(this);
-  // this.upgradeSoftware = this.upgradeSoftware.bind(this);
-  // this.disableUploadUpdate = this.disableUploadUpdate.bind(this);
+type Props = StateProps & DispatchProps & OwnProps;
 
-  const chooseUpdate = () => {
-    dialog.showOpenDialog({
-      filters: [{ name: 'Update Package', extensions: ['gz', 'tar.gz'] }],
-    }, (filepaths) => {
-      if (filepaths === undefined) return;
-      setUpdateFilePath(filepaths[0])
+interface State {
+  isUploading: boolean;
+  updateFilepath: string;
+}
+
+class UpdateBoxContainer extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      isUploading: false,
+      updateFilepath: '',
+    };
+  }
+
+  chooseUpdate = () => {
+    remote.dialog.showOpenDialog({
+      filters: [
+        { name: 'Update Package', extensions: ['zip']}
+      ],
+    }).then((dialogReturn: OpenDialogReturnValue) => {
+      if (dialogReturn.filePaths.length > 0) {
+        this.setState({ updateFilepath: dialogReturn.filePaths[0] });
+      }
     });
   }
 
-  const upgradeSoftware = () => {
-    setIsUploading(true)
-    const update = pathToName(updateFilePath);
+  upgradeSoftware = () => {
+    this.setState({ isUploading: true });
+    const RUNTIME_ZIP_REMOTE_PATH = '/tmp/runtime.zip';
+
     const conn = new Client();
     conn.on('ready', () => {
-      conn.sftp((err, sftp) => {
+      conn.sftp((err: Error | undefined, sftp: SFTPWrapper) => {
         if (err) {
-          logging.log(err);
+          logging.log(err.message);
         } else {
           logging.log('SSH Connection');
           sftp.fastPut(
-            updateFilePath,
-            `./updates/${update}`, (err2) => {
+            this.state.updateFilepath,
+            RUNTIME_ZIP_REMOTE_PATH, (err2: any) => {
               conn.end();
-              setIsUploading(false)
-              props.hide();
+              this.setState({ isUploading: false });
+              this.props.hide();
               if (err2) {
-                props.onAlertAdd(
+                this.props.onAlertAdd(
                   'Robot Connectivity Error',
                   `Dawn was unable to upload the update to the robot.
                   Please check your connectivity, or try restarting the robot.`,
                 );
                 logging.log(err2);
               } else {
-                props.onAlertAdd(
+                this.props.onAlertAdd(
                   'Robot Update Initiated',
                   `Update is installing and Runtime will restart soon.
-                  Please leave your robot on for the next two minutes.`,
+                  Please leave your robot on for the next 1 minute.`,
                 );
               }
             },
@@ -65,22 +91,27 @@ function UpdateBox (props) {
         }
       });
     }).connect({
-      debug: (inpt) => { logging.log(inpt); },
-      host: props.ipAddress,
+      debug: (debugInfo: string) => { logging.log(debugInfo); },
+      host: this.props.ipAddress,
       port: defaults.PORT,
       username: defaults.USERNAME,
       password: defaults.PASSWORD,
     });
   }
 
-  const disableUploadUpdate = () => {
+  disableUploadUpdate = () => {
     return (
-      !(updateFilePath) ||
-      isUploading ||
-      !(props.connectionStatus && props.runtimeStatus) ||
-      props.isRunningCode
+      !this.state.updateFilepath ||
+      this.state.isUploading ||
+      !(this.props.connectionStatus && this.props.runtimeStatus) ||
+      this.props.isRunningCode
     );
   }
+
+  render() {
+    const { shouldShow, hide } = this.props;
+    const { isUploading, updateFilepath } = this.state;
+
     let modalBody = null;
     if (isUploading) {
       modalBody = (
@@ -92,15 +123,15 @@ function UpdateBox (props) {
     } else {
       modalBody = (
         <Modal.Body>
-          <h4>Update Package (tar.gz file)</h4>
-          <h5>{updateFilePath ? updateFilePath : ''}</h5>
-          <Button type="button" onClick={chooseUpdate}>Choose File</Button>
+          <h4>Update Package (.zip file)</h4>
+          <h5>{updateFilepath ? updateFilepath : ''}</h5>
+          <Button type="button" onClick={this.chooseUpdate}>Choose File</Button>
           <br />
         </Modal.Body>
       );
     }
     return (
-      <Modal show={props.shouldShow} onHide={props.hide}>
+      <Modal show={shouldShow} onHide={hide}>
         <Modal.Header closeButton>
           <Modal.Title>Upload Update</Modal.Title>
         </Modal.Header>
@@ -109,32 +140,21 @@ function UpdateBox (props) {
           <Button
             type="button"
             bsStyle="primary"
-            onClick={upgradeSoftware}
-            disabled={disableUploadUpdate()}
+            onClick={this.upgradeSoftware}
+            disabled={this.disableUploadUpdate()}
           >
-            {isUploading? 'Uploading...' : 'Upload Files'}
+            {isUploading ? 'Uploading...' : 'Upload Files'}
           </Button>
         </Modal.Footer>
       </Modal>
     );
+  }
 }
 
-UpdateBox.propTypes = {
-  shouldShow: PropTypes.bool.isRequired,
-  hide: PropTypes.func.isRequired,
-  connectionStatus: PropTypes.bool.isRequired,
-  runtimeStatus: PropTypes.bool.isRequired,
-  isRunningCode: PropTypes.bool.isRequired,
-  ipAddress: PropTypes.string.isRequired,
-  onAlertAdd: PropTypes.func.isRequired,
-};
-
-const mapDispatchToProps = dispatch => ({
-  onAlertAdd: (heading, message) => {
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  onAlertAdd: (heading: string, message: string) => {
     dispatch(addAsyncAlert(heading, message));
   },
 });
 
-const UpdateBoxContainer = connect(null, mapDispatchToProps)(UpdateBox);
-
-export default UpdateBoxContainer;
+export const UpdateBox = connect(null, mapDispatchToProps)(UpdateBoxContainer);
