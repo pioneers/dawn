@@ -4,7 +4,7 @@ import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import _ from 'lodash';
-import { getValidationState, logging } from '../utils/utils';
+import { defaults, getValidationState, logging } from '../utils/utils';
 import { updateFieldControl } from '../actions/FieldActions';
 import { ipChange } from '../actions/InfoActions';
 import storage from 'electron-json-storage';
@@ -61,7 +61,7 @@ class ConfigBoxComponent extends React.Component<Props, State> {
       if (err) {
         logging.log(err);
       } else if (!_.isEmpty(data)) {
-        const ipAddress = (data as { ipAddress: string }).ipAddress;
+        const ipAddress = (data as { ipAddress: string | undefined }).ipAddress ?? defaults.IPADDRESS;
 
         this.props.onIPChange(ipAddress);
         this.setState({
