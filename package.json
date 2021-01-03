@@ -21,7 +21,7 @@
   "main": "build/main.js",
   "scripts": {
     "start": "better-npm-run start",
-    "build": "rm -rf build && better-npm-run build",
+    "build": "rimraf build && better-npm-run build",
     "lint-actions": "eslint renderer/actions/**/*.ts",
     "lint-reducers": "eslint renderer/reducers/**/*.ts",
     "lint-types": "eslint renderer/types/**/*.ts",
@@ -41,13 +41,13 @@
   },
   "betterScripts": {
     "start": {
-      "command": "mkdir -p ./build/protos && cp ./protos/*.proto ./build/protos && electron build/main.js",
+      "command": "mkdirp ./build/protos && cp ./protos/*.proto ./build/protos && electron build/main.js",
       "env": {
         "NODE_ENV": "development"
       }
     },
     "build": {
-      "command": "mkdir -p ./build/protos && cp ./protos/*.proto ./build/protos && webpack --mode production --progress",
+      "command": "mkdirp ./build/protos && cp ./protos/*.proto ./build/protos && webpack --mode production --progress",
       "env": {
         "NODE_ENV": "production"
       }
