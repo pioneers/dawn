@@ -8,6 +8,7 @@ import { updateConsole } from '../../renderer/actions/ConsoleActions';
 import { runtimeDisconnect, infoPerMessage } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { Logger, defaults } from '../../renderer/utils/utils';
+import { Peripheral } from '../../renderer/types';
 
 /**
  * Define port constants, which must match with Runtime
@@ -254,14 +255,13 @@ class UDPConn {
       try {
         RendererBridge.reduxDispatch(infoPerMessage());
         const sensorData: protos.Device[] = protos.DevData.decode(msg).devices;
-        
+        const peripherals: Peripheral[] = [];
+
         sensorData.forEach((device) => {
-          if (device.uid.toString() === '0') {
-            device.uid = 0;
-          }
+          peripherals.push({ ...device, uid: device.uid.toString() });
         });
 
-        RendererBridge.reduxDispatch(updatePeripherals(sensorData));
+        RendererBridge.reduxDispatch(updatePeripherals(peripherals));
       } catch (err) {
         this.logger.log('Error decoding UDP');
         this.logger.log(err);

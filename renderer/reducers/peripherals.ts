@@ -1,6 +1,6 @@
 import * as consts from '../consts';
-import { UpdatePeripheralsAction, PeripheralRenameAction, PeripheralList } from '../types';
-import { Device } from '../../protos/protos';
+import { UpdatePeripheralsAction, PeripheralRenameAction, Peripheral, PeripheralList } from '../types';
+// import { Device } from '../../protos/protos';
 
 type Actions = UpdatePeripheralsAction | PeripheralRenameAction;
 
@@ -30,7 +30,7 @@ export const peripherals = (state: PeripheralState = initialPeripheralState, act
     case consts.PeripheralActionsTypes.UPDATE_PERIPHERALS: {
       const keys: string[] = [];
 
-      (action.peripherals ?? []).forEach((peripheral: Device) => {
+      (action.peripherals ?? []).forEach((peripheral: Peripheral) => {
         if (peripheral.name === consts.PeripheralTypes.BatteryBuzzer) {
           const batteryParams = peripheral.params;
           if (batteryParams[IS_UNSAFE] && batteryParams[IS_UNSAFE].bval) {
@@ -39,11 +39,11 @@ export const peripherals = (state: PeripheralState = initialPeripheralState, act
           if (batteryParams[V_BATT] && batteryParams[V_BATT].fval) {
             nextState.batteryLevel = batteryParams[V_BATT].fval!;
           }
-        } else if (peripheral.uid === -1) {
-          // const version = peripheral.params;
-          // nextState.runtimeVersion = `${version['major']}.${version['minor']}.${version['patch']}`;
         } else {
-          const key =  typeof peripheral.uid === 'number' ? peripheral.uid.toString() : (peripheral.uid.high || '').toString() + peripheral.uid.low.toString();
+          const key = `${peripheral.type}_${peripheral.uid}`;
+          // console.log('typeof peripheral uid', typeof peripheral.uid, 'peripheral.uid', peripheral.uid);
+          // const key = typeof peripheral.uid === 'number' ? peripheral.uid.toString() : peripheral.uid.toString();
+          console.log('key', key);
           keys.push(key);
           if (key in nextPeripherals) {
             peripheral.name = nextPeripherals[key].name; // ensures that the device keeps the name, if it was a custom name
