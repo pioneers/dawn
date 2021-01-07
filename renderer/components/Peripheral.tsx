@@ -18,7 +18,7 @@ interface OwnProps {
   key: string;
   uid: string;
   name: string;
-  type: string;
+  type: number;
   params: Param[];
 }
 

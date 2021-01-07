@@ -41,10 +41,8 @@ export const peripherals = (state: PeripheralState = initialPeripheralState, act
           }
         } else {
           const key = `${peripheral.type}_${peripheral.uid}`;
-          // console.log('typeof peripheral uid', typeof peripheral.uid, 'peripheral.uid', peripheral.uid);
-          // const key = typeof peripheral.uid === 'number' ? peripheral.uid.toString() : peripheral.uid.toString();
-          console.log('key', key);
           keys.push(key);
+
           if (key in nextPeripherals) {
             peripheral.name = nextPeripherals[key].name; // ensures that the device keeps the name, if it was a custom name
           }
