@@ -258,6 +258,10 @@ class UDPConn {
         const peripherals: Peripheral[] = [];
 
         sensorData.forEach((device) => {
+          if (device.type.toString() === '0') {
+            device.type = 0;
+          }
+
           peripherals.push({ ...device, uid: device.uid.toString() });
         });
 
