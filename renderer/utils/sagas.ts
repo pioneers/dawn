@@ -272,7 +272,6 @@ function* runtimeGamepads() {
       if (_.some(newGamepads) || Date.now() - timestamp > 100) {
         timestamp = Date.now();
         yield put({ type: 'UPDATE_MAIN_PROCESS' });
-        yield put({ type: 'EXPORT_RUN_MODE' });
       }
     }
 
@@ -565,16 +564,6 @@ function timestampBounceback() {
 }
 
 /**
- * Sends run mode status upon each main process update.
- */
-function* exportRunMode() {
-  const stateSlice = yield select((state: any) => ({
-    mode: state.info.studentCodeStatus,
-  }));
-  ipcRenderer.send('runModeUpdate', stateSlice);
-}
-
-/**
  * The root saga combines all the other sagas together into one.
  */
 export default function* rootSaga() {
@@ -589,7 +578,6 @@ export default function* rootSaga() {
     takeEvery('UPLOAD_CODE', uploadStudentCode),
     takeEvery('TOGGLE_FIELD_CONTROL', handleFieldControl),
     takeEvery('TIMESTAMP_CHECK', timestampBounceback),
-    takeEvery('EXPORT_RUN_MODE', exportRunMode),
     fork(runtimeHeartbeat),
     fork(runtimeGamepads),
     fork(runtimeSaga),

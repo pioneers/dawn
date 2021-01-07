@@ -103,13 +103,20 @@ class TCPConn {
       if (!this.socket.connecting && this.socket.pending) {
         console.log('Trying to TCP connect to ', runtimeIP);
         if (runtimeIP !== defaults.IPADDRESS) {
-          this.socket.connect(TCP_PORT, runtimeIP, () => {
-            this.logger.log('Runtime connected');
-            this.socket.write(new Uint8Array([1])); // Runtime needs first byte to be 1 to recognize client as Dawn (instead of Shepherd)
-          })
+          this.socket.connect(TCP_PORT, runtimeIP)
         }
       }
     }, 1000);
+
+    this.socket.on('connect', () => {
+      this.logger.log('Runtime connected');
+      this.socket.write(new Uint8Array([1])); // Runtime needs first byte to be 1 to recognize client as Dawn (instead of Shepherd)
+    });
+
+    this.socket.on('timeout', () => {
+      this.logger.log('TCP socket timeout');
+      this.socket.end();
+    });
 
     this.socket.on('end', () => {
       this.logger.log('Runtime disconnected');
@@ -126,7 +133,6 @@ class TCPConn {
      */
     this.socket.on('data', (data) => {
       const message = readPacket(data);
-      this.logger.log(`Dawn received TCP Packet ${message.messageType}`);
       let decoded: protos.Text;
 
       switch (message.messageType) {
