@@ -283,16 +283,16 @@ class UDPConn {
    * Sends messages when Gamepad information changes
    * or when 100 ms has passed (with 50 ms cooldown)
    */
-  sendGamepadMessages = (_event: IpcMainEvent, data: protos.GpState[]) => {
+  sendGamepadMessages = (_event: IpcMainEvent, data: protos.Input[]) => {
     if (data.length === 0) {
       data.push(
-        protos.GpState.create({
+        protos.Input.create({
           connected: false,
         })
       );
     }
 
-    const message = protos.GpState.encode(data[0]).finish();
+    const message = protos.UserInputs.encode(data).finish();
     this.logger.debug(`Dawn sent UDP to ${runtimeIP}`);
     this.socket.send(message, UDP_SEND_PORT, runtimeIP);
   };
