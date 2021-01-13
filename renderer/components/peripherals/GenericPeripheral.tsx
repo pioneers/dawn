@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import React from 'react';
 import _ from 'lodash';
 import { Peripheral } from '../../types';
@@ -11,7 +10,7 @@ interface ParamComponentProps {
 
 const generateParamValue = (param: Param) => {
   const precisionLimit = 5;
-  let value: boolean | number | string = 0;
+  let value: boolean | number | string;
 
   switch (Param.fromObject(param).val) {
     case 'bval':
@@ -23,11 +22,16 @@ const generateParamValue = (param: Param) => {
     case 'ival':
       value = param.ival;
       break;
+    default:
+      value = 0;
   }
 
   return String(value);
 };
 
+/**
+ * Param component that memoizes the display of a param value and will only rerender if the underlying data is different.
+ */
 const ParamComponent = React.memo(
   (props: ParamComponentProps) => (
     <div key={`${props.param.name}-${props.uid}-Overall`}>
@@ -36,7 +40,7 @@ const ParamComponent = React.memo(
       </h4>
     </div>
   ),
-  (oldProps, newProps) => _.isEqual(oldProps, newProps)
+  (prevProps, nextProps) => _.isEqual(prevProps, nextProps)
 );
 
 /**
