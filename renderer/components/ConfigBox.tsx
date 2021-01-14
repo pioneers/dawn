@@ -149,7 +149,7 @@ class ConfigBoxComponent extends React.Component<Props, State> {
     const { ipAddress, fcAddress, stationNumber } = this.state;
 
     return (
-      <Modal show={shouldShow} onHide={this.handleClose}>
+      <Modal show={shouldShow} onHide={this.handleClose} animation={false}>
         <Form action="" onSubmit={this.saveChanges}>
           <Modal.Header closeButton>
             <Modal.Title>Dawn Configuration</Modal.Title>
