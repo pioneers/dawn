@@ -2,7 +2,7 @@
  * Defines the Help menu
  */
 import RendererBridge from '../RendererBridge';
-import showAPI from '../main-process';
+import {showAPI, showVideo} from '../main-process';
 import { MenuItemConstructorOptions } from 'electron';
 
 const HelpMenu: MenuItemConstructorOptions = {
@@ -24,6 +24,13 @@ const HelpMenu: MenuItemConstructorOptions = {
       },
       accelerator: 'CommandOrControl+P',
     },
+    {
+      label: 'Video Feed',
+      click() {
+        showVideo();
+      },
+      accelerator: 'CommandOrControl+V'
+    }
   ],
 };
 

@@ -40,7 +40,8 @@ function teardownFC(_event: any) { // eslint-disable-line no-unused-vars
   }
 }
 
-export default function showAPI() {
+export function showAPI() {
+  console.log("API started")
   let api: BrowserWindow | null = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
@@ -56,6 +57,29 @@ export default function showAPI() {
   api.once('ready-to-show', () => {
     if (api) {
       api.show();
+    }
+  });
+}
+
+export function showVideo() {
+  console.log("video initialized");
+  let videoWindow: BrowserWindow | null = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,
+    },
+    width: 1400,
+    height: 900,
+    show: false,
+  });
+  videoWindow.on('closed', () => {
+    videoWindow = null;
+  });
+  console.log("Entering URL");
+  videoWindow.loadURL(`file://${__dirname}/../static/video-feed/video-feed.html`);
+  console.log("exited URL");
+  videoWindow.once('ready-to-show', () => {
+    if (videoWindow) {
+      videoWindow.show();
     }
   });
 }
