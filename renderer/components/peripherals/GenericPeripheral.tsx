@@ -8,11 +8,14 @@ interface ParamComponentProps {
   param: Param;
 }
 
-const generateParamValue = (param: Param) => {
+const getParamValue = (param: Param) => {
   const precisionLimit = 5;
+  // By default, the val property the `param` argument isn't defined even though it is typecasted to Param.
+  // To fix this, we explicity run Param.fromObject with the `param` argument.
+  const paramVal = Param.fromObject(param).val;
   let value: boolean | number | string;
 
-  switch (Param.fromObject(param).val) {
+  switch (paramVal) {
     case 'bval':
       value = Boolean(param.bval);
       break;
@@ -36,7 +39,7 @@ const ParamComponent = React.memo(
   (props: ParamComponentProps) => (
     <div key={`${props.param.name}-${props.uid}-Overall`}>
       <h4 style={{ clear: 'right', float: 'right', height: '10px' }} key={`${props.param.name}-${props.uid}`}>
-        {`${props.param.name}: ${generateParamValue(props.param)}`}
+        {`${props.param.name}: ${getParamValue(props.param)}`}
       </h4>
     </div>
   ),
