@@ -1,6 +1,5 @@
 import * as consts from '../consts';
 import { UpdatePeripheralsAction, PeripheralRenameAction, Peripheral, PeripheralList } from '../types';
-// import { Device } from '../../protos/protos';
 
 type Actions = UpdatePeripheralsAction | PeripheralRenameAction;
 
@@ -19,8 +18,8 @@ const initialPeripheralState: PeripheralState = {
 };
 
 // Taken from runtime_util.c in Runtime repo
-const IS_UNSAFE: number = 0;
-const V_BATT: number = 5;
+const IS_UNSAFE = 0;
+const V_BATT = 5;
 
 // TODO: Handle runtimeVersion since no longer sent
 export const peripherals = (state: PeripheralState = initialPeripheralState, action: Actions) => {
