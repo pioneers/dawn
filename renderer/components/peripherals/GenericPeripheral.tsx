@@ -10,7 +10,7 @@ interface ParamComponentProps {
 
 const getParamValue = (param: Param) => {
   const precisionLimit = 5;
-  // By default, the val property the `param` argument isn't defined even though it is typecasted to Param.
+  // By default, the val property that should be in the `param` argument isn't defined even though it is typecasted to Param.
   // To fix this, we explicity run Param.fromObject with the `param` argument.
   const paramVal = Param.fromObject(param).val;
   let value: boolean | number | string;
