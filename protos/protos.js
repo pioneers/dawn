@@ -104,13 +104,13 @@ export const Param = $root.Param = (() => {
     Param.encode = function encode(message, writer) {
         if (!writer)
             writer = $Writer.create();
-        if (message.name != null && message.hasOwnProperty("name"))
+        if (message.name != null && Object.hasOwnProperty.call(message, "name"))
             writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
-        if (message.fval != null && message.hasOwnProperty("fval"))
+        if (message.fval != null && Object.hasOwnProperty.call(message, "fval"))
             writer.uint32(/* id 2, wireType 5 =*/21).float(message.fval);
-        if (message.ival != null && message.hasOwnProperty("ival"))
+        if (message.ival != null && Object.hasOwnProperty.call(message, "ival"))
             writer.uint32(/* id 3, wireType 0 =*/24).int32(message.ival);
-        if (message.bval != null && message.hasOwnProperty("bval"))
+        if (message.bval != null && Object.hasOwnProperty.call(message, "bval"))
             writer.uint32(/* id 4, wireType 0 =*/32).bool(message.bval);
         return writer;
     };
@@ -375,11 +375,11 @@ export const Device = $root.Device = (() => {
     Device.encode = function encode(message, writer) {
         if (!writer)
             writer = $Writer.create();
-        if (message.name != null && message.hasOwnProperty("name"))
+        if (message.name != null && Object.hasOwnProperty.call(message, "name"))
             writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
-        if (message.uid != null && message.hasOwnProperty("uid"))
+        if (message.uid != null && Object.hasOwnProperty.call(message, "uid"))
             writer.uint32(/* id 2, wireType 0 =*/16).uint64(message.uid);
-        if (message.type != null && message.hasOwnProperty("type"))
+        if (message.type != null && Object.hasOwnProperty.call(message, "type"))
             writer.uint32(/* id 3, wireType 0 =*/24).int32(message.type);
         if (message.params != null && message.params.length)
             for (let i = 0; i < message.params.length; ++i)
@@ -789,20 +789,6 @@ export const DevData = $root.DevData = (() => {
     return DevData;
 })();
 
-/**
- * Source enum.
- * @exports Source
- * @enum {string}
- * @property {number} GAMEPAD=0 GAMEPAD value
- * @property {number} KEYBOARD=1 KEYBOARD value
- */
-$root.Source = (function() {
-    const valuesById = {}, values = Object.create(valuesById);
-    values[valuesById[0] = "GAMEPAD"] = 0;
-    values[valuesById[1] = "KEYBOARD"] = 1;
-    return values;
-})();
-
 export const Input = $root.Input = (() => {
 
     /**
@@ -887,9 +873,9 @@ export const Input = $root.Input = (() => {
     Input.encode = function encode(message, writer) {
         if (!writer)
             writer = $Writer.create();
-        if (message.connected != null && message.hasOwnProperty("connected"))
+        if (message.connected != null && Object.hasOwnProperty.call(message, "connected"))
             writer.uint32(/* id 1, wireType 0 =*/8).bool(message.connected);
-        if (message.buttons != null && message.hasOwnProperty("buttons"))
+        if (message.buttons != null && Object.hasOwnProperty.call(message, "buttons"))
             writer.uint32(/* id 2, wireType 1 =*/17).fixed64(message.buttons);
         if (message.axes != null && message.axes.length) {
             writer.uint32(/* id 3, wireType 2 =*/26).fork();
@@ -897,7 +883,7 @@ export const Input = $root.Input = (() => {
                 writer.float(message.axes[i]);
             writer.ldelim();
         }
-        if (message.source != null && message.hasOwnProperty("source"))
+        if (message.source != null && Object.hasOwnProperty.call(message, "source"))
             writer.uint32(/* id 4, wireType 0 =*/32).int32(message.source);
         return writer;
     };
@@ -1318,16 +1304,30 @@ export const UserInputs = $root.UserInputs = (() => {
 })();
 
 /**
+ * Source enum.
+ * @exports Source
+ * @enum {number}
+ * @property {number} GAMEPAD=0 GAMEPAD value
+ * @property {number} KEYBOARD=1 KEYBOARD value
+ */
+export const Source = $root.Source = (() => {
+    const valuesById = {}, values = Object.create(valuesById);
+    values[valuesById[0] = "GAMEPAD"] = 0;
+    values[valuesById[1] = "KEYBOARD"] = 1;
+    return values;
+})();
+
+/**
  * Mode enum.
  * @exports Mode
- * @enum {string}
+ * @enum {number}
  * @property {number} IDLE=0 IDLE value
  * @property {number} AUTO=1 AUTO value
  * @property {number} TELEOP=2 TELEOP value
  * @property {number} ESTOP=3 ESTOP value
  * @property {number} CHALLENGE=4 CHALLENGE value
  */
-$root.Mode = (function() {
+export const Mode = $root.Mode = (() => {
     const valuesById = {}, values = Object.create(valuesById);
     values[valuesById[0] = "IDLE"] = 0;
     values[valuesById[1] = "AUTO"] = 1;
@@ -1393,7 +1393,7 @@ export const RunMode = $root.RunMode = (() => {
     RunMode.encode = function encode(message, writer) {
         if (!writer)
             writer = $Writer.create();
-        if (message.mode != null && message.hasOwnProperty("mode"))
+        if (message.mode != null && Object.hasOwnProperty.call(message, "mode"))
             writer.uint32(/* id 1, wireType 0 =*/8).int32(message.mode);
         return writer;
     };
@@ -1555,11 +1555,11 @@ export const RunMode = $root.RunMode = (() => {
 /**
  * Pos enum.
  * @exports Pos
- * @enum {string}
+ * @enum {number}
  * @property {number} LEFT=0 LEFT value
  * @property {number} RIGHT=1 RIGHT value
  */
-$root.Pos = (function() {
+export const Pos = $root.Pos = (() => {
     const valuesById = {}, values = Object.create(valuesById);
     values[valuesById[0] = "LEFT"] = 0;
     values[valuesById[1] = "RIGHT"] = 1;
@@ -1622,7 +1622,7 @@ export const StartPos = $root.StartPos = (() => {
     StartPos.encode = function encode(message, writer) {
         if (!writer)
             writer = $Writer.create();
-        if (message.pos != null && message.hasOwnProperty("pos"))
+        if (message.pos != null && Object.hasOwnProperty.call(message, "pos"))
             writer.uint32(/* id 1, wireType 0 =*/8).int32(message.pos);
         return writer;
     };

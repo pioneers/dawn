@@ -308,14 +308,20 @@ export class DevData implements IDevData {
     public toJSON(): { [k: string]: any };
 }
 
-/** Source enum. */
-namespace Source {
+/** Properties of an Input. */
+export interface IInput {
 
-    /** GAMEPAD value */
-    let GAMEPAD: number;
+    /** Input connected */
+    connected?: (boolean|null);
 
-    /** KEYBOARD value */
-    let KEYBOARD: number;
+    /** Input buttons */
+    buttons?: (number|Long|null);
+
+    /** Input axes */
+    axes?: (number[]|null);
+
+    /** Input source */
+    source?: (Source|null);
 }
 
 /** Represents an Input. */
@@ -410,6 +416,13 @@ export class Input implements IInput {
     public toJSON(): { [k: string]: any };
 }
 
+/** Properties of a UserInputs. */
+export interface IUserInputs {
+
+    /** UserInputs inputs */
+    inputs?: (IInput[]|null);
+}
+
 /** Represents a UserInputs. */
 export class UserInputs implements IUserInputs {
 
@@ -493,23 +506,19 @@ export class UserInputs implements IUserInputs {
     public toJSON(): { [k: string]: any };
 }
 
+/** Source enum. */
+export enum Source {
+    GAMEPAD = 0,
+    KEYBOARD = 1
+}
+
 /** Mode enum. */
-namespace Mode {
-
-    /** IDLE value */
-    let IDLE: number;
-
-    /** AUTO value */
-    let AUTO: number;
-
-    /** TELEOP value */
-    let TELEOP: number;
-
-    /** ESTOP value */
-    let ESTOP: number;
-
-    /** CHALLENGE value */
-    let CHALLENGE: number;
+export enum Mode {
+    IDLE = 0,
+    AUTO = 1,
+    TELEOP = 2,
+    ESTOP = 3,
+    CHALLENGE = 4
 }
 
 /** Represents a RunMode. */
@@ -596,13 +605,9 @@ export class RunMode implements IRunMode {
 }
 
 /** Pos enum. */
-namespace Pos {
-
-    /** LEFT value */
-    let LEFT: number;
-
-    /** RIGHT value */
-    let RIGHT: number;
+export enum Pos {
+    LEFT = 0,
+    RIGHT = 1
 }
 
 /** Represents a StartPos. */
