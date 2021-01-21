@@ -521,6 +521,13 @@ export enum Mode {
     CHALLENGE = 4
 }
 
+/** Properties of a RunMode. */
+export interface IRunMode {
+
+    /** RunMode mode */
+    mode?: (Mode|null);
+}
+
 /** Represents a RunMode. */
 export class RunMode implements IRunMode {
 
@@ -610,6 +617,13 @@ export enum Pos {
     RIGHT = 1
 }
 
+/** Properties of a StartPos. */
+export interface IStartPos {
+
+    /** StartPos pos */
+    pos?: (Pos|null);
+}
+
 /** Represents a StartPos. */
 export class StartPos implements IStartPos {
 
@@ -691,6 +705,13 @@ export class StartPos implements IStartPos {
      * @returns JSON object
      */
     public toJSON(): { [k: string]: any };
+}
+
+/** Properties of a Text. */
+export interface IText {
+
+    /** Text payload */
+    payload?: (string[]|null);
 }
 
 /** Represents a Text. */
