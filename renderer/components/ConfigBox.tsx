@@ -1,10 +1,10 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button, FormGroup, Form, FormControl, ControlLabel } from 'react-bootstrap';
 import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import _ from 'lodash';
-import { getValidationState, logging } from '../utils/utils';
+import { defaults, getValidationState, logging } from '../utils/utils';
 import { updateFieldControl } from '../actions/FieldActions';
 import { ipChange } from '../actions/InfoActions';
 import storage from 'electron-json-storage';
@@ -32,23 +32,14 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps;
 
-// interface State {
-//   ipAddress: string;
-//   fcAddress: string;
-//   stationNumber: number;
-//   originalIPAddress: string;
-//   originalStationNumber: number;
-//   originalFCAddress: string;
-// }
-
-function ConfigBoxComponent(props : Props){
-  const [ipAddress,setIPAddress] = useState(props.ipAddress);
-  const [fcAddress,setFCAddress] = useState(props.fcAddress);
+export const ConfigBoxComponent = (props: Props) => {
+  const [ipAddress, setIPAddress] = useState(props.ipAddress);
+  const [fcAddress, setFCAddress] = useState(props.fcAddress);
   const [stationNumber, setStationNumber] = useState(props.stationNumber);
   const [originalIPAddress, setOriginalIPAddress] = useState(props.ipAddress);
   const [originalStationNumber, setOriginalStationNumber] = useState(props.stationNumber);
   const [originalFCAddress, setOriginalFCAddress] = useState(props.fcAddress);
-  
+
   const saveChanges = (e: React.FormEvent<Form>) => {
     e.preventDefault();
 
@@ -65,7 +56,7 @@ function ConfigBoxComponent(props : Props){
     props.onFCUpdate(newConfig);
     setOriginalStationNumber(stationNumber);
     setOriginalFCAddress(fcAddress);
-    
+
     storage.set('fieldControl', newConfig, (err: any) => {
       if (err) logging.log(err);
     });
@@ -75,15 +66,15 @@ function ConfigBoxComponent(props : Props){
   };
 
   const handleIpChange = (e: React.FormEvent<FormControl & HTMLInputElement>) => {
-    setIPAddress( e.currentTarget.value );
+    setIPAddress(e.currentTarget.value);
   };
 
-  const handleFcChange = (e: React.FormEvent<FormControl& HTMLInputElement>) => {
-    setFCAddress( e.currentTarget.value );
+  const handleFcChange = (e: React.FormEvent<FormControl & HTMLInputElement>) => {
+    setFCAddress(e.currentTarget.value);
   };
 
   const handleStationChange = (e: React.FormEvent<FormControl & HTMLInputElement>) => {
-    setStationNumber(parseInt(e.currentTarget.value) );
+    setStationNumber(parseInt(e.currentTarget.value));
   };
 
   const handleClose = () => {
@@ -95,18 +86,16 @@ function ConfigBoxComponent(props : Props){
 
   const disableUploadUpdate = () => {
     return (
-      getValidationState(ipAddress) === 'error' ||
-      getValidationState(fcAddress) === 'error' ||
-      (stationNumber < 0 && stationNumber > 4)
+      getValidationState(ipAddress) === 'error' || getValidationState(fcAddress) === 'error' || (stationNumber < 0 && stationNumber > 4)
     );
   };
 
-  useEffect( () => {
+  useEffect(() => {
     storage.get('ipAddress', (err: any, data: object) => {
       if (err) {
         logging.log(err);
       } else if (!_.isEmpty(data)) {
-        const ipAddress = (data as { ipAddress: string }).ipAddress;
+        const ipAddress = (data as { ipAddress: string | undefined }).ipAddress ?? defaults.IPADDRESS;
 
         props.onIPChange(ipAddress);
         setIPAddress(ipAddress);
@@ -130,7 +119,7 @@ function ConfigBoxComponent(props : Props){
   const { shouldShow } = props;
 
   return (
-    <Modal show={shouldShow} onHide={handleClose}>
+    <Modal show={shouldShow} onHide={handleClose} animation={false}>
       <Form action="" onSubmit={saveChanges}>
         <Modal.Header closeButton>
           <Modal.Title>Dawn Configuration</Modal.Title>
@@ -166,157 +155,8 @@ function ConfigBoxComponent(props : Props){
         </Modal.Footer>
       </Form>
     </Modal>
-    );
-  }
-
-
-// class ConfigBoxComponent extends React.Component<Props, State> {
-//   constructor(props: Props) {
-//     super(props);
-
-//     this.state = {
-//       ipAddress: this.props.ipAddress,
-//       fcAddress: this.props.fcAddress,
-//       stationNumber: this.props.stationNumber,
-//       originalIPAddress: this.props.ipAddress,
-//       originalStationNumber: this.props.stationNumber,
-//       originalFCAddress: this.props.fcAddress,
-//     };
-//   }
-
-  // componentDidMount() {
-  //   /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types */
-  //   storage.get('ipAddress', (err: any, data: object) => {
-  //     if (err) {
-  //       logging.log(err);
-  //     } else if (!_.isEmpty(data)) {
-  //       const ipAddress = (data as { ipAddress: string }).ipAddress;
-
-  //       this.props.onIPChange(ipAddress);
-  //       this.setState({
-  //         ipAddress: ipAddress,
-  //         originalIPAddress: ipAddress,
-  //       });
-  //     }
-  //   });
-
-  //   storage.get('fieldControl', (err: any, data: object) => {
-  //     if (err) {
-  //       logging.log(err);
-  //     } else if (!_.isEmpty(data)) {
-  //       const { bridgeAddress, stationNumber } = data as Config;
-
-  //       this.setState({
-  //         fcAddress: bridgeAddress,
-  //         originalFCAddress: bridgeAddress,
-  //         stationNumber: stationNumber,
-  //         originalStationNumber: stationNumber,
-  //       });
-  //     }
-  //   });
-  // }
-
-//   saveChanges = (e: React.FormEvent<Form>) => {
-//     e.preventDefault();
-
-//     const { ipAddress } = this.state;
-
-//     this.props.onIPChange(ipAddress);
-//     this.setState({ originalIPAddress: ipAddress });
-//     storage.set('ipAddress', { ipAddress: this.state.ipAddress }, (err: any) => {
-//       if (err) logging.log(err);
-//     });
-
-//     const newConfig = {
-//       stationNumber: this.state.stationNumber,
-//       bridgeAddress: this.state.fcAddress,
-//     };
-//     this.props.onFCUpdate(newConfig);
-//     this.setState({
-//       originalStationNumber: this.state.stationNumber,
-//       originalFCAddress: this.state.fcAddress,
-//     });
-//     storage.set('fieldControl', newConfig, (err: any) => {
-//       if (err) logging.log(err);
-//     });
-//     ipcRenderer.send('FC_CONFIG_CHANGE', newConfig);
-
-//     this.props.hide();
-//   };
-
-//   handleIpChange = (e: React.FormEvent<FormControl & HTMLInputElement>) => {
-//     this.setState({ ipAddress: e.currentTarget.value });
-//   };
-
-//   handleFcChange = (e: React.FormEvent<FormControl& HTMLInputElement>) => {
-//     this.setState({ fcAddress: e.currentTarget.value });
-//   };
-
-//   handleStationChange = (e: React.FormEvent<FormControl & HTMLInputElement>) => {
-//     this.setState({ stationNumber: parseInt(e.currentTarget.value) });
-//   };
-
-//   handleClose = () => {
-//     this.setState({
-//       ipAddress: this.state.originalIPAddress,
-//       stationNumber: this.state.originalStationNumber,
-//       fcAddress: this.state.originalFCAddress,
-//     });
-//     this.props.hide();
-//   };
-
-//   disableUploadUpdate = () => {
-//     return (
-//       getValidationState(this.state.ipAddress) === 'error' ||
-//       getValidationState(this.state.fcAddress) === 'error' ||
-//       (this.state.stationNumber < 0 && this.state.stationNumber > 4)
-//     );
-//   };
-
-//   render() {
-//     const { shouldShow } = this.props;
-//     const { ipAddress, fcAddress, stationNumber } = this.state;
-
-//     return (
-//       <Modal show={shouldShow} onHide={this.handleClose}>
-//         <Form action="" onSubmit={this.saveChanges}>
-//           <Modal.Header closeButton>
-//             <Modal.Title>Dawn Configuration</Modal.Title>
-//           </Modal.Header>
-//           <Modal.Body>
-//             <p>
-//               Make sure only one computer (running instance of Dawn) is attempting to connect to the robot at a time! (i.e. not trying to
-//               connect to the same IP Address)
-//             </p>
-//             <FormGroup controlId="ipAddress" validationState={getValidationState(ipAddress)}>
-//               <ControlLabel>IP Address</ControlLabel>
-//               <FormControl type="text" value={ipAddress} placeholder="i.e. 192.168.100.13" onChange={this.handleIpChange} />
-//               <FormControl.Feedback />
-//             </FormGroup>
-
-//             <p>Field Control Settings</p>
-//             <FormGroup controlId="fcAddress" validationState={getValidationState(fcAddress)}>
-//               <ControlLabel>Field Control IP Address</ControlLabel>
-//               <FormControl type="text" value={fcAddress} placeholder="i.e. 192.168.100.13" onChange={this.handleFcChange} />
-//               <FormControl.Feedback />
-//             </FormGroup>
-
-//             <FormGroup controlId="stationNumber" validationState={stationNumber >= 0 && stationNumber <= 4 ? 'success' : 'error'}>
-//               <ControlLabel>Field Control Station Number</ControlLabel>
-//               <FormControl type="number" value={stationNumber} placeholder="An integer from 0 to 4" onChange={this.handleStationChange} />
-//               <FormControl.Feedback />
-//             </FormGroup>
-//           </Modal.Body>
-//           <Modal.Footer>
-//             <Button type="submit" bsStyle="primary" disabled={this.disableUploadUpdate()}>
-//               Update
-//             </Button>
-//           </Modal.Footer>
-//         </Form>
-//       </Modal>
-//     );
-//   }
-// }
+  );
+};
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   onIPChange: (ipAddress: string) => {
