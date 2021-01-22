@@ -3,20 +3,20 @@ import { Panel, ListGroup } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import { Gamepad } from './Gamepad';
-import { GpState } from '../../protos/protos';
+import { Input } from '../../protos/protos';
 
 interface StateProps {
-  gamepads: GpState[] | undefined;
+  gamepads: Input[] | undefined;
 }
 
 type Props = StateProps;
 
 const GamepadListComponent = (props: Props) => {
   let interior;
-  if (_.some(props.gamepads, (gamepad: GpState) => gamepad !== undefined)) {
+  if (_.some(props.gamepads, (gamepad: Input) => gamepad !== undefined)) {
     interior = _.map(
       props.gamepads,
-      (gamepad: GpState, index: string) => <Gamepad key={index} index={parseInt(index, 10)} gamepad={gamepad} />,
+      (gamepad: Input, index: string) => <Gamepad key={index} index={parseInt(index, 10)} gamepad={gamepad} />,
     );
   } else {
     interior = (

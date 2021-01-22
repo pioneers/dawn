@@ -292,7 +292,7 @@ class UDPConn {
       );
     }
 
-    const message = protos.UserInputs.encode(data).finish();
+    const message = protos.UserInputs.encode({inputs: data}).finish();
     this.logger.debug(`Dawn sent UDP to ${runtimeIP}`);
     this.socket.send(message, UDP_SEND_PORT, runtimeIP);
   };
