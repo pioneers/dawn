@@ -81,7 +81,7 @@ if (process.env.NODE_ENV === 'development') {
       if (fakeRuntime) {
         killFakeRuntime();
       } else {
-        fakeRuntime = fork('./fake-runtime/FakeRuntime');
+        fakeRuntime = fork('./fake-runtime/FakeRuntime.ts', [], { execArgv: ['-r', 'ts-node/register']});
       }
     },
   });

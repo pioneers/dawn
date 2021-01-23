@@ -1,11 +1,10 @@
 import React from 'react';
 import _ from 'lodash';
-import { connect } from 'react-redux';
 import { Panel, PanelGroup, ListGroup } from 'react-bootstrap';
 import { PeripheralTypes } from '../consts';
-import { Peripheral } from './Peripheral';
-import { Device } from '../../protos/protos';
-import { PeripheralList } from '../types';
+import { Peripheral as PeripheralComponent } from './Peripheral';
+import { Peripheral, PeripheralList } from '../types';
+import { connect } from 'react-redux';
 
 const cleanerNames = {};
 cleanerNames[PeripheralTypes.MOTOR_SCALAR] = 'Motors';
@@ -23,28 +22,32 @@ cleanerNames[PeripheralTypes.GameValues] = 'Game Values';
 cleanerNames[PeripheralTypes.PolarBear] = 'Polar Bear';
 cleanerNames[PeripheralTypes.KoalaBear] = 'Koala Bear';
 
-const filter = new Set();
+// const filter = new Set();
 
-interface StateProps {
+interface OwnProps {
   connectionStatus: boolean;
   runtimeStatus: boolean;
+}
+
+interface StateProps {
   peripheralList: PeripheralList;
 }
 
-const handleAccordion = (devices: Device[]) => {
-  const peripheralGroups: { [peripheralName: string]: Device[] } = {};
+const handleAccordion = (devices: Peripheral[]) => {
+  const peripheralGroups: { [peripheralName: string]: Peripheral[] } = {};
 
   // Filter and group peripherals by name (type)
   devices
-    .filter((p: Device) => !filter.has(p.uid))
-    .forEach((p) => {
-      const group: Device[] = peripheralGroups[p.name] ?? [];
-      group.push(p);
-      peripheralGroups[p.name] = group;
+    // .filter((p: Peripheral) => !filter.has(p.uid))
+    .forEach((peripheral) => {
+      const group: Peripheral[] = peripheralGroups[peripheral.name] ?? [];
+      group.push(peripheral);
+      peripheralGroups[peripheral.name] = group;
     });
 
+
   return Object.keys(peripheralGroups).map((groupName: string) => {
-    const groupNameCleaned = cleanerNames[groupName] as string;
+    const groupNameCleaned = groupName; //cleanerNames[groupName] as string;
 
     return (
       <PanelGroup
@@ -56,17 +59,17 @@ const handleAccordion = (devices: Device[]) => {
         <Panel key={`${groupNameCleaned || 'Default'}-Panel`} defaultExpanded>
           <Panel.Heading>
             <Panel.Title toggle style={{ fontWeight: 'bold' }}>
-              {cleanerNames[groupName] || 'Generic'}
+              {groupName || 'Generic'}
             </Panel.Title>
           </Panel.Heading>
           <Panel.Collapse>
             <Panel.Body style={{ padding: '10px' }}>
               {_.map(peripheralGroups[groupName], (peripheral) => (
-                <Peripheral
+                <PeripheralComponent
                   key={String(peripheral.uid)}
-                  id={String(peripheral.uid)}
-                  device_name={peripheral.name}
-                  device_type={peripheral.name}
+                  uid={String(peripheral.uid)}
+                  name={peripheral.name}
+                  type={peripheral.name}
                   params={peripheral.params}
                 />
               ))}
@@ -78,12 +81,13 @@ const handleAccordion = (devices: Device[]) => {
   });
 };
 
-const PeripheralListComponent = (props: StateProps) => {
+const PeripheralListComponent = (props: StateProps & OwnProps) => {
   let errorMsg = null;
+
   if (!props.connectionStatus) {
     errorMsg = 'You are currently disconnected from the robot.';
   } else if (!props.runtimeStatus) {
-    errorMsg = 'There appears to be some sort of General error. ' + 'No data is being received.';
+    errorMsg = 'There appears to be some sort of General error. No data is being received.';
   }
 
   let panelBody = null;
@@ -104,9 +108,9 @@ const PeripheralListComponent = (props: StateProps) => {
 };
 
 const mapStateToProps = (state: ApplicationState) => ({
-  peripheralList: state.peripherals.peripheralList,
+  peripheralList: Object.assign({}, state.peripherals.peripheralList)
 });
 
-const PeripheralList = connect(mapStateToProps)(PeripheralListComponent);
+const PeripheralListContainer = connect<StateProps, {}, OwnProps, ApplicationState>(mapStateToProps, {})(PeripheralListComponent);
 
-export default PeripheralList;
+export default PeripheralListContainer;

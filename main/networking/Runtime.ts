@@ -12,7 +12,8 @@ import { Logger, defaults } from '../../renderer/utils/utils';
 /**
  * Define port constants, which must match with Runtime
  */
-const SEND_PORT = 9000;
+const UDP_SEND_PORT = 9000;
+const UDP_LISTEN_PORT = 9001;
 const TCP_PORT = 8101;
 
 /**
@@ -61,6 +62,7 @@ function readPacket(data: any): TCPPacket {
  */
 function createPacket(payload: unknown, messageType: MsgType): Buffer {
   let encodedPayload: Uint8Array;
+  
   switch (messageType) {
     case MsgType.DEVICE_DATA:
       encodedPayload = protos.DevData.encode(payload as protos.IDevData).finish();
@@ -79,13 +81,12 @@ function createPacket(payload: unknown, messageType: MsgType): Buffer {
       encodedPayload = new Uint8Array();
       break;
   }
+  
   const msgLength = Buffer.byteLength(encodedPayload);
-
-  const msgTypeArr = new Uint8Array([messageType]);
   const msgLengthArr = new Uint8Array([msgLength & 0x00ff, msgLength & 0xff00]); // Assuming little-endian byte order, since runs on x64
-  const encodedPayloadArr = new Uint8Array(encodedPayload);
+  const msgTypeArr = new Uint8Array([messageType]);
 
-  return Buffer.concat([msgTypeArr, msgLengthArr, encodedPayloadArr], msgLength + 3);
+  return Buffer.concat([msgTypeArr, msgLengthArr, encodedPayload], msgLength + 3);
 }
 
 class TCPConn {
@@ -102,14 +103,20 @@ class TCPConn {
       if (!this.socket.connecting && this.socket.pending) {
         console.log('Trying to TCP connect to ', runtimeIP);
         if (runtimeIP !== defaults.IPADDRESS) {
-          this.socket.connect(TCP_PORT, runtimeIP, () => {
-            this.logger.log('Runtime connected');
-            this.socket.write(new Uint8Array([1])); // Runtime needs first byte to be 1 to recognize client as Dawn (instead of Shepherd)
-            }
-          )
+          this.socket.connect(TCP_PORT, runtimeIP)
         }
       }
     }, 1000);
+
+    this.socket.on('connect', () => {
+      this.logger.log('Runtime connected');
+      this.socket.write(new Uint8Array([1])); // Runtime needs first byte to be 1 to recognize client as Dawn (instead of Shepherd)
+    });
+
+    this.socket.on('timeout', () => {
+      this.logger.log('TCP socket timeout');
+      this.socket.end();
+    });
 
     this.socket.on('end', () => {
       this.logger.log('Runtime disconnected');
@@ -126,7 +133,6 @@ class TCPConn {
      */
     this.socket.on('data', (data) => {
       const message = readPacket(data);
-      this.logger.log(`Dawn received TCP Packet ${message.messageType}`);
       let decoded: protos.Text;
 
       switch (message.messageType) {
@@ -169,7 +175,7 @@ class TCPConn {
 
     const message = createPacket(runModeData, MsgType.RUN_MODE);
     this.socket.write(message, () => {
-      this.logger.debug(`Run Mode message sent: ${runModeData.toString()}`);
+      this.logger.log(`Run Mode message sent: ${JSON.stringify(runModeData)}`);
     });
   };
 
@@ -179,9 +185,10 @@ class TCPConn {
       return;
     }
 
+    // TODO: Serialize uid from string -> Long type
     const message = createPacket(deviceData, MsgType.DEVICE_DATA);
     this.socket.write(message, () => {
-      this.logger.debug(`Device preferences sent: ${deviceData.toString()}`);
+      this.logger.log(`Device preferences sent: ${deviceData.toString()}`);
     });
   };
 
@@ -193,7 +200,7 @@ class TCPConn {
 
     const message = createPacket(textData, MsgType.CHALLENGE_DATA);
     this.socket.write(message, () => {
-      this.logger.debug(`Challenge inputs sent: ${textData.toString()}`);
+      this.logger.log(`Challenge inputs sent: ${textData.toString()}`);
     });
   }
 
@@ -205,7 +212,7 @@ class TCPConn {
 
     const message = createPacket(startPosData, MsgType.START_POS);
     this.socket.write(message, () => {
-      this.logger.debug(`Start position sent: ${startPosData.toString()}`);
+      this.logger.log(`Start position sent: ${startPosData.toString()}`);
     });
   };
 
@@ -261,7 +268,7 @@ class UDPConn {
       }
     });
 
-    this.socket.bind(() => {
+    this.socket.bind(UDP_LISTEN_PORT, () => {
       this.logger.log(`UDP connection bound`);
     });
 
@@ -287,7 +294,7 @@ class UDPConn {
 
     const message = protos.GpState.encode(data[0]).finish();
     this.logger.debug(`Dawn sent UDP to ${runtimeIP}`);
-    this.socket.send(message, SEND_PORT, runtimeIP);
+    this.socket.send(message, UDP_SEND_PORT, runtimeIP);
   };
 
   close() {
