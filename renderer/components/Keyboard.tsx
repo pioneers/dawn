@@ -1,10 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {Col, FormControl, Row, Tab, Tabs} from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { keyboardMap as map } from '../consts/keyboard-map'
 
 
 const keyboardComponent = () => {
+
+    const [key, setKey] = useState(0);
+
+    const handleKeyDown = (e: any) => {
+        setKey(e.key);
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    /** 
 
     //We will have students define the code for us and put it into an object. How to do that though?
 
@@ -16,7 +26,7 @@ const keyboardComponent = () => {
     }
 
     const handleKeyUp = (e: any) => {
-
+        
     }
 
     const handleButtonChange = (button: string) => {
@@ -29,7 +39,7 @@ const keyboardComponent = () => {
 
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
-
+*/
     return (
         <Tabs defaultActiveKey={1} animation={false} id="keyboard-tab">
             <Tab eventKey={1} title="Keyboard">
