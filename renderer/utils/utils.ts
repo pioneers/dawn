@@ -18,10 +18,10 @@ export const getValidationState = (testIPAddress: string) => {
   if (IPV4_REGEX.test(testIPAddress)) {
     return 'success';
   }
-  if (testIPAddress === 'localhost') {
-    return 'warning';
-  }
-  return 'error';
+  // if (testIPAddress === 'localhost') {
+  //   return 'warning';
+  // }
+  return 'warning';
 };
 
 export const uploadStatus = {
@@ -33,10 +33,13 @@ export const uploadStatus = {
 export const robotState = {
   IDLE: 0,
   IDLESTR: 'Idle',
+  0: 'Idle',
   AUTONOMOUS: 1,
   AUTOSTR: 'Autonomous',
+  1: 'Autonomous',
   TELEOP: 2,
   TELEOPSTR: 'Tele-Operated',
+  2: 'Tele-Operated',
   SIMSTR: 'Simulation',
 };
 

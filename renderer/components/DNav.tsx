@@ -6,11 +6,11 @@ import { UpdateBox } from './UpdateBox';
 import { StatusLabel } from './StatusLabel';
 import { TooltipButton } from './TooltipButton';
 import { VERSION } from '../consts';
-import { runtimeState } from '../utils/utils';
+import { robotState } from '../utils/utils';
 
 interface StateProps {
   runtimeVersion: string;
-  robotState: number;
+  codeStatus: number;
   heart: boolean;
   blueMasterTeamNumber: number;
   goldMasterTeamNumber: number;
@@ -72,13 +72,13 @@ class DNavComponent extends React.Component<Props, State> {
       isRunningCode,
       ipAddress,
       runtimeVersion,
-      robotState,
+      codeStatus,
       blueMasterTeamNumber,
       goldMasterTeamNumber,
       fieldControlStatus,
       startTour } = this.props;
     const { showConfigModal, showUpdateModal } = this.state;
-    
+
     return (
       <Navbar fixedTop fluid>
         <UpdateBox
@@ -105,7 +105,7 @@ class DNavComponent extends React.Component<Props, State> {
           {runtimeStatus ?
             <Navbar.Text id="runtime-version">
               <Label bsStyle="info">{
-                `Runtime v${runtimeVersion}: ${runtimeState[robotState]}`
+                `Runtime v${runtimeVersion}: ${robotState[codeStatus]}`
               }
               </Label>
             </Navbar.Text> : ''
@@ -165,7 +165,7 @@ class DNavComponent extends React.Component<Props, State> {
 const mapStateToProps = (state: ApplicationState) => ({
   blueMasterTeamNumber: state.fieldStore.blueMasterTeamNumber,
   goldMasterTeamNumber: state.fieldStore.goldMasterTeamNumber,
-  robotState: state.info.robotState,
+  codeStatus: state.info.studentCodeStatus,
   heart: state.fieldStore.heart,
   ipAddress: state.info.ipAddress,
   fieldControlStatus: state.fieldStore.fieldControl,

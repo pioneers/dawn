@@ -14,7 +14,7 @@ import { Logger, defaults } from '../../renderer/utils/utils';
  */
 const UDP_SEND_PORT = 9000;
 const UDP_LISTEN_PORT = 9001;
-const TCP_PORT = 8101;
+const DEFAULT_TCP_PORT = 8101;
 
 /**
  * Runtime IP Address used for TCP and UDP connections
@@ -47,7 +47,7 @@ function readPacket(data: any): TCPPacket {
   const header = buf.slice(0, 3);
   const msgType = header[0];
   const msgLength = new Uint16Array(header.slice(1))[0];
-  const load = buf.slice(3);
+  const load = buf.slice(3, msgLength + 3);
 
   return {
     messageType: msgType,
@@ -97,13 +97,17 @@ class TCPConn {
     this.logger = logger;
     this.socket = new TCPSocket();
 
-    this.socket.setTimeout(5000);
-
     setInterval(() => {
       if (!this.socket.connecting && this.socket.pending) {
         console.log('Trying to TCP connect to ', runtimeIP);
         if (runtimeIP !== defaults.IPADDRESS) {
-          this.socket.connect(TCP_PORT, runtimeIP)
+          let port = DEFAULT_TCP_PORT;
+          if (runtimeIP.includes(':')) {
+            const split = runtimeIP.split(':');
+            runtimeIP = split[0];
+            port = Number(split[1]); 
+          }
+          this.socket.connect(port, runtimeIP);
         }
       }
     }, 1000);
@@ -133,6 +137,7 @@ class TCPConn {
      */
     this.socket.on('data', (data) => {
       const message = readPacket(data);
+      console.log(`Sent msg length: ${message.messageLength}, actual msg length: ${message.payload.length}`);
       let decoded: protos.Text;
 
       switch (message.messageType) {
