@@ -20,7 +20,7 @@
   "main": "build/main.js",
   "scripts": {
     "start": "better-npm-run start",
-    "build": "rm -rf build && tsc --build",
+    "build": "rimraf build && better-npm-run build",
     "lint-actions": "eslint renderer/actions/**/*.ts",
     "lint-reducers": "eslint renderer/reducers/**/*.ts",
     "lint-types": "eslint renderer/types/**/*.ts",
@@ -40,13 +40,13 @@
   },
   "betterScripts": {
     "start": {
-      "command": "mkdir -p ./build/protos && cp ./protos/*.proto ./build/protos && electron build/main.js",
+      "command": "mkdirp ./build/protos && cp ./protos/*.proto ./build/protos && electron build/main.js",
       "env": {
         "NODE_ENV": "development"
       }
     },
     "build": {
-      "command": "mkdir -p ./build && cp ./protos/*.proto ./build/protos && webpack --mode production --progress",
+      "command": "mkdirp ./build/protos && cp ./protos/*.proto ./build/protos && webpack --mode production --progress",
       "env": {
         "NODE_ENV": "production"
       }
@@ -92,8 +92,10 @@
     "fs-extra": "5.0.0",
     "jszip": "3.1.5",
     "minimist": "1.2.3",
+    "mkdirp": "^1.0.4",
     "mocha": "5.0.0",
     "prettier": "^2.0.5",
+    "rimraf": "^3.0.2",
     "style-loader": "^1.2.1",
     "ts-loader": "^8.0.2",
     "typescript": "^3.9.7",
