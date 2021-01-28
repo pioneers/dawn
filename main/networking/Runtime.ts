@@ -8,6 +8,7 @@ import { updateConsole } from '../../renderer/actions/ConsoleActions';
 import { runtimeDisconnect, infoPerMessage } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { Logger, defaults } from '../../renderer/utils/utils';
+import { Peripheral } from '../../renderer/types';
 
 /**
  * Define port constants, which must match with Runtime
@@ -254,14 +255,24 @@ class UDPConn {
       try {
         RendererBridge.reduxDispatch(infoPerMessage());
         const sensorData: protos.Device[] = protos.DevData.decode(msg).devices;
-        
+        // Need to convert protos.Device to Peripheral here because when dispatching to the renderer over IPC,
+        // some of the inner properties (i.e. device.uid which is a Long) loses its prototype, which means any
+        // data we are sending over through IPC should be serializable.
+        // https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
+        const peripherals: Peripheral[] = [];
+
         sensorData.forEach((device) => {
-          if (device.uid.toString() === '0') {
-            device.uid = 0;
+          // There is a weird bug that happens with the protobufs decoding when device.type is specifically 0
+          // where the property can be accessed but when trying to view object contents, the property doesn't exist.
+          // Below is a way to get around this problem.
+          if (device.type.toString() === '0') {
+            device.type = 0;
           }
+
+          peripherals.push({ ...device, uid: device.uid.toString() });
         });
 
-        RendererBridge.reduxDispatch(updatePeripherals(sensorData));
+        RendererBridge.reduxDispatch(updatePeripherals(peripherals));
       } catch (err) {
         this.logger.log('Error decoding UDP');
         this.logger.log(err);

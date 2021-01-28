@@ -164,7 +164,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   },
   onFCUpdate: (config: Config) => {
     dispatch(updateFieldControl(config));
-  },
+  }
 });
 
 const mapStateToProps = (state: ApplicationState) => ({
