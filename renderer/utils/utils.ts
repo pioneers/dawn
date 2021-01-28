@@ -18,10 +18,10 @@ export const getValidationState = (testIPAddress: string) => {
   if (IPV4_REGEX.test(testIPAddress)) {
     return 'success';
   }
-  // if (testIPAddress === 'localhost') {
-  //   return 'warning';
-  // }
-  return 'warning';
+  if (testIPAddress === 'localhost') {
+    return 'warning';
+  }
+  return 'warning'; // Used to be 'error' but made 'warning' to allow for ngrok IP addresses
 };
 
 export const uploadStatus = {

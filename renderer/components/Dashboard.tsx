@@ -16,16 +16,11 @@ export const Dashboard = (props: StateProps) => (
   <Grid fluid>
     <Row>
       <Col smPush={8} sm={4}>
-        <PeripheralList
-          connectionStatus={props.connectionStatus}
-          runtimeStatus={props.runtimeStatus}
-        />
+        <PeripheralList connectionStatus={props.connectionStatus} runtimeStatus={props.runtimeStatus} />
         <GamepadList />
       </Col>
       <Col smPull={4} sm={8}>
-        <EditorContainer
-          runtimeStatus={props.runtimeStatus}
-        />
+        <EditorContainer runtimeStatus={props.runtimeStatus} />
       </Col>
     </Row>
   </Grid>

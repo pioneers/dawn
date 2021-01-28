@@ -1,9 +1,9 @@
 import * as consts from '../../consts';
-import { Device } from '../../../protos/protos';
+import { Peripheral } from '../../types';
 
 export interface UpdatePeripheralsAction {
   type: consts.PeripheralActionsTypes.UPDATE_PERIPHERALS;
-  peripherals: Device[];
+  peripherals: Peripheral[];
 }
 
 export interface PeripheralRenameAction {
@@ -13,7 +13,7 @@ export interface PeripheralRenameAction {
 }
 
 export interface PeripheralActions {
-  updatePeripherals: (sensors: Device[]) => UpdatePeripheralsAction;
+  updatePeripherals: (sensors: Peripheral[]) => UpdatePeripheralsAction;
 
   peripheralRename: (uid: number, newName: string) => PeripheralRenameAction;
 }
