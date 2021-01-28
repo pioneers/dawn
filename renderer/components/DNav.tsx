@@ -31,11 +31,7 @@ type Props = StateProps & OwnProps;
 
 /**
  * 3 Icons at the top right of Dawn: Tour, RobotIP, Upload
-<<<<<<< HEAD
- * State controls toggling UpdateBox and ConfigBox 
-=======
  * State controls toggling UpdateBox and ConfigBox
->>>>>>> dev
  */
 const DNavComponent = (props: Props) => {
   const [showUpdateModal, toggleUpdateModal] = useState(false);
