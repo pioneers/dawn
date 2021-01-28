@@ -9,7 +9,7 @@ interface StateProps {
   addSteps: (steps: Array<Step>) => void;
   connectionStatus: boolean;
   runtimeStatus: boolean;
-  isRunningCode: boolean;
+  isRunningCode: boolean; // Currently not provided by runtime, and not used in Editor
 }
 
 export const Dashboard = (props: StateProps) => (
@@ -25,7 +25,6 @@ export const Dashboard = (props: StateProps) => (
       <Col smPull={4} sm={8}>
         <EditorContainer
           runtimeStatus={props.runtimeStatus}
-          isRunningCode={props.isRunningCode}
         />
       </Col>
     </Row>

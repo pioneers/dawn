@@ -31,7 +31,11 @@ type Props = StateProps & OwnProps;
 
 /**
  * 3 Icons at the top right of Dawn: Tour, RobotIP, Upload
+<<<<<<< HEAD
  * State controls toggling UpdateBox and ConfigBox 
+=======
+ * State controls toggling UpdateBox and ConfigBox
+>>>>>>> dev
  */
 const DNavComponent = (props: Props) => {
   const [showUpdateModal, toggleUpdateModal] = useState(false);
@@ -42,13 +46,6 @@ const DNavComponent = (props: Props) => {
       return `Dawn FC v${VERSION} ${props.heart ? '+' : '-'}`;
     }
     return `Dawn v${VERSION}`;
-  };
-
-  const createMaster = () => {
-    if (props.fieldControlStatus) {
-      return props.masterStatus;
-    }
-    return false;
   };
 
   const {
@@ -76,26 +73,19 @@ const DNavComponent = (props: Props) => {
         ipAddress={ipAddress}
         hide={() => toggleUpdateModal(!showUpdateModal)}
       />
-      <ConfigBox
-        shouldShow={showConfigModal}
-        ipAddress={ipAddress}
-        hide={() => toggleConfigModal(!showConfigModal)}
-      />
+      <ConfigBox shouldShow={showConfigModal} ipAddress={ipAddress} hide={() => toggleConfigModal(!showConfigModal)} />
       <Navbar.Header>
-        <Navbar.Brand id="header-title">
-          {createHeader()}
-        </Navbar.Brand>
+        <Navbar.Brand id="header-title">{createHeader()}</Navbar.Brand>
         <Navbar.Toggle />
       </Navbar.Header>
       <Navbar.Collapse>
-        {runtimeStatus ?
+        {runtimeStatus ? (
           <Navbar.Text id="runtime-version">
-            <Label bsStyle="info">{
-              `Runtime v${runtimeVersion}: ${runtimeState[robotState]}`
-            }
-            </Label>
-          </Navbar.Text> : ''
-        }
+            <Label bsStyle="info">{`Runtime v${runtimeVersion}: ${String(runtimeState[robotState])}`}</Label>
+          </Navbar.Text>
+        ) : (
+          ''
+        )}
         <Navbar.Text id="battery-indicator">
           <StatusLabel
             connectionStatus={connectionStatus}
@@ -107,9 +97,7 @@ const DNavComponent = (props: Props) => {
             fieldControlStatus={fieldControlStatus}
           />
         </Navbar.Text>
-        <Navbar.Form
-          pullRight
-        >
+        <Navbar.Form pullRight>
           <ButtonToolbar>
             <ButtonGroup>
               <TooltipButton
