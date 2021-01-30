@@ -12,7 +12,7 @@ async function pack(platform: string, arch: string) {
     name: 'dawn',
     icon: './icons/pieicon',
     asar: true,
-    out: path.resolve('../dawn-packaged'), // build in the parent dir
+    out: path.resolve('./dawn-packaged'), // output to subdirectory
   };
 
   if (!platform || !arch) {
