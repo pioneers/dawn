@@ -16,18 +16,20 @@ export const useFontSizer = (defaultFontSize = 14) => {
     });
   }, []);
 
-  const decreaseFontsize = () => {
-    setFontSize(fontSize - 1);
-    storage.set('editorFontSize', { editorFontSize: fontSize - 1 }, (err: any) => {
+  useEffect(() => {
+    storage.set('editorFontSize', { editorFontSize: fontSize }, (err: any) => {
       if (err) logging.log(err);
     });
+    console.log('saved font size', fontSize, 'to local storage');
+  }, [fontSize]);
+
+  const decreaseFontsize = () => {
+    setFontSize(fontSize - 1);
+    console.log('decreased font size to', fontSize);
   };
 
   const increaseFontsize = () => {
     setFontSize(fontSize + 1);
-    storage.set('editorFontSize', { editorFontSize: fontSize + 1 }, (err: any) => {
-      if (err) logging.log(err);
-    });
   };
 
   const handleChangeFontsize = (event: any) => {
@@ -42,9 +44,6 @@ export const useFontSizer = (defaultFontSize = 14) => {
       fontSize = 8;
     }
     setFontSize(fontSize);
-    storage.set('editorFontSize', { editorFontSize: fontSize }, (err: any) => {
-      if (err) logging.log(err);
-    });
   };
 
   const handleSubmitFontsize = (event: any) => {
@@ -52,5 +51,7 @@ export const useFontSizer = (defaultFontSize = 14) => {
     event.preventDefault();
   };
 
-  return { decreaseFontsize, increaseFontsize, handleChangeFontsize, changeFontsizeToFont, handleSubmitFontsize };
+  console.log('font size', fontSize);
+
+  return { fontSize, decreaseFontsize, increaseFontsize, handleChangeFontsize, changeFontsizeToFont, handleSubmitFontsize };
 };

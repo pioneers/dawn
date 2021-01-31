@@ -36,6 +36,7 @@ import 'ace-builds/src-noconflict/theme-solarized_dark';
 import 'ace-builds/src-noconflict/theme-solarized_light';
 import 'ace-builds/src-noconflict/theme-terminal';
 
+import { useFontSizer } from './fontSizer';
 import { ConsoleOutput } from '../ConsoleOutput';
 import { TooltipButton } from '../TooltipButton';
 import { pathToName, robotState, timings, logging, windowInfo } from '../../utils/utils';
@@ -99,6 +100,8 @@ export const Editor = (props: Props) => {
   const [modeDisplay, setModeDisplay] = useState(robotState.TELEOPSTR);
   const [isRunning, setIsRunning] = useState(false);
   const [simulate, setSimulate] = useState(false);
+
+  const { fontSize, decreaseFontsize, increaseFontsize, handleChangeFontsize, changeFontsizeToFont, handleSubmitFontsize } = useFontSizer();
 
   /*
    * ASCII Enforcement
@@ -394,7 +397,7 @@ export const Editor = (props: Props) => {
     mode: 'python',
     theme: props.editorTheme,
     width: '100%',
-    fontSize: props.fontSize,
+    fontSize: fontSize,
     height: editorHeight.toString(),
     onChange: props.onEditorUpdate,
     onPaste: onEditorPaste,
@@ -409,7 +412,7 @@ export const Editor = (props: Props) => {
         </Panel.Title>
       </Panel.Heading>
       <Panel.Body>
-        <Form inline onSubmit={() => console.log('form submit')} /*handleSubmitFontsize}*/>
+        <Form inline onSubmit={handleSubmitFontsize}>
           <ButtonGroup id="file-operations-buttons">
             <DropdownButton title="File" bsSize="small" id="choose-theme">
               <MenuItem onClick={props.onCreateNewFile}>New File</MenuItem>
@@ -493,11 +496,11 @@ export const Editor = (props: Props) => {
             />
             <TooltipButton id="copy-console" text="Copy Console" onClick={copyConsole} glyph="copy" disabled={false} />
           </ButtonGroup>{' '}
-          {/* <FormGroup>
+          <FormGroup>
             <InputGroup>
               <FormControl
                 type="number"
-                value={fontsize}
+                value={fontSize}
                 bsSize="small"
                 onChange={handleChangeFontsize}
                 style={{ width: 32, padding: 6 }}
@@ -505,16 +508,16 @@ export const Editor = (props: Props) => {
               <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip">Text Size</Tooltip>}>
                 <DropdownButton componentClass={InputGroup.Button} title="" bsSize="small" id="choose-font-size">
                   {FONT_SIZES.map((fontSize: number) => (
-                    <MenuItem className="dropdown-item" onClick={() => changeFontsizeToFont(fontSize)}>
+                    <MenuItem key={`font-size-${fontSize}`} className="dropdown-item" onClick={() => changeFontsizeToFont(fontSize)}>
                       {fontSize}
                     </MenuItem>
                   ))}
                 </DropdownButton>
               </OverlayTrigger>
             </InputGroup>
-          </FormGroup>{' '} */}
+          </FormGroup>{' '}
           <ButtonGroup id="editor-settings-buttons" className="form-inline">
-            {/* <TooltipButton
+            <TooltipButton
               id="increase-font-size"
               text="Increase font size"
               onClick={increaseFontsize}
@@ -527,7 +530,7 @@ export const Editor = (props: Props) => {
               onClick={decreaseFontsize}
               glyph="zoom-out"
               disabled={props.fontSize <= 8}
-            /> */}
+            />
             <DropdownButton title="Theme" bsSize="small" id="choose-theme">
               {EDITOR_THEMES.map((theme: string) => (
                 <MenuItem active={theme === props.editorTheme} onClick={_.partial(changeTheme, theme)} key={theme}>
