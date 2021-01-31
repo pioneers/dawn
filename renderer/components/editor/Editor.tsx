@@ -36,7 +36,7 @@ import 'ace-builds/src-noconflict/theme-solarized_dark';
 import 'ace-builds/src-noconflict/theme-solarized_light';
 import 'ace-builds/src-noconflict/theme-terminal';
 
-import { useFontSizer } from './fontSizer';
+import { useFontResizer } from './fontResizer';
 import { ConsoleOutput } from '../ConsoleOutput';
 import { TooltipButton } from '../TooltipButton';
 import { pathToName, robotState, timings, logging, windowInfo } from '../../utils/utils';
@@ -101,7 +101,7 @@ export const Editor = (props: Props) => {
   const [isRunning, setIsRunning] = useState(false);
   const [simulate, setSimulate] = useState(false);
 
-  const { fontSize, decreaseFontsize, increaseFontsize, handleChangeFontsize, changeFontsizeToFont, handleSubmitFontsize } = useFontSizer();
+  const { fontSize, decreaseFontsize, increaseFontsize, handleChangeFontsize, changeFontsizeToFont, handleSubmitFontsize } = useFontResizer();
 
   /*
    * ASCII Enforcement
