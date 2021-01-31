@@ -35,9 +35,9 @@ import 'ace-builds/src-noconflict/theme-solarized_dark';
 import 'ace-builds/src-noconflict/theme-solarized_light';
 import 'ace-builds/src-noconflict/theme-terminal';
 
-import { ConsoleOutput } from './ConsoleOutput';
-import { TooltipButton } from './TooltipButton';
-import { pathToName, robotState, timings, logging, windowInfo } from '../utils/utils';
+import { ConsoleOutput } from '../ConsoleOutput';
+import { TooltipButton } from '../TooltipButton';
+import { pathToName, robotState, timings, logging, windowInfo } from '../../utils/utils';
 
 const { dialog } = remote;
 const currentWindow = remote.getCurrentWindow();

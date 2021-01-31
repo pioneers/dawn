@@ -102,10 +102,10 @@ class DNavComponent extends React.Component<Props, State> {
           ipAddress={ipAddress}
           hide={this.toggleConfigModal}
         />
-        <CheckCodeChallengesModal
+        {/* <CheckCodeChallengesModal
           shouldShow={showChallengeModal}
           hide={this.toggleChallengeModal}
-        />
+        /> */}
         <Navbar.Header>
           <Navbar.Brand id="header-title">
             {this.createHeader()}

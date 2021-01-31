@@ -8,17 +8,17 @@ import {
   createNewFile,
   downloadCode,
   uploadCode,
-} from '../actions/EditorActions';
+} from '../../actions/EditorActions';
 import {
   changeTheme,
   changeFontSize,
-} from '../actions/SettingsActions';
+} from '../../actions/SettingsActions';
 import {
   toggleConsole,
   clearConsole,
-} from '../actions/ConsoleActions';
-import { addAsyncAlert } from '../actions/AlertActions';
-import { updateCodeStatus, ipChange } from '../actions/InfoActions';
+} from '../../actions/ConsoleActions';
+import { addAsyncAlert } from '../../actions/AlertActions';
+import { updateCodeStatus, ipChange } from '../../actions/InfoActions';
 import { Dispatch } from 'redux';
 
 const mapStateToProps = (state: ApplicationState) => ({
