@@ -72,12 +72,10 @@ export const FCObject = {
   changeFCInfo(_event: any, arg: any) {
     if (arg.stationNumber !== null) {
       FCObject.stationNumber = arg.stationNumber;
-      FCObject.logger.log(`stationNumber set to ${FCObject.stationNumber}`);
     }
 
     if (arg.bridgeAddress !== null) {
       FCObject.bridgeAddress = arg.bridgeAddress;
-      FCObject.logger.log(`bridgeAddress set to ${FCObject.bridgeAddress}`);
     }
   },
 };

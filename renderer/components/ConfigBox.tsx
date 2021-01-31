@@ -85,7 +85,7 @@ export const ConfigBoxComponent = (props: Props) => {
   };
 
   const disableUploadUpdate = () => {
-    return false;
+    return false; // Make it false while we are using ngrok, so no IP validation is needed
       // getValidationState(ipAddress) === 'error' || getValidationState(fcAddress) === 'error' || (stationNumber < 0 && stationNumber > 4)
     ;
   };

@@ -97,24 +97,27 @@ class TCPConn {
   constructor(logger: Logger) {
     this.logger = logger;
     this.socket = new TCPSocket();
+    this.socket.setTimeout(3000);
 
     setInterval(() => {
       if (!this.socket.connecting && this.socket.pending) {
-        console.log('Trying to TCP connect to ', runtimeIP);
         if (runtimeIP !== defaults.IPADDRESS) {
           let port = DEFAULT_TCP_PORT;
+          let ip = runtimeIP;
           if (runtimeIP.includes(':')) {
             const split = runtimeIP.split(':');
-            runtimeIP = split[0];
+            ip = split[0];
             port = Number(split[1]); 
           }
-          this.socket.connect(port, runtimeIP);
+          console.log('Trying to TCP connect to ', ip, port);
+          this.socket.connect(port, ip);
+          console.log("Finished trying, ", this.socket.connecting, this.socket.pending);
         }
       }
     }, 1000);
 
     this.socket.on('connect', () => {
-      this.logger.log('Runtime connected');
+      console.log('Runtime connected, ', this.socket.connecting, this.socket.pending);
       this.socket.write(new Uint8Array([1])); // Runtime needs first byte to be 1 to recognize client as Dawn (instead of Shepherd)
     });
 
@@ -165,7 +168,13 @@ class TCPConn {
    * Receives new IP Address to send messages to.
    */
   ipAddressListener = (_event: IpcMainEvent, ipAddress: string) => {
-    runtimeIP = ipAddress;
+    if (ipAddress != runtimeIP) {
+      console.log(`Switching IP from ${runtimeIP} to ${ipAddress}, `, this.socket.connecting, this.socket.pending);
+      if (this.socket.connecting || !this.socket.pending) {
+        this.socket.end();
+      }
+      runtimeIP = ipAddress;
+    }
   };
 
   // TODO: We can possibly combine below methods into single handler.
@@ -309,8 +318,15 @@ class UDPConn {
     }
 
     const message = protos.UserInputs.encode({inputs: data}).finish();
-    this.logger.debug(`Dawn sent UDP to ${runtimeIP}`);
-    this.socket.send(message, UDP_SEND_PORT, runtimeIP);
+    let port = UDP_SEND_PORT;
+    let ip = runtimeIP;
+    if (runtimeIP.includes(':')) {
+      const split = runtimeIP.split(':');
+      ip = split[0];
+      port = Number(split[1]); 
+    }
+    // console.log('Dawn sent UDP to ', ip, port);
+    this.socket.send(message, port, ip);
   };
 
   close() {
