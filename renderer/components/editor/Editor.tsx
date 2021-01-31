@@ -68,7 +68,6 @@ interface DispatchProps {
   onOpenFile: () => void;
   onCreateNewFile: () => void;
   onChangeTheme: (theme: string) => void;
-  onChangeFontsize: (newFonOwnPropstsize: number) => void;
   toggleConsole: () => void;
   onClearConsole: () => void;
   onUpdateCodeStatus: (status: number) => void;
@@ -101,7 +100,7 @@ export const Editor = (props: Props) => {
   const [isRunning, setIsRunning] = useState(false);
   const [simulate, setSimulate] = useState(false);
 
-  const { fontSize, decreaseFontsize, increaseFontsize, handleChangeFontsize, changeFontsizeToFont, handleSubmitFontsize } = useFontResizer();
+  const { fontSize, decreaseFontsize, increaseFontsize, handleChangeFontsize, changeFontSize, handleSubmitFontsize } = useFontResizer();
 
   /*
    * ASCII Enforcement
@@ -508,7 +507,7 @@ export const Editor = (props: Props) => {
               <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip">Text Size</Tooltip>}>
                 <DropdownButton componentClass={InputGroup.Button} title="" bsSize="small" id="choose-font-size">
                   {FONT_SIZES.map((fontSize: number) => (
-                    <MenuItem key={`font-size-${fontSize}`} className="dropdown-item" onClick={() => changeFontsizeToFont(fontSize)}>
+                    <MenuItem key={`font-size-${fontSize}`} className="dropdown-item" onClick={() => changeFontSize(fontSize)}>
                       {fontSize}
                     </MenuItem>
                   ))}
