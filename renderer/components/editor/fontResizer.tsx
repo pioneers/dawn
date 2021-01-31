@@ -23,20 +23,7 @@ export const useFontResizer = (defaultFontSize = 14) => {
     console.log('saved font size', fontSize, 'to local storage');
   }, [fontSize]);
 
-  const decreaseFontsize = () => {
-    setFontSize(fontSize - 1);
-    console.log('decreased font size to', fontSize);
-  };
-
-  const increaseFontsize = () => {
-    setFontSize(fontSize + 1);
-  };
-
-  const handleChangeFontsize = (event: any) => {
-    setFontSize(event.target.value);
-  };
-
-  const changeFontsizeToFont = (fontSize: number) => {
+  const changeFontSize = (fontSize: number) => {
     if (fontSize > 28) {
       fontSize = 28;
     }
@@ -46,12 +33,22 @@ export const useFontResizer = (defaultFontSize = 14) => {
     setFontSize(fontSize);
   };
 
+  const decreaseFontsize = () => {
+    changeFontSize(fontSize - 1);
+  };
+
+  const increaseFontsize = () => {
+    changeFontSize(fontSize + 1);
+  };
+
+  const handleChangeFontsize = (event: any) => {
+    changeFontSize(event.target.value);
+  };
+
   const handleSubmitFontsize = (event: any) => {
-    changeFontsizeToFont(Number(fontSize));
+    changeFontSize(Number(fontSize));
     event.preventDefault();
   };
 
-  console.log('font size', fontSize);
-
-  return { fontSize, decreaseFontsize, increaseFontsize, handleChangeFontsize, changeFontsizeToFont, handleSubmitFontsize };
+  return { fontSize, decreaseFontsize, increaseFontsize, handleChangeFontsize, changeFontSize, handleSubmitFontsize };
 };
