@@ -2,7 +2,7 @@
  * Defines the Help menu
  */
 import RendererBridge from '../RendererBridge';
-import showAPI from '../main-process';
+import { showAPI } from '../main-process';
 import { MenuItemConstructorOptions } from 'electron';
 
 const HelpMenu: MenuItemConstructorOptions = {

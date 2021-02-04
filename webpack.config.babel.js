@@ -46,6 +46,11 @@ export default [
     target: 'electron-renderer',
     module: modules,
   },
+  /*
+  {
+    entry: './renderer/piedash/index.ts';
+  }
+  */
   {
     entry: './main/main-process.ts',
     resolve: {

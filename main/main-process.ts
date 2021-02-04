@@ -40,7 +40,7 @@ function teardownFC(_event: any) { // eslint-disable-line no-unused-vars
   }
 }
 
-export default function showAPI() {
+export function showAPI() {
   let api: BrowserWindow | null = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
@@ -60,6 +60,14 @@ export default function showAPI() {
   });
 }
 
+export function showPeripheralDash() {
+
+  // create BrowserWindow object
+  // add lifecycle attributes
+  // rendererbridge.registerWindow
+  // loadURL('/index.html')
+
+}
 app.on('ready', () => {
   Runtime.setup();
   ipcMain.on('FC_CONFIG_CHANGE', FCObject.changeFCInfo);
