@@ -10,14 +10,14 @@ import {
   InputGroup,
   OverlayTrigger,
   Tooltip,
-  Button,
+  // Button,
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import { Ace } from 'ace-builds'
 import { remote, clipboard } from 'electron';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
-import { KeyboardButtons } from '../consts';
+//import { KeyboardButtons } from '../consts';
 
 // React-ace extensions and modes
 import 'ace-builds/src-noconflict/ext-language_tools';
