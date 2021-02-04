@@ -10,3 +10,4 @@ export {
 } from './actions';
 export { PeripheralTypes } from './peripheral-types';
 export { VERSION } from './version';
+export { KeyboardButtons } from './keyboard-buttons';

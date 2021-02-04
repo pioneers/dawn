@@ -17,7 +17,7 @@ import { Ace } from 'ace-builds'
 import { remote, clipboard } from 'electron';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
-
+import { KeyboardButtons } from '../consts';
 
 // React-ace extensions and modes
 import 'ace-builds/src-noconflict/ext-language_tools';
@@ -83,6 +83,7 @@ interface State {
   simulate: boolean;
   fontsize?: number;
   keyboardControl: boolean;
+  currentCharacter: string;
 };
 
 export class Editor extends React.Component<Props, State> {
@@ -125,7 +126,8 @@ export class Editor extends React.Component<Props, State> {
       mode: robotState.TELEOP,
       modeDisplay: robotState.TELEOPSTR,
       simulate: false,
-      keyboardControl: false
+      keyboardControl: false,
+      currentCharacter: "", // need to store this in redux -> give to backend
     };
   }
 
@@ -268,8 +270,17 @@ export class Editor extends React.Component<Props, State> {
     setTimeout(() => this.onWindowResize(), 0.01);
   }
 
+  // toggle keyboard control and add/remove listening for key presses to control robot
   toggleKeyboardControl = () => {
+    
     this.setState({keyboardControl: !this.state.keyboardControl})
+    if (this.state.keyboardControl) {
+      window.addEventListener('keypress', (e: any) => {
+        e.preventDefault();
+        this.setState({currentCharacter:  e.key})
+      })
+    }
+    
   }
 
   upload = () => {
@@ -648,12 +659,13 @@ export class Editor extends React.Component<Props, State> {
                     >28</MenuItem>
                   </DropdownButton>
                 </OverlayTrigger>
-                <Button
-                    type="button"
+                <TooltipButton
+                    id="toggleKeyboardControl"
+                    text="toggleKeyboardControl"
                     onClick={this.toggleKeyboardControl}
-                    disabled={false}> 
-                        toggleKeyboardControl
-                </Button>
+                    glyph="text-background"
+                    disabled={false} 
+                /> 
               </InputGroup>
             </FormGroup>
             {' '}
