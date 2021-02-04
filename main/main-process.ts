@@ -61,9 +61,30 @@ export function showAPI() {
 }
 
 export function showPeripheralDash() {
-
   // create BrowserWindow object
-  // add lifecycle attributes
+  const url = `file://${__dirname}/../static/testDash.html`; // TODO: add source file
+  let dashboard: BrowserWindow | null = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,
+      enableRemoteModule: true,
+    },
+    width: 1000,
+    height: 700,
+    show: false,
+  });
+
+  RendererBridge.registerWindow(dashboard);
+
+  dashboard.on('closed', () => {
+    dashboard = null;
+  });
+  dashboard.loadURL(url);
+  dashboard.once('ready-to-show', () => {
+    if (dashboard) {
+      dashboard.show();
+    }
+  });
+  
   // rendererbridge.registerWindow
   // loadURL('/index.html')
 
