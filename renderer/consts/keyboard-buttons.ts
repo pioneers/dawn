@@ -1,4 +1,4 @@
-const Keyboard_buttons= {
+export const KeyboardButtons= {
     "a": 0,
     "b": 1, 
     "c": 2,
@@ -45,4 +45,5 @@ const Keyboard_buttons= {
     "left_arrow": 43,
     "right_arrow": 44,
     "up_arrow": 45,
-    "down_arrow": 46};
+    "down_arrow": 46
+};
