@@ -10,6 +10,7 @@ import {
   InputGroup,
   OverlayTrigger,
   Tooltip,
+  Button,
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import { Ace } from 'ace-builds'
@@ -81,6 +82,7 @@ interface State {
   modeDisplay: string;
   simulate: boolean;
   fontsize?: number;
+  keyboardControl: boolean;
 };
 
 export class Editor extends React.Component<Props, State> {
@@ -123,6 +125,7 @@ export class Editor extends React.Component<Props, State> {
       mode: robotState.TELEOP,
       modeDisplay: robotState.TELEOPSTR,
       simulate: false,
+      keyboardControl: false
     };
   }
 
@@ -263,6 +266,10 @@ export class Editor extends React.Component<Props, State> {
     this.props.toggleConsole();
     // Resize since the console overlaps with the editor, but enough time for console changes
     setTimeout(() => this.onWindowResize(), 0.01);
+  }
+
+  toggleKeyboardControl = () => {
+    this.setState({keyboardControl: !this.state.keyboardControl})
   }
 
   upload = () => {
@@ -641,6 +648,12 @@ export class Editor extends React.Component<Props, State> {
                     >28</MenuItem>
                   </DropdownButton>
                 </OverlayTrigger>
+                <Button
+                    type="button"
+                    onClick={this.toggleKeyboardControl}
+                    disabled={false}> 
+                        toggleKeyboardControl
+                </Button>
               </InputGroup>
             </FormGroup>
             {' '}
@@ -676,7 +689,6 @@ export class Editor extends React.Component<Props, State> {
               </DropdownButton>
             </ButtonGroup>
           </Form>
-
           <AceEditor
             mode="python"
             theme={this.props.editorTheme}
@@ -689,6 +701,7 @@ export class Editor extends React.Component<Props, State> {
             onChange={this.props.onEditorUpdate}
             onPaste={Editor.onEditorPaste}
             editorProps={{ $blockScrolling: Infinity }}
+            readOnly = {this.state.keyboardControl}
           />
           <ConsoleOutput
             toggleConsole={this.toggleConsole}
