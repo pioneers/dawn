@@ -83,7 +83,7 @@ interface State {
   isRunning: boolean;
   fontsize?: number;
   keyboardControl: boolean;
-  currentCharacter: string;
+  currentCharacter: string[];
 };
 
 export class Editor extends React.Component<Props, State> {
@@ -128,7 +128,7 @@ export class Editor extends React.Component<Props, State> {
       isRunning: false,
       simulate: false,
       keyboardControl: false,
-      currentCharacter: "", // need to store this in redux -> give to backend
+      currentCharacter: [], // need to store this in redux -> give to backend
     };
   }
 
@@ -274,14 +274,25 @@ export class Editor extends React.Component<Props, State> {
   // toggle keyboard control and add/remove listening for key presses to control robot
   toggleKeyboardControl = () => {
     
+    let interval = window.setInterval(this.sendMoves, 1000);
     this.setState({keyboardControl: !this.state.keyboardControl})
-    if (this.state.keyboardControl) {
-      window.addEventListener('keypress', (e: any) => {
-        e.preventDefault();
-        this.setState({currentCharacter:  e.key})
-      })
-    }
     
+    if (this.state.keyboardControl) {
+      window.addEventListener('keydown', this.getCharacter, { passive: true });
+    } else {
+      window.removeEventListener('keydown', this.getCharacter);
+      clearInterval(interval);
+    }
+  }
+  sendMoves = () => {
+    // send this.state.
+    return 0;
+  }
+  
+  getCharacter = (e: KeyboardEvent) => {
+    e.preventDefault();
+    console.log(e.key)
+    this.setState({currentCharacter: [...this.state.currentCharacter, e.key]})
   }
 
   upload = () => {

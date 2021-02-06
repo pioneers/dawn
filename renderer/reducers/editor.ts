@@ -13,6 +13,7 @@ import {
   CreateNewFileAction,
   DownloadCodeAction,
   UploadCodeAction,
+  UpdateKeyboardAction
 } from '../types';
 
 type Actions =
@@ -25,18 +26,21 @@ type Actions =
   | DeleteFileAction
   | CreateNewFileAction
   | DownloadCodeAction
-  | UploadCodeAction;
+  | UploadCodeAction
+  | UpdateKeyboardAction;
 
 interface EditorState {
   filepath: string;
   latestSaveCode: string;
   editorCode: string;
+  keyboard: string[];
 }
 
 const defaultEditorState = {
   filepath: '',
   latestSaveCode: '',
   editorCode: '',
+  keyboard: [],
 };
 
 export const editor = (state: EditorState = defaultEditorState, action: Actions) => {
@@ -59,6 +63,11 @@ export const editor = (state: EditorState = defaultEditorState, action: Actions)
         filepath: action.filepath,
         latestSaveCode: action.code,
       };
+    case consts.EditorActionsTypes.UPDATE_KEYBOARD:
+      return {
+        ...state,
+        keyboard: action.keyboard,
+      }
     default:
       return state;
   }
