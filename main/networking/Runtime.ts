@@ -107,16 +107,16 @@ class TCPConn {
           if (runtimeIP.includes(':')) {
             const split = runtimeIP.split(':');
             ip = split[0];
-            port = Number(split[1]); 
+            port = Number(split[1]);
           }
-          console.log('Trying to TCP connect to ', ip, port);
+          console.log(`Trying to TCP connect to ${ip}:${port}`);
           this.socket.connect(port, ip);
         }
       }
     }, 1000);
 
     this.socket.on('connect', () => {
-      this.logger.log('Runtime connected';
+      this.logger.log('Runtime connected');
       this.socket.write(new Uint8Array([1])); // Runtime needs first byte to be 1 to recognize client as Dawn (instead of Shepherd)
     });
 
@@ -167,7 +167,8 @@ class TCPConn {
    */
   ipAddressListener = (_event: IpcMainEvent, ipAddress: string) => {
     if (ipAddress != runtimeIP) {
-      console.log(`Switching IP from ${runtimeIP} to ${ipAddress}, `, this.socket.connecting, this.socket.pending);
+      console.log(`Switching IP from ${runtimeIP} to ${ipAddress}`);
+      console.log(`Current socket status - Connecting: ${String(this.socket.connecting)} - Pending: ${String(this.socket.pending)}`);
       if (this.socket.connecting || !this.socket.pending) {
         this.socket.end();
       }
