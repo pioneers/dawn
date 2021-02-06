@@ -131,7 +131,7 @@ class UpdateBoxContainer extends React.Component<Props, State> {
       );
     }
     return (
-      <Modal show={shouldShow} onHide={hide}>
+      <Modal show={shouldShow} onHide={hide} animation={false}>
         <Modal.Header closeButton>
           <Modal.Title>Upload Update</Modal.Title>
         </Modal.Header>

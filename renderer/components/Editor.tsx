@@ -50,7 +50,6 @@ interface StateProps {
   fontSize: number;
   showConsole: boolean;
   consoleData: string[];
-  isRunningCode: boolean;
   runtimeStatus: boolean;
   fieldControlActivity: boolean;
   disableScroll: boolean;
@@ -81,6 +80,7 @@ interface State {
   mode: number;
   modeDisplay: string;
   simulate: boolean;
+  isRunning: boolean;
   fontsize?: number;
   keyboardControl: boolean;
   currentCharacter: string[];
@@ -125,6 +125,7 @@ export class Editor extends React.Component<Props, State> {
       editorHeight: 0, // Filled in later during componentDidMount
       mode: robotState.TELEOP,
       modeDisplay: robotState.TELEOPSTR,
+      isRunning: false,
       simulate: false,
       keyboardControl: false,
       currentCharacter: [], // need to store this in redux -> give to backend
@@ -326,23 +327,21 @@ export class Editor extends React.Component<Props, State> {
   }
 
   startRobot = () => {
+    this.setState({ isRunning: true });
     this.props.onUpdateCodeStatus(this.state.mode);
-    this.props.onClearConsole();
+    // this.props.onClearConsole();
   }
 
   stopRobot = () => {
     this.setState({
       simulate: false,
+      isRunning: false,
       modeDisplay: (this.state.mode === robotState.AUTONOMOUS) ?
         robotState.AUTOSTR : robotState.TELEOPSTR,
     });
     this.props.onUpdateCodeStatus(robotState.IDLE);
   }
 
-  estop = () => {
-    this.setState({ simulate: false, modeDisplay: robotState.ESTOPSTR });
-    this.props.onUpdateCodeStatus(robotState.ESTOP);
-  }
 
   simulateCompetition = () => {
     this.setState({ simulate: true, modeDisplay: robotState.SIMSTR });
@@ -530,7 +529,7 @@ export class Editor extends React.Component<Props, State> {
                 text="Run"
                 onClick={this.startRobot}
                 glyph="play"
-                disabled={this.props.isRunningCode
+                disabled={this.state.isRunning
                 || !this.props.runtimeStatus
                 || this.props.fieldControlActivity}
               />
@@ -539,14 +538,14 @@ export class Editor extends React.Component<Props, State> {
                 text="Stop"
                 onClick={this.stopRobot}
                 glyph="stop"
-                disabled={!(this.props.isRunningCode || this.state.simulate)}
+                disabled={!(this.state.isRunning || this.state.simulate)}
               />
               <DropdownButton
                 title={this.state.modeDisplay}
                 bsSize="small"
                 key="dropdown"
                 id="modeDropdown"
-                disabled={this.state.simulate
+                disabled={this.state.isRunning || this.state.simulate
                 || this.props.fieldControlActivity
                 || !this.props.runtimeStatus}
               >
@@ -556,33 +555,20 @@ export class Editor extends React.Component<Props, State> {
                   onClick={() => {
                     this.setState({ mode: robotState.TELEOP, modeDisplay: robotState.TELEOPSTR });
                   }}
-                >
-                  Tele-Operated
-                </MenuItem>
+                >Tele-Operated</MenuItem>
                 <MenuItem
                   eventKey="2"
                   active={this.state.mode === robotState.AUTONOMOUS && !this.state.simulate}
                   onClick={() => {
                     this.setState({ mode: robotState.AUTONOMOUS, modeDisplay: robotState.AUTOSTR });
                   }}
-                >
-                  Autonomous
-                </MenuItem>
+                >Autonomous</MenuItem>
                 <MenuItem
                   eventKey="3"
                   active={this.state.simulate}
                   onClick={this.simulateCompetition}
-                >
-                  Simulate Competition
-                </MenuItem>
+                >Simulate Competition</MenuItem>
               </DropdownButton>
-              <TooltipButton
-                id="e-stop"
-                text="E-STOP"
-                onClick={this.estop}
-                glyph="fire"
-                disabled={false}
-              />
             </ButtonGroup>
             {' '}
             <ButtonGroup id="console-buttons">
