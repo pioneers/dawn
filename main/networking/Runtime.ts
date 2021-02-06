@@ -15,7 +15,7 @@ import { Peripheral } from '../../renderer/types';
  */
 const UDP_SEND_PORT = 9000;
 const UDP_LISTEN_PORT = 9001;
-const TCP_PORT = 8101;
+const DEFAULT_TCP_PORT = 8101;
 
 /**
  * Runtime IP Address used for TCP and UDP connections
@@ -48,7 +48,7 @@ function readPacket(data: any): TCPPacket {
   const header = buf.slice(0, 3);
   const msgType = header[0];
   const msgLength = new Uint16Array(header.slice(1))[0];
-  const load = buf.slice(3);
+  const load = buf.slice(3, msgLength + 3);
 
   return {
     messageType: msgType,
@@ -97,14 +97,20 @@ class TCPConn {
   constructor(logger: Logger) {
     this.logger = logger;
     this.socket = new TCPSocket();
-
-    this.socket.setTimeout(5000);
+    this.socket.setTimeout(3000);
 
     setInterval(() => {
       if (!this.socket.connecting && this.socket.pending) {
-        console.log('Trying to TCP connect to ', runtimeIP);
         if (runtimeIP !== defaults.IPADDRESS) {
-          this.socket.connect(TCP_PORT, runtimeIP)
+          let port = DEFAULT_TCP_PORT;
+          let ip = runtimeIP;
+          if (runtimeIP.includes(':')) {
+            const split = runtimeIP.split(':');
+            ip = split[0];
+            port = Number(split[1]);
+          }
+          console.log(`Trying to TCP connect to ${ip}:${port}`);
+          this.socket.connect(port, ip);
         }
       }
     }, 1000);
@@ -160,7 +166,14 @@ class TCPConn {
    * Receives new IP Address to send messages to.
    */
   ipAddressListener = (_event: IpcMainEvent, ipAddress: string) => {
-    runtimeIP = ipAddress;
+    if (ipAddress != runtimeIP) {
+      console.log(`Switching IP from ${runtimeIP} to ${ipAddress}`);
+      console.log(`Current socket status - Connecting: ${String(this.socket.connecting)} - Pending: ${String(this.socket.pending)}`);
+      if (this.socket.connecting || !this.socket.pending) {
+        this.socket.end();
+      }
+      runtimeIP = ipAddress;
+    }
   };
 
   // TODO: We can possibly combine below methods into single handler.
@@ -294,18 +307,25 @@ class UDPConn {
    * Sends messages when Gamepad information changes
    * or when 100 ms has passed (with 50 ms cooldown)
    */
-  sendGamepadMessages = (_event: IpcMainEvent, data: protos.GpState[]) => {
+  sendGamepadMessages = (_event: IpcMainEvent, data: protos.Input[]) => {
     if (data.length === 0) {
       data.push(
-        protos.GpState.create({
+        protos.Input.create({
           connected: false,
         })
       );
     }
 
-    const message = protos.GpState.encode(data[0]).finish();
-    this.logger.debug(`Dawn sent UDP to ${runtimeIP}`);
-    this.socket.send(message, UDP_SEND_PORT, runtimeIP);
+    const message = protos.UserInputs.encode({inputs: data}).finish();
+    let port = UDP_SEND_PORT;
+    let ip = runtimeIP;
+    // This is temporary. This will need to be changed once Runtime figures out how to send UDP data over TCP ngrok connection
+    if (defaults.NGROK && runtimeIP.includes(':')) {
+      const split = runtimeIP.split(':');
+      ip = split[0];
+      port = Number(split[1]); 
+    }
+    this.socket.send(message, port, ip);
   };
 
   close() {
