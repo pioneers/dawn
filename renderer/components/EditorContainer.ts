@@ -8,6 +8,7 @@ import {
   createNewFile,
   downloadCode,
   uploadCode,
+  updateKeyboard
 } from '../actions/EditorActions';
 import {
   changeTheme,
@@ -35,6 +36,7 @@ const mapStateToProps = (state: ApplicationState) => ({
   fieldControlActivity: state.info.fieldControlActivity,
   disableScroll: state.console.disableScroll,
   consoleUnread: state.console.consoleUnread,
+  keyboard: state.editor.keyboard
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
@@ -80,6 +82,10 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   onUploadCode: () => {
     dispatch(uploadCode());
   },
+  onUpdateKeyboard: (keyboard: string[]) => {
+    dispatch(updateKeyboard(keyboard));
+  }
+  
 });
 
 export const EditorContainer = connect(mapStateToProps, mapDispatchToProps)(Editor);

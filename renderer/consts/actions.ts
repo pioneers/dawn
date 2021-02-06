@@ -26,6 +26,7 @@ export enum EditorActionsTypes {
   CREATE_NEW_FILE = 'CREATE_NEW_FILE',
   DOWNLOAD_CODE = 'DOWNLOAD_CODE',
   UPLOAD_CODE = 'UPLOAD_CODE',
+  UPDATE_KEYBOARD = 'UPDATE_KEYBOARD'
 }
 
 export enum GamepadsActionsTypes {

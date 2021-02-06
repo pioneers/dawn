@@ -47,3 +47,8 @@ export const downloadCode: EditorActions['downloadCode'] = () => ({
 export const uploadCode: EditorActions['uploadCode'] = () => ({
   type: consts.EditorActionsTypes.UPLOAD_CODE,
 });
+
+export const updateKeyboard: EditorActions['updateKeyboard'] = (keyboard: string[]) => ({
+  type: consts.EditorActionsTypes.UPDATE_KEYBOARD,
+  keyboard,
+})
