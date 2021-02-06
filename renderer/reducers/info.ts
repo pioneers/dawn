@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron';
-import { robotState, runtimeState, defaults } from '../utils/utils';
+import { robotState, defaults } from '../utils/utils';
 import * as consts from '../consts';
 import {
   InfoPerMessageAction,
@@ -25,7 +25,6 @@ type Actions =
 interface InfoState {
   ipAddress: string;
   studentCodeStatus: number;
-  robotState: number;
   isRunningCode: boolean;
   connectionStatus: boolean;
   runtimeStatus: boolean;
@@ -38,7 +37,6 @@ interface InfoState {
 const initialInfoState = {
   ipAddress: defaults.IPADDRESS,
   studentCodeStatus: robotState.IDLE,
-  robotState: runtimeState.STUDENT_STOPPED,
   isRunningCode: false,
   connectionStatus: false,
   runtimeStatus: false,

@@ -16,7 +16,7 @@ import { toggleFieldControl } from '../actions/FieldActions';
 import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
 import { TIMEOUT, defaults, logging } from '../utils/utils';
-import { GpState } from '../../protos/protos';
+import { Input, Source } from '../../protos/protos';
 
 let timestamp = Date.now();
 
@@ -232,8 +232,8 @@ function _needToUpdate(newGamepads: (Gamepad | null)[]): boolean {
   });
 }
 
-function formatGamepads(newGamepads: (Gamepad | null)[]): GpState[] {
-  let formattedGamepads: GpState[] = [];
+function formatGamepads(newGamepads: (Gamepad | null)[]): Input[] {
+  let formattedGamepads: Input[] = [];
   // Currently there is a bug on windows where navigator.getGamepads()
   // returns a second, 'ghost' gamepad even when only one is connected.
   // The filter on 'mapping' filters out the ghost gamepad.
@@ -245,10 +245,11 @@ function formatGamepads(newGamepads: (Gamepad | null)[]): GpState[] {
           bitmap |= (1 << index);
         }
       });
-      formattedGamepads[indexGamepad] = new GpState({
+      formattedGamepads[indexGamepad] = new Input({
         connected: gamepad.connected,
         axes: gamepad.axes.slice(),
         buttons: bitmap,
+        source: Source.GAMEPAD
       });
     }
   });

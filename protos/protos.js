@@ -1,3 +1,4 @@
+/*eslint-disable block-scoped-var, id-length, no-control-regex, no-magic-numbers, no-prototype-builtins, no-redeclare, no-shadow, no-var, sort-vars*/
 import * as $protobuf from "protobufjs/minimal";
 
 // Common aliases
@@ -103,13 +104,13 @@ export const Param = $root.Param = (() => {
     Param.encode = function encode(message, writer) {
         if (!writer)
             writer = $Writer.create();
-        if (message.name != null && message.hasOwnProperty("name"))
+        if (message.name != null && Object.hasOwnProperty.call(message, "name"))
             writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
-        if (message.fval != null && message.hasOwnProperty("fval"))
+        if (message.fval != null && Object.hasOwnProperty.call(message, "fval"))
             writer.uint32(/* id 2, wireType 5 =*/21).float(message.fval);
-        if (message.ival != null && message.hasOwnProperty("ival"))
+        if (message.ival != null && Object.hasOwnProperty.call(message, "ival"))
             writer.uint32(/* id 3, wireType 0 =*/24).int32(message.ival);
-        if (message.bval != null && message.hasOwnProperty("bval"))
+        if (message.bval != null && Object.hasOwnProperty.call(message, "bval"))
             writer.uint32(/* id 4, wireType 0 =*/32).bool(message.bval);
         return writer;
     };
@@ -297,7 +298,7 @@ export const Device = $root.Device = (() => {
      * @exports IDevice
      * @interface IDevice
      * @property {string|null} [name] Device name
-     * @property {number|null} [uid] Device uid
+     * @property {number|Long|null} [uid] Device uid
      * @property {number|null} [type] Device type
      * @property {Array.<IParam>|null} [params] Device params
      */
@@ -374,11 +375,11 @@ export const Device = $root.Device = (() => {
     Device.encode = function encode(message, writer) {
         if (!writer)
             writer = $Writer.create();
-        if (message.name != null && message.hasOwnProperty("name"))
+        if (message.name != null && Object.hasOwnProperty.call(message, "name"))
             writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
-        if (message.uid != null && message.hasOwnProperty("uid"))
+        if (message.uid != null && Object.hasOwnProperty.call(message, "uid"))
             writer.uint32(/* id 2, wireType 0 =*/16).uint64(message.uid);
-        if (message.type != null && message.hasOwnProperty("type"))
+        if (message.type != null && Object.hasOwnProperty.call(message, "type"))
             writer.uint32(/* id 3, wireType 0 =*/24).int32(message.type);
         if (message.params != null && message.params.length)
             for (let i = 0; i < message.params.length; ++i)
@@ -788,26 +789,27 @@ export const DevData = $root.DevData = (() => {
     return DevData;
 })();
 
-export const GpState = $root.GpState = (() => {
+export const Input = $root.Input = (() => {
 
     /**
-     * Properties of a GpState.
-     * @exports IGpState
-     * @interface IGpState
-     * @property {boolean|null} [connected] GpState connected
-     * @property {number|null} [buttons] GpState buttons
-     * @property {Array.<number>|null} [axes] GpState axes
+     * Properties of an Input.
+     * @exports IInput
+     * @interface IInput
+     * @property {boolean|null} [connected] Input connected
+     * @property {number|Long|null} [buttons] Input buttons
+     * @property {Array.<number>|null} [axes] Input axes
+     * @property {Source|null} [source] Input source
      */
 
     /**
-     * Constructs a new GpState.
-     * @exports GpState
-     * @classdesc Represents a GpState.
-     * @implements IGpState
+     * Constructs a new Input.
+     * @exports Input
+     * @classdesc Represents an Input.
+     * @implements IInput
      * @constructor
-     * @param {IGpState=} [properties] Properties to set
+     * @param {IInput=} [properties] Properties to set
      */
-    function GpState(properties) {
+    function Input(properties) {
         this.axes = [];
         if (properties)
             for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -816,94 +818,104 @@ export const GpState = $root.GpState = (() => {
     }
 
     /**
-     * GpState connected.
+     * Input connected.
      * @member {boolean} connected
-     * @memberof GpState
+     * @memberof Input
      * @instance
      */
-    GpState.prototype.connected = false;
+    Input.prototype.connected = false;
 
     /**
-     * GpState buttons.
-     * @member {number} buttons
-     * @memberof GpState
+     * Input buttons.
+     * @member {number|Long} buttons
+     * @memberof Input
      * @instance
      */
-    GpState.prototype.buttons = 0;
+    Input.prototype.buttons = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
 
     /**
-     * GpState axes.
+     * Input axes.
      * @member {Array.<number>} axes
-     * @memberof GpState
+     * @memberof Input
      * @instance
      */
-    GpState.prototype.axes = $util.emptyArray;
+    Input.prototype.axes = $util.emptyArray;
 
     /**
-     * Creates a new GpState instance using the specified properties.
-     * @function create
-     * @memberof GpState
-     * @static
-     * @param {IGpState=} [properties] Properties to set
-     * @returns {GpState} GpState instance
+     * Input source.
+     * @member {Source} source
+     * @memberof Input
+     * @instance
      */
-    GpState.create = function create(properties) {
-        return new GpState(properties);
+    Input.prototype.source = 0;
+
+    /**
+     * Creates a new Input instance using the specified properties.
+     * @function create
+     * @memberof Input
+     * @static
+     * @param {IInput=} [properties] Properties to set
+     * @returns {Input} Input instance
+     */
+    Input.create = function create(properties) {
+        return new Input(properties);
     };
 
     /**
-     * Encodes the specified GpState message. Does not implicitly {@link GpState.verify|verify} messages.
+     * Encodes the specified Input message. Does not implicitly {@link Input.verify|verify} messages.
      * @function encode
-     * @memberof GpState
+     * @memberof Input
      * @static
-     * @param {IGpState} message GpState message or plain object to encode
+     * @param {IInput} message Input message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
-    GpState.encode = function encode(message, writer) {
+    Input.encode = function encode(message, writer) {
         if (!writer)
             writer = $Writer.create();
-        if (message.connected != null && message.hasOwnProperty("connected"))
+        if (message.connected != null && Object.hasOwnProperty.call(message, "connected"))
             writer.uint32(/* id 1, wireType 0 =*/8).bool(message.connected);
-        if (message.buttons != null && message.hasOwnProperty("buttons"))
-            writer.uint32(/* id 2, wireType 5 =*/21).fixed32(message.buttons);
+        if (message.buttons != null && Object.hasOwnProperty.call(message, "buttons"))
+            writer.uint32(/* id 2, wireType 1 =*/17).fixed64(message.buttons);
         if (message.axes != null && message.axes.length) {
             writer.uint32(/* id 3, wireType 2 =*/26).fork();
             for (let i = 0; i < message.axes.length; ++i)
                 writer.float(message.axes[i]);
             writer.ldelim();
         }
+        if (message.source != null && Object.hasOwnProperty.call(message, "source"))
+            writer.uint32(/* id 4, wireType 0 =*/32).int32(message.source);
         return writer;
     };
 
     /**
-     * Encodes the specified GpState message, length delimited. Does not implicitly {@link GpState.verify|verify} messages.
+     * Encodes the specified Input message, length delimited. Does not implicitly {@link Input.verify|verify} messages.
      * @function encodeDelimited
-     * @memberof GpState
+     * @memberof Input
      * @static
-     * @param {IGpState} message GpState message or plain object to encode
+     * @param {IInput} message Input message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
-    GpState.encodeDelimited = function encodeDelimited(message, writer) {
+    Input.encodeDelimited = function encodeDelimited(message, writer) {
         return this.encode(message, writer).ldelim();
     };
 
     /**
-     * Decodes a GpState message from the specified reader or buffer.
+     * Decodes an Input message from the specified reader or buffer.
      * @function decode
-     * @memberof GpState
+     * @memberof Input
      * @static
      * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
      * @param {number} [length] Message length if known beforehand
-     * @returns {GpState} GpState
+     * @returns {Input} Input
      * @throws {Error} If the payload is not a reader or valid buffer
      * @throws {$protobuf.util.ProtocolError} If required fields are missing
      */
-    GpState.decode = function decode(reader, length) {
+    Input.decode = function decode(reader, length) {
         if (!(reader instanceof $Reader))
             reader = $Reader.create(reader);
-        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.GpState();
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.Input();
         while (reader.pos < end) {
             let tag = reader.uint32();
             switch (tag >>> 3) {
@@ -911,7 +923,7 @@ export const GpState = $root.GpState = (() => {
                 message.connected = reader.bool();
                 break;
             case 2:
-                message.buttons = reader.fixed32();
+                message.buttons = reader.fixed64();
                 break;
             case 3:
                 if (!(message.axes && message.axes.length))
@@ -923,6 +935,9 @@ export const GpState = $root.GpState = (() => {
                 } else
                     message.axes.push(reader.float());
                 break;
+            case 4:
+                message.source = reader.int32();
+                break;
             default:
                 reader.skipType(tag & 7);
                 break;
@@ -932,38 +947,38 @@ export const GpState = $root.GpState = (() => {
     };
 
     /**
-     * Decodes a GpState message from the specified reader or buffer, length delimited.
+     * Decodes an Input message from the specified reader or buffer, length delimited.
      * @function decodeDelimited
-     * @memberof GpState
+     * @memberof Input
      * @static
      * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-     * @returns {GpState} GpState
+     * @returns {Input} Input
      * @throws {Error} If the payload is not a reader or valid buffer
      * @throws {$protobuf.util.ProtocolError} If required fields are missing
      */
-    GpState.decodeDelimited = function decodeDelimited(reader) {
+    Input.decodeDelimited = function decodeDelimited(reader) {
         if (!(reader instanceof $Reader))
             reader = new $Reader(reader);
         return this.decode(reader, reader.uint32());
     };
 
     /**
-     * Verifies a GpState message.
+     * Verifies an Input message.
      * @function verify
-     * @memberof GpState
+     * @memberof Input
      * @static
      * @param {Object.<string,*>} message Plain object to verify
      * @returns {string|null} `null` if valid, otherwise the reason why it is not
      */
-    GpState.verify = function verify(message) {
+    Input.verify = function verify(message) {
         if (typeof message !== "object" || message === null)
             return "object expected";
         if (message.connected != null && message.hasOwnProperty("connected"))
             if (typeof message.connected !== "boolean")
                 return "connected: boolean expected";
         if (message.buttons != null && message.hasOwnProperty("buttons"))
-            if (!$util.isInteger(message.buttons))
-                return "buttons: integer expected";
+            if (!$util.isInteger(message.buttons) && !(message.buttons && $util.isInteger(message.buttons.low) && $util.isInteger(message.buttons.high)))
+                return "buttons: integer|Long expected";
         if (message.axes != null && message.hasOwnProperty("axes")) {
             if (!Array.isArray(message.axes))
                 return "axes: array expected";
@@ -971,45 +986,70 @@ export const GpState = $root.GpState = (() => {
                 if (typeof message.axes[i] !== "number")
                     return "axes: number[] expected";
         }
+        if (message.source != null && message.hasOwnProperty("source"))
+            switch (message.source) {
+            default:
+                return "source: enum value expected";
+            case 0:
+            case 1:
+                break;
+            }
         return null;
     };
 
     /**
-     * Creates a GpState message from a plain object. Also converts values to their respective internal types.
+     * Creates an Input message from a plain object. Also converts values to their respective internal types.
      * @function fromObject
-     * @memberof GpState
+     * @memberof Input
      * @static
      * @param {Object.<string,*>} object Plain object
-     * @returns {GpState} GpState
+     * @returns {Input} Input
      */
-    GpState.fromObject = function fromObject(object) {
-        if (object instanceof $root.GpState)
+    Input.fromObject = function fromObject(object) {
+        if (object instanceof $root.Input)
             return object;
-        let message = new $root.GpState();
+        let message = new $root.Input();
         if (object.connected != null)
             message.connected = Boolean(object.connected);
         if (object.buttons != null)
-            message.buttons = object.buttons >>> 0;
+            if ($util.Long)
+                (message.buttons = $util.Long.fromValue(object.buttons)).unsigned = false;
+            else if (typeof object.buttons === "string")
+                message.buttons = parseInt(object.buttons, 10);
+            else if (typeof object.buttons === "number")
+                message.buttons = object.buttons;
+            else if (typeof object.buttons === "object")
+                message.buttons = new $util.LongBits(object.buttons.low >>> 0, object.buttons.high >>> 0).toNumber();
         if (object.axes) {
             if (!Array.isArray(object.axes))
-                throw TypeError(".GpState.axes: array expected");
+                throw TypeError(".Input.axes: array expected");
             message.axes = [];
             for (let i = 0; i < object.axes.length; ++i)
                 message.axes[i] = Number(object.axes[i]);
+        }
+        switch (object.source) {
+        case "GAMEPAD":
+        case 0:
+            message.source = 0;
+            break;
+        case "KEYBOARD":
+        case 1:
+            message.source = 1;
+            break;
         }
         return message;
     };
 
     /**
-     * Creates a plain object from a GpState message. Also converts values to other types if specified.
+     * Creates a plain object from an Input message. Also converts values to other types if specified.
      * @function toObject
-     * @memberof GpState
+     * @memberof Input
      * @static
-     * @param {GpState} message GpState
+     * @param {Input} message Input
      * @param {$protobuf.IConversionOptions} [options] Conversion options
      * @returns {Object.<string,*>} Plain object
      */
-    GpState.toObject = function toObject(message, options) {
+    Input.toObject = function toObject(message, options) {
         if (!options)
             options = {};
         let object = {};
@@ -1017,45 +1057,277 @@ export const GpState = $root.GpState = (() => {
             object.axes = [];
         if (options.defaults) {
             object.connected = false;
-            object.buttons = 0;
+            if ($util.Long) {
+                let long = new $util.Long(0, 0, false);
+                object.buttons = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+            } else
+                object.buttons = options.longs === String ? "0" : 0;
+            object.source = options.enums === String ? "GAMEPAD" : 0;
         }
         if (message.connected != null && message.hasOwnProperty("connected"))
             object.connected = message.connected;
         if (message.buttons != null && message.hasOwnProperty("buttons"))
-            object.buttons = message.buttons;
+            if (typeof message.buttons === "number")
+                object.buttons = options.longs === String ? String(message.buttons) : message.buttons;
+            else
+                object.buttons = options.longs === String ? $util.Long.prototype.toString.call(message.buttons) : options.longs === Number ? new $util.LongBits(message.buttons.low >>> 0, message.buttons.high >>> 0).toNumber() : message.buttons;
         if (message.axes && message.axes.length) {
             object.axes = [];
             for (let j = 0; j < message.axes.length; ++j)
                 object.axes[j] = options.json && !isFinite(message.axes[j]) ? String(message.axes[j]) : message.axes[j];
         }
+        if (message.source != null && message.hasOwnProperty("source"))
+            object.source = options.enums === String ? $root.Source[message.source] : message.source;
         return object;
     };
 
     /**
-     * Converts this GpState to JSON.
+     * Converts this Input to JSON.
      * @function toJSON
-     * @memberof GpState
+     * @memberof Input
      * @instance
      * @returns {Object.<string,*>} JSON object
      */
-    GpState.prototype.toJSON = function toJSON() {
+    Input.prototype.toJSON = function toJSON() {
         return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
     };
 
-    return GpState;
+    return Input;
+})();
+
+export const UserInputs = $root.UserInputs = (() => {
+
+    /**
+     * Properties of a UserInputs.
+     * @exports IUserInputs
+     * @interface IUserInputs
+     * @property {Array.<IInput>|null} [inputs] UserInputs inputs
+     */
+
+    /**
+     * Constructs a new UserInputs.
+     * @exports UserInputs
+     * @classdesc Represents a UserInputs.
+     * @implements IUserInputs
+     * @constructor
+     * @param {IUserInputs=} [properties] Properties to set
+     */
+    function UserInputs(properties) {
+        this.inputs = [];
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * UserInputs inputs.
+     * @member {Array.<IInput>} inputs
+     * @memberof UserInputs
+     * @instance
+     */
+    UserInputs.prototype.inputs = $util.emptyArray;
+
+    /**
+     * Creates a new UserInputs instance using the specified properties.
+     * @function create
+     * @memberof UserInputs
+     * @static
+     * @param {IUserInputs=} [properties] Properties to set
+     * @returns {UserInputs} UserInputs instance
+     */
+    UserInputs.create = function create(properties) {
+        return new UserInputs(properties);
+    };
+
+    /**
+     * Encodes the specified UserInputs message. Does not implicitly {@link UserInputs.verify|verify} messages.
+     * @function encode
+     * @memberof UserInputs
+     * @static
+     * @param {IUserInputs} message UserInputs message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    UserInputs.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.inputs != null && message.inputs.length)
+            for (let i = 0; i < message.inputs.length; ++i)
+                $root.Input.encode(message.inputs[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+        return writer;
+    };
+
+    /**
+     * Encodes the specified UserInputs message, length delimited. Does not implicitly {@link UserInputs.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof UserInputs
+     * @static
+     * @param {IUserInputs} message UserInputs message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    UserInputs.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes a UserInputs message from the specified reader or buffer.
+     * @function decode
+     * @memberof UserInputs
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {UserInputs} UserInputs
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    UserInputs.decode = function decode(reader, length) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.UserInputs();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            switch (tag >>> 3) {
+            case 1:
+                if (!(message.inputs && message.inputs.length))
+                    message.inputs = [];
+                message.inputs.push($root.Input.decode(reader, reader.uint32()));
+                break;
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes a UserInputs message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof UserInputs
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {UserInputs} UserInputs
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    UserInputs.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies a UserInputs message.
+     * @function verify
+     * @memberof UserInputs
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    UserInputs.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.inputs != null && message.hasOwnProperty("inputs")) {
+            if (!Array.isArray(message.inputs))
+                return "inputs: array expected";
+            for (let i = 0; i < message.inputs.length; ++i) {
+                let error = $root.Input.verify(message.inputs[i]);
+                if (error)
+                    return "inputs." + error;
+            }
+        }
+        return null;
+    };
+
+    /**
+     * Creates a UserInputs message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof UserInputs
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {UserInputs} UserInputs
+     */
+    UserInputs.fromObject = function fromObject(object) {
+        if (object instanceof $root.UserInputs)
+            return object;
+        let message = new $root.UserInputs();
+        if (object.inputs) {
+            if (!Array.isArray(object.inputs))
+                throw TypeError(".UserInputs.inputs: array expected");
+            message.inputs = [];
+            for (let i = 0; i < object.inputs.length; ++i) {
+                if (typeof object.inputs[i] !== "object")
+                    throw TypeError(".UserInputs.inputs: object expected");
+                message.inputs[i] = $root.Input.fromObject(object.inputs[i]);
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Creates a plain object from a UserInputs message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof UserInputs
+     * @static
+     * @param {UserInputs} message UserInputs
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    UserInputs.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.arrays || options.defaults)
+            object.inputs = [];
+        if (message.inputs && message.inputs.length) {
+            object.inputs = [];
+            for (let j = 0; j < message.inputs.length; ++j)
+                object.inputs[j] = $root.Input.toObject(message.inputs[j], options);
+        }
+        return object;
+    };
+
+    /**
+     * Converts this UserInputs to JSON.
+     * @function toJSON
+     * @memberof UserInputs
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    UserInputs.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    return UserInputs;
+})();
+
+/**
+ * Source enum.
+ * @exports Source
+ * @enum {number}
+ * @property {number} GAMEPAD=0 GAMEPAD value
+ * @property {number} KEYBOARD=1 KEYBOARD value
+ */
+export const Source = $root.Source = (() => {
+    const valuesById = {}, values = Object.create(valuesById);
+    values[valuesById[0] = "GAMEPAD"] = 0;
+    values[valuesById[1] = "KEYBOARD"] = 1;
+    return values;
 })();
 
 /**
  * Mode enum.
  * @exports Mode
- * @enum {string}
+ * @enum {number}
  * @property {number} IDLE=0 IDLE value
  * @property {number} AUTO=1 AUTO value
  * @property {number} TELEOP=2 TELEOP value
  * @property {number} ESTOP=3 ESTOP value
  * @property {number} CHALLENGE=4 CHALLENGE value
  */
-$root.Mode = (function() {
+export const Mode = $root.Mode = (() => {
     const valuesById = {}, values = Object.create(valuesById);
     values[valuesById[0] = "IDLE"] = 0;
     values[valuesById[1] = "AUTO"] = 1;
@@ -1121,7 +1393,7 @@ export const RunMode = $root.RunMode = (() => {
     RunMode.encode = function encode(message, writer) {
         if (!writer)
             writer = $Writer.create();
-        if (message.mode != null && message.hasOwnProperty("mode"))
+        if (message.mode != null && Object.hasOwnProperty.call(message, "mode"))
             writer.uint32(/* id 1, wireType 0 =*/8).int32(message.mode);
         return writer;
     };
@@ -1283,11 +1555,11 @@ export const RunMode = $root.RunMode = (() => {
 /**
  * Pos enum.
  * @exports Pos
- * @enum {string}
+ * @enum {number}
  * @property {number} LEFT=0 LEFT value
  * @property {number} RIGHT=1 RIGHT value
  */
-$root.Pos = (function() {
+export const Pos = $root.Pos = (() => {
     const valuesById = {}, values = Object.create(valuesById);
     values[valuesById[0] = "LEFT"] = 0;
     values[valuesById[1] = "RIGHT"] = 1;
@@ -1350,7 +1622,7 @@ export const StartPos = $root.StartPos = (() => {
     StartPos.encode = function encode(message, writer) {
         if (!writer)
             writer = $Writer.create();
-        if (message.pos != null && message.hasOwnProperty("pos"))
+        if (message.pos != null && Object.hasOwnProperty.call(message, "pos"))
             writer.uint32(/* id 1, wireType 0 =*/8).int32(message.pos);
         return writer;
     };

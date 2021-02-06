@@ -7,10 +7,10 @@ import {
 } from 'react-bootstrap';
 import _ from 'lodash';
 import numeral from 'numeral';
-import { GpState } from '../../protos/protos';
+import { Input } from '../../protos/protos';
 
 interface OwnProps {
-  gamepad: GpState;
+  gamepad: Input;
   index: number;
 }
 
@@ -40,8 +40,8 @@ export class Gamepad extends React.Component<Props, State> {
   roundedValues = () => {
     const gamepadButtons: string[] = [];
 
-    for (let i = 0; i < 32; i++) {
-      gamepadButtons.push(numeral((this.props.gamepad.buttons & (1 << i)) >> i).format('0'));
+    for (let i = 0; i < NUM_GAMEPAD_BUTTONS; i++) {
+      gamepadButtons.push(numeral((Number(this.props.gamepad.buttons) & (1 << i)) >> i).format('0'));
     }
 
     return {
