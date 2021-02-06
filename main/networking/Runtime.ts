@@ -111,13 +111,12 @@ class TCPConn {
           }
           console.log('Trying to TCP connect to ', ip, port);
           this.socket.connect(port, ip);
-          console.log("Finished trying, ", this.socket.connecting, this.socket.pending);
         }
       }
     }, 1000);
 
     this.socket.on('connect', () => {
-      console.log('Runtime connected, ', this.socket.connecting, this.socket.pending);
+      this.logger.log('Runtime connected';
       this.socket.write(new Uint8Array([1])); // Runtime needs first byte to be 1 to recognize client as Dawn (instead of Shepherd)
     });
 
@@ -141,7 +140,6 @@ class TCPConn {
      */
     this.socket.on('data', (data) => {
       const message = readPacket(data);
-      console.log(`Sent msg length: ${message.messageLength}, actual msg length: ${message.payload.length}`);
       let decoded: protos.Text;
 
       switch (message.messageType) {
@@ -320,12 +318,12 @@ class UDPConn {
     const message = protos.UserInputs.encode({inputs: data}).finish();
     let port = UDP_SEND_PORT;
     let ip = runtimeIP;
-    if (runtimeIP.includes(':')) {
+    // This is temporary. This will need to be changed once Runtime figures out how to send UDP data over TCP ngrok connection
+    if (defaults.NGROK && runtimeIP.includes(':')) {
       const split = runtimeIP.split(':');
       ip = split[0];
       port = Number(split[1]); 
     }
-    // console.log('Dawn sent UDP to ', ip, port);
     this.socket.send(message, port, ip);
   };
 

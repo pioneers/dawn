@@ -21,7 +21,10 @@ export const getValidationState = (testIPAddress: string) => {
   if (testIPAddress === 'localhost') {
     return 'warning';
   }
-  return 'warning'; // Used to be 'error' but made 'warning' to allow for ngrok IP addresses
+  if (defaults.NGROK) {
+    return 'warning'; // Don't care about regex for ngrok IPs
+  }
+  return 'error';
 };
 
 export const uploadStatus = {
@@ -63,6 +66,7 @@ export const defaults = {
   PASSWORD: 'raspberry',
   IPADDRESS: '192.168.0.0',
   STUDENTCODELOC: '/home/pi/runtime/executor/studentcode.py',
+  NGROK: true,
 };
 
 export const timings = {
