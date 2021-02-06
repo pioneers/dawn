@@ -16,7 +16,7 @@ import {
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import { Ace } from 'ace-builds';
-import { remote, clipboard } from 'electron';
+import { remote } from 'electron';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
 
@@ -36,7 +36,7 @@ import 'ace-builds/src-noconflict/theme-solarized_dark';
 import 'ace-builds/src-noconflict/theme-solarized_light';
 import 'ace-builds/src-noconflict/theme-terminal';
 
-import { useFontResizer } from './fontResizer';
+import { useFontResizer } from './useFontResizer';
 import { ConsoleOutput } from '../ConsoleOutput';
 import { TooltipButton } from '../TooltipButton';
 import { pathToName, robotState, timings, logging, windowInfo } from '../../utils/utils';
@@ -123,7 +123,6 @@ export const Editor = (props: Props) => {
    * Confirmation Dialog on Quit, Stored Editor Settings, Window Size-Editor Re-render
    */
   useEffect(() => {
-    console.log('code editor', CodeEditor);
     CodeEditor.editor.setOptions({
       enableBasicAutocompletion: true,
       enableLiveAutocompletion: true
@@ -373,18 +372,6 @@ export const Editor = (props: Props) => {
     storage.set('editorTheme', { theme }, (err: any) => {
       if (err) logging.log(err);
     });
-  };
-
-  const raiseConsole = () => {
-    setConsoleHeight(consoleHeight + windowInfo.UNIT);
-  };
-
-  const lowerConsole = () => {
-    setConsoleHeight(consoleHeight - windowInfo.UNIT);
-  };
-
-  const copyConsole = () => {
-    clipboard.writeText(props.consoleData.join(''));
   };
 
   const changeMarker = hasUnsavedChanges() ? '*' : '';
