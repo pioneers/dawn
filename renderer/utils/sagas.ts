@@ -16,7 +16,7 @@ import { toggleFieldControl } from '../actions/FieldActions';
 import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
 import { TIMEOUT, defaults, logging } from '../utils/utils';
-import { GpState } from '../../protos/protos';
+import { Input, Source } from '../../protos/protos';
 
 let timestamp = Date.now();
 
@@ -153,8 +153,8 @@ function* openFile(action: any) {
     if (type === 'open') {
       try {
         const filepath: string = yield call(openFileDialog);
-        const data = yield cps([fs, readFile], filepath);
-        yield put(openFileSucceeded(data, filepath));
+        const data: Buffer = yield cps([fs, readFile], filepath);
+        yield put(openFileSucceeded(data.toString(), filepath));
       } catch (e) {
         logging.log('No filename specified, no file opened.');
       }
@@ -182,8 +182,8 @@ function* dragFile(action: any) {
   if (res === 0 || res === 1) {
     try {
       const { filepath } = action;
-      const data = yield cps([fs, readFile], filepath);
-      yield put(openFileSucceeded(data, filepath));
+      const data: Buffer = yield cps([fs, readFile], filepath);
+      yield put(openFileSucceeded(data.toString(), filepath));
     } catch (e) {
       logging.log('Failure to Drag File In');
     }
@@ -232,8 +232,8 @@ function _needToUpdate(newGamepads: (Gamepad | null)[]): boolean {
   });
 }
 
-function formatGamepads(newGamepads: (Gamepad | null)[]): GpState[] {
-  let formattedGamepads: GpState[] = [];
+function formatGamepads(newGamepads: (Gamepad | null)[]): Input[] {
+  let formattedGamepads: Input[] = [];
   // Currently there is a bug on windows where navigator.getGamepads()
   // returns a second, 'ghost' gamepad even when only one is connected.
   // The filter on 'mapping' filters out the ghost gamepad.
@@ -245,10 +245,11 @@ function formatGamepads(newGamepads: (Gamepad | null)[]): GpState[] {
           bitmap |= (1 << index);
         }
       });
-      formattedGamepads[indexGamepad] = new GpState({
+      formattedGamepads[indexGamepad] = new Input({
         connected: gamepad.connected,
         axes: gamepad.axes.slice(),
         buttons: bitmap,
+        source: Source.GAMEPAD
       });
     }
   });
@@ -272,7 +273,6 @@ function* runtimeGamepads() {
       if (_.some(newGamepads) || Date.now() - timestamp > 100) {
         timestamp = Date.now();
         yield put({ type: 'UPDATE_MAIN_PROCESS' });
-        yield put({ type: 'EXPORT_RUN_MODE' });
       }
     }
 
@@ -417,8 +417,8 @@ function* downloadStudentCode() {
     }));
     switch (errors) {
       case 0: {
-        const data = yield cps(fs.readFile, `${path}/robotCode.py`);
-        yield put(openFileSucceeded(data, `${path}/robotCode.py`));
+        const data: Buffer = yield cps(fs.readFile, `${path}/robotCode.py`);
+        yield put(openFileSucceeded(data.toString(), `${path}/robotCode.py`));
         yield put(addAsyncAlert(
           'Download Success',
           'File Downloaded Successfully',
@@ -565,16 +565,6 @@ function timestampBounceback() {
 }
 
 /**
- * Sends run mode status upon each main process update.
- */
-function* exportRunMode() {
-  const stateSlice = yield select((state: any) => ({
-    mode: state.info.studentCodeStatus,
-  }));
-  ipcRenderer.send('runModeUpdate', stateSlice);
-}
-
-/**
  * The root saga combines all the other sagas together into one.
  */
 export default function* rootSaga() {
@@ -589,7 +579,6 @@ export default function* rootSaga() {
     takeEvery('UPLOAD_CODE', uploadStudentCode),
     takeEvery('TOGGLE_FIELD_CONTROL', handleFieldControl),
     takeEvery('TIMESTAMP_CHECK', timestampBounceback),
-    takeEvery('EXPORT_RUN_MODE', exportRunMode),
     fork(runtimeHeartbeat),
     fork(runtimeGamepads),
     fork(runtimeSaga),

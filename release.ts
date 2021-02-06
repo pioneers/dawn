@@ -3,8 +3,8 @@ import packager, { Options } from 'electron-packager';
 import path from 'path';
 import { exec } from 'child_process';
 
-/* General release command: 'node release.ts'
- * For a specific target: 'node release.ts --platform=... --arch=...'
+/* General release command: 'ts-node release.ts'
+ * For a specific target: 'ts-node release.ts --platform=... --arch=...'
  */
 async function pack(platform: string, arch: string) {
   const packageOptions: Options = {
@@ -12,7 +12,7 @@ async function pack(platform: string, arch: string) {
     name: 'dawn',
     icon: './icons/pieicon',
     asar: true,
-    out: path.resolve('..'), // build in the parent dir
+    out: path.resolve('./dawn-packaged'), // output to subdirectory
   };
 
   if (!platform || !arch) {

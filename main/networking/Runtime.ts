@@ -8,13 +8,14 @@ import { updateConsole } from '../../renderer/actions/ConsoleActions';
 import { runtimeDisconnect, infoPerMessage } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { Logger, defaults } from '../../renderer/utils/utils';
+import { Peripheral } from '../../renderer/types';
 
 /**
  * Define port constants, which must match with Runtime
  */
 const UDP_SEND_PORT = 9000;
 const UDP_LISTEN_PORT = 9001;
-const TCP_PORT = 8101;
+const DEFAULT_TCP_PORT = 8101;
 
 /**
  * Runtime IP Address used for TCP and UDP connections
@@ -47,7 +48,7 @@ function readPacket(data: any): TCPPacket {
   const header = buf.slice(0, 3);
   const msgType = header[0];
   const msgLength = new Uint16Array(header.slice(1))[0];
-  const load = buf.slice(3);
+  const load = buf.slice(3, msgLength + 3);
 
   return {
     messageType: msgType,
@@ -62,6 +63,7 @@ function readPacket(data: any): TCPPacket {
  */
 function createPacket(payload: unknown, messageType: MsgType): Buffer {
   let encodedPayload: Uint8Array;
+  
   switch (messageType) {
     case MsgType.DEVICE_DATA:
       encodedPayload = protos.DevData.encode(payload as protos.IDevData).finish();
@@ -80,13 +82,12 @@ function createPacket(payload: unknown, messageType: MsgType): Buffer {
       encodedPayload = new Uint8Array();
       break;
   }
+  
   const msgLength = Buffer.byteLength(encodedPayload);
-
-  const msgTypeArr = new Uint8Array([messageType]);
   const msgLengthArr = new Uint8Array([msgLength & 0x00ff, msgLength & 0xff00]); // Assuming little-endian byte order, since runs on x64
-  const encodedPayloadArr = new Uint8Array(encodedPayload);
+  const msgTypeArr = new Uint8Array([messageType]);
 
-  return Buffer.concat([msgTypeArr, msgLengthArr, encodedPayloadArr], msgLength + 3);
+  return Buffer.concat([msgTypeArr, msgLengthArr, encodedPayload], msgLength + 3);
 }
 
 class TCPConn {
@@ -96,21 +97,33 @@ class TCPConn {
   constructor(logger: Logger) {
     this.logger = logger;
     this.socket = new TCPSocket();
-
-    this.socket.setTimeout(5000);
+    this.socket.setTimeout(3000);
 
     setInterval(() => {
       if (!this.socket.connecting && this.socket.pending) {
-        console.log('Trying to TCP connect to ', runtimeIP);
         if (runtimeIP !== defaults.IPADDRESS) {
-          this.socket.connect(TCP_PORT, runtimeIP, () => {
-            this.logger.log('Runtime connected');
-            this.socket.write(new Uint8Array([1])); // Runtime needs first byte to be 1 to recognize client as Dawn (instead of Shepherd)
-            }
-          )
+          let port = DEFAULT_TCP_PORT;
+          let ip = runtimeIP;
+          if (runtimeIP.includes(':')) {
+            const split = runtimeIP.split(':');
+            ip = split[0];
+            port = Number(split[1]);
+          }
+          console.log(`Trying to TCP connect to ${ip}:${port}`);
+          this.socket.connect(port, ip);
         }
       }
     }, 1000);
+
+    this.socket.on('connect', () => {
+      this.logger.log('Runtime connected');
+      this.socket.write(new Uint8Array([1])); // Runtime needs first byte to be 1 to recognize client as Dawn (instead of Shepherd)
+    });
+
+    this.socket.on('timeout', () => {
+      this.logger.log('TCP socket timeout');
+      this.socket.end();
+    });
 
     this.socket.on('end', () => {
       this.logger.log('Runtime disconnected');
@@ -127,7 +140,6 @@ class TCPConn {
      */
     this.socket.on('data', (data) => {
       const message = readPacket(data);
-      this.logger.log(`Dawn received TCP Packet ${message.messageType}`);
       let decoded: protos.Text;
 
       switch (message.messageType) {
@@ -154,7 +166,14 @@ class TCPConn {
    * Receives new IP Address to send messages to.
    */
   ipAddressListener = (_event: IpcMainEvent, ipAddress: string) => {
-    runtimeIP = ipAddress;
+    if (ipAddress != runtimeIP) {
+      console.log(`Switching IP from ${runtimeIP} to ${ipAddress}`);
+      console.log(`Current socket status - Connecting: ${String(this.socket.connecting)} - Pending: ${String(this.socket.pending)}`);
+      if (this.socket.connecting || !this.socket.pending) {
+        this.socket.end();
+      }
+      runtimeIP = ipAddress;
+    }
   };
 
   // TODO: We can possibly combine below methods into single handler.
@@ -170,7 +189,7 @@ class TCPConn {
 
     const message = createPacket(runModeData, MsgType.RUN_MODE);
     this.socket.write(message, () => {
-      this.logger.debug(`Run Mode message sent: ${runModeData.toString()}`);
+      this.logger.log(`Run Mode message sent: ${JSON.stringify(runModeData)}`);
     });
   };
 
@@ -183,7 +202,7 @@ class TCPConn {
     // TODO: Serialize uid from string -> Long type
     const message = createPacket(deviceData, MsgType.DEVICE_DATA);
     this.socket.write(message, () => {
-      this.logger.debug(`Device preferences sent: ${deviceData.toString()}`);
+      this.logger.log(`Device preferences sent: ${deviceData.toString()}`);
     });
   };
 
@@ -195,7 +214,7 @@ class TCPConn {
 
     const message = createPacket(textData, MsgType.CHALLENGE_DATA);
     this.socket.write(message, () => {
-      this.logger.debug(`Challenge inputs sent: ${textData.toString()}`);
+      this.logger.log(`Challenge inputs sent: ${textData.toString()}`);
     });
   }
 
@@ -207,7 +226,7 @@ class TCPConn {
 
     const message = createPacket(startPosData, MsgType.START_POS);
     this.socket.write(message, () => {
-      this.logger.debug(`Start position sent: ${startPosData.toString()}`);
+      this.logger.log(`Start position sent: ${startPosData.toString()}`);
     });
   };
 
@@ -249,14 +268,24 @@ class UDPConn {
       try {
         RendererBridge.reduxDispatch(infoPerMessage());
         const sensorData: protos.Device[] = protos.DevData.decode(msg).devices;
-        
+        // Need to convert protos.Device to Peripheral here because when dispatching to the renderer over IPC,
+        // some of the inner properties (i.e. device.uid which is a Long) loses its prototype, which means any
+        // data we are sending over through IPC should be serializable.
+        // https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
+        const peripherals: Peripheral[] = [];
+
         sensorData.forEach((device) => {
-          if (device.uid.toString() === '0') {
-            device.uid = 0;
+          // There is a weird bug that happens with the protobufs decoding when device.type is specifically 0
+          // where the property can be accessed but when trying to view object contents, the property doesn't exist.
+          // Below is a way to get around this problem.
+          if (device.type.toString() === '0') {
+            device.type = 0;
           }
+
+          peripherals.push({ ...device, uid: device.uid.toString() });
         });
 
-        RendererBridge.reduxDispatch(updatePeripherals(sensorData));
+        RendererBridge.reduxDispatch(updatePeripherals(peripherals));
       } catch (err) {
         this.logger.log('Error decoding UDP');
         this.logger.log(err);
@@ -278,18 +307,25 @@ class UDPConn {
    * Sends messages when Gamepad information changes
    * or when 100 ms has passed (with 50 ms cooldown)
    */
-  sendGamepadMessages = (_event: IpcMainEvent, data: protos.GpState[]) => {
+  sendGamepadMessages = (_event: IpcMainEvent, data: protos.Input[]) => {
     if (data.length === 0) {
       data.push(
-        protos.GpState.create({
+        protos.Input.create({
           connected: false,
         })
       );
     }
 
-    const message = protos.GpState.encode(data[0]).finish();
-    this.logger.debug(`Dawn sent UDP to ${runtimeIP}`);
-    this.socket.send(message, UDP_SEND_PORT, runtimeIP);
+    const message = protos.UserInputs.encode({inputs: data}).finish();
+    let port = UDP_SEND_PORT;
+    let ip = runtimeIP;
+    // This is temporary. This will need to be changed once Runtime figures out how to send UDP data over TCP ngrok connection
+    if (defaults.NGROK && runtimeIP.includes(':')) {
+      const split = runtimeIP.split(':');
+      ip = split[0];
+      port = Number(split[1]); 
+    }
+    this.socket.send(message, port, ip);
   };
 
   close() {
