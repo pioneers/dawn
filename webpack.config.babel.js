@@ -46,11 +46,20 @@ export default [
     target: 'electron-renderer',
     module: modules,
   },
-  /*
+  
   {
-    entry: './renderer/piedash/index.ts';
-  }
-  */
+    entry: './dashboard/index.tsx',
+    resolve: {
+      extensions: ['.tsx', '.ts', '.js'],
+    },
+    output: {
+      path: path.join(__dirname, 'build'),
+      filename: "dash.tsx",
+    },
+    target: 'electron-renderer',
+    module: modules,
+  },
+  
   {
     entry: './main/main-process.ts',
     resolve: {

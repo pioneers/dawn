@@ -5,6 +5,9 @@ import { PeripheralTypes } from '../consts';
 import { Peripheral as PeripheralComponent } from './Peripheral';
 import { Peripheral, PeripheralList } from '../types';
 import { connect } from 'react-redux';
+import { Button } from 'react-bootstrap';
+// import { showPeripheralDash } from '../../main/main-process';
+import { ipcRenderer } from 'electron';
 
 const cleanerNames = {};
 cleanerNames[PeripheralTypes.MOTOR_SCALAR] = 'Motors';
@@ -91,7 +94,8 @@ const PeripheralListComponent = (props: StateProps & OwnProps) => {
 
   let panelBody = null;
   if (errorMsg) {
-    panelBody = <p className="panelText">{errorMsg}</p>;
+    // panelBody = <p className="panelText">{errorMsg}</p>;
+    panelBody = <Button onClick={() => ipcRenderer.send('SHOW_DASHBOARD')}>Dashboard</Button>
   } else {
     panelBody = handleAccordion(Object.values(props.peripheralList));
   }

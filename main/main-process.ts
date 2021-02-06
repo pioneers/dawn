@@ -61,8 +61,9 @@ export function showAPI() {
 }
 
 export function showPeripheralDash() {
+  console.log("begin showPeripheralDash");
   // create BrowserWindow object
-  const url = `file://${__dirname}/../static/testDash.html`; // TODO: add source file
+  const url = `file://${__dirname}/../static/dashboard.html`; // TODO: add source file
   let dashboard: BrowserWindow | null = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
@@ -84,7 +85,6 @@ export function showPeripheralDash() {
       dashboard.show();
     }
   });
-  
   // rendererbridge.registerWindow
   // loadURL('/index.html')
 
@@ -94,6 +94,7 @@ app.on('ready', () => {
   ipcMain.on('FC_CONFIG_CHANGE', FCObject.changeFCInfo);
   ipcMain.on('FC_INITIALIZE', initializeFC);
   ipcMain.on('FC_TEARDOWN', teardownFC);
+  ipcMain.on('SHOW_DASHBOARD', showPeripheralDash);
 
   const mainWindow = new BrowserWindow({
     webPreferences: {
