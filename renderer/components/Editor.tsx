@@ -278,25 +278,26 @@ export class Editor extends React.Component<Props, State> {
     let interval;
     this.setState({keyboardControl: !this.state.keyboardControl})
     
-    if (this.state.keyboardControl) {
+    if (!this.state.keyboardControl) {
       window.addEventListener('keydown', this.getCharacter, { passive: true });
       interval = window.setInterval(this.sendMoves, 1000);
     } else {
       window.removeEventListener('keydown', this.getCharacter);
+      this.setState({currentCharacters: []})
       clearInterval(interval);
     }
   }
   sendMoves = () => {
     // send this.state
     this.props.onUpdateKeyboard(this.state.currentCharacters);
-    
+    this.setState({currentCharacters: []})
     return 0;
   }
   
   getCharacter = (e: KeyboardEvent) => {
     e.preventDefault();
-    console.log(e.key)
     this.setState({currentCharacters: [...this.state.currentCharacters, e.key]})
+    console.log("characters: " + this.state.currentCharacters)
   }
 
   upload = () => {
