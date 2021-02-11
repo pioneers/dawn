@@ -49,7 +49,7 @@ export interface UploadCodeAction {
 
 export interface UpdateKeyboardAction {
   type: consts.EditorActionsTypes.UPDATE_KEYBOARD;
-  keyboard: string[];
+  keyboard: string;
 }
 
 export interface EditorActions {
@@ -73,5 +73,5 @@ export interface EditorActions {
 
   uploadCode: () => UploadCodeAction;
 
-  updateKeyboard: (keyboard: string[]) => UpdateKeyboardAction;
+  updateKeyboard: (keyboard: string) => UpdateKeyboardAction;
 }

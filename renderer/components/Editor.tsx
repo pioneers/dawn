@@ -70,7 +70,7 @@ interface OwnProps {
   onUpdateCodeStatus: (status: number) => void;
   onDownloadCode: () => void;
   onUploadCode: () => void;
-  onUpdateKeyboard: (keyboard: string[]) => void;
+  onUpdateKeyboard: (keyboard: string) => void;
 }
 
 type Props = StateProps & OwnProps;
@@ -84,7 +84,7 @@ interface State {
   isRunning: boolean;
   fontsize?: number;
   keyboardControl: boolean;
-  currentCharacters: string[];
+  currentCharacters: string;
 };
 
 export class Editor extends React.Component<Props, State> {
@@ -129,7 +129,7 @@ export class Editor extends React.Component<Props, State> {
       isRunning: false,
       simulate: false,
       keyboardControl: false,
-      currentCharacters: [], // need to store this in redux -> give to backend
+      currentCharacters: "", // need to store this in redux -> give to backend
     };
   }
 
@@ -275,29 +275,30 @@ export class Editor extends React.Component<Props, State> {
   // toggle keyboard control and add/remove listening for key presses to control robot
   toggleKeyboardControl = () => {
     
-    let interval;
+    
     this.setState({keyboardControl: !this.state.keyboardControl})
     
     if (!this.state.keyboardControl) {
-      window.addEventListener('keydown', this.getCharacter, { passive: true });
-      interval = window.setInterval(this.sendMoves, 1000);
+      window.addEventListener('keypress', this.getCharacter, { passive: true });
+      
     } else {
-      window.removeEventListener('keydown', this.getCharacter);
-      this.setState({currentCharacters: []})
-      clearInterval(interval);
+      window.removeEventListener('keypress', this.getCharacter);
+      this.setState({currentCharacters: ""})
     }
   }
   sendMoves = () => {
     // send this.state
     this.props.onUpdateKeyboard(this.state.currentCharacters);
-    this.setState({currentCharacters: []})
+    this.setState({currentCharacters: ""})
     return 0;
   }
   
   getCharacter = (e: KeyboardEvent) => {
     e.preventDefault();
-    this.setState({currentCharacters: [...this.state.currentCharacters, e.key]})
-    console.log("characters: " + this.state.currentCharacters)
+    this.setState({currentCharacters: e.key})
+    this.props.onUpdateKeyboard(this.state.currentCharacters);
+    this.setState({currentCharacters: ""})
+    //console.log("characters: " + this.state.currentCharacters)
   }
 
   upload = () => {
