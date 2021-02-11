@@ -1,21 +1,21 @@
-import { clipboard } from 'electron'; 
-import { useEffect, useState } from 'react';
+import { clipboard } from 'electron';
+import { useState } from 'react';
 import _ from 'lodash';
-import { logging, windowInfo } from '../../utils/utils';
+import { windowInfo } from '../../utils/utils';
 
 interface Props {
-	isOpenOnStart: boolean;
-	initialHeight: number;
-	data: 
+  consoleData: string[];
+  isOpenOnStart: boolean;
+  initialHeight: number;
 }
 
-export const useConsole = ({isOpenOnStart = false, initialHeight = windowInfo.CONSOLESTART}) => {
-	const [isConsoleOpen, setIsConsoleOpen] = useState(isOpenOnStart);
-	const [consoleHeight, setConsoleHeight] = useState(initialHeight);
-	
-	const toggleConsole = () => {
-		setIsConsoleOpen(!isConsoleOpen);
-	};
+export const useConsole = ({ consoleData, isOpenOnStart = false, initialHeight = windowInfo.CONSOLESTART }: Props) => {
+  const [isConsoleOpen, setIsConsoleOpen] = useState(isOpenOnStart);
+  const [consoleHeight, setConsoleHeight] = useState(initialHeight);
+
+  const toggleConsole = () => {
+    setIsConsoleOpen(!isConsoleOpen);
+  };
 
   const raiseConsole = () => {
     setConsoleHeight(consoleHeight + windowInfo.UNIT);
