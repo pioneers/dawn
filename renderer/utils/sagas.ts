@@ -256,7 +256,7 @@ function formatGamepads(newGamepads: (Gamepad | null)[]): Input[] {
   return formattedGamepads;
 }
 
-function formatKeyboard(keyboardNum: number): Input {
+function formatKeyboard(keyboardNum: number): Input[] {
   let bitmap: number = 0;
   bitmap |= ( 1<< keyboardNum);
   let keyboard = new Input({
@@ -265,7 +265,9 @@ function formatKeyboard(keyboardNum: number): Input {
     buttons: bitmap,
     source: Source.KEYBOARD
   })
-  return keyboard;
+  let arr = [];
+  arr[0] = keyboard;
+  return arr;
 }
 
 /**
@@ -329,6 +331,7 @@ function* runtimeSaga() {
 }
 
 const gamepadsState = (state: any) => state.gamepads.gamepads;
+const keyboardState = (state: any) => state.editor.keyboard;
 
 /**
  * Send the store to the main process whenever it changes.
