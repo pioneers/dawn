@@ -82,7 +82,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   onUploadCode: () => {
     dispatch(uploadCode());
   },
-  onUpdateKeyboard: (keyboard: string[]) => {
+  onUpdateKeyboard: (keyboard: string) => {
     dispatch(updateKeyboard(keyboard));
   }
   
