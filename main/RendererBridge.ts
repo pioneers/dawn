@@ -8,15 +8,16 @@ import _ from 'lodash';
 import { BrowserWindow } from "electron";
 
 class RendererBridge {
-  registeredWindow: BrowserWindow | null = null;
-
-  registerWindow = (electronWindow: BrowserWindow) => {
-    this.registeredWindow = electronWindow;
+  registeredWindows: Record<string, BrowserWindow | null> = {};
+  registerWindow = (key: string, electronWindow: BrowserWindow) => {
+    this.registeredWindows[key] = electronWindow;
   };
-
   reduxDispatch = (action: any) => {
-    if (this.registeredWindow) {
-      this.registeredWindow.webContents.send('dispatch', action);
+    for (const key of Object.keys(this.registeredWindows)) {
+      const registeredWindow = this.registeredWindows[key];
+      if (registeredWindow) {
+        registeredWindow.webContents.send('dispatch', action);
+      }
     }
   };
 };

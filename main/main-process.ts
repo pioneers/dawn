@@ -74,7 +74,7 @@ export function showPeripheralDash() {
     show: false,
   });
 
-  RendererBridge.registerWindow(dashboard);
+  RendererBridge.registerWindow('dashboard', dashboard);
 
   dashboard.on('closed', () => {
     dashboard = null;
@@ -104,7 +104,7 @@ app.on('ready', () => {
   });
 
   // Binding for the main process to inject into Redux workflow
-  RendererBridge.registerWindow(mainWindow);
+  RendererBridge.registerWindow('main', mainWindow);
 
   mainWindow.maximize();
   mainWindow.loadURL(`file://${__dirname}/../static/index.html`);

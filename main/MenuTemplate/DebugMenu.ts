@@ -19,8 +19,10 @@ const DebugMenu: MenuItemConstructorOptions = {
     {
       label: 'Toggle DevTools',
       click() {
-        if (RendererBridge.registeredWindow) {
-          RendererBridge.registeredWindow.webContents.toggleDevTools();
+        // TODO: stop breaking abstraction barrier
+        let window = RendererBridge.registeredWindows['main'];
+        if (window) {
+          window.webContents.toggleDevTools();
         }
       },
       accelerator: 'CommandOrControl+alt+I',
@@ -57,8 +59,9 @@ const DebugMenu: MenuItemConstructorOptions = {
       label: 'Reload',
       accelerator: 'CommandOrControl+R',
       click() {
-        if (RendererBridge.registeredWindow) {
-          RendererBridge.registeredWindow.reload();
+        let window = RendererBridge.registeredWindows['main'];
+        if (window) {
+          window.reload();
         }
       },
     },

@@ -11,9 +11,7 @@ const HelpMenu: MenuItemConstructorOptions = {
     {
       label: 'Interactive Tutorial',
       click() {
-        if (RendererBridge.registeredWindow) {
-          RendererBridge.registeredWindow.webContents.send('start-interactive-tour');
-        }
+        RendererBridge.reduxDispatch('start-interactive-tour');
       },
       accelerator: 'CommandOrControl+T',
     },

@@ -47,7 +47,7 @@
       }
     },
     "build": {
-      "command": "mkdirp ./build/protos && cp ./protos/*.proto ./build/protos && webpack --mode production --progress",
+      "command": "\"mkdir\" ./build/protos && cp ./protos/*.proto ./build/protos && webpack --mode production --progress",
       "env": {
         "NODE_ENV": "production"
       }
