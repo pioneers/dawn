@@ -1,12 +1,12 @@
 import minimist from 'minimist';
 import packager, { Options } from 'electron-packager';
 import path from 'path';
-import { exec } from 'child_process';
+import { spawn } from 'child_process';
 
 /* General release command: 'ts-node release.ts'
  * For a specific target: 'ts-node release.ts --platform=... --arch=...'
  */
-async function pack(platform: string, arch: string) {
+async function pack(args: minimist.ParsedArgs) {
   const packageOptions: Options = {
     dir: __dirname, // source dir
     name: 'dawn',
@@ -15,31 +15,22 @@ async function pack(platform: string, arch: string) {
     out: path.resolve('./dawn-packaged'), // output to subdirectory
   };
 
-  if (!platform || !arch) {
-    console.log('Packaging for all platforms');
-    packageOptions.all = true; // build for all platforms and arch
-  } else {
-    console.log('Packaging for: ', platform, arch);
-    packageOptions.platform = platform;
-    packageOptions.arch = arch;
-  }
+  Object.keys(args).forEach(function(key) { packageOptions[key] = args[key]; });
 
-  const appPaths: string[] = await packager(packageOptions);
+  // platform is either 'darwin', 'linux', or 'win32'
+  packageOptions.platform = args.platform ? args.platform : 'all';
+  console.log('Packaging for: ', packageOptions.platform);
 
-  Promise.all(appPaths.map((appPath: string) => {
+  const appPaths: (string | boolean)[] = await packager(packageOptions);
+
+  appPaths.map((appPath: string | boolean) => {
+    if (appPath == true) { 
+      return;
+    }
     console.log(`Zipping ${appPath}`);
     
-    return new Promise((resolve) => {
-      exec(`cd .. && zip -r ${appPath}.zip ${path.basename(appPath)}`, (err, stdout, stderr) => {
-        resolve(err ? stdout : stderr);
-      })
-    })
-  }));
+    spawn('zip',  ['-r', `${appPath}.zip`, `${appPath}`], { stdio: 'inherit' });
+  });
 }
 
-async function main() {
-  const argv = minimist(process.argv.slice(2));
-  await pack(argv.platform, argv.arch);
-}
-
-main().then(() => console.log('Packaging Done'));
+pack(minimist(process.argv.slice(2))).then(() => console.log('Packaging Done'));
