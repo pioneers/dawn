@@ -256,6 +256,18 @@ function formatGamepads(newGamepads: (Gamepad | null)[]): Input[] {
   return formattedGamepads;
 }
 
+function formatKeyboard(keyboardNum: number): Input {
+  let bitmap: number = 0;
+  bitmap |= ( 1<< keyboardNum);
+  let keyboard = new Input({
+    connected: true,
+    axes: [],
+    buttons: bitmap,
+    source: Source.KEYBOARD
+  })
+  return keyboard;
+}
+
 /**
  * Repeatedly grab gamepad data, send it over Runtime to the robot, and dispatch
  * redux action to update gamepad state.
