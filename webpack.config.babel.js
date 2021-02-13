@@ -54,7 +54,7 @@ export default [
     },
     output: {
       path: path.join(__dirname, 'build'),
-      filename: "dash.tsx",
+      filename: "dash.js",
     },
     target: 'electron-renderer',
     module: modules,
