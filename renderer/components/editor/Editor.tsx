@@ -36,6 +36,7 @@ import 'ace-builds/src-noconflict/theme-solarized_dark';
 import 'ace-builds/src-noconflict/theme-solarized_light';
 import 'ace-builds/src-noconflict/theme-terminal';
 
+import { useConsole } from './useConsole';
 import { useFontResizer } from './useFontResizer';
 import { ConsoleOutput } from '../ConsoleOutput';
 import { TooltipButton } from '../TooltipButton';
@@ -93,7 +94,8 @@ const EDITOR_THEMES = [
 export const Editor = (props: Props) => {
   let CodeEditor: AceEditor;
 
-  const [consoleHeight, setConsoleHeight] = useState(windowInfo.CONSOLESTART);
+  const { consoleData } = props;
+
   const [editorHeight, setEditorHeight] = useState('0px');
   const [mode, setMode] = useState(robotState.TELEOP);
   const [modeDisplay, setModeDisplay] = useState(robotState.TELEOPSTR);
@@ -101,6 +103,16 @@ export const Editor = (props: Props) => {
   const [simulate, setSimulate] = useState(false);
 
   const { fontSize, decreaseFontsize, increaseFontsize, handleChangeFontsize, changeFontSize, handleSubmitFontsize } = useFontResizer();
+
+  const onConsoleToggle = () => {
+    // Resize since the console overlaps with the editor, but enough time for console changes
+    setTimeout(() => onWindowResize(), 0.01);
+  };
+
+  const { isConsoleOpen, consoleHeight, toggleConsole, raiseConsole, lowerConsole, copyConsole } = useConsole({
+    consoleData,
+    onToggled: onConsoleToggle
+  });
 
   /*
    * ASCII Enforcement
@@ -205,7 +217,7 @@ export const Editor = (props: Props) => {
 
   useEffect(() => {
     onWindowResize();
-  }, [consoleHeight])
+  }, [consoleHeight]);
 
   const onWindowResize = () => {
     // Trigger editor to re-render on window resizing.
@@ -243,12 +255,6 @@ export const Editor = (props: Props) => {
           }
         });
     }
-  };
-
-  const toggleConsole = () => {
-    props.toggleConsole();
-    // Resize since the console overlaps with the editor, but enough time for console changes
-    setTimeout(() => onWindowResize(), 0.01);
   };
 
   const upload = () => {
@@ -327,7 +333,7 @@ export const Editor = (props: Props) => {
                 logging.log('Cooldown Quit');
                 reject();
               } else {
-                setModeDisplay(`Cooldown: ${timings.IDLE - diff}`)
+                setModeDisplay(`Cooldown: ${timings.IDLE - diff}`);
               }
             }, timings.SEC);
           })
@@ -375,6 +381,7 @@ export const Editor = (props: Props) => {
   };
 
   const changeMarker = hasUnsavedChanges() ? '*' : '';
+
   if (props.consoleUnread) {
     toggleConsole();
   }
@@ -550,13 +557,7 @@ export const Editor = (props: Props) => {
           </Tab>
         </Tabs>
 
-        <ConsoleOutput
-          toggleConsole={toggleConsole}
-          show={props.showConsole}
-          height={consoleHeight}
-          output={props.consoleData}
-          disableScroll={props.disableScroll}
-        />
+        <ConsoleOutput toggleConsole={toggleConsole} shouldShow={isConsoleOpen} height={consoleHeight} output={props.consoleData} />
       </Panel.Body>
     </Panel>
   );
