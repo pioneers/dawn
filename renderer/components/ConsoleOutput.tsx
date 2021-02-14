@@ -1,18 +1,14 @@
 import React from 'react';
 import { Panel } from 'react-bootstrap';
 
-interface StateProps {
-  toggleConsole: () => void;
-  disableScroll: boolean;
-}
-
 interface OwnProps {
   height: number;
-  output: Array<any>
-  show: boolean;
+  output: string[];
+  shouldShow: boolean;
+  toggleConsole: () => void;
 }
 
-type Props = StateProps & OwnProps;
+type Props = OwnProps;
 
 export class ConsoleOutput extends React.Component<Props> {
   outerDiv: HTMLDivElement | null;
@@ -22,38 +18,35 @@ export class ConsoleOutput extends React.Component<Props> {
 
   componentDidMount = () => {
     this.scrollToBottom();
-  }
+  };
 
   componentWillReceiveProps = (nextProps: Props) => {
-    if (this.props.output.length === 0 && nextProps.output.length > 0 && !this.props.show) {
+    if (this.props.output.length !== nextProps.output.length && !this.props.shouldShow) {
       this.props.toggleConsole();
     }
-  }
+  };
 
   componentDidUpdate = () => {
     this.scrollToBottom();
-  }
+  };
 
   scrollToBottom = () => {
-    if (!this.props.disableScroll) {
-      if (this.outerDiv !== null) {
-        this.outerDiv.scrollTop = this.outerDiv.scrollHeight;
-      }
+    if (this.outerDiv !== null) {
+      this.outerDiv.scrollTop = this.outerDiv.scrollHeight;
     }
-  }
-
+  };
 
   render() {
-    const { show, output } = this.props;
+    const { shouldShow, output } = this.props;
 
     const height = `${String(this.props.height)}px`; // TODO: Use Panel.Collapse
     return (
       <div>
         <Panel
           style={{
-            display: show ? 'block' : 'none',
+            display: shouldShow ? 'block' : 'none',
             marginBottom: '0',
-            borderRadius: '0',
+            borderRadius: '0'
           }}
         >
           <Panel.Body>
@@ -61,7 +54,7 @@ export class ConsoleOutput extends React.Component<Props> {
               style={{
                 position: 'relative',
                 margin: '0',
-                height,
+                height
               }}
             >
               <div
@@ -71,12 +64,14 @@ export class ConsoleOutput extends React.Component<Props> {
                   maxHeight: height,
                   overflowY: 'auto',
                   padding: '20px',
-                  width: '99%',
+                  width: '99%'
                 }}
-                ref={(el) => { this.outerDiv = el; }}
+                ref={(el) => {
+                  this.outerDiv = el;
+                }}
               >
-                {output.map(line => (
-                  <code key={`${line}-Code-${Math.random()}`}>{line}</code>
+                {output.map((line) => (
+                  <code key={`${line}-Code`}>{line}</code>
                 ))}
               </div>
             </pre>
