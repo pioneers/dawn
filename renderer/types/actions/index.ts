@@ -13,7 +13,8 @@ export {
   CreateNewFileAction,
   DownloadCodeAction,
   UploadCodeAction,
-  UpdateKeyboardAction
+  UpdateKeyboardAction,
+  UpdateKeyboardBoolAction
 } from './editor-actions';
 export { GamepadsActions, UpdateGamepadsAction } from './gamepads-actions';
 export { SettingsActions, ChangeFontSizeAction, ChangeThemeAction } from './settings-actions';

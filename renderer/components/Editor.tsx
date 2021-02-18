@@ -71,6 +71,7 @@ interface OwnProps {
   onDownloadCode: () => void;
   onUploadCode: () => void;
   onUpdateKeyboard: (keyboard: string) => void;
+  onUpdateKeyboardBool: (bool: boolean) => void;
 }
 
 type Props = StateProps & OwnProps;
@@ -84,7 +85,8 @@ interface State {
   isRunning: boolean;
   fontsize?: number;
   keyboardControl: boolean;
-  currentCharacters: string;
+  currentCharacter: string;
+  characterBool: boolean;
 };
 
 export class Editor extends React.Component<Props, State> {
@@ -129,7 +131,8 @@ export class Editor extends React.Component<Props, State> {
       isRunning: false,
       simulate: false,
       keyboardControl: false,
-      currentCharacters: "", // need to store this in redux -> give to backend
+      currentCharacter: "", // need to store this in redux -> give to backend
+      characterBool: true,
     };
   }
 
@@ -279,26 +282,37 @@ export class Editor extends React.Component<Props, State> {
     this.setState({keyboardControl: !this.state.keyboardControl})
     
     if (!this.state.keyboardControl) {
-      window.addEventListener('keypress', this.getCharacter, { passive: true });
+      window.addEventListener('keydown', this.turnCharacterOn, { passive: true});
+      window.addEventListener('keyup', this.turnCharacterOff, { passive: true});
       
     } else {
-      window.removeEventListener('keypress', this.getCharacter);
-      this.setState({currentCharacters: ""})
+      window.removeEventListener('keydown', this.turnCharacterOn);
+      window.addEventListener('keyup', this.turnCharacterOff);
+      this.setState({currentCharacter: ""})
     }
   }
   sendMoves = () => {
     // send this.state
-    this.props.onUpdateKeyboard(this.state.currentCharacters);
-    this.setState({currentCharacters: ""})
-    return 0;
+    this.props.onUpdateKeyboard(this.state.currentCharacter);
+    this.setState({currentCharacter: ""})
+    
   }
-  
-  getCharacter = (e: KeyboardEvent) => {
+  turnCharacterOff = (e: KeyboardEvent) => {
     e.preventDefault();
-    this.setState({currentCharacters: e.key})
-    this.props.onUpdateKeyboard(this.state.currentCharacters);
-    this.setState({currentCharacters: ""})
-    //console.log("characters: " + this.state.currentCharacters)
+    this.setState({currentCharacter: e.key, characterBool: false});
+    this.props.onUpdateKeyboardBool(this.state.characterBool);
+    this.props.onUpdateKeyboard(this.state.currentCharacter);
+    this.setState({currentCharacter: ""})
+    
+  }
+  turnCharacterOn = (e: KeyboardEvent) => {
+    e.preventDefault();
+    this.setState({currentCharacter: e.key, characterBool: true});
+    console.log("character: " + this.state.currentCharacter);
+    this.props.onUpdateKeyboardBool(this.state.characterBool);
+    this.props.onUpdateKeyboard(this.state.currentCharacter);
+    this.setState({currentCharacter: ""})
+    
   }
 
   upload = () => {

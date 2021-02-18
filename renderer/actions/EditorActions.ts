@@ -52,3 +52,7 @@ export const updateKeyboard: EditorActions['updateKeyboard'] = (keyboard: string
   type: consts.EditorActionsTypes.UPDATE_KEYBOARD,
   keyboard,
 })
+export const updateKeyboardBool: EditorActions['updateKeyboardBool'] = (bool: boolean) => ({
+  type: consts.EditorActionsTypes.UPDATE_KEYBOARD_BOOL,
+  bool,
+})

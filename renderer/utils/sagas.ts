@@ -17,6 +17,8 @@ import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
 import { TIMEOUT, defaults, logging } from '../utils/utils';
 import { Input, Source } from '../../protos/protos';
+import { StatusLabel } from '../components/StatusLabel';
+import {KeyboardButtons} from '../consts/keyboard-buttons'
 
 let timestamp = Date.now();
 
@@ -111,6 +113,8 @@ function* writeCodeToFile(filepath: string, code: string): Generator<any, void, 
 const editorState = (state: any) => ({
   filepath: state.editor.filepath,
   code: state.editor.editorCode,
+  keyboard: state.editor.keyboard,
+  bool: state.editor.bool,
 });
 
 function* saveFile(action: any) {
@@ -134,6 +138,8 @@ function* saveFile(action: any) {
 const editorSavedState = (state: any) => ({
   savedCode: state.editor.latestSaveCode,
   code: state.editor.editorCode,
+  keyboard: state.editor.keyboard,
+  bool: state.editor.bool,
 });
 
 function* openFile(action: any) {
@@ -256,18 +262,32 @@ function formatGamepads(newGamepads: (Gamepad | null)[]): Input[] {
   return formattedGamepads;
 }
 
-function formatKeyboard(keyboardNum: number): Input[] {
+function* sendKeyboardInputs(){
+  
   let bitmap: number = 0;
-  bitmap |= ( 1<< keyboardNum);
+  const curState = yield select(editorState)
+  const keyboardNum: number = KeyboardButtons[curState.keyboard]
+  if (!curState.bool) {
+    bitmap &= ~(1 << keyboardNum)
+  } else {
+    bitmap |= (1 << keyboardNum);
+  }
+  
+  
   let keyboard = new Input({
     connected: true,
     axes: [],
     buttons: bitmap,
     source: Source.KEYBOARD
   })
+<<<<<<< Updated upstream
   let arr = [];
   arr[0] = keyboard;
   return arr;
+=======
+  ipcRenderer.send('stateUpdate', [keyboard])
+  
+>>>>>>> Stashed changes
 }
 
 /**
@@ -594,6 +614,7 @@ export default function* rootSaga() {
     takeEvery('UPLOAD_CODE', uploadStudentCode),
     takeEvery('TOGGLE_FIELD_CONTROL', handleFieldControl),
     takeEvery('TIMESTAMP_CHECK', timestampBounceback),
+    takeEvery('UPDATE_KEYBOARD', sendKeyboardInputs),
     fork(runtimeHeartbeat),
     fork(runtimeGamepads),
     fork(runtimeSaga),

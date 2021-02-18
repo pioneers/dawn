@@ -51,6 +51,11 @@ export interface UpdateKeyboardAction {
   type: consts.EditorActionsTypes.UPDATE_KEYBOARD;
   keyboard: string;
 }
+export interface UpdateKeyboardBoolAction {
+  type: consts.EditorActionsTypes.UPDATE_KEYBOARD_BOOL;
+  bool: boolean;
+}
+
 
 export interface EditorActions {
   editorUpdate: (newVal: string) => EditorUpdateAction;
@@ -74,4 +79,6 @@ export interface EditorActions {
   uploadCode: () => UploadCodeAction;
 
   updateKeyboard: (keyboard: string) => UpdateKeyboardAction;
+
+  updateKeyboardBool: (bool: boolean) => UpdateKeyboardBoolAction;
 }

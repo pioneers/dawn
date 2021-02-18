@@ -8,7 +8,8 @@ import {
   createNewFile,
   downloadCode,
   uploadCode,
-  updateKeyboard
+  updateKeyboard,
+  updateKeyboardBool
 } from '../actions/EditorActions';
 import {
   changeTheme,
@@ -36,7 +37,8 @@ const mapStateToProps = (state: ApplicationState) => ({
   fieldControlActivity: state.info.fieldControlActivity,
   disableScroll: state.console.disableScroll,
   consoleUnread: state.console.consoleUnread,
-  keyboard: state.editor.keyboard
+  keyboard: state.editor.keyboard,
+  bool: state.editor.bool,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
@@ -84,6 +86,9 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   },
   onUpdateKeyboard: (keyboard: string) => {
     dispatch(updateKeyboard(keyboard));
+  },
+  onUpdateKeyboardBool: (bool: boolean) => {
+    dispatch(updateKeyboardBool(bool));
   }
   
 });
