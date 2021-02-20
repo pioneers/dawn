@@ -47,14 +47,6 @@ export interface UploadCodeAction {
   type: consts.EditorActionsTypes.UPLOAD_CODE;
 }
 
-export interface UpdateKeyboardAction {
-  type: consts.EditorActionsTypes.UPDATE_KEYBOARD;
-  keyboard: string;
-}
-export interface UpdateKeyboardBoolAction {
-  type: consts.EditorActionsTypes.UPDATE_KEYBOARD_BOOL;
-  bool: boolean;
-}
 export interface UpdateBitmapAction {
   type: consts.EditorActionsTypes.UPDATE_BITMAP;
   bitmap: number;
@@ -81,10 +73,6 @@ export interface EditorActions {
   downloadCode: () => DownloadCodeAction;
 
   uploadCode: () => UploadCodeAction;
-
-  updateKeyboard: (keyboard: string) => UpdateKeyboardAction;
-
-  updateKeyboardBool: (bool: boolean) => UpdateKeyboardBoolAction;
 
   updateBitmap: (bitmap: number) => UpdateBitmapAction;
 }

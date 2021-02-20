@@ -87,7 +87,6 @@ interface State {
   isRunning: boolean;
   fontsize?: number;
   keyboardControl: boolean;
-  currentCharacter: string;
   characterBool: boolean;
   bitmap: number;
 };
@@ -134,7 +133,6 @@ export class Editor extends React.Component<Props, State> {
       isRunning: false,
       simulate: false,
       keyboardControl: false,
-      currentCharacter: "", // need to store this in redux -> give to backend
       characterBool: true,
       bitmap: 0
     };
@@ -292,11 +290,10 @@ export class Editor extends React.Component<Props, State> {
     } else {
       window.removeEventListener('keydown', this.turnCharacterOn);
       window.removeEventListener('keyup', this.turnCharacterOff);
-      this.setState({currentCharacter: ""})
     }
   }
-  updateBitmap = () => {
-    const keyboardNum: number = KeyboardButtons[this.state.currentCharacter];
+  updateBitmap = (currentCharacter: string) => {
+    const keyboardNum: number = KeyboardButtons[currentCharacter];
     let map: number = this.state.bitmap;
 
     if (!this.state.characterBool) {
@@ -310,21 +307,15 @@ export class Editor extends React.Component<Props, State> {
 
   }
   turnCharacterOff = (e: KeyboardEvent) => {
-    this.setState({currentCharacter: e.key, characterBool: false});
+    this.setState({characterBool: false});
     this.props.onUpdateKeyboardBool(this.state.characterBool);
-    this.props.onUpdateKeyboard(this.state.currentCharacter);
-    this.updateBitmap()
-    this.setState({currentCharacter: ""})
+    this.updateBitmap(e.key);
     
   }
   turnCharacterOn = (e: KeyboardEvent) => {
-    this.setState({currentCharacter: e.key, characterBool: true});
-    console.log("character: " + this.state.currentCharacter);
+    this.setState({characterBool: true});
     this.props.onUpdateKeyboardBool(this.state.characterBool);
-    this.props.onUpdateKeyboard(this.state.currentCharacter);
-    this.updateBitmap()
-    this.setState({currentCharacter: ""})
-    
+    this.updateBitmap(e.key)
   }
 
   upload = () => {

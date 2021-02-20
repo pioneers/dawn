@@ -86,12 +86,6 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   onUploadCode: () => {
     dispatch(uploadCode());
   },
-  onUpdateKeyboard: (keyboard: string) => {
-    dispatch(updateKeyboard(keyboard));
-  },
-  onUpdateKeyboardBool: (bool: boolean) => {
-    dispatch(updateKeyboardBool(bool));
-  },
   onUpdateBitmap: (bitmap: number) => {
     dispatch(updateBitmap(bitmap));
   },

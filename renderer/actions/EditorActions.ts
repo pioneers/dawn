@@ -48,14 +48,6 @@ export const uploadCode: EditorActions['uploadCode'] = () => ({
   type: consts.EditorActionsTypes.UPLOAD_CODE,
 });
 
-export const updateKeyboard: EditorActions['updateKeyboard'] = (keyboard: string) => ({
-  type: consts.EditorActionsTypes.UPDATE_KEYBOARD,
-  keyboard,
-})
-export const updateKeyboardBool: EditorActions['updateKeyboardBool'] = (bool: boolean) => ({
-  type: consts.EditorActionsTypes.UPDATE_KEYBOARD_BOOL,
-  bool,
-})
 export const updateBitmap: EditorActions['updateBitmap'] = (bitmap: number) => ({
   type: consts.EditorActionsTypes.UPDATE_BITMAP,
   bitmap,
