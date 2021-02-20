@@ -14,8 +14,11 @@ import {
   DownloadCodeAction,
   UploadCodeAction,
   UpdateKeyboardAction,
-  UpdateKeyboardBoolAction
+  UpdateKeyboardBoolAction,
+  UpdateBitmapAction
+  
 } from '../types';
+import {  } from '../types/actions/editor-actions';
 
 type Actions =
   | EditorUpdateAction
@@ -29,7 +32,8 @@ type Actions =
   | DownloadCodeAction
   | UploadCodeAction
   | UpdateKeyboardAction
-  | UpdateKeyboardBoolAction;
+  | UpdateKeyboardBoolAction
+  | UpdateBitmapAction;
 
 interface EditorState {
   filepath: string;
@@ -37,6 +41,7 @@ interface EditorState {
   editorCode: string;
   keyboard: string;
   bool: boolean;
+  bitmap: number
 }
 
 const defaultEditorState = {
@@ -45,6 +50,7 @@ const defaultEditorState = {
   editorCode: '',
   keyboard: '',
   bool: true,
+  bitmap: 0
 };
 
 export const editor = (state: EditorState = defaultEditorState, action: Actions) => {
@@ -71,6 +77,11 @@ export const editor = (state: EditorState = defaultEditorState, action: Actions)
       return {
         ...state,
         bool: action.bool,
+      };
+    case consts.EditorActionsTypes.UPDATE_BITMAP:
+      return {
+        ...state,
+        bitmap: action.bitmap,
       };
     case consts.EditorActionsTypes.UPDATE_KEYBOARD:
       return {

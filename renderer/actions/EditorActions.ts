@@ -56,3 +56,7 @@ export const updateKeyboardBool: EditorActions['updateKeyboardBool'] = (bool: bo
   type: consts.EditorActionsTypes.UPDATE_KEYBOARD_BOOL,
   bool,
 })
+export const updateBitmap: EditorActions['updateBitmap'] = (bitmap: number) => ({
+  type: consts.EditorActionsTypes.UPDATE_BITMAP,
+  bitmap,
+})
