@@ -38,6 +38,7 @@ import 'ace-builds/src-noconflict/theme-terminal';
 import { ConsoleOutput } from './ConsoleOutput';
 import { TooltipButton } from './TooltipButton';
 import { pathToName, robotState, timings, logging, windowInfo } from '../utils/utils';
+import { KeyboardButtons } from '../consts/keyboard-buttons'
 
 const { dialog } = remote;
 const currentWindow = remote.getCurrentWindow();
@@ -72,6 +73,7 @@ interface OwnProps {
   onUploadCode: () => void;
   onUpdateKeyboard: (keyboard: string) => void;
   onUpdateKeyboardBool: (bool: boolean) => void;
+  onUpdateBitmap: (bitmap: number) => void;
 }
 
 type Props = StateProps & OwnProps;
@@ -87,6 +89,7 @@ interface State {
   keyboardControl: boolean;
   currentCharacter: string;
   characterBool: boolean;
+  bitmap: number;
 };
 
 export class Editor extends React.Component<Props, State> {
@@ -133,6 +136,7 @@ export class Editor extends React.Component<Props, State> {
       keyboardControl: false,
       currentCharacter: "", // need to store this in redux -> give to backend
       characterBool: true,
+      bitmap: 0
     };
   }
 
@@ -287,30 +291,38 @@ export class Editor extends React.Component<Props, State> {
       
     } else {
       window.removeEventListener('keydown', this.turnCharacterOn);
-      window.addEventListener('keyup', this.turnCharacterOff);
+      window.removeEventListener('keyup', this.turnCharacterOff);
       this.setState({currentCharacter: ""})
     }
   }
-  sendMoves = () => {
-    // send this.state
-    this.props.onUpdateKeyboard(this.state.currentCharacter);
-    this.setState({currentCharacter: ""})
-    
+  updateBitmap = () => {
+    const keyboardNum: number = KeyboardButtons[this.state.currentCharacter];
+    let map: number = this.state.bitmap;
+
+    if (!this.state.characterBool) {
+      map &= ~(1 << keyboardNum)
+    } else {
+      map |= (1 << keyboardNum);
+
+    this.setState({bitmap: map});
+    this.props.onUpdateBitmap(this.state.bitmap);
+  }
+
   }
   turnCharacterOff = (e: KeyboardEvent) => {
-    e.preventDefault();
     this.setState({currentCharacter: e.key, characterBool: false});
     this.props.onUpdateKeyboardBool(this.state.characterBool);
     this.props.onUpdateKeyboard(this.state.currentCharacter);
+    this.updateBitmap()
     this.setState({currentCharacter: ""})
     
   }
   turnCharacterOn = (e: KeyboardEvent) => {
-    e.preventDefault();
     this.setState({currentCharacter: e.key, characterBool: true});
     console.log("character: " + this.state.currentCharacter);
     this.props.onUpdateKeyboardBool(this.state.characterBool);
     this.props.onUpdateKeyboard(this.state.currentCharacter);
+    this.updateBitmap()
     this.setState({currentCharacter: ""})
     
   }
@@ -676,14 +688,14 @@ export class Editor extends React.Component<Props, State> {
                     >28</MenuItem>
                   </DropdownButton>
                 </OverlayTrigger>
-              </InputGroup>
-              <TooltipButton
+                <TooltipButton
                     id="toggleKeyboardControl"
                     text="toggleKeyboardControl"
                     onClick={this.toggleKeyboardControl}
                     glyph="text-background"
                     disabled={false} 
                 /> 
+              </InputGroup>
             </FormGroup>
             {' '}
             <ButtonGroup id="editor-settings-buttons" className="form-inline">

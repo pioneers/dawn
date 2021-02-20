@@ -272,7 +272,7 @@ function* sendKeyboardInputs(){
     map |= (1 << keyboardNum);
   }
   yield put(updateBitmap(map))
-  
+
   let keyboard = new Input({
     connected: true,
     axes: [],
@@ -605,7 +605,7 @@ export default function* rootSaga() {
     takeEvery('UPLOAD_CODE', uploadStudentCode),
     takeEvery('TOGGLE_FIELD_CONTROL', handleFieldControl),
     takeEvery('TIMESTAMP_CHECK', timestampBounceback),
-    takeEvery('UPDATE_KEYBOARD', sendKeyboardInputs),
+    takeEvery('UPDATE_BITMAP', sendKeyboardInputs),
     fork(runtimeHeartbeat),
     fork(runtimeGamepads),
     fork(runtimeSaga),

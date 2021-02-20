@@ -40,7 +40,7 @@ const mapStateToProps = (state: ApplicationState) => ({
   consoleUnread: state.console.consoleUnread,
   keyboard: state.editor.keyboard,
   bool: state.editor.bool,
-  
+  bitmap: state.editor.bitmap
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
@@ -91,6 +91,9 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   },
   onUpdateKeyboardBool: (bool: boolean) => {
     dispatch(updateKeyboardBool(bool));
+  },
+  onUpdateBitmap: (bitmap: number) => {
+    dispatch(updateBitmap(bitmap));
   },
   
 });
