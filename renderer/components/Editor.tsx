@@ -298,10 +298,10 @@ export class Editor extends React.Component<Props, State> {
       map &= ~(1 << keyboardNum)
     } else {
       map |= (1 << keyboardNum);
-
+    }
+    
     this.setState({bitmap: map});
     this.props.onUpdateBitmap(this.state.bitmap);
-  }
 
   }
   turnCharacterOff = (e: KeyboardEvent) => {
