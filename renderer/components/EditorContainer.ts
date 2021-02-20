@@ -9,7 +9,8 @@ import {
   downloadCode,
   uploadCode,
   updateKeyboard,
-  updateKeyboardBool
+  updateKeyboardBool,
+  updateBitmap
 } from '../actions/EditorActions';
 import {
   changeTheme,
@@ -39,6 +40,7 @@ const mapStateToProps = (state: ApplicationState) => ({
   consoleUnread: state.console.consoleUnread,
   keyboard: state.editor.keyboard,
   bool: state.editor.bool,
+  
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
@@ -89,7 +91,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   },
   onUpdateKeyboardBool: (bool: boolean) => {
     dispatch(updateKeyboardBool(bool));
-  }
+  },
   
 });
 

@@ -11,7 +11,7 @@ import { all, call, cps, delay, fork, put, race, select, take, takeEvery } from 
 import { Client } from 'ssh2';
 import { ipcRenderer, OpenDialogReturnValue, SaveDialogReturnValue, MessageBoxReturnValue, remote } from 'electron';
 import { addAsyncAlert } from '../actions/AlertActions';
-import { openFileSucceeded, saveFileSucceeded } from '../actions/EditorActions';
+import { openFileSucceeded, saveFileSucceeded, updateBitmap } from '../actions/EditorActions';
 import { toggleFieldControl } from '../actions/FieldActions';
 import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
@@ -115,6 +115,7 @@ const editorState = (state: any) => ({
   code: state.editor.editorCode,
   keyboard: state.editor.keyboard,
   bool: state.editor.bool,
+  bitmap: state.editor.bitmap,
 });
 
 function* saveFile(action: any) {
@@ -140,6 +141,7 @@ const editorSavedState = (state: any) => ({
   code: state.editor.editorCode,
   keyboard: state.editor.keyboard,
   bool: state.editor.bool,
+  bitmap: state.editor.bitmap,
 });
 
 function* openFile(action: any) {
@@ -264,30 +266,23 @@ function formatGamepads(newGamepads: (Gamepad | null)[]): Input[] {
 
 function* sendKeyboardInputs(){
   
-  let bitmap: number = 0;
   const curState = yield select(editorState)
   const keyboardNum: number = KeyboardButtons[curState.keyboard]
+  let map: number = curState.bitmap;
   if (!curState.bool) {
-    bitmap &= ~(1 << keyboardNum)
+    map &= ~(1 << keyboardNum)
   } else {
-    bitmap |= (1 << keyboardNum);
+    map |= (1 << keyboardNum);
   }
-  
+  yield put(updateBitmap(map))
   
   let keyboard = new Input({
     connected: true,
     axes: [],
-    buttons: bitmap,
+    buttons: map,
     source: Source.KEYBOARD
   })
-<<<<<<< Updated upstream
-  let arr = [];
-  arr[0] = keyboard;
-  return arr;
-=======
-  ipcRenderer.send('stateUpdate', [keyboard])
-  
->>>>>>> Stashed changes
+  ipcRenderer.send('stateUpdate', [keyboard]) 
 }
 
 /**
