@@ -343,7 +343,6 @@ function* runtimeSaga() {
 }
 
 const gamepadsState = (state: any) => state.gamepads.gamepads;
-const keyboardState = (state: any) => state.editor.keyboard;
 
 /**
  * Send the store to the main process whenever it changes.
