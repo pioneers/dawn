@@ -139,9 +139,6 @@ function* saveFile(action: any) {
 const editorSavedState = (state: any) => ({
   savedCode: state.editor.latestSaveCode,
   code: state.editor.editorCode,
-  keyboard: state.editor.keyboard,
-  bool: state.editor.bool,
-  bitmap: state.editor.bitmap,
 });
 
 function* openFile(action: any) {
