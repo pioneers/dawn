@@ -82,7 +82,7 @@ function createPacket(payload: unknown, messageType: MsgType): Buffer {
       encodedPayload = new Uint8Array();
       break;
   }
-  
+
   const msgLength = Buffer.byteLength(encodedPayload);
   const msgLengthArr = new Uint8Array([msgLength & 0x00ff, msgLength & 0xff00]); // Assuming little-endian byte order, since runs on x64
   const msgTypeArr = new Uint8Array([messageType]);
@@ -90,6 +90,132 @@ function createPacket(payload: unknown, messageType: MsgType): Buffer {
   return Buffer.concat([msgTypeArr, msgLengthArr, encodedPayload], msgLength + 3);
 }
 
+class BaseTCPConn {
+  connectionName: string;
+  logger: Logger;
+  tcpSocket: TCPSocket;
+  ip: string;
+  port: number;
+  onConnect?: () => void;
+  onConnectionClose?: () => void;
+  onDataReceived: (data: Buffer) => void;
+
+  constructor({
+    connectionName,
+    logger,
+    onDataReceived,
+    onConnect,
+    onConnectionClose,
+    ip = defaults.IPADDRESS,
+    port = DEFAULT_TCP_PORT
+  }: {
+    connectionName: string;
+    logger: Logger;
+    onDataReceived: (data: Buffer) => void;
+    onConnect?: () => void;
+    onConnectionClose?: () => void;
+    ip?: string;
+    port?: number;
+  }) {
+    this.connectionName = connectionName;
+    this.logger = logger;
+    this.tcpSocket = new TCPSocket();
+    this.ip = ip;
+    this.port = port;
+    this.onConnect = onConnect;
+    this.onConnectionClose = onConnectionClose;
+    this.onDataReceived = onDataReceived;
+
+    this.tcpSocket.setTimeout(3000);
+
+    setInterval(() => {
+      if (!this.tcpSocket.connecting && this.tcpSocket.pending) {
+        if (this.ip !== defaults.IPADDRESS) {
+          this.port = DEFAULT_TCP_PORT;
+          if (this.ip.includes(':')) {
+            const split = this.ip.split(':');
+            this.ip = split[0];
+            this.port = Number(split[1]);
+          }
+          console.log(`${this.connectionName}: Trying to TCP connect to ${this.ip}:${this.port}`);
+          this.tcpSocket.connect(this.port, this.ip);
+        }
+      }
+    }, 1000);
+
+    this.tcpSocket.on('connect', () => {
+      this.logger.log(`${this.connectionName} connected`);
+
+      if (this.onConnect !== undefined) {
+        this.onConnect();
+      }
+    });
+
+    this.tcpSocket.on('timeout', () => {
+      this.logger.log(`${this.connectionName} TCP socket timeout'`);
+      this.tcpSocket.end();
+    });
+
+    this.tcpSocket.on('end', () => {
+      this.logger.log(`${this.connectionName} disconnected`);
+    });
+
+    this.tcpSocket.on('error', (err: string) => {
+      this.logger.log(err);
+    });
+
+    this.tcpSocket.on('data', (data) => this.onDataReceived(data));
+  }
+
+  // TODO: add ip address listener for ip change
+
+  close = () => {
+    this.tcpSocket.end();
+
+    if (this.onConnectionClose !== undefined) {
+      this.onConnectionClose();
+    }
+  };
+}
+
+class TCPTunneledConn extends BaseTCPConn {
+  udpForwarder: UDPSocket;
+
+  constructor({ connectionName, logger }: { connectionName: string; logger: Logger }) {
+    /** Bidirectional - Can send to and receive from UDP connection. */
+    const udpForwarder = createSocket({ type: 'udp4', reuseAddr: true });
+
+    /** Data received from TCP connection uses a middleman UDP socket to forward to the actual UDP socket. */
+    const dataForwarder = (udpForwarder: UDPSocket) => (data: Buffer) => {
+      udpForwarder.send(data, UDP_LISTEN_PORT, 'localhost');
+    };
+
+    const closeConnection = (udpForwarder: UDPSocket) => () => {
+      udpForwarder.close();
+    };
+
+    super({
+      connectionName,
+      logger,
+      onConnectionClose: closeConnection(udpForwarder),
+      onDataReceived: dataForwarder(udpForwarder)
+    });
+
+    udpForwarder.bind(UDP_SEND_PORT, () => {
+      console.log(`UDP forwarder receives from port ${UDP_SEND_PORT}`);
+    });
+
+    udpForwarder.on('message', (msg: Uint8Array) => {
+      this.tcpSocket.write(msg, () => {
+        this.logger.log(`Forwarded UDP data on TCP to ${this.ip}:${this.port}`);
+      });
+    });
+
+    this.udpForwarder = udpForwarder;
+  }
+}
+
+// TODO: Use BaseTCPConn above to remove duplicated logic
 class TCPConn {
   logger: Logger;
   socket: TCPSocket;
@@ -316,16 +442,16 @@ class UDPConn {
       );
     }
 
-    const message = protos.UserInputs.encode({inputs: data}).finish();
-    let port = UDP_SEND_PORT;
-    let ip = runtimeIP;
-    // This is temporary. This will need to be changed once Runtime figures out how to send UDP data over TCP ngrok connection
-    if (defaults.NGROK && runtimeIP.includes(':')) {
-      const split = runtimeIP.split(':');
-      ip = split[0];
-      port = Number(split[1]); 
-    }
-    this.socket.send(message, port, ip);
+    const message = protos.UserInputs.encode({ inputs: data }).finish();
+    // let port = UDP_SEND_PORT;
+    // let ip = runtimeIP;
+    // // This is temporary. This will need to be changed once Runtime figures out how to send UDP data over TCP ngrok connection
+    // if (defaults.NGROK && runtimeIP.includes(':')) {
+    //   const split = runtimeIP.split(':');
+    //   ip = split[0];
+    //   port = Number(split[1]);
+    // }
+    this.socket.send(message, UDP_SEND_PORT, 'localhost');
   };
 
   close() {
@@ -334,14 +460,18 @@ class UDPConn {
   }
 }
 
-const RuntimeConnections: Array<UDPConn | TCPConn> = [];
+const RuntimeConnections: Array<UDPConn | TCPConn | TCPTunneledConn> = [];
 
 export const Runtime = {
   conns: RuntimeConnections,
   logger: new Logger('runtime', 'Runtime Debug'),
 
   setup() {
-    this.conns = [new UDPConn(this.logger), new TCPConn(this.logger)];
+    this.conns = [
+      new UDPConn(this.logger),
+      new TCPConn(this.logger),
+      new TCPTunneledConn({ connectionName: 'TCP Tunneled Connection', logger: this.logger })
+    ];
   },
 
   close() {
