@@ -11,14 +11,13 @@ import { all, call, cps, delay, fork, put, race, select, take, takeEvery } from 
 import { Client } from 'ssh2';
 import { ipcRenderer, OpenDialogReturnValue, SaveDialogReturnValue, MessageBoxReturnValue, remote } from 'electron';
 import { addAsyncAlert } from '../actions/AlertActions';
-import { openFileSucceeded, saveFileSucceeded, updateBitmap } from '../actions/EditorActions';
+import { openFileSucceeded, saveFileSucceeded} from '../actions/EditorActions';
 import { toggleFieldControl } from '../actions/FieldActions';
 import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
 import { TIMEOUT, defaults, logging } from '../utils/utils';
 import { Input, Source } from '../../protos/protos';
 import { StatusLabel } from '../components/StatusLabel';
-import {KeyboardButtons} from '../consts/keyboard-buttons'
 
 let timestamp = Date.now();
 

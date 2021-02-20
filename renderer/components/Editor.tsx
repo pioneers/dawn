@@ -71,8 +71,6 @@ interface OwnProps {
   onUpdateCodeStatus: (status: number) => void;
   onDownloadCode: () => void;
   onUploadCode: () => void;
-  onUpdateKeyboard: (keyboard: string) => void;
-  onUpdateKeyboardBool: (bool: boolean) => void;
   onUpdateBitmap: (bitmap: number) => void;
 }
 
@@ -673,14 +671,14 @@ export class Editor extends React.Component<Props, State> {
                     >28</MenuItem>
                   </DropdownButton>
                 </OverlayTrigger>
-                <TooltipButton
+              </InputGroup>
+              <TooltipButton
                     id="toggleKeyboardControl"
                     text="toggleKeyboardControl"
                     onClick={this.toggleKeyboardControl}
                     glyph="text-background"
                     disabled={false} 
                 /> 
-              </InputGroup>
             </FormGroup>
             {' '}
             <ButtonGroup id="editor-settings-buttons" className="form-inline">
