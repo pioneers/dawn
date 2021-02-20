@@ -87,7 +87,6 @@ interface State {
   isRunning: boolean;
   fontsize?: number;
   keyboardControl: boolean;
-  characterBool: boolean;
   bitmap: number;
 };
 
@@ -133,7 +132,6 @@ export class Editor extends React.Component<Props, State> {
       isRunning: false,
       simulate: false,
       keyboardControl: false,
-      characterBool: true,
       bitmap: 0
     };
   }
@@ -292,11 +290,11 @@ export class Editor extends React.Component<Props, State> {
       window.removeEventListener('keyup', this.turnCharacterOff);
     }
   }
-  updateBitmap = (currentCharacter: string) => {
+  updateBitmap = (currentCharacter: string, characterBool: boolean ) => {
     const keyboardNum: number = KeyboardButtons[currentCharacter];
     let map: number = this.state.bitmap;
 
-    if (!this.state.characterBool) {
+    if (!characterBool) {
       map &= ~(1 << keyboardNum)
     } else {
       map |= (1 << keyboardNum);
@@ -307,15 +305,11 @@ export class Editor extends React.Component<Props, State> {
 
   }
   turnCharacterOff = (e: KeyboardEvent) => {
-    this.setState({characterBool: false});
-    this.props.onUpdateKeyboardBool(this.state.characterBool);
-    this.updateBitmap(e.key);
+    this.updateBitmap(e.key, false);
     
   }
   turnCharacterOn = (e: KeyboardEvent) => {
-    this.setState({characterBool: true});
-    this.props.onUpdateKeyboardBool(this.state.characterBool);
-    this.updateBitmap(e.key)
+    this.updateBitmap(e.key, true)
   }
 
   upload = () => {

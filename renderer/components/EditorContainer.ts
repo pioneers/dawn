@@ -8,8 +8,6 @@ import {
   createNewFile,
   downloadCode,
   uploadCode,
-  updateKeyboard,
-  updateKeyboardBool,
   updateBitmap
 } from '../actions/EditorActions';
 import {
@@ -38,8 +36,6 @@ const mapStateToProps = (state: ApplicationState) => ({
   fieldControlActivity: state.info.fieldControlActivity,
   disableScroll: state.console.disableScroll,
   consoleUnread: state.console.consoleUnread,
-  keyboard: state.editor.keyboard,
-  bool: state.editor.bool,
   bitmap: state.editor.bitmap
 });
 
