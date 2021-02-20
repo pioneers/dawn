@@ -264,19 +264,11 @@ function formatGamepads(newGamepads: (Gamepad | null)[]): Input[] {
 function* sendKeyboardInputs(){
   
   const curState = yield select(editorState)
-  const keyboardNum: number = KeyboardButtons[curState.keyboard]
-  let map: number = curState.bitmap;
-  if (!curState.bool) {
-    map &= ~(1 << keyboardNum)
-  } else {
-    map |= (1 << keyboardNum);
-  }
-  yield put(updateBitmap(map))
 
   let keyboard = new Input({
     connected: true,
     axes: [],
-    buttons: map,
+    buttons: curState.bitmap,
     source: Source.KEYBOARD
   })
   ipcRenderer.send('stateUpdate', [keyboard]) 
