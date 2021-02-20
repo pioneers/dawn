@@ -178,7 +178,8 @@ class BaseTCPConn {
   };
 }
 
-class TCPTunneledConn extends BaseTCPConn {
+/** Uses TCP connection to tunnel UDP messages. */
+class UDPTunneledConn extends BaseTCPConn {
   udpForwarder: UDPSocket;
 
   constructor({ connectionName, logger }: { connectionName: string; logger: Logger }) {
@@ -460,7 +461,7 @@ class UDPConn {
   }
 }
 
-const RuntimeConnections: Array<UDPConn | TCPConn | TCPTunneledConn> = [];
+const RuntimeConnections: Array<UDPConn | TCPConn | UDPTunneledConn> = [];
 
 export const Runtime = {
   conns: RuntimeConnections,
@@ -470,7 +471,7 @@ export const Runtime = {
     this.conns = [
       new UDPConn(this.logger),
       new TCPConn(this.logger),
-      new TCPTunneledConn({ connectionName: 'TCP Tunneled Connection', logger: this.logger })
+      new UDPTunneledConn({ connectionName: 'TCP Tunneled Connection', logger: this.logger })
     ];
   },
 
