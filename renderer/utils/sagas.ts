@@ -280,14 +280,8 @@ function* sendKeyboardInputs(){
     buttons: bitmap,
     source: Source.KEYBOARD
   })
-<<<<<<< Updated upstream
-  let arr = [];
-  arr[0] = keyboard;
-  return arr;
-=======
   ipcRenderer.send('stateUpdate', [keyboard])
   
->>>>>>> Stashed changes
 }
 
 /**
