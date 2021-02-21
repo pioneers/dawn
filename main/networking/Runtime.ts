@@ -31,6 +31,7 @@ enum MsgType {
   CHALLENGE_DATA,
   LOG,
   DEVICE_DATA,
+  INPUTS = 6
 }
 
 interface TCPPacket {
@@ -76,6 +77,9 @@ function createPacket(payload: unknown, messageType: MsgType): Buffer {
       break;
     case MsgType.CHALLENGE_DATA:
       encodedPayload = protos.Text.encode(payload as protos.IText).finish();
+      break;
+    case MsgType.INPUTS:
+      encodedPayload = protos.Text.encode(payload as any).finish();
       break;
     default:
       console.log('ERROR: trying to create TCP Packet with type LOG');
@@ -126,12 +130,11 @@ class BaseTCPConn {
     this.onConnectionClose = onConnectionClose;
     this.onDataReceived = onDataReceived;
 
-    this.tcpSocket.setTimeout(3000);
+    // this.tcpSocket.setTimeout(3000);
 
     setInterval(() => {
       if (!this.tcpSocket.connecting && this.tcpSocket.pending) {
         if (this.ip !== defaults.IPADDRESS) {
-          this.port = DEFAULT_TCP_PORT;
           if (this.ip.includes(':')) {
             const split = this.ip.split(':');
             this.ip = split[0];
@@ -151,10 +154,10 @@ class BaseTCPConn {
       }
     });
 
-    this.tcpSocket.on('timeout', () => {
-      this.logger.log(`${this.connectionName} TCP socket timeout'`);
-      this.tcpSocket.end();
-    });
+    // this.tcpSocket.on('timeout', () => {
+    //   this.logger.log(`${this.connectionName} TCP socket timeout'`);
+    //   this.tcpSocket.end();
+    // });
 
     this.tcpSocket.on('end', () => {
       this.logger.log(`${this.connectionName} disconnected`);
@@ -182,13 +185,14 @@ class BaseTCPConn {
 class UDPTunneledConn extends BaseTCPConn {
   udpForwarder: UDPSocket;
 
-  constructor({ connectionName, logger }: { connectionName: string; logger: Logger }) {
+  constructor({ connectionName, logger, ip, port }: { connectionName: string; logger: Logger; ip?: string; port?: number }) {
     /** Bidirectional - Can send to and receive from UDP connection. */
     const udpForwarder = createSocket({ type: 'udp4', reuseAddr: true });
 
     /** Data received from TCP connection uses a middleman UDP socket to forward to the actual UDP socket. */
     const dataForwarder = (udpForwarder: UDPSocket) => (data: Buffer) => {
-      udpForwarder.send(data, UDP_LISTEN_PORT, 'localhost');
+      const message = readPacket(data);
+      udpForwarder.send(message.payload, UDP_LISTEN_PORT, 'localhost');
     };
 
     const closeConnection = (udpForwarder: UDPSocket) => () => {
@@ -198,6 +202,8 @@ class UDPTunneledConn extends BaseTCPConn {
     super({
       connectionName,
       logger,
+      ip,
+      port,
       onConnectionClose: closeConnection(udpForwarder),
       onDataReceived: dataForwarder(udpForwarder)
     });
@@ -207,7 +213,8 @@ class UDPTunneledConn extends BaseTCPConn {
     });
 
     udpForwarder.on('message', (msg: Uint8Array) => {
-      this.tcpSocket.write(msg, () => {
+      const message = createPacket(msg, MsgType.INPUTS);
+      this.tcpSocket.write(message, () => {
         this.logger.log(`Forwarded UDP data on TCP to ${this.ip}:${this.port}`);
       });
     });
@@ -224,7 +231,7 @@ class TCPConn {
   constructor(logger: Logger) {
     this.logger = logger;
     this.socket = new TCPSocket();
-    this.socket.setTimeout(3000);
+    // this.socket.setTimeout(3000);
 
     setInterval(() => {
       if (!this.socket.connecting && this.socket.pending) {
@@ -247,10 +254,10 @@ class TCPConn {
       this.socket.write(new Uint8Array([1])); // Runtime needs first byte to be 1 to recognize client as Dawn (instead of Shepherd)
     });
 
-    this.socket.on('timeout', () => {
-      this.logger.log('TCP socket timeout');
-      this.socket.end();
-    });
+    // this.socket.on('timeout', () => {
+    //   this.logger.log('TCP socket timeout');
+    //   this.socket.end();
+    // });
 
     this.socket.on('end', () => {
       this.logger.log('Runtime disconnected');
@@ -419,7 +426,7 @@ class UDPConn {
       }
     });
 
-    this.socket.bind(UDP_LISTEN_PORT, () => {
+    this.socket.bind(UDP_LISTEN_PORT, 'localhost', () => {
       this.logger.log(`UDP connection bound`);
     });
 
@@ -471,11 +478,11 @@ export const Runtime = {
     this.conns = [
       new UDPConn(this.logger),
       new TCPConn(this.logger),
-      new UDPTunneledConn({ connectionName: 'TCP Tunneled Connection', logger: this.logger })
+      new UDPTunneledConn({ connectionName: 'UDP Tunneled Connection', logger: this.logger, ip: '172.18.0.2', port: 1234 })
     ];
   },
 
   close() {
     this.conns.forEach((conn) => conn.close()); // Logger's fs closes automatically
-  },
+  }
 };
