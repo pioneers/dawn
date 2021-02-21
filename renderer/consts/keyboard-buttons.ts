@@ -42,8 +42,8 @@ export const KeyboardButtons= {
     "'": 40,
     "[": 41,
     "]": 42,
-    "left_arrow": 43,
-    "right_arrow": 44,
-    "up_arrow": 45,
-    "down_arrow": 46
+    "ArrowLeft": 43,
+    "ArrowRight": 44,
+    "ArrowUp": 45,
+    "ArrowDown": 46
 };      
