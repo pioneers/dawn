@@ -35,26 +35,70 @@ enum MsgType {
 }
 
 interface TCPPacket {
-  messageType: MsgType;
-  messageLength: number;
+  type: MsgType;
+  length: number;
   payload: Buffer;
 }
 
-/**
- * Unpack TCP packet header from payload
- * as sent from Runtime.
- */
-function readPacket(data: any): TCPPacket {
-  const buf = Buffer.from(data);
-  const header = buf.slice(0, 3);
-  const msgType = header[0];
-  const msgLength = new Uint16Array(header.slice(1))[0];
-  const load = buf.slice(3, msgLength + 3);
+/** Given a data buffer, read as many TCP Packets as possible. If there are leftover bytes, return them so that they can be used in the next cycle of data. */
+function readPackets(
+  data: Buffer,
+  previousLeftoverBytes?: Buffer
+): {
+  leftoverBytes: Buffer | undefined;
+  processedTCPPackets: TCPPacket[];
+} {
+  const bytesToRead = Buffer.concat([previousLeftoverBytes ?? new Uint8Array(), data]);
+  let leftoverBytes;
+  let i = 0;
+  const processedTCPPackets: TCPPacket[] = [];
+
+  while (i < bytesToRead.length) {
+    let header;
+    let msgType;
+    let msgLength;
+    let payload: Buffer;
+
+    if (i + 3 <= bytesToRead.length) {
+      // Have enough bytes to read in 3 byte header
+      header = bytesToRead.slice(i, i + 3);
+      msgType = header[0];
+      msgLength = new Uint16Array(header.slice(1))[0];
+    } else {
+      // Don't have enough bytes to read 3 byte header so we save the bytes for the next data cycle
+      leftoverBytes = bytesToRead.slice(i);
+
+      return {
+        leftoverBytes,
+        processedTCPPackets
+      };
+    }
+
+    i += 3;
+
+    if (i + msgLength <= bytesToRead.length) {
+      // Have enough bytes to read entire payload from 1 TCP packet
+      payload = bytesToRead.slice(i, i + msgLength);
+    } else {
+      // Don't have enough bytes to read entire payload
+      leftoverBytes = bytesToRead.slice(i);
+
+      return {
+        // Note: Need to save header so we know how many bytes to read in the next data cycle
+        leftoverBytes: Buffer.concat([header, leftoverBytes]),
+        processedTCPPackets
+      };
+    }
+
+    const newTCPPacket = { type: msgType, length: msgLength, payload: payload! };
+    processedTCPPackets.push(newTCPPacket);
+
+    i += msgLength;
+  }
 
   return {
-    messageType: msgType,
-    messageLength: msgLength,
-    payload: load,
+    leftoverBytes,
+    processedTCPPackets
   };
 }
 
@@ -64,7 +108,7 @@ function readPacket(data: any): TCPPacket {
  */
 function createPacket(payload: unknown, messageType: MsgType): Buffer {
   let encodedPayload: Uint8Array;
-  
+
   switch (messageType) {
     case MsgType.DEVICE_DATA:
       encodedPayload = protos.DevData.encode(payload as protos.IDevData).finish();
@@ -79,7 +123,7 @@ function createPacket(payload: unknown, messageType: MsgType): Buffer {
       encodedPayload = protos.Text.encode(payload as protos.IText).finish();
       break;
     case MsgType.INPUTS:
-      encodedPayload = protos.Text.encode(payload as any).finish();
+      encodedPayload = payload as Uint8Array;
       break;
     default:
       console.log('ERROR: trying to create TCP Packet with type LOG');
@@ -103,6 +147,7 @@ class BaseTCPConn {
   onConnect?: () => void;
   onConnectionClose?: () => void;
   onDataReceived: (data: Buffer) => void;
+  onReadable: () => void;
 
   constructor({
     connectionName,
@@ -184,6 +229,8 @@ class BaseTCPConn {
 /** Uses TCP connection to tunnel UDP messages. */
 class UDPTunneledConn extends BaseTCPConn {
   udpForwarder: UDPSocket;
+  ipAddressListener: (event: IpcMainEvent, ipAddress: string) => void;
+  leftoverBytes: Buffer | undefined;
 
   constructor({ connectionName, logger, ip, port }: { connectionName: string; logger: Logger; ip?: string; port?: number }) {
     /** Bidirectional - Can send to and receive from UDP connection. */
@@ -191,8 +238,17 @@ class UDPTunneledConn extends BaseTCPConn {
 
     /** Data received from TCP connection uses a middleman UDP socket to forward to the actual UDP socket. */
     const dataForwarder = (udpForwarder: UDPSocket) => (data: Buffer) => {
-      const message = readPacket(data);
-      udpForwarder.send(message.payload, UDP_LISTEN_PORT, 'localhost');
+      // const message = readPacket(data);
+      const { leftoverBytes, processedTCPPackets } = readPackets(data, this.leftoverBytes);
+      // console.log(`${this.connectionName}: received msg length`, message.messageLength);
+
+      for (const packet of processedTCPPackets) {
+        console.log('packet payload length', packet.length);
+        udpForwarder.send(packet.payload, UDP_LISTEN_PORT, 'localhost');
+      }
+
+      this.leftoverBytes = leftoverBytes;
+      // udpForwarder.send(message.payload, UDP_LISTEN_PORT, 'localhost');
     };
 
     const closeConnection = (udpForwarder: UDPSocket) => () => {
@@ -220,6 +276,24 @@ class UDPTunneledConn extends BaseTCPConn {
     });
 
     this.udpForwarder = udpForwarder;
+
+    const ipAddressListener = (_event: IpcMainEvent, ipAddress: string) => {
+      console.log('UDP tunnel ip address change', ipAddress);
+      if (ipAddress != this.ip) {
+        console.log(`${this.connectionName} - Switching IP from ${this.ip} to ${ipAddress}`);
+        console.log(
+          `Current socket status - Connecting: ${String(this.tcpSocket.connecting)} - Pending: ${String(this.tcpSocket.pending)}`
+        );
+        if (this.tcpSocket.connecting || !this.tcpSocket.pending) {
+          console.log(`${this.connectionName}: Ending socket connection`);
+          this.tcpSocket.end();
+          // this.tcpSocket.destroy();
+        }
+        this.ip = ipAddress;
+      }
+    };
+
+    ipcMain.on('udpTunnelIpAddress', ipAddressListener);
   }
 }
 
@@ -227,6 +301,7 @@ class UDPTunneledConn extends BaseTCPConn {
 class TCPConn {
   logger: Logger;
   socket: TCPSocket;
+  leftoverBytes: Buffer | undefined;
 
   constructor(logger: Logger) {
     this.logger = logger;
@@ -273,19 +348,25 @@ class TCPConn {
      * when using payload to update console
      */
     this.socket.on('data', (data) => {
-      const message = readPacket(data);
-      let decoded: protos.Text;
+      const { leftoverBytes, processedTCPPackets } = readPackets(data, this.leftoverBytes);
 
-      switch (message.messageType) {
-        case MsgType.LOG:
-          decoded = protos.Text.decode(message.payload);
-          RendererBridge.reduxDispatch(updateConsole(decoded.payload));
-          break;
-        case MsgType.CHALLENGE_DATA:
-          decoded = protos.Text.decode(message.payload);
-          // TODO: Dispatch challenge outputs to redux
-          break;
+      for (const packet of processedTCPPackets) {
+        let decoded: protos.Text;
+
+        switch (packet.type) {
+          case MsgType.LOG:
+            decoded = protos.Text.decode(packet.payload);
+            console.log('logs', decoded.payload);
+            RendererBridge.reduxDispatch(updateConsole(decoded.payload));
+            break;
+          case MsgType.CHALLENGE_DATA:
+            decoded = protos.Text.decode(packet.payload);
+            // TODO: Dispatch challenge outputs to redux
+            break;
+        }
       }
+
+      this.leftoverBytes = leftoverBytes;
     });
 
     /**
@@ -478,7 +559,7 @@ export const Runtime = {
     this.conns = [
       new UDPConn(this.logger),
       new TCPConn(this.logger),
-      new UDPTunneledConn({ connectionName: 'UDP Tunneled Connection', logger: this.logger, ip: '172.18.0.2', port: 1234 })
+      new UDPTunneledConn({ connectionName: 'UDP Tunneled Connection', logger: this.logger })
     ];
   },
 
