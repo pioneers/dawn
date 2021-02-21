@@ -8,6 +8,7 @@ import {
   RuntimeDisconnectAction,
   UpdateCodeStatusAction,
   IpChangeAction,
+  UDPTunnelIpChangeAction,
   UpdateRobotAction,
   NotificationChangeAction,
 } from '../types';
@@ -19,11 +20,13 @@ type Actions =
   | RuntimeDisconnectAction
   | UpdateCodeStatusAction
   | IpChangeAction
+  | UDPTunnelIpChangeAction
   | UpdateRobotAction
   | NotificationChangeAction;
 
 interface InfoState {
   ipAddress: string;
+  udpTunnelIpAddress: string;
   studentCodeStatus: number;
   isRunningCode: boolean;
   connectionStatus: boolean;
@@ -36,6 +39,7 @@ interface InfoState {
 
 const initialInfoState = {
   ipAddress: defaults.IPADDRESS,
+  udpTunnelIpAddress: defaults.IPADDRESS,
   studentCodeStatus: robotState.IDLE,
   isRunningCode: false,
   connectionStatus: false,
@@ -86,6 +90,13 @@ export const info = (state: InfoState = initialInfoState, action: Actions): Info
       return {
         ...state,
         ipAddress: action.ipAddress,
+      };
+    case consts.InfoActionsTypes.UDP_TUNNEL_IP_CHANGE:
+      console.log('reducer udpTunnelIpAddress', action.ipAddress);
+      ipcRenderer.send('udpTunnelIpAddress', action.ipAddress);
+      return {
+        ...state,
+        udpTunnelIpAddress: action.ipAddress
       };
     case consts.FieldActionsTypes.UPDATE_ROBOT: {
       const stateChange = (action.autonomous) ? robotState.AUTONOMOUS : robotState.TELEOP;

@@ -34,5 +34,6 @@ export {
   RuntimeDisconnectAction,
   UpdateCodeStatusAction,
   IpChangeAction,
+  UDPTunnelIpChangeAction,
   NotificationChangeAction,
 } from './info-actions';
