@@ -87,7 +87,7 @@ function readPackets(
       leftoverBytes = bytesToRead.slice(i);
 
       return {
-        // Note: Need to save header so we know how many bytes to read in the next data cycle
+        // Note: Need to save header so we know how many bytes to read for this packet in the next data cycle
         leftoverBytes: Buffer.concat([header, leftoverBytes]),
         processedTCPPackets
       };
