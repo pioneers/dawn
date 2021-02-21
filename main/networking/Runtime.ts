@@ -140,6 +140,7 @@ function createPacket(payload: unknown, messageType: MsgType): Buffer {
 
 class BaseTCPConn {
   connectionName: string;
+  ipAddressChangeListenerName: string;
   logger: Logger;
   tcpSocket: TCPSocket;
   ip: string;
@@ -151,6 +152,7 @@ class BaseTCPConn {
 
   constructor({
     connectionName,
+    ipAddressChangeListenerName,
     logger,
     onDataReceived,
     onConnect,
@@ -159,6 +161,7 @@ class BaseTCPConn {
     port = DEFAULT_TCP_PORT
   }: {
     connectionName: string;
+    ipAddressChangeListenerName: string;
     logger: Logger;
     onDataReceived: (data: Buffer) => void;
     onConnect?: () => void;
@@ -167,6 +170,7 @@ class BaseTCPConn {
     port?: number;
   }) {
     this.connectionName = connectionName;
+    this.ipAddressChangeListenerName = ipAddressChangeListenerName;
     this.logger = logger;
     this.tcpSocket = new TCPSocket();
     this.ip = ip;
@@ -213,6 +217,18 @@ class BaseTCPConn {
     });
 
     this.tcpSocket.on('data', (data) => this.onDataReceived(data));
+
+    const ipAddressListener = (_event: IpcMainEvent, ipAddress: string) => {
+      if (ipAddress != this.ip) {
+        console.log(`${this.connectionName} - Switching IP from ${this.ip} to ${ipAddress}`);
+        if (this.tcpSocket.connecting || !this.tcpSocket.pending) {
+          this.tcpSocket.end();
+        }
+        this.ip = ipAddress;
+      }
+    };
+
+    ipcMain.on(this.ipAddressChangeListenerName, ipAddressListener);
   }
 
   // TODO: add ip address listener for ip change
@@ -230,25 +246,36 @@ class BaseTCPConn {
 class UDPTunneledConn extends BaseTCPConn {
   udpForwarder: UDPSocket;
   ipAddressListener: (event: IpcMainEvent, ipAddress: string) => void;
+  /** Leftover bytes from reading 1 cycle of the TCP data buffer. */
   leftoverBytes: Buffer | undefined;
 
-  constructor({ connectionName, logger, ip, port }: { connectionName: string; logger: Logger; ip?: string; port?: number }) {
+  constructor({
+    connectionName,
+    ipAddressChangeListenerName,
+    logger,
+    ip,
+    port
+  }: {
+    connectionName: string;
+    ipAddressChangeListenerName: string;
+    logger: Logger;
+    ip?: string;
+    port?: number;
+  }) {
     /** Bidirectional - Can send to and receive from UDP connection. */
     const udpForwarder = createSocket({ type: 'udp4', reuseAddr: true });
 
     /** Data received from TCP connection uses a middleman UDP socket to forward to the actual UDP socket. */
     const dataForwarder = (udpForwarder: UDPSocket) => (data: Buffer) => {
-      // const message = readPacket(data);
       const { leftoverBytes, processedTCPPackets } = readPackets(data, this.leftoverBytes);
-      // console.log(`${this.connectionName}: received msg length`, message.messageLength);
 
       for (const packet of processedTCPPackets) {
-        console.log('packet payload length', packet.length);
+        // For debugging purposes only: will remove later
+        this.logger.log(`${this.connectionName}: packet payload length ${packet.length}`);
         udpForwarder.send(packet.payload, UDP_LISTEN_PORT, 'localhost');
       }
 
       this.leftoverBytes = leftoverBytes;
-      // udpForwarder.send(message.payload, UDP_LISTEN_PORT, 'localhost');
     };
 
     const closeConnection = (udpForwarder: UDPSocket) => () => {
@@ -257,6 +284,7 @@ class UDPTunneledConn extends BaseTCPConn {
 
     super({
       connectionName,
+      ipAddressChangeListenerName,
       logger,
       ip,
       port,
@@ -268,36 +296,19 @@ class UDPTunneledConn extends BaseTCPConn {
       console.log(`UDP forwarder receives from port ${UDP_SEND_PORT}`);
     });
 
+    // Received a new message from UDP connection
     udpForwarder.on('message', (msg: Uint8Array) => {
       const message = createPacket(msg, MsgType.INPUTS);
       this.tcpSocket.write(message, () => {
-        this.logger.log(`Forwarded UDP data on TCP to ${this.ip}:${this.port}`);
+        this.logger.log(`Tunneled UDP data using TCP to ${this.ip}:${this.port} with length ${message.length}`);
       });
     });
 
     this.udpForwarder = udpForwarder;
-
-    const ipAddressListener = (_event: IpcMainEvent, ipAddress: string) => {
-      console.log('UDP tunnel ip address change', ipAddress);
-      if (ipAddress != this.ip) {
-        console.log(`${this.connectionName} - Switching IP from ${this.ip} to ${ipAddress}`);
-        console.log(
-          `Current socket status - Connecting: ${String(this.tcpSocket.connecting)} - Pending: ${String(this.tcpSocket.pending)}`
-        );
-        if (this.tcpSocket.connecting || !this.tcpSocket.pending) {
-          console.log(`${this.connectionName}: Ending socket connection`);
-          this.tcpSocket.end();
-          // this.tcpSocket.destroy();
-        }
-        this.ip = ipAddress;
-      }
-    };
-
-    ipcMain.on('udpTunnelIpAddress', ipAddressListener);
   }
 }
 
-// TODO: Use BaseTCPConn above to remove duplicated logic
+// TODO: Use BaseTCPConn defined above for TCPConn below to remove duplicated logic
 class TCPConn {
   logger: Logger;
   socket: TCPSocket;
@@ -559,7 +570,7 @@ export const Runtime = {
     this.conns = [
       new UDPConn(this.logger),
       new TCPConn(this.logger),
-      new UDPTunneledConn({ connectionName: 'UDP Tunneled Connection', logger: this.logger })
+      new UDPTunneledConn({ connectionName: 'UDP Tunneler', ipAddressChangeListenerName: 'udpTunnelIpAddress', logger: this.logger })
     ];
   },
 
