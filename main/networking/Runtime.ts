@@ -26,11 +26,12 @@ let runtimeIP = defaults.IPADDRESS;
  * Define message ID constants, which must match with Runtime
  */
 enum MsgType {
-  RUN_MODE,
-  START_POS,
-  CHALLENGE_DATA,
-  LOG,
-  DEVICE_DATA,
+  RUN_MODE = 0,
+  START_POS = 1,
+  CHALLENGE_DATA = 2,
+  LOG = 3,
+  DEVICE_DATA = 4,
+  // 5 reserved for some Shepherd msg type
   INPUTS = 6
 }
 
