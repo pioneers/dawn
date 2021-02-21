@@ -269,7 +269,7 @@ export class Editor extends React.Component<Props, State> {
     }
   }
 
-  shift= (number: number, shift: number) => {
+  shift = (number: number, shift: number) => {
     return number * Math.pow(2, shift);
   }
 
@@ -299,19 +299,30 @@ export class Editor extends React.Component<Props, State> {
     const keyboardNum = KeyboardButtons[currentCharacter];
     let map: number = this.state.bitmap;
     
+    const shift = this.shift(1, keyboardNum);
+    const shiftString = shift.toString(2);
+    const left = shiftString.slice(0, Math.floor((shiftString.length/2) -1));
+    const right = shiftString.slice(Math.floor((shiftString.length/2)), shiftString.length)
+
     if (!characterBool) {
       // if(&& ((map >> keyboardNum) & BigInt(1)) == BigInt(1))
-      map &= ~this.shift(1, keyboardNum); 
+      map &= ~(parseInt(left, 2) << Math.floor(shiftString.length/2));
+      map &= ~parseInt(right, 2);
 
     } else if (characterBool){
       // if(&& ((map >> keyboardNum) & BigInt(1)) != BigInt(1) )
-      map |= this.shift(1, keyboardNum);      
+      console.log("Checking for bit shifts", Math.floor(shiftString.length/2));
+      console.log("Check for parseInt: ", parseInt(left,2));
+      console.log("check for total length: ", parseInt(left,2).toString(2).length + Math.floor(shiftString.length/2))
+      map |= (parseInt(left, 2) << Math.floor(shiftString.length/2));
+      map |= parseInt(right, 2);    
+
+      console.log(map);
     }
     this.setState({bitmap: map});
     this.props.onUpdateBitmap(this.state.bitmap);
-    console.log(this.state.bitmap.toString(2))
-
   }
+
   turnCharacterOff = (e: KeyboardEvent) => {
     this.updateBitmap(e.key, false);
   }
