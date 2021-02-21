@@ -6,7 +6,7 @@ import { Dispatch } from 'redux';
 import _ from 'lodash';
 import { defaults, getValidationState, logging } from '../utils/utils';
 import { updateFieldControl } from '../actions/FieldActions';
-import { ipChange } from '../actions/InfoActions';
+import { ipChange, udpTunnelIpChange } from '../actions/InfoActions';
 import storage from 'electron-json-storage';
 
 interface Config {
@@ -21,6 +21,7 @@ interface StateProps {
 
 interface DispatchProps {
   onIPChange: (ipAddress: string) => void;
+  onUDPTunnelingIpAddressChange: (ipAddress: string) => void;
   onFCUpdate: (config: Config) => void;
 }
 
@@ -34,8 +35,10 @@ type Props = StateProps & DispatchProps & OwnProps;
 
 export const ConfigBoxComponent = (props: Props) => {
   const [ipAddress, setIPAddress] = useState(props.ipAddress);
+  const [udpTunnelIpAddress, setUDPTunnelIpAddress] = useState(props.ipAddress);
   const [fcAddress, setFCAddress] = useState(props.fcAddress);
   const [stationNumber, setStationNumber] = useState(props.stationNumber);
+  const [originalUDPTunnelIpAddress, setOriginalUDPTunnelIpAddress] = useState(props.ipAddress);
   const [originalIPAddress, setOriginalIPAddress] = useState(props.ipAddress);
   const [originalStationNumber, setOriginalStationNumber] = useState(props.stationNumber);
   const [originalFCAddress, setOriginalFCAddress] = useState(props.fcAddress);
@@ -43,9 +46,15 @@ export const ConfigBoxComponent = (props: Props) => {
   const saveChanges = (e: React.FormEvent<Form>) => {
     e.preventDefault();
 
+    props.onUDPTunnelingIpAddressChange(udpTunnelIpAddress);
+    setOriginalFCAddress(udpTunnelIpAddress);
+    storage.set('udpTunnelIpAddress', { udpTunnelIpAddress }, (err: any) => {
+      if (err) logging.log(err);
+    });
+
     props.onIPChange(ipAddress);
     setOriginalIPAddress(ipAddress);
-    storage.set('ipAddress', { ipAddress: ipAddress }, (err: any) => {
+    storage.set('ipAddress', { ipAddress }, (err: any) => {
       if (err) logging.log(err);
     });
 
@@ -69,6 +78,10 @@ export const ConfigBoxComponent = (props: Props) => {
     setIPAddress(e.currentTarget.value);
   };
 
+  const handleUDPTunnelIpChange = (e: React.FormEvent<FormControl & HTMLInputElement>) => {
+    setUDPTunnelIpAddress(e.currentTarget.value);
+  };
+
   const handleFcChange = (e: React.FormEvent<FormControl & HTMLInputElement>) => {
     setFCAddress(e.currentTarget.value);
   };
@@ -81,6 +94,7 @@ export const ConfigBoxComponent = (props: Props) => {
     setIPAddress(originalIPAddress);
     setStationNumber(originalStationNumber);
     setFCAddress(originalFCAddress);
+    setOriginalUDPTunnelIpAddress(originalUDPTunnelIpAddress);
     props.hide();
   };
 
@@ -101,6 +115,18 @@ export const ConfigBoxComponent = (props: Props) => {
         props.onIPChange(ipAddress);
         setIPAddress(ipAddress);
         setOriginalIPAddress(ipAddress);
+      }
+    });
+
+    storage.get('udpTunnelIpAddress', (err: any, data: object) => {
+      if (err) {
+        logging.log(err);
+      } else if (!_.isEmpty(data)) {
+        const udpTunnelIpAddress = (data as { udpTunnelIpAddress: string | undefined }).udpTunnelIpAddress ?? defaults.IPADDRESS;
+
+        props.onUDPTunnelingIpAddressChange(udpTunnelIpAddress);
+        setUDPTunnelIpAddress(udpTunnelIpAddress);
+        setOriginalUDPTunnelIpAddress(udpTunnelIpAddress);
       }
     });
 
@@ -136,6 +162,12 @@ export const ConfigBoxComponent = (props: Props) => {
             <FormControl.Feedback />
           </FormGroup>
 
+          <FormGroup controlId="ipAddress" validationState={getValidationState(udpTunnelIpAddress)}>
+            <ControlLabel>UDP Tunneling</ControlLabel>
+            <FormControl type="text" value={udpTunnelIpAddress} placeholder="i.e. 192.168.100.13" onChange={handleUDPTunnelIpChange} />
+            <FormControl.Feedback />
+          </FormGroup>
+
           <p>Field Control Settings</p>
           <FormGroup controlId="fcAddress" validationState={getValidationState(fcAddress)}>
             <ControlLabel>Field Control IP Address</ControlLabel>
@@ -162,6 +194,9 @@ export const ConfigBoxComponent = (props: Props) => {
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   onIPChange: (ipAddress: string) => {
     dispatch(ipChange(ipAddress));
+  },
+  onUDPTunnelingIpAddressChange: (ipAddress: string) => {
+    dispatch(udpTunnelIpChange(ipAddress));
   },
   onFCUpdate: (config: Config) => {
     dispatch(updateFieldControl(config));
