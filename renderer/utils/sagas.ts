@@ -11,7 +11,7 @@ import { all, call, cps, delay, fork, put, race, select, take, takeEvery } from 
 import { Client } from 'ssh2';
 import { ipcRenderer, OpenDialogReturnValue, SaveDialogReturnValue, MessageBoxReturnValue, remote } from 'electron';
 import { addAsyncAlert } from '../actions/AlertActions';
-import { openFileSucceeded, saveFileSucceeded} from '../actions/EditorActions';
+import { openFileSucceeded, saveFileSucceeded } from '../actions/EditorActions';
 import { toggleFieldControl } from '../actions/FieldActions';
 import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
@@ -34,7 +34,7 @@ function openFileDialog() {
     remote.dialog.showOpenDialog({
       filters: [{ name: 'python', extensions: ['py'] }],
     }).then((openDialogReturnValue: OpenDialogReturnValue) => {
-      const { filePaths } = openDialogReturnValue; 
+      const { filePaths } = openDialogReturnValue;
       // If filepaths is undefined, the user did not specify a file.
       if (_.isEmpty(filePaths)) {
         reject();
@@ -58,7 +58,7 @@ function saveFileDialog() {
     remote.dialog.showSaveDialog({
       filters: [{ name: 'python', extensions: ['py'] }],
     }).then((saveDialogReturnValue: SaveDialogReturnValue) => {
-      const { filePath } = saveDialogReturnValue; 
+      const { filePath } = saveDialogReturnValue;
       // If filepath is undefined, the user did not specify a file.
       if (filePath === undefined) {
         reject();
@@ -115,6 +115,7 @@ const editorState = (state: any) => ({
   keyboard: state.editor.keyboard,
   bool: state.editor.bool,
   bitmap: state.editor.bitmap,
+  keyboardToggle: state.editor.keyboardToggle,
 });
 
 function* saveFile(action: any) {
@@ -210,7 +211,7 @@ function* runtimeHeartbeat() {
     const result = yield race({
       update: take('PER_MESSAGE'),
       timeout: delay(TIMEOUT)
-    }); 
+    });
 
     // If update wins, we assume we are connected, otherwise disconnected.
     if (result.update) {
@@ -260,15 +261,16 @@ function formatGamepads(newGamepads: (Gamepad | null)[]): Input[] {
   return formattedGamepads;
 }
 
-function* sendKeyboardInputs(){
+function* sendKeyboardInputs() {
   const curState = yield select(editorState)
+  console.log(curState.bitmap)
   let keyboard = new Input({
     connected: true,
     axes: [],
     buttons: curState.bitmap,
     source: Source.KEYBOARD
   })
-  ipcRenderer.send('stateUpdate', [keyboard]) 
+  ipcRenderer.send('stateUpdate', [keyboard])
 }
 
 /**
@@ -276,22 +278,27 @@ function* sendKeyboardInputs(){
  * redux action to update gamepad state.
  */
 function* runtimeGamepads() {
-  while (true) {
-    // navigator.getGamepads always returns a reference to the same object. This
-    // confuses redux, so we use assignIn to clone to a new object each time.
-    const newGamepads = navigator.getGamepads();
-    if (_needToUpdate(newGamepads) || Date.now() - timestamp > 100) {
-      const formattedGamepads = formatGamepads(newGamepads);
-      yield put(updateGamepads(formattedGamepads));
 
-      // Send gamepad data to Runtime.
-      if (_.some(newGamepads) || Date.now() - timestamp > 100) {
-        timestamp = Date.now();
-        yield put({ type: 'UPDATE_MAIN_PROCESS' });
+  const curState = yield select(editorState)
+
+  if (!curState.keyboardToggle) {
+    while (true) {
+      // navigator.getGamepads always returns a reference to the same object. This
+      // confuses redux, so we use assignIn to clone to a new object each time.
+      const newGamepads = navigator.getGamepads();
+      if (_needToUpdate(newGamepads) || Date.now() - timestamp > 100) {
+        const formattedGamepads = formatGamepads(newGamepads);
+        yield put(updateGamepads(formattedGamepads));
+
+        // Send gamepad data to Runtime.
+        if (_.some(newGamepads) || Date.now() - timestamp > 100) {
+          timestamp = Date.now();
+          yield put({ type: 'UPDATE_MAIN_PROCESS' });
+        }
       }
-    }
 
-    yield delay(50); // wait 50 ms before updating again.
+      yield delay(50); // wait 50 ms before updating again.
+    }
   }
 }
 

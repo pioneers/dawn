@@ -315,7 +315,7 @@ export interface IInput {
     connected?: (boolean|null);
 
     /** Input buttons */
-    buttons?: (number|Long|null);
+    buttons?: (bigint|number|Long|null);
 
     /** Input axes */
     axes?: (number[]|null);
@@ -337,7 +337,7 @@ export class Input implements IInput {
     public connected: boolean;
 
     /** Input buttons. */
-    public buttons: (number|Long);
+    public buttons: (bigint|number|Long);
 
     /** Input axes. */
     public axes: number[];
