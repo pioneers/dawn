@@ -261,9 +261,7 @@ function formatGamepads(newGamepads: (Gamepad | null)[]): Input[] {
 }
 
 function* sendKeyboardInputs(){
-  
   const curState = yield select(editorState)
-
   let keyboard = new Input({
     connected: true,
     axes: [],

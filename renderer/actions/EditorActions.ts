@@ -48,7 +48,7 @@ export const uploadCode: EditorActions['uploadCode'] = () => ({
   type: consts.EditorActionsTypes.UPLOAD_CODE,
 });
 
-export const updateBitmap: EditorActions['updateBitmap'] = (bitmap: number) => ({
+export const updateBitmap: EditorActions['updateBitmap'] = (bitmap: bigint) => ({
   type: consts.EditorActionsTypes.UPDATE_BITMAP,
   bitmap,
 })

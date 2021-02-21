@@ -97,7 +97,7 @@ class TCPConn {
   constructor(logger: Logger) {
     this.logger = logger;
     this.socket = new TCPSocket();
-    this.socket.setTimeout(3000);
+    // this.socket.setTimeout(3000);
 
     setInterval(() => {
       if (!this.socket.connecting && this.socket.pending) {
@@ -120,10 +120,10 @@ class TCPConn {
       this.socket.write(new Uint8Array([1])); // Runtime needs first byte to be 1 to recognize client as Dawn (instead of Shepherd)
     });
 
-    this.socket.on('timeout', () => {
-      this.logger.log('TCP socket timeout');
-      this.socket.end();
-    });
+    // this.socket.on('timeout', () => {
+    //   this.logger.log('TCP socket timeout');
+    //   this.socket.end();
+    // });
 
     this.socket.on('end', () => {
       this.logger.log('Runtime disconnected');
@@ -166,14 +166,14 @@ class TCPConn {
    * Receives new IP Address to send messages to.
    */
   ipAddressListener = (_event: IpcMainEvent, ipAddress: string) => {
-    if (ipAddress != runtimeIP) {
-      console.log(`Switching IP from ${runtimeIP} to ${ipAddress}`);
-      console.log(`Current socket status - Connecting: ${String(this.socket.connecting)} - Pending: ${String(this.socket.pending)}`);
-      if (this.socket.connecting || !this.socket.pending) {
-        this.socket.end();
-      }
-      runtimeIP = ipAddress;
-    }
+    // if (ipAddress != runtimeIP) {
+    //   console.log(`Switching IP from ${runtimeIP} to ${ipAddress}`);
+    //   console.log(`Current socket status - Connecting: ${String(this.socket.connecting)} - Pending: ${String(this.socket.pending)}`);
+    //   if (this.socket.connecting || !this.socket.pending) {
+    //     this.socket.end();
+    //   }
+    // }
+    runtimeIP = ipAddress;
   };
 
   // TODO: We can possibly combine below methods into single handler.
@@ -312,6 +312,7 @@ class UDPConn {
       data.push(
         protos.Input.create({
           connected: false,
+          source: 1
         })
       );
     }

@@ -71,7 +71,7 @@ interface OwnProps {
   onUpdateCodeStatus: (status: number) => void;
   onDownloadCode: () => void;
   onUploadCode: () => void;
-  onUpdateBitmap: (bitmap: number) => void;
+  onUpdateBitmap: (bitmap: bigint) => void;
 }
 
 type Props = StateProps & OwnProps;
@@ -85,7 +85,7 @@ interface State {
   isRunning: boolean;
   fontsize?: number;
   keyboardControl: boolean;
-  bitmap: number;
+  bitmap: bigint;
 };
 
 export class Editor extends React.Component<Props, State> {
@@ -130,7 +130,7 @@ export class Editor extends React.Component<Props, State> {
       isRunning: false,
       simulate: false,
       keyboardControl: false,
-      bitmap: 0
+      bitmap: BigInt(0)
     };
   }
 
@@ -289,15 +289,17 @@ export class Editor extends React.Component<Props, State> {
     }
   }
   updateBitmap = (currentCharacter: string, characterBool: boolean ) => {
-    const keyboardNum: number = KeyboardButtons[currentCharacter];
-    let map: number = this.state.bitmap;
-
-    if (!characterBool) {
-      map &= ~(1 << keyboardNum)
-    } else {
-      map |= (1 << keyboardNum);
-    }
+    const keyboardNum: bigint = BigInt(KeyboardButtons[currentCharacter]);
+    let map: bigint = this.state.bitmap;
     
+    if (!characterBool) {
+      // if(&& ((map >> keyboardNum) & BigInt(1)) == BigInt(1))
+      map &= ~(BigInt(1) << keyboardNum)    
+
+    } else if (characterBool){
+      // if(&& ((map >> keyboardNum) & BigInt(1)) != BigInt(1) )
+      map |= (BigInt(1) << keyboardNum);      
+    }
     this.setState({bitmap: map});
     this.props.onUpdateBitmap(this.state.bitmap);
 
@@ -496,6 +498,7 @@ export class Editor extends React.Component<Props, State> {
     if (this.props.consoleUnread) {
       this.toggleConsole();
     }
+
     return (
       <Panel bsStyle="primary">
         <Panel.Heading>
@@ -676,8 +679,9 @@ export class Editor extends React.Component<Props, State> {
                     id="toggleKeyboardControl"
                     text="toggleKeyboardControl"
                     onClick={this.toggleKeyboardControl}
-                    glyph="text-background"
-                    disabled={false} 
+                    glyph="text-background"      
+                    disabled={false}
+                     
                 /> 
             </FormGroup>
             {' '}

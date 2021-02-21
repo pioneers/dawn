@@ -49,7 +49,7 @@ export interface UploadCodeAction {
 
 export interface UpdateBitmapAction {
   type: consts.EditorActionsTypes.UPDATE_BITMAP;
-  bitmap: number;
+  bitmap: bigint;
 }
 
 
@@ -74,5 +74,5 @@ export interface EditorActions {
 
   uploadCode: () => UploadCodeAction;
 
-  updateBitmap: (bitmap: number) => UpdateBitmapAction;
+  updateBitmap: (bitmap: bigint) => UpdateBitmapAction;
 }

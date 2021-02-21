@@ -82,7 +82,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   onUploadCode: () => {
     dispatch(uploadCode());
   },
-  onUpdateBitmap: (bitmap: number) => {
+  onUpdateBitmap: (bitmap: bigint) => {
     dispatch(updateBitmap(bitmap));
   },
   

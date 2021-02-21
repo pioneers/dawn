@@ -35,14 +35,14 @@ interface EditorState {
   filepath: string;
   latestSaveCode: string;
   editorCode: string;
-  bitmap: number
+  bitmap: bigint
 }
 
 const defaultEditorState = {
   filepath: '',
   latestSaveCode: '',
   editorCode: '',
-  bitmap: 0
+  bitmap: BigInt(0)
 };
 
 export const editor = (state: EditorState = defaultEditorState, action: Actions) => {
