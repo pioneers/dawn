@@ -17,7 +17,7 @@ import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
 import { TIMEOUT, defaults, logging } from '../utils/utils';
 import { Input, Source } from '../../protos/protos';
-import { StatusLabel } from '../components/StatusLabel';
+//import { StatusLabel } from '../components/StatusLabel';
 
 let timestamp = Date.now();
 
