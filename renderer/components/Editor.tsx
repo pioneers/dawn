@@ -86,6 +86,7 @@ interface State {
   fontsize?: number;
   keyboardControl: boolean;
   bitmap: bigint;
+  buttonStyle: string;
 };
 
 export class Editor extends React.Component<Props, State> {
@@ -130,7 +131,8 @@ export class Editor extends React.Component<Props, State> {
       isRunning: false,
       simulate: false,
       keyboardControl: false,
-      bitmap: BigInt(0)
+      bitmap: BigInt(0),
+      buttonStyle: 'default'
     };
   }
 
@@ -282,10 +284,11 @@ export class Editor extends React.Component<Props, State> {
     if (!this.state.keyboardControl) {
       window.addEventListener('keydown', this.turnCharacterOn, { passive: true});
       window.addEventListener('keyup', this.turnCharacterOff, { passive: true});
-      
+      this.setState({buttonStyle: "info"});
     } else {
       window.removeEventListener('keydown', this.turnCharacterOn);
       window.removeEventListener('keyup', this.turnCharacterOff);
+      this.setState({buttonStyle: 'default'});
     }
   }
   updateBitmap = (currentCharacter: string, characterBool: boolean ) => {
@@ -306,7 +309,6 @@ export class Editor extends React.Component<Props, State> {
   }
   turnCharacterOff = (e: KeyboardEvent) => {
     this.updateBitmap(e.key, false);
-    
   }
   turnCharacterOn = (e: KeyboardEvent) => {
     this.updateBitmap(e.key, true)
@@ -681,7 +683,7 @@ export class Editor extends React.Component<Props, State> {
                     onClick={this.toggleKeyboardControl}
                     glyph="text-background"      
                     disabled={false}
-                     
+                    bsStyle = {this.state.buttonStyle}
                 /> 
             </FormGroup>
             {' '}
