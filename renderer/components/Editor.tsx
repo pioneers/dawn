@@ -309,6 +309,7 @@ export class Editor extends React.Component<Props, State> {
     }
     this.setState({bitmap: map});
     this.props.onUpdateBitmap(this.state.bitmap);
+    console.log(this.state.bitmap.toString(2))
 
   }
   turnCharacterOff = (e: KeyboardEvent) => {
