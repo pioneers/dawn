@@ -269,7 +269,11 @@ export class Editor extends React.Component<Props, State> {
     }
   }
 
+<<<<<<< HEAD
   shift = (number: number, shift: number) => {
+=======
+  shift= (number: number, shift: number) => {
+>>>>>>> 88d3ed343e7ba822b7b2cc96fa966eb0ae670928
     return number * Math.pow(2, shift);
   }
 
@@ -306,6 +310,7 @@ export class Editor extends React.Component<Props, State> {
 
     if (!characterBool) {
       // if(&& ((map >> keyboardNum) & BigInt(1)) == BigInt(1))
+<<<<<<< HEAD
       map &= ~(parseInt(left, 2) << Math.floor(shiftString.length/2));
       map &= ~parseInt(right, 2);
 
@@ -321,6 +326,18 @@ export class Editor extends React.Component<Props, State> {
     }
     this.setState({bitmap: map});
     this.props.onUpdateBitmap(this.state.bitmap);
+=======
+      map &= ~this.shift(1, keyboardNum); 
+
+    } else if (characterBool){
+      // if(&& ((map >> keyboardNum) & BigInt(1)) != BigInt(1) )
+      map |= this.shift(1, keyboardNum);      
+    }
+    this.setState({bitmap: map});
+    this.props.onUpdateBitmap(this.state.bitmap);
+    console.log(this.state.bitmap.toString(2))
+
+>>>>>>> 88d3ed343e7ba822b7b2cc96fa966eb0ae670928
   }
 
   turnCharacterOff = (e: KeyboardEvent) => {
