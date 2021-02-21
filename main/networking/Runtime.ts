@@ -41,7 +41,9 @@ interface TCPPacket {
   payload: Buffer;
 }
 
-/** Given a data buffer, read as many TCP Packets as possible. If there are leftover bytes, return them so that they can be used in the next cycle of data. */
+/** Given a data buffer, read as many TCP Packets as possible.
+ *  If there are leftover bytes, return them so that they can be used in the next cycle of data.
+ */
 function readPackets(
   data: Buffer,
   previousLeftoverBytes?: Buffer
