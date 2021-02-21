@@ -365,16 +365,13 @@ class TCPConn {
       const { leftoverBytes, processedTCPPackets } = readPackets(data, this.leftoverBytes);
 
       for (const packet of processedTCPPackets) {
-        let decoded: protos.Text;
+        const decoded = protos.Text.decode(packet.payload);
 
         switch (packet.type) {
           case MsgType.LOG:
-            decoded = protos.Text.decode(packet.payload);
-            console.log('logs', decoded.payload);
             RendererBridge.reduxDispatch(updateConsole(decoded.payload));
             break;
           case MsgType.CHALLENGE_DATA:
-            decoded = protos.Text.decode(packet.payload);
             // TODO: Dispatch challenge outputs to redux
             break;
         }
