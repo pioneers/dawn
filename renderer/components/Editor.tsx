@@ -269,11 +269,7 @@ export class Editor extends React.Component<Props, State> {
     }
   }
 
-<<<<<<< HEAD
   shift = (number: number, shift: number) => {
-=======
-  shift= (number: number, shift: number) => {
->>>>>>> 88d3ed343e7ba822b7b2cc96fa966eb0ae670928
     return number * Math.pow(2, shift);
   }
 
@@ -304,40 +300,27 @@ export class Editor extends React.Component<Props, State> {
     let map: number = this.state.bitmap;
     
     const shift = this.shift(1, keyboardNum);
-    const shiftString = shift.toString(2);
-    const left = shiftString.slice(0, Math.floor((shiftString.length/2) -1));
-    const right = shiftString.slice(Math.floor((shiftString.length/2)), shiftString.length)
+    const maxInt32Bits = 2147483648; // 2^31
+    
+    const shift_highBits = shift / maxInt32Bits;
+    const shift_lowBits = shift % maxInt32Bits;
+    const map_highBits = map / maxInt32Bits;
+    const map_lowBits = map % maxInt32Bits;
 
     if (!characterBool) {
       // if(&& ((map >> keyboardNum) & BigInt(1)) == BigInt(1))
-<<<<<<< HEAD
-      map &= ~(parseInt(left, 2) << Math.floor(shiftString.length/2));
-      map &= ~parseInt(right, 2);
+
+      map = (shift_highBits & ~map_highBits) * maxInt32Bits + (shift_lowBits & ~map_lowBits);
 
     } else if (characterBool){
       // if(&& ((map >> keyboardNum) & BigInt(1)) != BigInt(1) )
-      console.log("Checking for bit shifts", Math.floor(shiftString.length/2));
-      console.log("Check for parseInt: ", parseInt(left,2));
-      console.log("check for total length: ", parseInt(left,2).toString(2).length + Math.floor(shiftString.length/2))
-      map |= (parseInt(left, 2) << Math.floor(shiftString.length/2));
-      map |= parseInt(right, 2);    
 
-      console.log(map);
+      map = (shift_highBits | map_highBits) * maxInt32Bits + (shift_lowBits | map_lowBits);
     }
+
+    console.log("Bitmap: ", map)
     this.setState({bitmap: map});
     this.props.onUpdateBitmap(this.state.bitmap);
-=======
-      map &= ~this.shift(1, keyboardNum); 
-
-    } else if (characterBool){
-      // if(&& ((map >> keyboardNum) & BigInt(1)) != BigInt(1) )
-      map |= this.shift(1, keyboardNum);      
-    }
-    this.setState({bitmap: map});
-    this.props.onUpdateBitmap(this.state.bitmap);
-    console.log(this.state.bitmap.toString(2))
-
->>>>>>> 88d3ed343e7ba822b7b2cc96fa966eb0ae670928
   }
 
   turnCharacterOff = (e: KeyboardEvent) => {
