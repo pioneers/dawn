@@ -52,3 +52,8 @@ export const updateBitmap: EditorActions['updateBitmap'] = (bitmap: bigint) => (
   type: consts.EditorActionsTypes.UPDATE_BITMAP,
   bitmap,
 })
+
+export const updateKeyboardToggle: EditorActions['updateKeyboardToggle'] = (keyboardToggle: boolean) => ({
+  type: consts.EditorActionsTypes.UPDATE_KEYBOARD_TOGGLE,
+  keyboardToggle,
+})

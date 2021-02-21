@@ -52,6 +52,10 @@ export interface UpdateBitmapAction {
   bitmap: bigint;
 }
 
+export interface UpdateKeyboardToggleAction{
+  type: consts.EditorActionsTypes.UPDATE_KEYBOARD_TOGGLE;
+  keyboardToggle: boolean;
+}
 
 export interface EditorActions {
   editorUpdate: (newVal: string) => EditorUpdateAction;
@@ -75,4 +79,6 @@ export interface EditorActions {
   uploadCode: () => UploadCodeAction;
 
   updateBitmap: (bitmap: bigint) => UpdateBitmapAction;
+
+  updateKeyboardToggle: (keyboardToggle: boolean) => UpdateKeyboardToggleAction;
 }

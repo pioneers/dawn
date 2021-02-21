@@ -13,8 +13,8 @@ import {
   CreateNewFileAction,
   DownloadCodeAction,
   UploadCodeAction,
-  UpdateBitmapAction
-  
+  UpdateBitmapAction,
+  UpdateKeyboardToggleAction,
 } from '../types';
 import {  } from '../types/actions/editor-actions';
 
@@ -29,20 +29,23 @@ type Actions =
   | CreateNewFileAction
   | DownloadCodeAction
   | UploadCodeAction
-  | UpdateBitmapAction;
+  | UpdateBitmapAction
+  | UpdateKeyboardToggleAction;
 
 interface EditorState {
   filepath: string;
   latestSaveCode: string;
   editorCode: string;
   bitmap: bigint
+  keyboardToggle: boolean;
 }
 
 const defaultEditorState = {
   filepath: '',
   latestSaveCode: '',
   editorCode: '',
-  bitmap: BigInt(0)
+  bitmap: BigInt(0),
+  keyboardToggle: false
 };
 
 export const editor = (state: EditorState = defaultEditorState, action: Actions) => {
@@ -70,6 +73,11 @@ export const editor = (state: EditorState = defaultEditorState, action: Actions)
         ...state,
         bitmap: action.bitmap,
       };
+    case consts.EditorActionsTypes.UPDATE_KEYBOARD_TOGGLE:
+      return{
+        ...state,
+        keyboardToggle: action.keyboardToggle,
+      }
     default:
       return state;
   }
