@@ -317,8 +317,7 @@ export class Editor extends React.Component<Props, State> {
 
       map = (shift_highBits | map_highBits) * maxInt32Bits + (shift_lowBits | map_lowBits);
     }
-
-    console.log("Bitmap: ", map)
+    
     this.setState({bitmap: map});
     this.props.onUpdateBitmap(this.state.bitmap);
   }
