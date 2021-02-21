@@ -49,7 +49,7 @@ export interface UploadCodeAction {
 
 export interface UpdateBitmapAction {
   type: consts.EditorActionsTypes.UPDATE_BITMAP;
-  bitmap: bigint;
+  bitmap: number;
 }
 
 export interface UpdateKeyboardToggleAction{
@@ -78,7 +78,7 @@ export interface EditorActions {
 
   uploadCode: () => UploadCodeAction;
 
-  updateBitmap: (bitmap: bigint) => UpdateBitmapAction;
+  updateBitmap: (bitmap: number) => UpdateBitmapAction;
 
   updateKeyboardToggle: (keyboardToggle: boolean) => UpdateKeyboardToggleAction;
 }

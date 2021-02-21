@@ -36,7 +36,7 @@ interface EditorState {
   filepath: string;
   latestSaveCode: string;
   editorCode: string;
-  bitmap: bigint
+  bitmap: number;
   keyboardToggle: boolean;
 }
 
@@ -44,7 +44,7 @@ const defaultEditorState = {
   filepath: '',
   latestSaveCode: '',
   editorCode: '',
-  bitmap: BigInt(0),
+  bitmap: 0,
   keyboardToggle: false
 };
 

@@ -71,7 +71,7 @@ interface OwnProps {
   onUpdateCodeStatus: (status: number) => void;
   onDownloadCode: () => void;
   onUploadCode: () => void;
-  onUpdateBitmap: (bitmap: bigint) => void;
+  onUpdateBitmap: (bitmap: number) => void;
 }
 
 type Props = StateProps & OwnProps;
@@ -85,7 +85,7 @@ interface State {
   isRunning: boolean;
   fontsize?: number;
   keyboardControl: boolean;
-  bitmap: bigint;
+  bitmap: number;
   buttonStyle: string;
 };
 
@@ -131,7 +131,7 @@ export class Editor extends React.Component<Props, State> {
       isRunning: false,
       simulate: false,
       keyboardControl: false,
-      bitmap: BigInt(0),
+      bitmap: 0,
       buttonStyle: 'default'
     };
   }
@@ -269,6 +269,10 @@ export class Editor extends React.Component<Props, State> {
     }
   }
 
+  shift= (number: number, shift: number) => {
+    return number * Math.pow(2, shift);
+  }
+
   toggleConsole = () => {
     this.props.toggleConsole();
     // Resize since the console overlaps with the editor, but enough time for console changes
@@ -292,16 +296,16 @@ export class Editor extends React.Component<Props, State> {
     }
   }
   updateBitmap = (currentCharacter: string, characterBool: boolean ) => {
-    const keyboardNum: bigint = BigInt(KeyboardButtons[currentCharacter]);
-    let map: bigint = this.state.bitmap;
+    const keyboardNum = KeyboardButtons[currentCharacter];
+    let map: number = this.state.bitmap;
     
     if (!characterBool) {
       // if(&& ((map >> keyboardNum) & BigInt(1)) == BigInt(1))
-      map &= ~(BigInt(1) << keyboardNum)    
+      map &= ~this.shift(1, keyboardNum); 
 
     } else if (characterBool){
       // if(&& ((map >> keyboardNum) & BigInt(1)) != BigInt(1) )
-      map |= (BigInt(1) << keyboardNum);      
+      map |= this.shift(1, keyboardNum);      
     }
     this.setState({bitmap: map});
     this.props.onUpdateBitmap(this.state.bitmap);

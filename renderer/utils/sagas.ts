@@ -263,6 +263,7 @@ function formatGamepads(newGamepads: (Gamepad | null)[]): Input[] {
 
 function* sendKeyboardInputs() {
   const curState = yield select(editorState)
+  console.log(curState.bitmap)
   let keyboard = new Input({
     connected: true,
     axes: [],
@@ -279,7 +280,7 @@ function* sendKeyboardInputs() {
 function* runtimeGamepads() {
 
   const curState = yield select(editorState)
-  
+
   if (!curState.keyboardToggle) {
     while (true) {
       // navigator.getGamepads always returns a reference to the same object. This
