@@ -6,7 +6,7 @@ import { Dispatch } from 'redux';
 import _ from 'lodash';
 import { defaults, getValidationState, logging } from '../utils/utils';
 import { updateFieldControl } from '../actions/FieldActions';
-import { ipChange, udpTunnelIpChange } from '../actions/InfoActions';
+import { ipChange, udpTunnelIpChange, sshIpChange } from '../actions/InfoActions';
 import storage from 'electron-json-storage';
 
 interface Config {
@@ -17,11 +17,14 @@ interface Config {
 interface StateProps {
   stationNumber: number;
   ipAddress: string;
+  udpTunnelAddress: string;
+  sshAddress: string;
 }
 
 interface DispatchProps {
   onIPChange: (ipAddress: string) => void;
   onUDPTunnelingIpAddressChange: (ipAddress: string) => void;
+  onSSHAddressChange: (ipAddress: string) => void;
   onFCUpdate: (config: Config) => void;
 }
 
@@ -35,11 +38,13 @@ type Props = StateProps & DispatchProps & OwnProps;
 
 export const ConfigBoxComponent = (props: Props) => {
   const [ipAddress, setIPAddress] = useState(props.ipAddress);
-  const [udpTunnelIpAddress, setUDPTunnelIpAddress] = useState(props.ipAddress);
+  const [udpTunnelIpAddress, setUDPTunnelIpAddress] = useState(props.udpTunnelAddress);
+  const [sshAddress, setSSHAddress] = useState(props.sshAddress);
   const [fcAddress, setFCAddress] = useState(props.fcAddress);
   const [stationNumber, setStationNumber] = useState(props.stationNumber);
-  const [originalUDPTunnelIpAddress, setOriginalUDPTunnelIpAddress] = useState(props.ipAddress);
   const [originalIPAddress, setOriginalIPAddress] = useState(props.ipAddress);
+  const [originalUDPTunnelIpAddress, setOriginalUDPTunnelIpAddress] = useState(props.udpTunnelAddress);
+  const [originalSSHAddress, setOriginalSSHAddress] = useState(props.sshAddress);
   const [originalStationNumber, setOriginalStationNumber] = useState(props.stationNumber);
   const [originalFCAddress, setOriginalFCAddress] = useState(props.fcAddress);
 
@@ -57,6 +62,14 @@ export const ConfigBoxComponent = (props: Props) => {
     storage.set('ipAddress', { ipAddress }, (err: any) => {
       if (err) logging.log(err);
     });
+
+    props.onSSHAddressChange(sshAddress);
+    setOriginalSSHAddress(sshAddress);
+    storage.set('sshAddress', { sshAddress }, (err: any) => {
+      if (err) {
+        logging.log(err);
+      }
+    })
 
     const newConfig = {
       stationNumber: stationNumber,
@@ -82,6 +95,10 @@ export const ConfigBoxComponent = (props: Props) => {
     setUDPTunnelIpAddress(e.currentTarget.value);
   };
 
+  const handleSSHIpChange = (e: React.FormEvent<FormControl & HTMLInputElement>) => {
+    setSSHAddress(e.currentTarget.value);
+  }
+
   const handleFcChange = (e: React.FormEvent<FormControl & HTMLInputElement>) => {
     setFCAddress(e.currentTarget.value);
   };
@@ -94,7 +111,8 @@ export const ConfigBoxComponent = (props: Props) => {
     setIPAddress(originalIPAddress);
     setStationNumber(originalStationNumber);
     setFCAddress(originalFCAddress);
-    setOriginalUDPTunnelIpAddress(originalUDPTunnelIpAddress);
+    setUDPTunnelIpAddress(originalUDPTunnelIpAddress);
+    setSSHAddress(originalSSHAddress);
     props.hide();
   };
 
@@ -127,6 +145,18 @@ export const ConfigBoxComponent = (props: Props) => {
         props.onUDPTunnelingIpAddressChange(udpTunnelIpAddress);
         setUDPTunnelIpAddress(udpTunnelIpAddress);
         setOriginalUDPTunnelIpAddress(udpTunnelIpAddress);
+      }
+    });
+
+    storage.get('sshAddress', (err: any, data: object) => {
+      if (err) {
+        logging.log(err);
+      } else if (!_.isEmpty(data)) {
+        const sshAddress = (data as { sshAddress: string | undefined }).sshAddress ?? defaults.IPADDRESS;
+
+        props.onSSHAddressChange(sshAddress);
+        setSSHAddress(sshAddress);
+        setOriginalSSHAddress(sshAddress);
       }
     });
 
@@ -168,6 +198,12 @@ export const ConfigBoxComponent = (props: Props) => {
             <FormControl.Feedback />
           </FormGroup>
 
+          <FormGroup controlId="ipAddress" validationState={getValidationState(sshAddress)}>
+            <ControlLabel>SSH Address</ControlLabel>
+            <FormControl type="text" value={sshAddress} placeholder="i.e. 192.168.100.13" onChange={handleSSHIpChange} />
+            <FormControl.Feedback />
+          </FormGroup>
+
           <p>Field Control Settings</p>
           <FormGroup controlId="fcAddress" validationState={getValidationState(fcAddress)}>
             <ControlLabel>Field Control IP Address</ControlLabel>
@@ -197,6 +233,9 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   },
   onUDPTunnelingIpAddressChange: (ipAddress: string) => {
     dispatch(udpTunnelIpChange(ipAddress));
+  },
+  onSSHAddressChange: (ipAddress: string) => {
+    dispatch(sshIpChange(ipAddress));
   },
   onFCUpdate: (config: Config) => {
     dispatch(updateFieldControl(config));

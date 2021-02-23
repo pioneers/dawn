@@ -9,6 +9,7 @@ import {
   UpdateCodeStatusAction,
   IpChangeAction,
   UDPTunnelIpChangeAction,
+  SSHIpChangeAction,
   UpdateRobotAction,
   NotificationChangeAction,
 } from '../types';
@@ -21,12 +22,14 @@ type Actions =
   | UpdateCodeStatusAction
   | IpChangeAction
   | UDPTunnelIpChangeAction
+  | SSHIpChangeAction
   | UpdateRobotAction
   | NotificationChangeAction;
 
 interface InfoState {
   ipAddress: string;
   udpTunnelIpAddress: string;
+  sshAddress: string;
   studentCodeStatus: number;
   isRunningCode: boolean;
   connectionStatus: boolean;
@@ -40,6 +43,7 @@ interface InfoState {
 const initialInfoState = {
   ipAddress: defaults.IPADDRESS,
   udpTunnelIpAddress: defaults.IPADDRESS,
+  sshAddress: defaults.IPADDRESS,
   studentCodeStatus: robotState.IDLE,
   isRunningCode: false,
   connectionStatus: false,
@@ -92,12 +96,16 @@ export const info = (state: InfoState = initialInfoState, action: Actions): Info
         ipAddress: action.ipAddress,
       };
     case consts.InfoActionsTypes.UDP_TUNNEL_IP_CHANGE:
-      console.log('reducer udpTunnelIpAddress', action.ipAddress);
       ipcRenderer.send('udpTunnelIpAddress', action.ipAddress);
       return {
         ...state,
         udpTunnelIpAddress: action.ipAddress
       };
+    case consts.InfoActionsTypes.SSH_IP_CHANGE:
+      return {
+        ...state,
+        sshAddress: action.ipAddress
+      }
     case consts.FieldActionsTypes.UPDATE_ROBOT: {
       const stateChange = (action.autonomous) ? robotState.AUTONOMOUS : robotState.TELEOP;
       const codeStatus = (!action.enabled) ? robotState.IDLE : stateChange;

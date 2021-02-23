@@ -31,6 +31,11 @@ export interface UDPTunnelIpChangeAction {
   ipAddress: string;
 }
 
+export interface SSHIpChangeAction {
+  type: consts.InfoActionsTypes.SSH_IP_CHANGE;
+  ipAddress: string;
+}
+
 export interface NotificationChangeAction {
   type: consts.InfoActionsTypes.NOTIFICATION_CHANGE;
   notificationHold: number;
@@ -50,6 +55,8 @@ export interface InfoActions {
   ipChange: (ipAddress: string) => IpChangeAction;
 
   udpTunnelIpChange: (ipAddress: string) => UDPTunnelIpChangeAction;
+
+  sshIpChange: (ipAddress: string) => SSHIpChangeAction;
 
   notificationChange: () => NotificationChangeAction;
 }

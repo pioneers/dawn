@@ -35,5 +35,6 @@ export {
   UpdateCodeStatusAction,
   IpChangeAction,
   UDPTunnelIpChangeAction,
+  SSHIpChangeAction,
   NotificationChangeAction,
 } from './info-actions';

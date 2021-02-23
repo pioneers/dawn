@@ -27,7 +27,12 @@ export const ipChange: InfoActions['ipChange'] = (ipAddress: string) => ({
   ipAddress
 });
 
-export const udpTunnelIpChange: InfoActions['udpTunnelIpChange'] = (ipAddress: string) => ({
+export const udpTunnelIpChange = (ipAddress: string) => ({
   type: consts.InfoActionsTypes.UDP_TUNNEL_IP_CHANGE,
+  ipAddress
+});
+
+export const sshIpChange = (ipAddress: string) => ({
+  type: consts.InfoActionsTypes.SSH_IP_CHANGE,
   ipAddress
 });
