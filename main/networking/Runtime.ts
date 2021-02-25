@@ -185,11 +185,15 @@ class UDPTunneledConn {
     this.tcpSocket.on('data', (data) => {
       const { leftoverBytes, processedTCPPackets } = readPackets(data, this.leftoverBytes);
 
-      for (const packet of processedTCPPackets) {
-        udpForwarder.send(packet.payload, UDP_LISTEN_PORT, 'localhost');
-      }
+      try {
+        for (const packet of processedTCPPackets) {
+          udpForwarder.send(packet.payload, UDP_LISTEN_PORT, 'localhost');
+        }
 
-      this.leftoverBytes = leftoverBytes;
+        this.leftoverBytes = leftoverBytes;
+      } catch (e) {
+        this.logger.log('UDPTunneledConn udpForwarder failed to send to UDP connection:' + String(e));
+      }
     });
 
     /* Bidirectional - Can send to and receive from UDP connection. */
