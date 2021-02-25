@@ -307,12 +307,12 @@ class UDPConn {
    * Sends messages when Gamepad information changes
    * or when 100 ms has passed (with 50 ms cooldown)
    */
-  sendInputs = (_event: IpcMainEvent, data: protos.Input[]) => {
+  sendInputs = (_event: IpcMainEvent, data: protos.Input[], source: protos.Source) => {
     if (data.length === 0) {
       data.push(
         protos.Input.create({
           connected: false,
-          source: 1
+          source: source,
         })
       );
     }

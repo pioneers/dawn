@@ -270,7 +270,7 @@ function* sendKeyboardInputs() {
     buttons: curState.bitmap,
     source: Source.KEYBOARD
   })
-  ipcRenderer.send('stateUpdate', [keyboard])
+  ipcRenderer.send('stateUpdate', [keyboard], Source.KEYBOARD)
 }
 
 /**
@@ -345,7 +345,7 @@ const gamepadsState = (state: any) => state.gamepads.gamepads;
  */
 function* updateMainProcess() {
   const stateSlice = yield select(gamepadsState); // Get gamepads from Redux state store
-  ipcRenderer.send('stateUpdate', stateSlice);
+  ipcRenderer.send('stateUpdate', stateSlice, Source.GAMEPAD);
 }
 
 function* restartRuntime() {

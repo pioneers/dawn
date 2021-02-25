@@ -293,6 +293,8 @@ export class Editor extends React.Component<Props, State> {
       window.removeEventListener('keydown', this.turnCharacterOn);
       window.removeEventListener('keyup', this.turnCharacterOff);
       this.setState({buttonStyle: 'default'});
+      this.setState({bitmap: 0});
+      this.props.onUpdateBitmap(this.state.bitmap);
     }
   }
   updateBitmap = (currentCharacter: string, characterBool: boolean ) => {
