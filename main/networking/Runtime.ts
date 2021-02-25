@@ -44,7 +44,10 @@ interface TCPPacket {
 /** Given a data buffer, read as many TCP Packets as possible.
  *  If there are leftover bytes, return them so that they can be used in the next cycle of data.
  */
-function readPackets(data: Buffer, previousLeftoverBytes?: Buffer): {leftoverBytes: Buffer | undefined, processedTCPPackets: TCPPacket[]} {
+function readPackets(
+  data: Buffer,
+  previousLeftoverBytes?: Buffer
+): { leftoverBytes: Buffer | undefined; processedTCPPackets: TCPPacket[] } {
   const bytesToRead = Buffer.concat([previousLeftoverBytes ?? new Uint8Array(), data]);
   let leftoverBytes;
   let i = 0;
@@ -136,7 +139,6 @@ function createPacket(payload: unknown, messageType: MsgType): Buffer {
   return Buffer.concat([msgTypeArr, msgLengthArr, encodedPayload], msgLength + 3);
 }
 
-
 /** Uses TCP connection to tunnel UDP messages. */
 class UDPTunneledConn {
   /* Leftover bytes from reading 1 cycle of the TCP data buffer. */
@@ -150,8 +152,6 @@ class UDPTunneledConn {
   constructor(logger: Logger) {
     this.logger = logger;
     this.ip = defaults.IPADDRESS;
-
-    // TCP Socket Setup, same as TCPConn
 
     this.tcpSocket = new TCPSocket();
 
@@ -192,7 +192,6 @@ class UDPTunneledConn {
       this.leftoverBytes = leftoverBytes;
     });
 
-
     /* Bidirectional - Can send to and receive from UDP connection. */
     const udpForwarder = createSocket({ type: 'udp4', reuseAddr: true });
 
@@ -221,7 +220,6 @@ class UDPTunneledConn {
     }
   };
 
-
   close = () => {
     if (!this.tcpSocket.pending) {
       this.tcpSocket.end();
@@ -229,7 +227,6 @@ class UDPTunneledConn {
     this.udpForwarder.close();
     ipcMain.removeListener('udpTunnelIpAddress', this.ipAddressListener);
   };
-
 }
 
 // TODO: Use BaseTCPConn defined above for TCPConn below to remove duplicated logic
@@ -459,7 +456,7 @@ class UDPConn {
     }
 
     const message = protos.UserInputs.encode({ inputs: data }).finish();
-    
+
     // Change IP to use runtimeIP again after 2021 Competition
     this.socket.send(message, UDP_SEND_PORT, 'localhost');
   };
@@ -477,11 +474,7 @@ export const Runtime = {
   logger: new Logger('runtime', 'Runtime Debug'),
 
   setup() {
-    this.conns = [
-      new UDPConn(this.logger),
-      new TCPConn(this.logger),
-      new UDPTunneledConn(this.logger)
-    ];
+    this.conns = [new UDPConn(this.logger), new TCPConn(this.logger), new UDPTunneledConn(this.logger)];
   },
 
   close() {
