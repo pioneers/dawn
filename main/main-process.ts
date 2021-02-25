@@ -71,7 +71,6 @@ export function showPeripheralDash() {
     },
     width: 1000,
     height: 700,
-    show: false,
   });
 
   RendererBridge.registerWindow('dashboard', dashboard);
