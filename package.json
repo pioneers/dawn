@@ -132,6 +132,7 @@
     "react-joyride": "^2.2.1",
     "react-redux": "^7.2.1",
     "redux": "^4.0.5",
+    "redux-electron-store": "^0.6.6",
     "redux-saga": "^1.1.3",
     "seedrandom": "2.4.3",
     "smalltalk": "^4.0.6",
