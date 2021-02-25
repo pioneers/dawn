@@ -60,40 +60,36 @@ export function showAPI() {
   });
 }
 
-export function showPeripheralDash() {
-  console.log("begin showPeripheralDash");
-  // create BrowserWindow object
-  const url = `file://${__dirname}/../static/dashboard.html`; // TODO: add source file
-  let dashboard: BrowserWindow | null = new BrowserWindow({
-    webPreferences: {
-      nodeIntegration: true,
-      enableRemoteModule: true,
-    },
-    width: 1000,
-    height: 700,
-  });
-
-  RendererBridge.registerWindow('dashboard', dashboard);
-
-  dashboard.on('closed', () => {
-    dashboard = null;
-  });
-  dashboard.loadURL(url);
-  dashboard.once('ready-to-show', () => {
-    if (dashboard) {
-      dashboard.show();
-    }
-  });
-  // rendererbridge.registerWindow
-  // loadURL('/index.html')
-
-}
 app.on('ready', () => {
+  let dashboardWindow: BrowserWindow | null = null;
+
   Runtime.setup();
   ipcMain.on('FC_CONFIG_CHANGE', FCObject.changeFCInfo);
   ipcMain.on('FC_INITIALIZE', initializeFC);
   ipcMain.on('FC_TEARDOWN', teardownFC);
-  ipcMain.on('SHOW_DASHBOARD', showPeripheralDash);
+
+  ipcMain.on('SHOW_DASHBOARD', () => {
+    if (!dashboardWindow) {
+      dashboardWindow = new BrowserWindow({
+        webPreferences: {
+          nodeIntegration: true,
+          enableRemoteModule: true,
+        },
+        width: 1000,
+        height: 700,
+      });
+      RendererBridge.registerWindow('dashboard', dashboardWindow);
+      dashboardWindow.on('closed', () => {
+        dashboardWindow = null;
+      });
+      dashboardWindow.loadURL(`file://${__dirname}/../static/dashboard.html`);
+      dashboardWindow.once('ready-to-show', () => {
+        if (dashboardWindow) {
+          dashboardWindow.show();
+        }
+      });
+    }
+  });
 
   const mainWindow = new BrowserWindow({
     webPreferences: {
@@ -124,4 +120,8 @@ app.on('ready', () => {
       console.log('An error occurred: ', err);
     });
   }
+
+  mainWindow.on('closed', () => {
+    dashboardWindow?.close();
+  })
 });

@@ -10,14 +10,27 @@ import { BrowserWindow } from "electron";
 class RendererBridge {
   registeredWindows: Record<string, BrowserWindow | null> = {};
   registerWindow = (key: string, electronWindow: BrowserWindow) => {
+    console.log('registering window', key)
     this.registeredWindows[key] = electronWindow;
   };
+  unregisterWindow = (key: string) => {
+    console.log('unregistering window', key);
+    delete this.registeredWindows[key];
+  }
+  reloadWindow = (key: string) => {
+    console.log('reloading window', key);
+    const registeredWindow = this.registeredWindows[key]
+    registeredWindow?.reload();
+  }
+  toggleWindowDevtools = (key: string) => {
+    console.log('toggling devtools for window', key);
+    const registeredWindow = this.registeredWindows[key]
+    registeredWindow?.webContents.toggleDevTools();
+  }
   reduxDispatch = (action: any) => {
     for (const key of Object.keys(this.registeredWindows)) {
       const registeredWindow = this.registeredWindows[key];
-      if (registeredWindow) {
-        registeredWindow.webContents.send('dispatch', action);
-      }
+      registeredWindow?.webContents.send('dispatch', action);
     }
   };
 };
