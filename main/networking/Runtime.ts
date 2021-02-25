@@ -187,6 +187,7 @@ class UDPTunneledConn {
 
       try {
         for (const packet of processedTCPPackets) {
+          // Send to UDP connection
           udpForwarder.send(packet.payload, UDP_LISTEN_PORT, 'localhost');
         }
 
