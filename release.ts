@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import minimist from 'minimist';
 import packager, { Options } from 'electron-packager';
 import path from 'path';
@@ -12,10 +14,12 @@ async function pack(args: minimist.ParsedArgs) {
     name: 'dawn',
     icon: './icons/pieicon',
     asar: true,
-    out: path.resolve('./dawn-packaged'), // output to subdirectory
+    out: path.resolve('./dawn-packaged') // output to subdirectory
   };
 
-  Object.keys(args).forEach(function(key) { packageOptions[key] = args[key]; });
+  Object.keys(args).forEach((key: string) => {
+    packageOptions[key] = args[key];
+  });
 
   // platform is either 'darwin', 'linux', or 'win32'
   packageOptions.platform = args.platform ? args.platform : 'all';
@@ -24,12 +28,12 @@ async function pack(args: minimist.ParsedArgs) {
   const appPaths: (string | boolean)[] = await packager(packageOptions);
 
   appPaths.map((appPath: string | boolean) => {
-    if (appPath == true) { 
+    if (appPath == true) {
       return;
     }
     console.log(`Zipping ${appPath}`);
-    
-    spawn('zip',  ['-r', `${appPath}.zip`, `${appPath}`], { stdio: 'inherit' });
+
+    spawn('zip', ['-r', `${appPath}.zip`, `${appPath}`], { stdio: 'inherit' });
   });
 }
 
