@@ -234,7 +234,6 @@ class UDPTunneledConn {
   };
 }
 
-// TODO: Use BaseTCPConn defined above for TCPConn below to remove duplicated logic
 class TCPConn {
   logger: Logger;
   socket: TCPSocket;
