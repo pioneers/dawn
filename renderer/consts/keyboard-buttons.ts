@@ -38,12 +38,12 @@ export const KeyboardButtons= {
     ",": 36,
     ".": 37,
     "/": 38,
-    ";": 40,
-    "'": 41,
-    "[": 42,
-    "]": 43,
-    "ArrowLeft": 44,
-    "ArrowRight": 45,
-    "ArrowUp": 46,
-    "ArrowDown": 47
+    ";": 39,
+    "'": 40,
+    "[": 41,
+    "]": 42,
+    "ArrowLeft": 43,
+    "ArrowRight": 44,
+    "ArrowUp": 45,
+    "ArrowDown": 46
 };      
