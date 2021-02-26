@@ -63,7 +63,7 @@ function readPackets(
       // Have enough bytes to read in 3 byte header
       header = bytesToRead.slice(i, i + 3);
       msgType = header[0];
-      msgLength = new Uint16Array(header.slice(1))[0];
+      msgLength = (header[2] << 8) | header[1];
     } else {
       // Don't have enough bytes to read 3 byte header so we save the bytes for the next data cycle
       leftoverBytes = bytesToRead.slice(i);
@@ -187,13 +187,13 @@ class UDPTunneledConn {
 
       try {
         for (const packet of processedTCPPackets) {
-          // Send to UDP connection
-          udpForwarder.send(packet.payload, UDP_LISTEN_PORT, 'localhost');
+          // Send to UDP Connection
+          udpForwarder.send(packet.payload, 0, packet.payload.length, UDP_LISTEN_PORT, 'localhost');
         }
 
         this.leftoverBytes = leftoverBytes;
       } catch (e) {
-        this.logger.log('UDPTunneledConn udpForwarder failed to send to UDP connection:' + String(e));
+        this.logger.log('UDPTunneledConn udpForwarder failed to send to UDP connection: ' + String(e));
       }
     });
 
