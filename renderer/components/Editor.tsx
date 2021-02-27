@@ -10,7 +10,6 @@ import {
   InputGroup,
   OverlayTrigger,
   Tooltip,
-  // Button,
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import { Ace } from 'ace-builds'
@@ -85,7 +84,6 @@ interface State {
   fontsize?: number;
   isKeyboardModeToggled: boolean;
   keyboardBitmap: number;
-  buttonStyle: string;
 };
 
 export class Editor extends React.Component<Props, State> {
@@ -131,7 +129,6 @@ export class Editor extends React.Component<Props, State> {
       simulate: false,
       isKeyboardModeToggled: false,
       keyboardBitmap: 0,
-      buttonStyle: 'default'
     };
   }
 
@@ -294,26 +291,29 @@ export class Editor extends React.Component<Props, State> {
       this.setState({keyboardBitmap: 0});
       this.props.onUpdateKeyboardBitmap(this.state.keyboardBitmap);
     }
+
   }
   updateKeyboardBitmap = (currentCharacter: string, isKeyPressed: boolean ) => {
     const keyboardNum = keyboardButtons[currentCharacter];
-    let currentKeyboardBitmap: number = this.state.keyboardBitmap;
+    let newKeyboardBitmap: number = this.state.keyboardBitmap;
     
     const shift = this.bitShiftLeft(1, keyboardNum);
+    // 0x01000
+    // 0x10111
+
     const MAX_INT32_BITS = 2147483648; // 2^31
     
     const shiftHighBits = shift / MAX_INT32_BITS;
     const shiftLowBits = shift % MAX_INT32_BITS;
-    const mapHighBits = currentKeyboardBitmap / MAX_INT32_BITS;
-    const mapLowBits = currentKeyboardBitmap % MAX_INT32_BITS;
+    const mapHighBits = newKeyboardBitmap / MAX_INT32_BITS;
+    const mapLowBits = newKeyboardBitmap % MAX_INT32_BITS;
 
     if (!isKeyPressed) {
-      currentKeyboardBitmap = (shiftHighBits & ~mapHighBits) * MAX_INT32_BITS + (shiftLowBits & ~mapLowBits);
+      newKeyboardBitmap = (~shiftHighBits & mapHighBits) * MAX_INT32_BITS + (~shiftLowBits & mapLowBits);
     } else if (isKeyPressed){
-      currentKeyboardBitmap = (shiftHighBits | mapHighBits) * MAX_INT32_BITS + (shiftLowBits | mapLowBits);
+      newKeyboardBitmap = (shiftHighBits | mapHighBits) * MAX_INT32_BITS + (shiftLowBits | mapLowBits);
     }
-    
-    this.setState({keyboardBitmap: currentKeyboardBitmap});
+    this.setState({keyboardBitmap: newKeyboardBitmap});
     this.props.onUpdateKeyboardBitmap(this.state.keyboardBitmap);
   }
 

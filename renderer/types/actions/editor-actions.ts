@@ -52,7 +52,7 @@ export interface UpdateKeyboardBitmapAction {
   keyboardBitmap: number;
 }
 
-export interface UpdateKeyboardToggleAction {
+export interface updateIsKeyboardToggledAction {
   type: consts.EditorActionsTypes.UPDATE_IS_KEYBOARD_MODE_TOGGLED;
   isKeyboardToggled: boolean;
 }
@@ -80,5 +80,5 @@ export interface EditorActions {
 
   updateKeyboardBitmap: (keyboardBitmap: number) => UpdateKeyboardBitmapAction;
 
-  updateKeyboardToggle: (isKeyboardToggled: boolean) => UpdateKeyboardToggleAction;
+  updateIsKeyboardToggled: (isKeyboardToggled: boolean) => updateIsKeyboardToggledAction;
 }

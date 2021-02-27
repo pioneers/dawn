@@ -14,7 +14,7 @@ import {
   DownloadCodeAction,
   UploadCodeAction,
   UpdateKeyboardBitmapAction,
-  UpdateKeyboardToggleAction,
+  updateIsKeyboardToggledAction,
 } from '../types';
 import {  } from '../types/actions/editor-actions';
 
@@ -30,7 +30,7 @@ type Actions =
   | DownloadCodeAction
   | UploadCodeAction
   | UpdateKeyboardBitmapAction
-  | UpdateKeyboardToggleAction;
+  | updateIsKeyboardToggledAction;
 
 interface EditorState {
   filepath: string;

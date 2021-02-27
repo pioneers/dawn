@@ -53,7 +53,7 @@ export const updateKeyboardBitmap: EditorActions['updateKeyboardBitmap'] = (keyb
   keyboardBitmap,
 })
 
-export const updateKeyboardToggle: EditorActions['updateKeyboardToggle'] = (isKeyboardToggled: boolean) => ({
+export const updateIsKeyboardToggled: EditorActions['updateIsKeyboardToggled'] = (isKeyboardToggled: boolean) => ({
   type: consts.EditorActionsTypes.UPDATE_IS_KEYBOARD_MODE_TOGGLED,
   isKeyboardToggled,
 })
