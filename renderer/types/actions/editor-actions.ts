@@ -47,14 +47,14 @@ export interface UploadCodeAction {
   type: consts.EditorActionsTypes.UPLOAD_CODE;
 }
 
-export interface UpdateBitmapAction {
-  type: consts.EditorActionsTypes.UPDATE_BITMAP;
-  bitmap: number;
+export interface UpdateKeyboardBitmapAction {
+  type: consts.EditorActionsTypes.UPDATE_KEYBOARD_BITMAP;
+  keyboardBitmap: number;
 }
 
-export interface UpdateKeyboardToggleAction{
-  type: consts.EditorActionsTypes.UPDATE_KEYBOARD_TOGGLE;
-  keyboardToggle: boolean;
+export interface UpdateKeyboardToggleAction {
+  type: consts.EditorActionsTypes.UPDATE_IS_KEYBOARD_MODE_TOGGLED;
+  isKeyboardToggled: boolean;
 }
 
 export interface EditorActions {
@@ -78,7 +78,7 @@ export interface EditorActions {
 
   uploadCode: () => UploadCodeAction;
 
-  updateBitmap: (bitmap: number) => UpdateBitmapAction;
+  updateKeyboardBitmap: (keyboardBitmap: number) => UpdateKeyboardBitmapAction;
 
-  updateKeyboardToggle: (keyboardToggle: boolean) => UpdateKeyboardToggleAction;
+  updateKeyboardToggle: (isKeyboardToggled: boolean) => UpdateKeyboardToggleAction;
 }

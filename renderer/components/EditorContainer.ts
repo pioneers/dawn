@@ -8,7 +8,7 @@ import {
   createNewFile,
   downloadCode,
   uploadCode,
-  updateBitmap
+  updateKeyboardBitmap
 } from '../actions/EditorActions';
 import {
   changeTheme,
@@ -36,7 +36,7 @@ const mapStateToProps = (state: ApplicationState) => ({
   fieldControlActivity: state.info.fieldControlActivity,
   disableScroll: state.console.disableScroll,
   consoleUnread: state.console.consoleUnread,
-  bitmap: state.editor.bitmap
+  keyboardBitmap: state.editor.keyboardBitmap
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
@@ -82,8 +82,8 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   onUploadCode: () => {
     dispatch(uploadCode());
   },
-  onUpdateBitmap: (bitmap: number) => {
-    dispatch(updateBitmap(bitmap));
+  onUpdateKeyboardBitmap: (keyboardBitmap: number) => {
+    dispatch(updateKeyboardBitmap(keyboardBitmap));
   },
   
 });

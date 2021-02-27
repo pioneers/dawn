@@ -97,7 +97,6 @@ class TCPConn {
   constructor(logger: Logger) {
     this.logger = logger;
     this.socket = new TCPSocket();
-    // this.socket.setTimeout(3000);
 
     setInterval(() => {
       if (!this.socket.connecting && this.socket.pending) {
@@ -119,11 +118,6 @@ class TCPConn {
       this.logger.log('Runtime connected');
       this.socket.write(new Uint8Array([1])); // Runtime needs first byte to be 1 to recognize client as Dawn (instead of Shepherd)
     });
-
-    // this.socket.on('timeout', () => {
-    //   this.logger.log('TCP socket timeout');
-    //   this.socket.end();
-    // });
 
     this.socket.on('end', () => {
       this.logger.log('Runtime disconnected');
@@ -312,7 +306,7 @@ class UDPConn {
       data.push(
         protos.Input.create({
           connected: false,
-          source: source,
+          source
         })
       );
     }

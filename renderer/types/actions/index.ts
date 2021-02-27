@@ -13,7 +13,7 @@ export {
   CreateNewFileAction,
   DownloadCodeAction,
   UploadCodeAction,
-  UpdateBitmapAction,
+  UpdateKeyboardBitmapAction,
   UpdateKeyboardToggleAction
 } from './editor-actions';
 export { GamepadsActions, UpdateGamepadsAction } from './gamepads-actions';

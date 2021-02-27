@@ -17,7 +17,6 @@ import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
 import { TIMEOUT, defaults, logging } from '../utils/utils';
 import { Input, Source } from '../../protos/protos';
-//import { StatusLabel } from '../components/StatusLabel';
 
 let timestamp = Date.now();
 
@@ -113,9 +112,8 @@ const editorState = (state: any) => ({
   filepath: state.editor.filepath,
   code: state.editor.editorCode,
   keyboard: state.editor.keyboard,
-  bool: state.editor.bool,
-  bitmap: state.editor.bitmap,
-  keyboardToggle: state.editor.keyboardToggle,
+  keyboardBitmap: state.editor.keyboardBitmap,
+  isKeyboardToggled: state.editor.isKeyboardToggled,
 });
 
 function* saveFile(action: any) {
@@ -263,11 +261,11 @@ function formatGamepads(newGamepads: (Gamepad | null)[]): Input[] {
 
 function* sendKeyboardInputs() {
   const curState = yield select(editorState)
-  console.log(curState.bitmap)
-  let keyboard = new Input({
+  
+  const keyboard = new Input({
     connected: true,
     axes: [],
-    buttons: curState.bitmap,
+    buttons: curState.keyboardBitmap,
     source: Source.KEYBOARD
   })
   ipcRenderer.send('stateUpdate', [keyboard], Source.KEYBOARD)
@@ -281,7 +279,7 @@ function* runtimeGamepads() {
 
   const curState = yield select(editorState)
 
-  if (!curState.keyboardToggle) {
+  if (!curState.isKeyboardToggled) {
     while (true) {
       // navigator.getGamepads always returns a reference to the same object. This
       // confuses redux, so we use assignIn to clone to a new object each time.
@@ -601,7 +599,7 @@ export default function* rootSaga() {
     takeEvery('UPLOAD_CODE', uploadStudentCode),
     takeEvery('TOGGLE_FIELD_CONTROL', handleFieldControl),
     takeEvery('TIMESTAMP_CHECK', timestampBounceback),
-    takeEvery('UPDATE_BITMAP', sendKeyboardInputs),
+    takeEvery('UPDATE_KEYBOARD_BITMAP', sendKeyboardInputs),
     fork(runtimeHeartbeat),
     fork(runtimeGamepads),
     fork(runtimeSaga),

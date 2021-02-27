@@ -17,7 +17,6 @@ import { Ace } from 'ace-builds'
 import { remote, clipboard } from 'electron';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
-//import { KeyboardButtons } from '../consts';
 
 // React-ace extensions and modes
 import 'ace-builds/src-noconflict/ext-language_tools';
@@ -38,7 +37,7 @@ import 'ace-builds/src-noconflict/theme-terminal';
 import { ConsoleOutput } from './ConsoleOutput';
 import { TooltipButton } from './TooltipButton';
 import { pathToName, robotState, timings, logging, windowInfo } from '../utils/utils';
-import { KeyboardButtons } from '../consts/keyboard-buttons'
+import { keyboardButtons } from '../consts/keyboard-buttons'
 
 const { dialog } = remote;
 const currentWindow = remote.getCurrentWindow();
@@ -71,7 +70,7 @@ interface OwnProps {
   onUpdateCodeStatus: (status: number) => void;
   onDownloadCode: () => void;
   onUploadCode: () => void;
-  onUpdateBitmap: (bitmap: number) => void;
+  onUpdateKeyboardBitmap: (keyboardBitmap: number) => void;
 }
 
 type Props = StateProps & OwnProps;
@@ -84,8 +83,8 @@ interface State {
   simulate: boolean;
   isRunning: boolean;
   fontsize?: number;
-  keyboardControl: boolean;
-  bitmap: number;
+  isKeyboardModeToggled: boolean;
+  keyboardBitmap: number;
   buttonStyle: string;
 };
 
@@ -130,8 +129,8 @@ export class Editor extends React.Component<Props, State> {
       modeDisplay: robotState.TELEOPSTR,
       isRunning: false,
       simulate: false,
-      keyboardControl: false,
-      bitmap: 0,
+      isKeyboardModeToggled: false,
+      keyboardBitmap: 0,
       buttonStyle: 'default'
     };
   }
@@ -269,8 +268,8 @@ export class Editor extends React.Component<Props, State> {
     }
   }
 
-  shift = (number: number, shift: number) => {
-    return number * Math.pow(2, shift);
+  bitShiftLeft = (value: number, numPositions: number) => {
+    return value * Math.pow(2, numPositions);
   }
 
   toggleConsole = () => {
@@ -283,52 +282,47 @@ export class Editor extends React.Component<Props, State> {
   toggleKeyboardControl = () => {
     
     
-    this.setState({keyboardControl: !this.state.keyboardControl})
+    this.setState({isKeyboardModeToggled: !this.state.isKeyboardModeToggled})
     
-    if (!this.state.keyboardControl) {
+    if (!this.state.isKeyboardModeToggled) {
+      // We need passive true so that we are able to remove the event listener when we are not in Keyboard Control mode
       window.addEventListener('keydown', this.turnCharacterOn, { passive: true});
       window.addEventListener('keyup', this.turnCharacterOff, { passive: true});
-      this.setState({buttonStyle: "info"});
     } else {
       window.removeEventListener('keydown', this.turnCharacterOn);
       window.removeEventListener('keyup', this.turnCharacterOff);
-      this.setState({buttonStyle: 'default'});
-      this.setState({bitmap: 0});
-      this.props.onUpdateBitmap(this.state.bitmap);
+      this.setState({keyboardBitmap: 0});
+      this.props.onUpdateKeyboardBitmap(this.state.keyboardBitmap);
     }
   }
-  updateBitmap = (currentCharacter: string, characterBool: boolean ) => {
-    const keyboardNum = KeyboardButtons[currentCharacter];
-    let map: number = this.state.bitmap;
+  updateKeyboardBitmap = (currentCharacter: string, isKeyPressed: boolean ) => {
+    const keyboardNum = keyboardButtons[currentCharacter];
+    let currentKeyboardBitmap: number = this.state.keyboardBitmap;
     
-    const shift = this.shift(1, keyboardNum);
-    const maxInt32Bits = 2147483648; // 2^31
+    const shift = this.bitShiftLeft(1, keyboardNum);
+    const MAX_INT32_BITS = 2147483648; // 2^31
     
-    const shift_highBits = shift / maxInt32Bits;
-    const shift_lowBits = shift % maxInt32Bits;
-    const map_highBits = map / maxInt32Bits;
-    const map_lowBits = map % maxInt32Bits;
+    const shiftHighBits = shift / MAX_INT32_BITS;
+    const shiftLowBits = shift % MAX_INT32_BITS;
+    const mapHighBits = currentKeyboardBitmap / MAX_INT32_BITS;
+    const mapLowBits = currentKeyboardBitmap % MAX_INT32_BITS;
 
-    if (!characterBool) {
-      // if(&& ((map >> keyboardNum) & BigInt(1)) == BigInt(1))
-
-      map = (shift_highBits & ~map_highBits) * maxInt32Bits + (shift_lowBits & ~map_lowBits);
-
-    } else if (characterBool){
-      // if(&& ((map >> keyboardNum) & BigInt(1)) != BigInt(1) )
-
-      map = (shift_highBits | map_highBits) * maxInt32Bits + (shift_lowBits | map_lowBits);
+    if (!isKeyPressed) {
+      currentKeyboardBitmap = (shiftHighBits & ~mapHighBits) * MAX_INT32_BITS + (shiftLowBits & ~mapLowBits);
+    } else if (isKeyPressed){
+      currentKeyboardBitmap = (shiftHighBits | mapHighBits) * MAX_INT32_BITS + (shiftLowBits | mapLowBits);
     }
     
-    this.setState({bitmap: map});
-    this.props.onUpdateBitmap(this.state.bitmap);
+    this.setState({keyboardBitmap: currentKeyboardBitmap});
+    this.props.onUpdateKeyboardBitmap(this.state.keyboardBitmap);
   }
 
   turnCharacterOff = (e: KeyboardEvent) => {
-    this.updateBitmap(e.key, false);
+    // NOT THE ACTION updateKeyboardBitmap. THIS IS A LOCAL FUNCTION
+    this.updateKeyboardBitmap(e.key, false);
   }
   turnCharacterOn = (e: KeyboardEvent) => {
-    this.updateBitmap(e.key, true)
+    this.updateKeyboardBitmap(e.key, true)
   }
 
   upload = () => {
@@ -696,11 +690,11 @@ export class Editor extends React.Component<Props, State> {
               </InputGroup>
               <TooltipButton
                     id="toggleKeyboardControl"
-                    text="toggleKeyboardControl"
+                    text="Toggle Keyboard Control Mode"
                     onClick={this.toggleKeyboardControl}
                     glyph="text-background"      
                     disabled={false}
-                    bsStyle = {this.state.buttonStyle}
+                    bsStyle = {this.state.isKeyboardModeToggled ?  'info' : 'default'}
                 /> 
             </FormGroup>
             {' '}
@@ -748,7 +742,7 @@ export class Editor extends React.Component<Props, State> {
             onChange={this.props.onEditorUpdate}
             onPaste={Editor.onEditorPaste}
             editorProps={{ $blockScrolling: Infinity }}
-            readOnly = {this.state.keyboardControl}
+            readOnly = {this.state.isKeyboardModeToggled}
           />
           <ConsoleOutput
             toggleConsole={this.toggleConsole}
