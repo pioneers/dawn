@@ -8,7 +8,7 @@ import { updateConsole } from '../../renderer/actions/ConsoleActions';
 import { runtimeDisconnect, infoPerMessage } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { Logger, defaults } from '../../renderer/utils/utils';
-import { peripherals } from '../../build/renderer/reducers/peripherals';
+// import { peripherals } from '../../build/renderer/reducers/peripherals';
 
 /**
  * Define port constants, which must match with Runtime
