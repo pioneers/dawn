@@ -160,14 +160,13 @@ class TCPConn {
    * Receives new IP Address to send messages to.
    */
   ipAddressListener = (_event: IpcMainEvent, ipAddress: string) => {
-    // if (ipAddress != runtimeIP) {
-    //   console.log(`Switching IP from ${runtimeIP} to ${ipAddress}`);
-    //   console.log(`Current socket status - Connecting: ${String(this.socket.connecting)} - Pending: ${String(this.socket.pending)}`);
-    //   if (this.socket.connecting || !this.socket.pending) {
-    //     this.socket.end();
-    //   }
-    // }
-    runtimeIP = ipAddress;
+    if (ipAddress != runtimeIP) {
+      console.log(`TCPConn - Switching IP from ${runtimeIP} to ${ipAddress}`);
+      if (this.socket.connecting || !this.socket.pending) {
+        this.socket.end();
+      }
+      runtimeIP = ipAddress;
+    }
   };
 
   // TODO: We can possibly combine below methods into single handler.
@@ -311,7 +310,7 @@ class UDPConn {
       );
     }
 
-    const message = protos.UserInputs.encode({inputs: data}).finish();
+    const message = protos.UserInputs.encode({ inputs: data }).finish();
     let port = UDP_SEND_PORT;
     let ip = runtimeIP;
     // This is temporary. This will need to be changed once Runtime figures out how to send UDP data over TCP ngrok connection

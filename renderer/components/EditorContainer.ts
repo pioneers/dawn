@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import  { Editor } from './Editor';
+import { Editor } from './Editor';
 import {
   editorUpdate,
   saveFile,
@@ -10,14 +10,8 @@ import {
   uploadCode,
   updateKeyboardBitmap
 } from '../actions/EditorActions';
-import {
-  changeTheme,
-  changeFontSize,
-} from '../actions/SettingsActions';
-import {
-  toggleConsole,
-  clearConsole,
-} from '../actions/ConsoleActions';
+import { changeTheme, changeFontSize } from '../actions/SettingsActions';
+import { toggleConsole, clearConsole } from '../actions/ConsoleActions';
 import { addAsyncAlert } from '../actions/AlertActions';
 import { updateCodeStatus, ipChange } from '../actions/InfoActions';
 import { Dispatch } from 'redux';
@@ -84,9 +78,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   },
   onUpdateKeyboardBitmap: (keyboardBitmap: number) => {
     dispatch(updateKeyboardBitmap(keyboardBitmap));
-  },
-  
+  }
 });
 
 export const EditorContainer = connect(mapStateToProps, mapDispatchToProps)(Editor);
-

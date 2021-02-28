@@ -13,10 +13,9 @@ import {
   CreateNewFileAction,
   DownloadCodeAction,
   UploadCodeAction,
-  UpdateKeyboardBitmapAction,
-  updateIsKeyboardToggledAction,
+  UpdateIsKeyboardModeToggledAction,
+  UpdateKeyboardBitmapAction
 } from '../types';
-import {  } from '../types/actions/editor-actions';
 
 type Actions =
   | EditorUpdateAction
@@ -29,8 +28,8 @@ type Actions =
   | CreateNewFileAction
   | DownloadCodeAction
   | UploadCodeAction
-  | UpdateKeyboardBitmapAction
-  | updateIsKeyboardToggledAction;
+  | UpdateIsKeyboardModeToggledAction
+  | UpdateKeyboardBitmapAction;
 
 interface EditorState {
   filepath: string;
@@ -74,10 +73,10 @@ export const editor = (state: EditorState = defaultEditorState, action: Actions)
         keyboardBitmap: action.keyboardBitmap,
       };
     case consts.EditorActionsTypes.UPDATE_IS_KEYBOARD_MODE_TOGGLED:
-      return{
+      return {
         ...state,
         isKeyboardToggled: action.isKeyboardToggled,
-      }
+      };
     default:
       return state;
   }

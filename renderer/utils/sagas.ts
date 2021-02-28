@@ -108,7 +108,7 @@ function* writeCodeToFile(filepath: string, code: string): Generator<any, void, 
   yield put(saveFileSucceeded(code, filepath));
 }
 
-const editorState = (state: any) => ({
+const editorState = (state: ApplicationState) => ({
   filepath: state.editor.filepath,
   code: state.editor.editorCode,
   keyboard: state.editor.keyboard,
@@ -260,15 +260,16 @@ function formatGamepads(newGamepads: (Gamepad | null)[]): Input[] {
 }
 
 function* sendKeyboardInputs() {
-  const curState = yield select(editorState)
-  
+  const currEditorState = yield select(editorState);
+
   const keyboard = new Input({
     connected: true,
     axes: [],
-    buttons: curState.keyboardBitmap,
+    buttons: currEditorState.keyboardBitmap,
     source: Source.KEYBOARD
-  })
-  ipcRenderer.send('stateUpdate', [keyboard], Source.KEYBOARD)
+  });
+
+  ipcRenderer.send('stateUpdate', [keyboard], Source.KEYBOARD);
 }
 
 /**
