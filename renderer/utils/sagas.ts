@@ -111,9 +111,8 @@ function* writeCodeToFile(filepath: string, code: string): Generator<any, void, 
 const editorState = (state: ApplicationState) => ({
   filepath: state.editor.filepath,
   code: state.editor.editorCode,
-  keyboard: state.editor.keyboard,
   keyboardBitmap: state.editor.keyboardBitmap,
-  isKeyboardToggled: state.editor.isKeyboardToggled,
+  isKeyboardToggled: state.editor.isKeyboardModeToggled
 });
 
 function* saveFile(action: any) {
