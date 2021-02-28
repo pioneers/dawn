@@ -112,7 +112,7 @@ const editorState = (state: ApplicationState) => ({
   filepath: state.editor.filepath,
   code: state.editor.editorCode,
   keyboardBitmap: state.editor.keyboardBitmap,
-  isKeyboardToggled: state.editor.isKeyboardModeToggled
+  isKeyboardModeToggled: state.editor.isKeyboardModeToggled
 });
 
 function* saveFile(action: any) {
