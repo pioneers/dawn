@@ -277,9 +277,9 @@ function* sendKeyboardInputs() {
  */
 function* runtimeGamepads() {
 
-  const curState = yield select(editorState)
+  const currEditorState = yield select(editorState)
 
-  if (!curState.isKeyboardToggled) {
+  if (!currEditorState.isKeyboardModeToggled) {
     while (true) {
       // navigator.getGamepads always returns a reference to the same object. This
       // confuses redux, so we use assignIn to clone to a new object each time.
