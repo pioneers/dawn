@@ -24,5 +24,15 @@ export const updateCodeStatus: InfoActions['updateCodeStatus'] = (studentCodeSta
 
 export const ipChange: InfoActions['ipChange'] = (ipAddress: string) => ({
   type: consts.InfoActionsTypes.IP_CHANGE,
-  ipAddress,
+  ipAddress
+});
+
+export const udpTunnelIpChange = (ipAddress: string) => ({
+  type: consts.InfoActionsTypes.UDP_TUNNEL_IP_CHANGE,
+  ipAddress
+});
+
+export const sshIpChange = (ipAddress: string) => ({
+  type: consts.InfoActionsTypes.SSH_IP_CHANGE,
+  ipAddress
 });
