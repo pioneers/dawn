@@ -17,7 +17,6 @@ import { remote, clipboard } from 'electron';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
 
-
 // React-ace extensions and modes
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/ext-searchbox';
@@ -37,13 +36,14 @@ import 'ace-builds/src-noconflict/theme-terminal';
 import { ConsoleOutput } from './ConsoleOutput';
 import { TooltipButton } from './TooltipButton';
 import { pathToName, robotState, timings, logging, windowInfo } from '../utils/utils';
+import { keyboardButtons } from '../consts/keyboard-buttons';
 
 const { dialog } = remote;
 const currentWindow = remote.getCurrentWindow();
 
 interface StateProps {
   editorTheme: string;
-  editorCode: string;  
+  editorCode: string;
   latestSaveCode: string;
   filepath: string;
   fontSize: number;
@@ -59,16 +59,17 @@ interface OwnProps {
   onAlertAdd: (heading: string, message: string) => void;
   onEditorUpdate: (newVal: string) => void;
   onSaveFile: (saveAs?: boolean) => void;
-  onDragFile: (filepath: string) => void; 
-  onOpenFile: () => void; 
+  onDragFile: (filepath: string) => void;
+  onOpenFile: () => void;
   onCreateNewFile: () => void;
   onChangeTheme: (theme: string) => void;
-  onChangeFontsize: (newFontsize: number) => void; 
+  onChangeFontsize: (newFontsize: number) => void;
   toggleConsole: () => void;
   onClearConsole: () => void;
   onUpdateCodeStatus: (status: number) => void;
   onDownloadCode: () => void;
   onUploadCode: () => void;
+  onUpdateKeyboardBitmap: (keyboardBitmap: number) => void;
 }
 
 type Props = StateProps & OwnProps;
@@ -81,7 +82,9 @@ interface State {
   simulate: boolean;
   isRunning: boolean;
   fontsize?: number;
-};
+  isKeyboardModeToggled: boolean;
+  keyboardBitmap: number;
+}
 
 export class Editor extends React.Component<Props, State> {
   themes: string[];
@@ -124,6 +127,8 @@ export class Editor extends React.Component<Props, State> {
       modeDisplay: robotState.TELEOPSTR,
       isRunning: false,
       simulate: false,
+      isKeyboardModeToggled: false,
+      keyboardBitmap: 0
     };
   }
 
@@ -260,10 +265,60 @@ export class Editor extends React.Component<Props, State> {
     }
   }
 
+  bitShiftLeft = (value: number, numPositions: number) => {
+    return value * Math.pow(2, numPositions);
+  }
+
   toggleConsole = () => {
     this.props.toggleConsole();
     // Resize since the console overlaps with the editor, but enough time for console changes
     setTimeout(() => this.onWindowResize(), 0.01);
+  }
+
+  // toggle keyboard control and add/remove listening for key presses to control robot
+  toggleKeyboardControl = () => {
+    this.setState({ isKeyboardModeToggled: !this.state.isKeyboardModeToggled });
+
+    if (!this.state.isKeyboardModeToggled) {
+      // We need passive true so that we are able to remove the event listener when we are not in Keyboard Control mode
+      window.addEventListener('keydown', this.turnCharacterOn, { passive: true });
+      window.addEventListener('keyup', this.turnCharacterOff, { passive: true });
+    } else {
+      window.removeEventListener('keydown', this.turnCharacterOn);
+      window.removeEventListener('keyup', this.turnCharacterOff);
+      this.setState({ keyboardBitmap: 0 });
+      this.props.onUpdateKeyboardBitmap(this.state.keyboardBitmap);
+    }
+  };
+
+  updateKeyboardBitmap = (currentCharacter: string, isKeyPressed: boolean) => {
+    const keyboardNum = keyboardButtons[currentCharacter];
+    let newKeyboardBitmap: number = this.state.keyboardBitmap;
+
+    const shift = this.bitShiftLeft(1, keyboardNum);
+    const MAX_INT32_BITS = 2147483648; // 2^31
+
+    const shiftHighBits = shift / MAX_INT32_BITS;
+    const shiftLowBits = shift % MAX_INT32_BITS;
+    const mapHighBits = newKeyboardBitmap / MAX_INT32_BITS;
+    const mapLowBits = newKeyboardBitmap % MAX_INT32_BITS;
+
+    if (!isKeyPressed) {
+      newKeyboardBitmap = (~shiftHighBits & mapHighBits) * MAX_INT32_BITS + (~shiftLowBits & mapLowBits);
+    } else if (isKeyPressed) {
+      newKeyboardBitmap = (shiftHighBits | mapHighBits) * MAX_INT32_BITS + (shiftLowBits | mapLowBits);
+    }
+
+    this.setState({ keyboardBitmap: newKeyboardBitmap });
+    this.props.onUpdateKeyboardBitmap(this.state.keyboardBitmap);
+  };
+
+  turnCharacterOff = (e: KeyboardEvent) => {
+    // NOT THE ACTION updateKeyboardBitmap. THIS IS A LOCAL FUNCTION
+    this.updateKeyboardBitmap(e.key, false);
+  }
+  turnCharacterOn = (e: KeyboardEvent) => {
+    this.updateKeyboardBitmap(e.key, true)
   }
 
   upload = () => {
@@ -452,6 +507,7 @@ export class Editor extends React.Component<Props, State> {
     if (this.props.consoleUnread) {
       this.toggleConsole();
     }
+
     return (
       <Panel bsStyle="primary">
         <Panel.Heading>
@@ -628,8 +684,15 @@ export class Editor extends React.Component<Props, State> {
                   </DropdownButton>
                 </OverlayTrigger>
               </InputGroup>
-            </FormGroup>
-            {' '}
+              <TooltipButton
+                id="toggleKeyboardControl"
+                text="Toggle Keyboard Control Mode"
+                onClick={this.toggleKeyboardControl}
+                glyph="text-background"
+                disabled={false}
+                bsStyle={this.state.isKeyboardModeToggled ? 'info' : 'default'}
+              />
+            </FormGroup>{' '}
             <ButtonGroup id="editor-settings-buttons" className="form-inline">
               <TooltipButton
                 id="increase-font-size"
@@ -662,7 +725,6 @@ export class Editor extends React.Component<Props, State> {
               </DropdownButton>
             </ButtonGroup>
           </Form>
-
           <AceEditor
             mode="python"
             theme={this.props.editorTheme}
@@ -675,6 +737,7 @@ export class Editor extends React.Component<Props, State> {
             onChange={this.props.onEditorUpdate}
             onPaste={Editor.onEditorPaste}
             editorProps={{ $blockScrolling: Infinity }}
+            readOnly={this.state.isKeyboardModeToggled}
           />
           <ConsoleOutput
             toggleConsole={this.toggleConsole}

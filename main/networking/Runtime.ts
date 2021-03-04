@@ -310,7 +310,7 @@ class TCPConn {
    */
   ipAddressListener = (_event: IpcMainEvent, ipAddress: string) => {
     if (ipAddress != runtimeIP) {
-      console.log(`Switching TCPConn IP from ${runtimeIP} to ${ipAddress}`);
+      console.log(`TCPConn - Switching IP from ${runtimeIP} to ${ipAddress}`);
       if (this.socket.connecting || !this.socket.pending) {
         this.socket.end();
       }
@@ -441,7 +441,7 @@ class UDPConn {
     /**
      * UDP Send Socket IPC Connections
      */
-    ipcMain.on('stateUpdate', this.sendGamepadMessages);
+    ipcMain.on('stateUpdate', this.sendInputs);
   }
 
   /**
@@ -449,12 +449,12 @@ class UDPConn {
    * Sends messages when Gamepad information changes
    * or when 100 ms has passed (with 50 ms cooldown)
    */
-  sendGamepadMessages = (_event: IpcMainEvent, data: protos.Input[]) => {
+  sendInputs = (_event: IpcMainEvent, data: protos.Input[], source: protos.Source) => {
     if (data.length === 0) {
       data.push(
         protos.Input.create({
           connected: false,
-          source: protos.Source.GAMEPAD
+          source
         })
       );
     }
@@ -467,7 +467,7 @@ class UDPConn {
 
   close() {
     this.socket.close();
-    ipcMain.removeListener('stateUpdate', this.sendGamepadMessages);
+    ipcMain.removeListener('stateUpdate', this.sendInputs);
   }
 }
 

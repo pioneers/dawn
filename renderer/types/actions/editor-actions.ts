@@ -47,6 +47,16 @@ export interface UploadCodeAction {
   type: consts.EditorActionsTypes.UPLOAD_CODE;
 }
 
+export interface UpdateKeyboardBitmapAction {
+  type: consts.EditorActionsTypes.UPDATE_KEYBOARD_BITMAP;
+  keyboardBitmap: number;
+}
+
+export interface UpdateIsKeyboardModeToggledAction {
+  type: consts.EditorActionsTypes.UPDATE_IS_KEYBOARD_MODE_TOGGLED;
+  isKeyboardToggled: boolean;
+}
+
 export interface EditorActions {
   editorUpdate: (newVal: string) => EditorUpdateAction;
 
@@ -67,4 +77,8 @@ export interface EditorActions {
   downloadCode: () => DownloadCodeAction;
 
   uploadCode: () => UploadCodeAction;
+
+  updateKeyboardBitmap: (keyboardBitmap: number) => UpdateKeyboardBitmapAction;
+
+  updateIsKeyboardModeToggled: (isKeyboardToggled: boolean) => UpdateIsKeyboardModeToggledAction;
 }
