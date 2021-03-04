@@ -392,8 +392,16 @@ function* downloadStudentCode() {
   const conn = new Client();
   const stateSlice = yield select((state: any) => ({
     runtimeStatus: state.info.runtimeStatus,
-    ipAddress: state.info.ipAddress,
+    ipAddress: state.info.sshAddress,
   }));
+  let port = defaults.PORT;
+  let ip = stateSlice.ipAddress;
+  if (ip.includes(':')) {
+    const split = ip.split(':');
+    ip = split[0];
+    port = Number(split[1]);
+  }
+  console.log(`SSHing into ${ip}:${port} to download code`);
   const path = `${require('electron').remote.app.getPath('desktop')}/Dawn`; // eslint-disable-line global-require
   try {
     fs.statSync(path);
@@ -429,8 +437,8 @@ function* downloadStudentCode() {
         debug: (inpt: any) => {
           logging.log(inpt);
         },
-        host: stateSlice.ipAddress,
-        port: defaults.PORT,
+        host: ip,
+        port: port,
         username: defaults.USERNAME,
         password: defaults.PASSWORD,
       });
@@ -484,9 +492,16 @@ function* uploadStudentCode() {
   const conn = new Client();
   const stateSlice = yield select((state: any) => ({
     runtimeStatus: state.info.runtimeStatus,
-    ipAddress: state.info.ipAddress,
+    ipAddress: state.info.sshAddress,
     filepath: state.editor.filepath,
   }));
+  let port = defaults.PORT;
+  let ip = stateSlice.ipAddress;
+  if (ip.includes(':')) {
+    const split = ip.split(':');
+    ip = split[0];
+    port = Number(split[1]);
+  }
   if (stateSlice.runtimeStatus) {
     logging.log(`Uploading ${stateSlice.filepath}`);
     const errors = yield call(() => new Promise((resolve) => {
@@ -516,8 +531,8 @@ function* uploadStudentCode() {
         debug: (input: any) => {
           logging.log(input);
         },
-        host: stateSlice.ipAddress,
-        port: defaults.PORT,
+        host: ip,
+        port: port,
         username: defaults.USERNAME,
         password: defaults.PASSWORD,
       });
