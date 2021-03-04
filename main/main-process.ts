@@ -78,7 +78,7 @@ app.on('ready', () => {
         width: 1000,
         height: 700,
       });
-      RendererBridge.registerWindow('dashboard', dashboardWindow);
+      RendererBridge.registerWindow('dash', dashboardWindow);
       dashboardWindow.on('closed', () => {
         dashboardWindow = null;
       });

@@ -24,8 +24,13 @@ class RendererBridge {
   }
   toggleWindowDevtools = (key: string) => {
     console.log('toggling devtools for window', key);
-    const registeredWindow = this.registeredWindows[key]
-    registeredWindow?.webContents.toggleDevTools();
+    const registeredWindow = this.registeredWindows[key];
+    if (registeredWindow) {
+      registeredWindow.webContents.toggleDevTools();
+      // console.log("successfully opened devtools window", key);
+    } else {
+      // console.log("failed to open devtools -- window", key, "does not exist");
+    }
   }
   reduxDispatch = (action: any) => {
     for (const key of Object.keys(this.registeredWindows)) {

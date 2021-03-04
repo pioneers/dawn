@@ -24,6 +24,13 @@ const DebugMenu: MenuItemConstructorOptions = {
       accelerator: 'CommandOrControl+alt+I',
     },
     {
+      label: 'Toggle Dashboard DevTools',
+      click() {
+        RendererBridge.toggleWindowDevtools('dash');
+      },
+      accelerator: 'CommandOrControl+alt+shift+I',
+    },
+    {
       label: 'Restart Runtime',
       click() {
         RendererBridge.reduxDispatch({
