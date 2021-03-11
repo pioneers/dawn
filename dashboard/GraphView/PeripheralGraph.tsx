@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Dropdown, SplitButton, ButtonToolbar } from "react-bootstrap";
+import { SplitButton, ButtonToolbar, MenuItem } from "react-bootstrap";
+import { PeripheralData } from '../data/testData'
 import {
   LineChart,
   Line,
@@ -10,7 +11,13 @@ import {
   Legend,
 } from "recharts";
 
-export default function GraphView({ deviceName, data, key }) {
+interface StateProps {
+  deviceName: string;
+  data: PeripheralData[];
+  key: number; // Currently not provided by runtime, and not used in Editor
+}
+
+export default function GraphView(props: StateProps) {
   // let myVar = setInterval(myTimer, 5000);
   // const [timer,updateTimer] = useState(0);
   // const [emptyArray,updateArray] = useState([]);
@@ -23,24 +30,24 @@ export default function GraphView({ deviceName, data, key }) {
   //     updateArray( [...emptyArray]);
   //     console.log(emptyArray);
   // }
-  const [distArray, updateArray] = useState([]);
-  const [timer, updateTimer] = useState(0);
-  let newObj = {};
+  const [distArray, updateArray] = useState<Object[]>([]);
+  const [timer, updateTimer] = useState<number>(0);
+  let newObj: Object = {};
   newObj["Name"] = timer;
-  for (let i = 0; i < data.length; i++) {
+  for (let i = 0; i < props.data.length; i++) {
     let title = "Sensor" + i;
-    newObj[title] = data[i].params["Distance"];
+    newObj[title] = props.data[i].params["Distance"];
   }
   useEffect(() => {
     setTimeout(() => {
       updateTimer(timer + 1);
       updateArray([...distArray, newObj]);
-      resize(distArray.length > 5 ? true : false);
+    //   resize(distArray.length > 5 ? true : false);
     }, 1000);
   });
 
   const BUTTONS = ["Distance"];
-  function renderDropdownButton(title, i) {
+  function renderDropdownButton(title: string, i: number) {
     return (
       <SplitButton
         bsStyle={title.toLowerCase()}
@@ -48,11 +55,11 @@ export default function GraphView({ deviceName, data, key }) {
         key={i}
         id={`split-button-basic-${i}`}
       >
-        <Dropdown.Item eventKey="1">Velocity</Dropdown.Item>
-        <Dropdown.Item eventKey="2">DC</Dropdown.Item>
-        <Dropdown.Item eventKey="3">Something else here</Dropdown.Item>
-        <Dropdown.Item divider />
-        <Dropdown.Item eventKey="4">Separated link</Dropdown.Item>
+        <MenuItem eventKey="1">Velocity</MenuItem>
+        <MenuItem eventKey="2">DC</MenuItem>
+        <MenuItem eventKey="3">Something else here</MenuItem>
+        <MenuItem divider />
+        <MenuItem eventKey="4">Separated link</MenuItem>
       </SplitButton>
     );
   }
