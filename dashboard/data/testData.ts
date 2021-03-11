@@ -1,4 +1,5 @@
-class Peripheral {
+
+export class Peripheral {
     key: number;
     uid: string;
     device_name: string;
@@ -28,4 +29,10 @@ export class Sensor extends Peripheral {
             'Distance': distance,
         }    
     }
+}
+export interface PeripheralData {
+    key: number,
+    uid: string,
+    device_name: string,
+    params: Object,
 }
