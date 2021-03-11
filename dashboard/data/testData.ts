@@ -1,4 +1,5 @@
-class Peripheral {
+
+export class Peripheral {
     key: number;
     uid: string;
     device_name: string;
@@ -10,7 +11,7 @@ class Peripheral {
 }
 
 export class Motor extends Peripheral {
-    params: Object;
+    params: { Velocity: number; DC: number; };
     constructor(key: number, uid: string, device_name: string, velocity: number, dc: number) {
         super(key, uid, device_name);
         this.params = {
@@ -21,7 +22,7 @@ export class Motor extends Peripheral {
 }
 
 export class Sensor extends Peripheral {
-    params: Object;
+    params: { Distance: number; };
     constructor(key: number, uid: string, device_name: string, distance: number) {
         super(key, uid, device_name);
         this.params = {
@@ -29,7 +30,6 @@ export class Sensor extends Peripheral {
         }    
     }
 }
-
 export interface PeripheralData {
     key: number,
     uid: string,
