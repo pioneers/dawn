@@ -33,7 +33,7 @@ function openFileDialog() {
     remote.dialog.showOpenDialog({
       filters: [{ name: 'python', extensions: ['py'] }],
     }).then((openDialogReturnValue: OpenDialogReturnValue) => {
-      const { filePaths } = openDialogReturnValue; 
+      const { filePaths } = openDialogReturnValue;
       // If filepaths is undefined, the user did not specify a file.
       if (_.isEmpty(filePaths)) {
         reject();
@@ -57,7 +57,7 @@ function saveFileDialog() {
     remote.dialog.showSaveDialog({
       filters: [{ name: 'python', extensions: ['py'] }],
     }).then((saveDialogReturnValue: SaveDialogReturnValue) => {
-      const { filePath } = saveDialogReturnValue; 
+      const { filePath } = saveDialogReturnValue;
       // If filepath is undefined, the user did not specify a file.
       if (filePath === undefined) {
         reject();
@@ -108,9 +108,11 @@ function* writeCodeToFile(filepath: string, code: string): Generator<any, void, 
   yield put(saveFileSucceeded(code, filepath));
 }
 
-const editorState = (state: any) => ({
+const editorState = (state: ApplicationState) => ({
   filepath: state.editor.filepath,
   code: state.editor.editorCode,
+  keyboardBitmap: state.editor.keyboardBitmap,
+  isKeyboardModeToggled: state.editor.isKeyboardModeToggled
 });
 
 function* saveFile(action: any) {
@@ -206,7 +208,7 @@ function* runtimeHeartbeat() {
     const result = yield race({
       update: take('PER_MESSAGE'),
       timeout: delay(TIMEOUT)
-    }); 
+    });
 
     // If update wins, we assume we are connected, otherwise disconnected.
     if (result.update) {
@@ -256,27 +258,45 @@ function formatGamepads(newGamepads: (Gamepad | null)[]): Input[] {
   return formattedGamepads;
 }
 
+function* sendKeyboardInputs() {
+  const currEditorState = yield select(editorState);
+
+  const keyboard = new Input({
+    connected: true,
+    axes: [],
+    buttons: currEditorState.keyboardBitmap,
+    source: Source.KEYBOARD
+  });
+
+  ipcRenderer.send('stateUpdate', [keyboard], Source.KEYBOARD);
+}
+
 /**
  * Repeatedly grab gamepad data, send it over Runtime to the robot, and dispatch
  * redux action to update gamepad state.
  */
 function* runtimeGamepads() {
-  while (true) {
-    // navigator.getGamepads always returns a reference to the same object. This
-    // confuses redux, so we use assignIn to clone to a new object each time.
-    const newGamepads = navigator.getGamepads();
-    if (_needToUpdate(newGamepads) || Date.now() - timestamp > 100) {
-      const formattedGamepads = formatGamepads(newGamepads);
-      yield put(updateGamepads(formattedGamepads));
 
-      // Send gamepad data to Runtime.
-      if (_.some(newGamepads) || Date.now() - timestamp > 100) {
-        timestamp = Date.now();
-        yield put({ type: 'UPDATE_MAIN_PROCESS' });
+  const currEditorState = yield select(editorState)
+
+  if (!currEditorState.isKeyboardModeToggled) {
+    while (true) {
+      // navigator.getGamepads always returns a reference to the same object. This
+      // confuses redux, so we use assignIn to clone to a new object each time.
+      const newGamepads = navigator.getGamepads();
+      if (_needToUpdate(newGamepads) || Date.now() - timestamp > 100) {
+        const formattedGamepads = formatGamepads(newGamepads);
+        yield put(updateGamepads(formattedGamepads));
+
+        // Send gamepad data to Runtime.
+        if (_.some(newGamepads) || Date.now() - timestamp > 100) {
+          timestamp = Date.now();
+          yield put({ type: 'UPDATE_MAIN_PROCESS' });
+        }
       }
-    }
 
-    yield delay(50); // wait 50 ms before updating again.
+      yield delay(50); // wait 50 ms before updating again.
+    }
   }
 }
 
@@ -323,7 +343,7 @@ const gamepadsState = (state: any) => state.gamepads.gamepads;
  */
 function* updateMainProcess() {
   const stateSlice = yield select(gamepadsState); // Get gamepads from Redux state store
-  ipcRenderer.send('stateUpdate', stateSlice);
+  ipcRenderer.send('stateUpdate', stateSlice, Source.GAMEPAD);
 }
 
 function* restartRuntime() {
@@ -372,8 +392,16 @@ function* downloadStudentCode() {
   const conn = new Client();
   const stateSlice = yield select((state: any) => ({
     runtimeStatus: state.info.runtimeStatus,
-    ipAddress: state.info.ipAddress,
+    ipAddress: state.info.sshAddress,
   }));
+  let port = defaults.PORT;
+  let ip = stateSlice.ipAddress;
+  if (ip.includes(':')) {
+    const split = ip.split(':');
+    ip = split[0];
+    port = Number(split[1]);
+  }
+  console.log(`SSHing into ${ip}:${port} to download code`);
   const path = `${require('electron').remote.app.getPath('desktop')}/Dawn`; // eslint-disable-line global-require
   try {
     fs.statSync(path);
@@ -409,8 +437,8 @@ function* downloadStudentCode() {
         debug: (inpt: any) => {
           logging.log(inpt);
         },
-        host: stateSlice.ipAddress,
-        port: defaults.PORT,
+        host: ip,
+        port: port,
         username: defaults.USERNAME,
         password: defaults.PASSWORD,
       });
@@ -464,9 +492,16 @@ function* uploadStudentCode() {
   const conn = new Client();
   const stateSlice = yield select((state: any) => ({
     runtimeStatus: state.info.runtimeStatus,
-    ipAddress: state.info.ipAddress,
+    ipAddress: state.info.sshAddress,
     filepath: state.editor.filepath,
   }));
+  let port = defaults.PORT;
+  let ip = stateSlice.ipAddress;
+  if (ip.includes(':')) {
+    const split = ip.split(':');
+    ip = split[0];
+    port = Number(split[1]);
+  }
   if (stateSlice.runtimeStatus) {
     logging.log(`Uploading ${stateSlice.filepath}`);
     const errors = yield call(() => new Promise((resolve) => {
@@ -496,8 +531,8 @@ function* uploadStudentCode() {
         debug: (input: any) => {
           logging.log(input);
         },
-        host: stateSlice.ipAddress,
-        port: defaults.PORT,
+        host: ip,
+        port: port,
         username: defaults.USERNAME,
         password: defaults.PASSWORD,
       });
@@ -579,6 +614,7 @@ export default function* rootSaga() {
     takeEvery('UPLOAD_CODE', uploadStudentCode),
     takeEvery('TOGGLE_FIELD_CONTROL', handleFieldControl),
     takeEvery('TIMESTAMP_CHECK', timestampBounceback),
+    takeEvery('UPDATE_KEYBOARD_BITMAP', sendKeyboardInputs),
     fork(runtimeHeartbeat),
     fork(runtimeGamepads),
     fork(runtimeSaga),
