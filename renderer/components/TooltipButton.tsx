@@ -9,7 +9,7 @@ import {
 interface StateProp{
   id: string;
   text: string;
-  onClick: () => void;
+  onClick: React.MouseEventHandler<Button>;
   glyph: string;
   disabled: boolean;
   bsStyle?: string;

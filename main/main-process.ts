@@ -40,7 +40,7 @@ function teardownFC(_event: any) { // eslint-disable-line no-unused-vars
   }
 }
 
-export default function showAPI() {
+export function showAPI() {
   let api: BrowserWindow | null = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
@@ -61,10 +61,35 @@ export default function showAPI() {
 }
 
 app.on('ready', () => {
+  let dashboardWindow: BrowserWindow | null = null;
+
   Runtime.setup();
   ipcMain.on('FC_CONFIG_CHANGE', FCObject.changeFCInfo);
   ipcMain.on('FC_INITIALIZE', initializeFC);
   ipcMain.on('FC_TEARDOWN', teardownFC);
+
+  ipcMain.on('SHOW_DASHBOARD', () => {
+    if (!dashboardWindow) {
+      dashboardWindow = new BrowserWindow({
+        webPreferences: {
+          nodeIntegration: true,
+          enableRemoteModule: true,
+        },
+        width: 1000,
+        height: 700,
+      });
+      RendererBridge.registerWindow('dash', dashboardWindow);
+      dashboardWindow.on('closed', () => {
+        dashboardWindow = null;
+      });
+      dashboardWindow.loadURL(`file://${__dirname}/../static/dashboard.html`);
+      dashboardWindow.once('ready-to-show', () => {
+        if (dashboardWindow) {
+          dashboardWindow.show();
+        }
+      });
+    }
+  });
 
   const mainWindow = new BrowserWindow({
     webPreferences: {
@@ -74,7 +99,7 @@ app.on('ready', () => {
   });
 
   // Binding for the main process to inject into Redux workflow
-  RendererBridge.registerWindow(mainWindow);
+  RendererBridge.registerWindow('main', mainWindow);
 
   mainWindow.maximize();
   mainWindow.loadURL(`file://${__dirname}/../static/index.html`);
@@ -95,4 +120,8 @@ app.on('ready', () => {
       console.log('An error occurred: ', err);
     });
   }
+
+  mainWindow.on('closed', () => {
+    dashboardWindow?.close();
+  })
 });

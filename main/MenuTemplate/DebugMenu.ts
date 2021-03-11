@@ -19,11 +19,16 @@ const DebugMenu: MenuItemConstructorOptions = {
     {
       label: 'Toggle DevTools',
       click() {
-        if (RendererBridge.registeredWindow) {
-          RendererBridge.registeredWindow.webContents.toggleDevTools();
-        }
+        RendererBridge.toggleWindowDevtools('main');
       },
       accelerator: 'CommandOrControl+alt+I',
+    },
+    {
+      label: 'Toggle Dashboard DevTools',
+      click() {
+        RendererBridge.toggleWindowDevtools('dash');
+      },
+      accelerator: 'CommandOrControl+alt+shift+I',
     },
     {
       label: 'Restart Runtime',
@@ -57,9 +62,7 @@ const DebugMenu: MenuItemConstructorOptions = {
       label: 'Reload',
       accelerator: 'CommandOrControl+R',
       click() {
-        if (RendererBridge.registeredWindow) {
-          RendererBridge.registeredWindow.reload();
-        }
+        RendererBridge.reloadWindow('main');
       },
     },
 

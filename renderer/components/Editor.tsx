@@ -595,6 +595,12 @@ export class Editor extends React.Component<Props, State> {
                   active={this.state.simulate}
                   onClick={this.simulateCompetition}
                 >Simulate Competition</MenuItem>
+                <MenuItem
+                  eventKey="4"
+                  active={this.state.simulate}
+                  onClick={() => console.log("running PiEmulator")}
+                >Run PiEmulator
+                </MenuItem>              
               </DropdownButton>
             </ButtonGroup>
             {' '}

@@ -1,0 +1,5 @@
+TODO:
+// - add new window logic to main-process 
+- set up babel+webpack to compile new app
+- rearrange folder structure to suit two applications
+- test peripheral data display using actual protos

@@ -2,7 +2,7 @@
  * Defines the Help menu
  */
 import RendererBridge from '../RendererBridge';
-import showAPI from '../main-process';
+import { showAPI } from '../main-process';
 import { MenuItemConstructorOptions } from 'electron';
 
 const HelpMenu: MenuItemConstructorOptions = {
@@ -11,9 +11,7 @@ const HelpMenu: MenuItemConstructorOptions = {
     {
       label: 'Interactive Tutorial',
       click() {
-        if (RendererBridge.registeredWindow) {
-          RendererBridge.registeredWindow.webContents.send('start-interactive-tour');
-        }
+        RendererBridge.reduxDispatch('start-interactive-tour');
       },
       accelerator: 'CommandOrControl+T',
     },
