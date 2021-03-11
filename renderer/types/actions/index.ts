@@ -13,6 +13,8 @@ export {
   CreateNewFileAction,
   DownloadCodeAction,
   UploadCodeAction,
+  UpdateIsKeyboardModeToggledAction,
+  UpdateKeyboardBitmapAction
 } from './editor-actions';
 export { GamepadsActions, UpdateGamepadsAction } from './gamepads-actions';
 export { SettingsActions, ChangeFontSizeAction, ChangeThemeAction } from './settings-actions';
@@ -34,5 +36,7 @@ export {
   RuntimeDisconnectAction,
   UpdateCodeStatusAction,
   IpChangeAction,
+  UDPTunnelIpChangeAction,
+  SSHIpChangeAction,
   NotificationChangeAction,
 } from './info-actions';

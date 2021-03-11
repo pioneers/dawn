@@ -13,6 +13,8 @@ import {
   CreateNewFileAction,
   DownloadCodeAction,
   UploadCodeAction,
+  UpdateIsKeyboardModeToggledAction,
+  UpdateKeyboardBitmapAction
 } from '../types';
 
 type Actions =
@@ -25,18 +27,24 @@ type Actions =
   | DeleteFileAction
   | CreateNewFileAction
   | DownloadCodeAction
-  | UploadCodeAction;
+  | UploadCodeAction
+  | UpdateIsKeyboardModeToggledAction
+  | UpdateKeyboardBitmapAction;
 
 interface EditorState {
   filepath: string;
   latestSaveCode: string;
   editorCode: string;
+  keyboardBitmap: number;
+  isKeyboardModeToggled: boolean;
 }
 
 const defaultEditorState = {
   filepath: '',
   latestSaveCode: '',
   editorCode: '',
+  keyboardBitmap: 0,
+  isKeyboardModeToggled: false
 };
 
 export const editor = (state: EditorState = defaultEditorState, action: Actions) => {
@@ -58,6 +66,16 @@ export const editor = (state: EditorState = defaultEditorState, action: Actions)
         ...state,
         filepath: action.filepath,
         latestSaveCode: action.code,
+      };
+    case consts.EditorActionsTypes.UPDATE_KEYBOARD_BITMAP:
+      return {
+        ...state,
+        keyboardBitmap: action.keyboardBitmap,
+      };
+    case consts.EditorActionsTypes.UPDATE_IS_KEYBOARD_MODE_TOGGLED:
+      return {
+        ...state,
+        isKeyboardModeToggled: action.isKeyboardToggled,
       };
     default:
       return state;
