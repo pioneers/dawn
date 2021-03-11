@@ -1,9 +1,9 @@
 import React from 'react';
 import PeripheralTable from './PeripheralTable';
 
-export default function TableView({ data }) {
+export default function TableView({ data } : {data: any}) {
   let peripheralGroups = {};
-  data.forEach((p) => {
+  data.forEach((p: any) => {
     let group = peripheralGroups[p.device_name] ?? [];
     group.push(p);
     peripheralGroups[p.device_name] = group;

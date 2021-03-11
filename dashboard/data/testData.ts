@@ -1,5 +1,8 @@
 class Peripheral {
-    constructor(key, uid, device_name) {
+    key: number;
+    uid: string;
+    device_name: string;
+    constructor(key: number, uid: string, device_name: string) {
         this.key = key;
         this.uid = uid;
         this.device_name = device_name;
@@ -7,7 +10,8 @@ class Peripheral {
 }
 
 export class Motor extends Peripheral {
-    constructor(key, uid, device_name, velocity, dc) {
+    params: { Velocity: number; DC: number; };
+    constructor(key: number, uid: string, device_name: string, velocity: number, dc: number) {
         super(key, uid, device_name);
         this.params = {
             'Velocity': velocity,
@@ -17,7 +21,8 @@ export class Motor extends Peripheral {
 }
 
 export class Sensor extends Peripheral {
-    constructor(key, uid, device_name, distance) {
+    params: { Distance: number; };
+    constructor(key: number, uid: string, device_name: string, distance: number) {
         super(key, uid, device_name);
         this.params = {
             'Distance': distance,
