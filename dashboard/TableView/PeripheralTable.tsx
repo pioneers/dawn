@@ -1,7 +1,14 @@
 import React from "react";
 import { Table } from "react-bootstrap";
+import { PeripheralData, Peripheral } from "../data/testData";
 
-export default function PeripheralTable({ deviceName, data, key }) {
+interface PTProps {
+  deviceName: string,
+  data: PeripheralData[],
+  key?: number,
+}
+
+export default function PeripheralTable({deviceName, data}: PTProps) {
   let updatedDevicename =
     deviceName.charAt(0).toUpperCase() + deviceName.substr(1).toLowerCase();
   return (
@@ -17,7 +24,7 @@ export default function PeripheralTable({ deviceName, data, key }) {
           </tr>
         </thead>
         <tbody>
-          {data.map((device, i) => {
+          {data.map((device: Peripheral) => {
             return (
               <tr>
                 <td>{device.key}</td>

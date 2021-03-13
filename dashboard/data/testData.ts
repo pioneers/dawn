@@ -3,6 +3,7 @@ export class Peripheral {
     key: number;
     uid: string;
     device_name: string;
+    params: any;
     constructor(key: number, uid: string, device_name: string) {
         this.key = key;
         this.uid = uid;
