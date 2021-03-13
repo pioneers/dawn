@@ -19,8 +19,8 @@ const DebugMenu: MenuItemConstructorOptions = {
     {
       label: 'Toggle DevTools',
       click() {
-        if (RendererBridge.registeredWindow) {
-          RendererBridge.registeredWindow.webContents.toggleDevTools();
+        if (RendererBridge.registeredWindows) {
+          RendererBridge.registeredWindows['main']?.webContents.toggleDevTools();
         }
       },
       accelerator: 'CommandOrControl+alt+I',
@@ -57,8 +57,8 @@ const DebugMenu: MenuItemConstructorOptions = {
       label: 'Reload',
       accelerator: 'CommandOrControl+R',
       click() {
-        if (RendererBridge.registeredWindow) {
-          RendererBridge.registeredWindow.reload();
+        if (RendererBridge.registeredWindows['main']) {
+          RendererBridge.registeredWindows['main']?.reload();
         }
       },
     },
@@ -69,6 +69,13 @@ const DebugMenu: MenuItemConstructorOptions = {
         RendererBridge.reduxDispatch({
           type: 'TIMESTAMP_CHECK',
         });
+      },
+    },
+
+    {
+      label: 'Toggle Videofeed DevTools',
+      click() {
+        RendererBridge.toggleWindowDevtools('Videofeed-react');
       },
     },
   ],

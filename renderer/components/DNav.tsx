@@ -7,6 +7,7 @@ import { StatusLabel } from './StatusLabel';
 import { TooltipButton } from './TooltipButton';
 import { VERSION } from '../consts';
 import { robotState } from '../utils/utils';
+import { ipcRenderer } from 'electron';
 
 interface StateProps {
   runtimeVersion: string;
@@ -126,6 +127,15 @@ const DNavComponent = (props: Props) => {
                 disabled={!runtimeStatus}
                 id="update-software-button"
                 glyph="cloud-upload"
+              />
+              <TooltipButton
+                placement="bottom"
+                text="Open Video Feed"
+                bsStyle="info"
+                onClick={() => ipcRenderer.send('SHOW_VIDEOFEED')}
+                id="show-video-feed-button"
+                glyph="play"
+                disabled={false}
               />
             </ButtonGroup>
           </ButtonToolbar>

@@ -47,6 +47,18 @@ export default [
     module: modules,
   },
   {
+    entry: './renderer/components/video-feed/index.tsx',
+    resolve: {
+      extensions: ['.tsx', '.ts', '.js'],
+    },
+    output: {
+      path: path.join(__dirname, 'build'),
+      filename: "videofeed.js",
+    },
+    target: 'electron-renderer',
+    module: modules,
+  },
+  {
     entry: './main/main-process.ts',
     resolve: {
       extensions: ['.tsx', '.ts', '.js'],

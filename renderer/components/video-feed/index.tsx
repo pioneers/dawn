@@ -3,6 +3,6 @@ import ReactDOM from 'react-dom';
 import { VideoFeed } from './VideoFeed';
 
 ReactDOM.render(
-    <VideoFeed />,
+    <VideoFeed/>,
     document.getElementById("Videofeed-react")
 );
