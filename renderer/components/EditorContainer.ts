@@ -8,7 +8,8 @@ import {
   createNewFile,
   downloadCode,
   uploadCode,
-  updateKeyboardBitmap
+  updateKeyboardBitmap,
+  updateIsKeyboardModeToggled
 } from '../actions/EditorActions';
 import { changeTheme, changeFontSize } from '../actions/SettingsActions';
 import { toggleConsole, clearConsole } from '../actions/ConsoleActions';
@@ -78,6 +79,9 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   },
   onUpdateKeyboardBitmap: (keyboardBitmap: number) => {
     dispatch(updateKeyboardBitmap(keyboardBitmap));
+  },
+  onUpdateKeyboardModeToggle: (isKeyboardToggled: boolean) => {
+    dispatch(updateIsKeyboardModeToggled(isKeyboardToggled));
   }
 });
 

@@ -70,6 +70,7 @@ interface OwnProps {
   onDownloadCode: () => void;
   onUploadCode: () => void;
   onUpdateKeyboardBitmap: (keyboardBitmap: number) => void;
+  onUpdateKeyboardModeToggle: (isKeyboardToggled: boolean) => void;
 }
 
 type Props = StateProps & OwnProps;
@@ -277,17 +278,19 @@ export class Editor extends React.Component<Props, State> {
 
   // toggle keyboard control and add/remove listening for key presses to control robot
   toggleKeyboardControl = () => {
-    this.setState({ isKeyboardModeToggled: !this.state.isKeyboardModeToggled });
+    const { isKeyboardModeToggled } = this.state;
+    this.setState({ isKeyboardModeToggled: !isKeyboardModeToggled });
+    this.props.onUpdateKeyboardModeToggle(!isKeyboardModeToggled);
 
-    if (!this.state.isKeyboardModeToggled) {
+    if (!isKeyboardModeToggled) {
       // We need passive true so that we are able to remove the event listener when we are not in Keyboard Control mode
       window.addEventListener('keydown', this.turnCharacterOn, { passive: true });
       window.addEventListener('keyup', this.turnCharacterOff, { passive: true });
     } else {
       window.removeEventListener('keydown', this.turnCharacterOn);
       window.removeEventListener('keyup', this.turnCharacterOff);
-      this.setState({ keyboardBitmap: 0 });
-      this.props.onUpdateKeyboardBitmap(this.state.keyboardBitmap);
+      // this.setState({ keyboardBitmap: 0 });
+      // this.props.onUpdateKeyboardBitmap(this.state.keyboardBitmap);
     }
   };
 
