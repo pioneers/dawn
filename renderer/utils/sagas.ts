@@ -267,10 +267,10 @@ function* sendKeyboardConnectionStatus() {
   const keyboardConnected = new Input({
     connected: currEditorState.isKeyboardModeToggled,
     axes: [],
-    buttons: 1,
+    buttons: 0,
     source: Source.KEYBOARD
-  })
-  
+  });
+
   ipcRenderer.send('stateUpdate', [keyboardConnected], Source.KEYBOARD);
 }
 
