@@ -269,13 +269,14 @@ function* sendKeyboardConnectionStatus() {
     axes: [],
     buttons: 0,
     source: Source.KEYBOARD
-  })
+  });
+
   ipcRenderer.send('stateUpdate', [keyboardConnected], Source.KEYBOARD);
 }
 
 function* sendKeyboardInputs() {
   const currEditorState = yield select(editorState);
-
+  
   const keyboard = new Input({
     connected: true,
     axes: [],
