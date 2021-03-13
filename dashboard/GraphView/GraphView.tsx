@@ -1,11 +1,18 @@
 import React from "react";
 import PeripheralGraph from "./PeripheralGraph";
+import {PeripheralData, Peripheral} from '../data/testData';
 
-export default function GraphView({data}: {data: any}) {
+interface Props {
+  data: PeripheralData[]
+}
+
+export default function GraphView(props: Props) {
+const {data} = props;
+
   let peripheralGroups = {};
 
   // Grouping data based on type of device into an object.
-  data.forEach((p: any) => {
+  data.forEach((p: Peripheral) => {
     let group = peripheralGroups[p.device_name] ?? [];
     group.push(p);
     peripheralGroups[p.device_name] = group;
