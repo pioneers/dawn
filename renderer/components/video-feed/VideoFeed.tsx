@@ -1,31 +1,35 @@
 import React from 'react';
 import { keyboardButtons } from '../../consts/keyboard-buttons';
 import { TooltipButton } from '../TooltipButton';
-import { updateKeyboardBitmap } from '../../actions/EditorActions';
-import { Dispatch } from 'redux';
-import { connect } from 'react-redux';
-import { Panel } from 'react-bootstrap';
+import { Input, Source } from '../../../protos/protos';
+import { ipcRenderer } from 'electron';
 
-interface OwnProps {
-    onUpdateKeyboardBitmap: (keyboardBitmap: number) => void;
-}
-  
-type Props = OwnProps;
-  
 interface State {
     isKeyboardModeToggled: boolean;
     keyboardBitmap: number;
 }
 
-export class VideoFeedComponent extends React.Component<Props,State>{
+export class VideoFeed extends React.Component<{},State>{
     
-    constructor(props: Props) {
+    constructor(props = {}) {
         super(props);
         this.state = {
           isKeyboardModeToggled: false,
           keyboardBitmap: 0
         };
     }
+
+  sendToRuntime =() => {
+
+      const keyboard = new Input({
+        connected: true,
+        axes: [],
+        buttons: this.state.keyboardBitmap,
+        source: Source.KEYBOARD
+      });
+    
+      ipcRenderer.send('stateUpdate', [keyboard], Source.KEYBOARD);
+  }
 
   bitShiftLeft = (value: number, numPositions: number) => {
     return value * Math.pow(2, numPositions);
@@ -44,7 +48,6 @@ export class VideoFeedComponent extends React.Component<Props,State>{
       window.removeEventListener('keydown', this.turnCharacterOn);
       window.removeEventListener('keyup', this.turnCharacterOff);
       this.setState({ keyboardBitmap: 0 });
-      this.props.onUpdateKeyboardBitmap(this.state.keyboardBitmap);
     }
   };
 
@@ -67,7 +70,7 @@ export class VideoFeedComponent extends React.Component<Props,State>{
     }
 
     this.setState({ keyboardBitmap: newKeyboardBitmap });
-    this.props.onUpdateKeyboardBitmap(this.state.keyboardBitmap);
+    this.sendToRuntime();
   };
 
   turnCharacterOff = (e: KeyboardEvent) => {
@@ -80,7 +83,6 @@ export class VideoFeedComponent extends React.Component<Props,State>{
 
   render(){
     return (
-      <Panel bsStyle="primary">
         <TooltipButton
         id="toggleKeyboardControl"
         text="Toggle Keyboard Control Mode"
@@ -89,19 +91,7 @@ export class VideoFeedComponent extends React.Component<Props,State>{
         disabled={false}
         bsStyle={this.state.isKeyboardModeToggled ? 'info' : 'default'}
       />
-      </Panel>
     )
   }
 }
 
-const mapStateToProps = (state: ApplicationState) => ({
-  keyboardBitmap: state.editor.keyboardBitmap
-});
-
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  onUpdateKeyboardBitmap: (keyboardBitmap: number) => {
-    dispatch(updateKeyboardBitmap(keyboardBitmap));
-  }
-});
-
-export const VideoFeed = connect(mapStateToProps, mapDispatchToProps)(VideoFeedComponent);
