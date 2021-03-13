@@ -258,6 +258,22 @@ function formatGamepads(newGamepads: (Gamepad | null)[]): Input[] {
   return formattedGamepads;
 }
 
+/*
+ Send an update to Runtime indicating whether keyboard mode is on/off
+*/
+function* sendKeyboardConnectionStatus() {
+  const currEditorState = yield select(editorState);
+
+  const keyboardConnectionStatus = new Input({
+    connected: currEditorState.isKeyboardModeToggled,
+    axes: [],
+    buttons: 0,
+    source: Source.KEYBOARD
+  });
+
+  ipcRenderer.send('stateUpdate', [keyboardConnectionStatus], Source.KEYBOARD);
+}
+
 function* sendKeyboardInputs() {
   const currEditorState = yield select(editorState);
 
@@ -615,6 +631,7 @@ export default function* rootSaga() {
     takeEvery('TOGGLE_FIELD_CONTROL', handleFieldControl),
     takeEvery('TIMESTAMP_CHECK', timestampBounceback),
     takeEvery('UPDATE_KEYBOARD_BITMAP', sendKeyboardInputs),
+    takeEvery('UPDATE_IS_KEYBOARD_MODE_TOGGLED', sendKeyboardConnectionStatus),
     fork(runtimeHeartbeat),
     fork(runtimeGamepads),
     fork(runtimeSaga),
