@@ -1,13 +1,13 @@
 import React from "react";
 import PeripheralGraph from "./PeripheralGraph";
-import {PeripheralData, Peripheral} from '../data/testData';
+import { PeripheralData, Peripheral } from '../data/testData';
 
 interface Props {
   data: PeripheralData[]
 }
 
 export default function GraphView(props: Props) {
-const {data} = props;
+  const { data } = props;
 
   let peripheralGroups = {};
 
