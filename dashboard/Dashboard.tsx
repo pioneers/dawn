@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 // import './App.css';
-import GraphView from './GraphView/GraphView';
-import TableView from './TableView/TableView';
 import { /*Motor,*/ Sensor } from './data/testData';
 
 import { Grid, Row, Col } from 'react-bootstrap';
 import {PeripheralData} from './data/testData';
+import DataView from './data/SortPeripheralData';
 
 function Dashboard() {
   const [testData, setTestData] = useState<PeripheralData[]>(getData());
@@ -27,10 +26,10 @@ function Dashboard() {
       <Grid>
         <Row>
           <Col className="graphView">
-            <GraphView data={testData} />
+            <DataView data={testData} viewType={"Graph"}/>
           </Col>
           <Col className="tableView">
-            <TableView data={testData} />
+            <DataView data={testData} viewType ={"Table"}/>
           </Col>
         </Row>
       </Grid>

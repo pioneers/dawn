@@ -26,3 +26,8 @@ export default function TableView(props : Props) {
     </div>
   );
 }
+
+
+// ClassName = Whatever were creating 
+// Sort in seperate function, should return a peripheralGroup object
+// Create a new branch named dash-refactor
