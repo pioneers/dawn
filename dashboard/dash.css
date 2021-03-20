@@ -1,0 +1,11 @@
+.App {
+    width: 100vw;
+    height: 100vh;
+}
+
+.grid-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}

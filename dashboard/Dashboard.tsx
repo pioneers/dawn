@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-// import './App.css';
+import "./dash.css";
 import { /*Motor,*/ Sensor } from './data/testData';
 
 import { Grid, Row, Col } from 'react-bootstrap';
@@ -23,17 +23,19 @@ function Dashboard() {
 
   return (
     <div className="App">
-      <Grid>
-        <Row>
-          <Col className="graphView">
-            <DataView data={testData} viewType={"Graph"} />
-          </Col>
-          <Col className="tableView">
-            <DataView data={testData} viewType={"Table"} />
-          </Col>
-        </Row>
-      </Grid>
-    </div>
+      <div className="grid-wrapper">
+        <Grid>
+          <Row>
+            <Col xs={12} md={6} lg={6} className="graphView">
+              <DataView data={testData} viewType={"Graph"} />
+            </Col>
+            <Col xs={12} md={6} lg={6} className="tableView">
+              <DataView data={testData} viewType={"Table"} />
+            </Col>
+          </Row>
+        </Grid>
+      </div>
+     </div>
   );
 }
 
