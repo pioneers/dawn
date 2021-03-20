@@ -259,9 +259,22 @@ function formatGamepads(newGamepads: (Gamepad | null)[]): Input[] {
 }
 
 /*
- Send a packet to runtime telling them when keyboard is connected/disconnected
+ Send an update to Runtime indicating whether keyboard mode is on/off
 */
 function* sendKeyboardConnectionStatus() {
+  const currEditorState = yield select(editorState);
+
+  const keyboardConnectionStatus = new Input({
+    connected: currEditorState.isKeyboardModeToggled,
+    axes: [],
+    buttons: 0,
+    source: Source.KEYBOARD
+  });
+
+  ipcRenderer.send('stateUpdate', [keyboardConnectionStatus], Source.KEYBOARD);
+}
+
+function* sendKeyboardInputs() {
   const currEditorState = yield select(editorState);
 
   const keyboardConnected = new Input({
