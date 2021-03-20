@@ -289,8 +289,6 @@ export class Editor extends React.Component<Props, State> {
     } else {
       window.removeEventListener('keydown', this.turnCharacterOn);
       window.removeEventListener('keyup', this.turnCharacterOff);
-      // this.setState({ keyboardBitmap: 0 });
-      // this.props.onUpdateKeyboardBitmap(this.state.keyboardBitmap);
     }
   };
 
