@@ -276,19 +276,6 @@ function* sendKeyboardConnectionStatus() {
 
 function* sendKeyboardInputs() {
   const currEditorState = yield select(editorState);
-
-  const keyboardConnected = new Input({
-    connected: currEditorState.isKeyboardModeToggled,
-    axes: [],
-    buttons: 0,
-    source: Source.KEYBOARD
-  });
-
-  ipcRenderer.send('stateUpdate', [keyboardConnected], Source.KEYBOARD);
-}
-
-function* sendKeyboardInputs() {
-  const currEditorState = yield select(editorState);
   
   const keyboard = new Input({
     connected: true,
