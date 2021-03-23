@@ -39,12 +39,15 @@ class RendererBridge {
   }
 
   reduxDispatch = (action: any) => {
-    for (const key of Object.keys(this.registeredWindows)) {
-      const registeredWindow = this.registeredWindows[key];
-      registeredWindow?.webContents.send('dispatch', action);
+    try {
+      for (const key of Object.keys(this.registeredWindows)) {
+        const registeredWindow = this.registeredWindows[key];
+        registeredWindow?.webContents.send('dispatch', action);
+      }
+    } catch (e) {
+      console.log(e);
     }
   };
-  
 };
 
 export default new RendererBridge();
