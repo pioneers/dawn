@@ -4,23 +4,42 @@ import { keyboardButtons } from '../../consts/keyboard-buttons';
 import { TooltipButton } from '../TooltipButton';
 import { Input, Source } from '../../../protos/protos';
 import { ipcRenderer } from 'electron';
+import '../../../static/video-feed/video-feed.css';
 
 export const VideoFeed = () => {
   const [isKeyboardModeToggled, setIsKeyboardModeToggled] = useState(false);
   const [keyboardBitmap, setKeyboardBitmap] = useState(0);
 
   useEffect(() => {
-    const mainVideoFeedPlayer = OvenPlayer.create('main-video-feed', {
+    const driverVideoFeed = OvenPlayer.create('driver-video-feed', {
       sources: [
         {
           type: 'webRTC',
-          file: 'ws://161.35.224.231:3333/app/stream',
-          label: '480p'
+          file: 'ws://64.227.109.107:3333/driver/stream',
+          label: '720p'
         }
-      ]
+      ],
+      autoStart: true,
+      controls: false
     });
 
-    mainVideoFeedPlayer.on('error', (error: any) => {
+    const overheadVideoFeed = OvenPlayer.create('overhead-video-feed', {
+      sources: [
+        {
+          type: 'webRTC',
+          file: 'ws://64.227.109.107:3333/overhead/stream',
+          label: '720p'
+        }
+      ],
+      autoStart: true,
+      controls: false
+    });
+
+    overheadVideoFeed.on('error', (error: any) => {
+      console.log(error);
+    });
+
+    driverVideoFeed.on('error', (error: any) => {
       console.log(error);
     });
   }, []);
@@ -98,8 +117,12 @@ export const VideoFeed = () => {
         />
       </div>
 
-      {/* MainVideoFeedPlayer above will target the main-video-feed div id below */}
-      <div id="main-video-feed"></div>
+      <div className="container">
+        <div id="driver-video-feed"></div>
+        <div className="content">
+          <div id="overhead-video-feed"></div>
+        </div>
+      </div>
     </>
   );
 };
