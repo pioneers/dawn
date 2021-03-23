@@ -1,13 +1,29 @@
 import React, { useEffect, useState } from 'react';
+import OvenPlayer from 'ovenplayer';
 import { keyboardButtons } from '../../consts/keyboard-buttons';
 import { TooltipButton } from '../TooltipButton';
 import { Input, Source } from '../../../protos/protos';
 import { ipcRenderer } from 'electron';
-import OvenPlayer from 'OvenPlayer';
 
 export const VideoFeed = () => {
   const [isKeyboardModeToggled, setIsKeyboardModeToggled] = useState(false);
   const [keyboardBitmap, setKeyboardBitmap] = useState(0);
+
+  useEffect(() => {
+    const mainVideoFeedPlayer = OvenPlayer.create('main-video-feed', {
+      sources: [
+        {
+          type: 'webRTC',
+          file: 'ws://161.35.224.231:3333/app/stream',
+          label: '480p'
+        }
+      ]
+    });
+
+    mainVideoFeedPlayer.on('error', (error: any) => {
+      console.log(error);
+    });
+  }, []);
 
   const sendKeyboardInputsToRuntime = () => {
     const keyboard = new Input({
@@ -62,7 +78,6 @@ export const VideoFeed = () => {
   };
 
   const turnCharacterOff = (e: KeyboardEvent) => {
-    // NOT THE ACTION updateKeyboardBitmap. THIS IS A LOCAL FUNCTION
     updateKeyboardBitmap(e.key, false);
   };
 
@@ -70,29 +85,21 @@ export const VideoFeed = () => {
     updateKeyboardBitmap(e.key, true);
   };
 
-  useEffect(() => {
-    const player = OvenPlayer.create('player', {
-      sources: [
-        {
-          type: 'webRTC',
-          file: 'ws://161.35.224.231:3333/app/stream',
-          label: '480p'
-        }
-      ]
-    });
-    player.on('error', function (error: any) {
-      console.log(error);
-    });
-  }, []);
-
   return (
-    <TooltipButton
-      id="toggleKeyboardControl"
-      text="Toggle Keyboard Control Mode"
-      onClick={toggleKeyboardControl}
-      glyph="text-background"
-      disabled={false}
-      bsStyle={isKeyboardModeToggled ? 'info' : 'default'}
-    />
+    <>
+      <div id="header">
+        <TooltipButton
+          id="toggleKeyboardControl"
+          text="Toggle Keyboard Control Mode"
+          onClick={toggleKeyboardControl}
+          glyph="text-background"
+          disabled={false}
+          bsStyle={isKeyboardModeToggled ? 'info' : 'default'}
+        />
+      </div>
+
+      {/* MainVideoFeedPlayer above will target the main-video-feed div id below */}
+      <div id="main-video-feed"></div>
+    </>
   );
 };
