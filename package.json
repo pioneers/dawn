@@ -120,6 +120,7 @@
     "mousetrap": "1.6.1",
     "numeral": "2.0.6",
     "object-assign": "4.1.1",
+    "ovenplayer": "^0.10.0-alpha.1",
     "patch-package": "^6.2.2",
     "postinstall-postinstall": "^2.1.0",
     "prop-types": "15.6.0",

@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { keyboardButtons } from '../../consts/keyboard-buttons';
 import { TooltipButton } from '../TooltipButton';
 import { Input, Source } from '../../../protos/protos';
 import { ipcRenderer } from 'electron';
-import { ButtonGroup } from 'react-bootstrap';
+import OvenPlayer from 'OvenPlayer';
 
 export const VideoFeed = () => {
   const [isKeyboardModeToggled, setIsKeyboardModeToggled] = useState(false);
@@ -69,6 +69,21 @@ export const VideoFeed = () => {
   const turnCharacterOn = (e: KeyboardEvent) => {
     updateKeyboardBitmap(e.key, true);
   };
+
+  useEffect(() => {
+    const player = OvenPlayer.create('player', {
+      sources: [
+        {
+          type: 'webRTC',
+          file: 'ws://161.35.224.231:3333/app/stream',
+          label: '480p'
+        }
+      ]
+    });
+    player.on('error', function (error: any) {
+      console.log(error);
+    });
+  }, []);
 
   return (
     <TooltipButton
