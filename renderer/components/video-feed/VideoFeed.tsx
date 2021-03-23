@@ -4,6 +4,7 @@ import { TooltipButton } from '../TooltipButton';
 import { Input, Source } from '../../../protos/protos';
 import { ipcRenderer } from 'electron';
 import OvenPlayer from 'OvenPlayer';
+import { ButtonGroup, Form, FormGroup, Panel } from 'react-bootstrap';
 
 export const VideoFeed = () => {
   const [isKeyboardModeToggled, setIsKeyboardModeToggled] = useState(false);
@@ -56,7 +57,7 @@ export const VideoFeed = () => {
     } else if (isKeyPressed) {
       newKeyboardBitmap = (shiftHighBits | mapHighBits) * MAX_INT32_BITS + (shiftLowBits | mapLowBits);
     }
-
+    console.log(newKeyboardBitmap);
     setKeyboardBitmap(newKeyboardBitmap);
     sendKeyboardInputsToRuntime();
   };
@@ -86,13 +87,23 @@ export const VideoFeed = () => {
   }, []);
 
   return (
-    <TooltipButton
-      id="toggleKeyboardControl"
-      text="Toggle Keyboard Control Mode"
-      onClick={toggleKeyboardControl}
-      glyph="text-background"
-      disabled={false}
-      bsStyle={isKeyboardModeToggled ? 'info' : 'default'}
-    />
+      <Panel bsStyle="primary">
+        <Panel.Body>
+          <Form>
+            <ButtonGroup>
+            <FormGroup>
+              <TooltipButton
+                id="toggleKeyboardControl"
+                text="Toggle Keyboard Control Mode"
+                onClick={toggleKeyboardControl}
+                glyph="text-background"
+                disabled={false}
+                bsStyle={isKeyboardModeToggled ? 'info' : 'default'}
+              />
+            </FormGroup>
+            </ButtonGroup>
+          </Form>
+        </Panel.Body>
+      </Panel>
   );
 };
