@@ -1,14 +1,48 @@
 import React, { useEffect, useState } from 'react';
+import OvenPlayer from 'ovenplayer';
 import { keyboardButtons } from '../../consts/keyboard-buttons';
 import { TooltipButton } from '../TooltipButton';
 import { Input, Source } from '../../../protos/protos';
 import { ipcRenderer } from 'electron';
-import OvenPlayer from 'OvenPlayer';
-import { ButtonGroup, Form, FormGroup, Panel } from 'react-bootstrap';
+import '../../../static/video-feed/video-feed.css';
 
 export const VideoFeed = () => {
   const [isKeyboardModeToggled, setIsKeyboardModeToggled] = useState(false);
   const [keyboardBitmap, setKeyboardBitmap] = useState(0);
+
+  useEffect(() => {
+    const driverVideoFeed = OvenPlayer.create('driver-video-feed', {
+      sources: [
+        {
+          type: 'webRTC',
+          file: 'ws://64.227.109.107:3333/driver/stream',
+          label: '720p'
+        }
+      ],
+      autoStart: true,
+      controls: false
+    });
+
+    const overheadVideoFeed = OvenPlayer.create('overhead-video-feed', {
+      sources: [
+        {
+          type: 'webRTC',
+          file: 'ws://64.227.109.107:3333/overhead/stream',
+          label: '720p'
+        }
+      ],
+      autoStart: true,
+      controls: false
+    });
+
+    overheadVideoFeed.on('error', (error: any) => {
+      console.log(error);
+    });
+
+    driverVideoFeed.on('error', (error: any) => {
+      console.log(error);
+    });
+  }, []);
 
   const sendKeyboardInputsToRuntime = () => {
     const keyboard = new Input({
@@ -63,7 +97,6 @@ export const VideoFeed = () => {
   };
 
   const turnCharacterOff = (e: KeyboardEvent) => {
-    // NOT THE ACTION updateKeyboardBitmap. THIS IS A LOCAL FUNCTION
     updateKeyboardBitmap(e.key, false);
   };
 
@@ -71,39 +104,25 @@ export const VideoFeed = () => {
     updateKeyboardBitmap(e.key, true);
   };
 
-  useEffect(() => {
-    const player = OvenPlayer.create('player', {
-      sources: [
-        {
-          type: 'webRTC',
-          file: 'ws://161.35.224.231:3333/app/stream',
-          label: '480p'
-        }
-      ]
-    });
-    player.on('error', function (error: any) {
-      console.log(error);
-    });
-  }, []);
-
   return (
-      <Panel bsStyle="primary">
-        <Panel.Body>
-          <Form>
-            <ButtonGroup>
-            <FormGroup>
-              <TooltipButton
-                id="toggleKeyboardControl"
-                text="Toggle Keyboard Control Mode"
-                onClick={toggleKeyboardControl}
-                glyph="text-background"
-                disabled={false}
-                bsStyle={isKeyboardModeToggled ? 'info' : 'default'}
-              />
-            </FormGroup>
-            </ButtonGroup>
-          </Form>
-        </Panel.Body>
-      </Panel>
+    <>
+      <div id="header">
+        <TooltipButton
+          id="toggleKeyboardControl"
+          text="Toggle Keyboard Control Mode"
+          onClick={toggleKeyboardControl}
+          glyph="text-background"
+          disabled={false}
+          bsStyle={isKeyboardModeToggled ? 'info' : 'default'}
+        />
+      </div>
+
+      <div className="container">
+        <div id="driver-video-feed"></div>
+        <div className="content">
+          <div id="overhead-video-feed"></div>
+        </div>
+      </div>
+    </>
   );
 };

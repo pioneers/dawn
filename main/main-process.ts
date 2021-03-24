@@ -89,6 +89,7 @@ app.on('ready', () => {
       videoWindow.on('closed', () => {
         videoWindow = null;
       });
+      videoWindow.maximize();
       videoWindow.loadURL(`file://${__dirname}/../static/video-feed/video.html`);
       videoWindow.once('ready-to-show', () => {
         if (videoWindow) {
