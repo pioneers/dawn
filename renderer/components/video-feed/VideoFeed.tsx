@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import OvenPlayer from 'ovenplayer';
 import { keyboardButtons } from '../../consts/keyboard-buttons';
-import { TooltipButton } from '../TooltipButton';
 import { Input, Source } from '../../../protos/protos';
 import { ipcRenderer } from 'electron';
+
 import '../../../static/video-feed/video-feed.css';
 import { ShepherdOverlay } from './ShepherdOverlay';
 
@@ -54,7 +54,7 @@ export const VideoFeed = () => {
       buttons: 0,
       source: Source.KEYBOARD
     });
-  
+
     ipcRenderer.send('stateUpdate', [keyboardConnectionStatus], Source.KEYBOARD);
   }, [isKeyboardModeToggled]);
 
@@ -105,7 +105,6 @@ export const VideoFeed = () => {
     } else if (isKeyPressed) {
       newKeyboardBitmap = (shiftHighBits | mapHighBits) * MAX_INT32_BITS + (shiftLowBits | mapLowBits);
     }
-
     setKeyboardBitmap(newKeyboardBitmap);
     sendKeyboardInputsToRuntime(newKeyboardBitmap);
   };
@@ -126,15 +125,17 @@ export const VideoFeed = () => {
   return (
     <>
       <div id="header">
-        <TooltipButton
+        <Button
           id="toggleKeyboardControl"
-          text="Toggle Keyboard Control Mode"
           onClick={toggleKeyboardControl}
-          glyph="text-background"
           disabled={false}
           bsStyle={isKeyboardModeToggled ? 'info' : 'default'}
-        />
-        <Button onClick={() => setShouldShowScoreboard(!shouldShowScoreboard)} bsStyle={shouldShowScoreboard ? 'info' : 'default'}/>
+        >
+          Toggle Keyboard Control Mode
+        </Button>
+        <Button onClick={() => setShouldShowScoreboard(!shouldShowScoreboard)} bsStyle={shouldShowScoreboard ? 'info' : 'default'}>
+          Toggle Overlay  
+        </Button>
       </div>
 
       <div className="video-feed-container">
