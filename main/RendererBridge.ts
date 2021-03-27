@@ -48,6 +48,15 @@ class RendererBridge {
       console.log(e);
     }
   };
+
+  dispatchToWindow = (windowKey: string, channel: string, data: any) => {
+    try {
+      if (windowKey in this.registeredWindows) {
+        const registeredWindow = this.registeredWindows[windowKey];
+        registeredWindow?.webContents.send(channel, data);
+      }
+    } catch (e) {}
+  }
 };
 
 export default new RendererBridge();

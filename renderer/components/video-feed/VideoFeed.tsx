@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
+import { Button } from 'react-bootstrap';
 import OvenPlayer from 'ovenplayer';
 import { keyboardButtons } from '../../consts/keyboard-buttons';
 import { TooltipButton } from '../TooltipButton';
 import { Input, Source } from '../../../protos/protos';
 import { ipcRenderer } from 'electron';
 import '../../../static/video-feed/video-feed.css';
+import { ShepherdOverlay } from './ShepherdOverlay';
 
 export const VideoFeed = () => {
   const [isKeyboardModeToggled, setIsKeyboardModeToggled] = useState(false);
   const [keyboardBitmap, setKeyboardBitmap] = useState(0);
+  const [shouldShowScoreboard, setShouldShowScoreboard] = useState(true);
 
   useEffect(() => {
     const driverVideoFeed = OvenPlayer.create('driver-video-feed', {
@@ -27,7 +30,7 @@ export const VideoFeed = () => {
       sources: [
         {
           type: 'webRTC',
-          file: 'ws://64.227.109.107:3333/overhead/stream',
+          file: 'ws://161.35.224.231:3333/overhead/stream',
           label: '720p'
         }
       ],
@@ -44,7 +47,18 @@ export const VideoFeed = () => {
     });
   }, []);
 
-  const sendKeyboardInputsToRuntime = () => {
+  useEffect(() => {
+    const keyboardConnectionStatus = new Input({
+      connected: isKeyboardModeToggled,
+      axes: [],
+      buttons: 0,
+      source: Source.KEYBOARD
+    });
+  
+    ipcRenderer.send('stateUpdate', [keyboardConnectionStatus], Source.KEYBOARD);
+  }, [isKeyboardModeToggled]);
+
+  const sendKeyboardInputsToRuntime = (keyboardBitmap: number) => {
     const keyboard = new Input({
       connected: true,
       axes: [],
@@ -93,7 +107,7 @@ export const VideoFeed = () => {
     }
 
     setKeyboardBitmap(newKeyboardBitmap);
-    sendKeyboardInputsToRuntime();
+    sendKeyboardInputsToRuntime(newKeyboardBitmap);
   };
 
   const turnCharacterOff = (e: KeyboardEvent) => {
@@ -101,7 +115,12 @@ export const VideoFeed = () => {
   };
 
   const turnCharacterOn = (e: KeyboardEvent) => {
-    updateKeyboardBitmap(e.key, true);
+    // Handle special ctrl + q edge case
+    if (e.ctrlKey && e.key === 'q') {
+      setIsKeyboardModeToggled(false);
+    } else {
+      updateKeyboardBitmap(e.key, true);
+    }
   };
 
   return (
@@ -115,13 +134,15 @@ export const VideoFeed = () => {
           disabled={false}
           bsStyle={isKeyboardModeToggled ? 'info' : 'default'}
         />
+        <Button onClick={() => setShouldShowScoreboard(!shouldShowScoreboard)} bsStyle={shouldShowScoreboard ? 'info' : 'default'}/>
       </div>
 
-      <div className="container">
+      <div className="video-feed-container">
         <div id="driver-video-feed"></div>
-        <div className="content">
-          <div id="overhead-video-feed"></div>
-        </div>
+        <div id="overhead-video-feed"></div>
+      </div>
+      <div className="content">
+        {shouldShowScoreboard ? ShepherdOverlay() : null}
       </div>
     </>
   );

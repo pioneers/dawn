@@ -7,6 +7,10 @@ const modules = {
       use: ['style-loader', 'css-loader'],
     },
     {
+      test: /\.html$/i,
+      loader: 'html-loader'
+    },
+    {
       test: /\.(png|jpe?g|gif)$/i,
       use: ['file-loader'],
     },
@@ -15,15 +19,15 @@ const modules = {
       exclude: /node_modules/,
       use: [{ loader: 'ts-loader' }]
     },
-    {
-      test: /\.js$/,
-      exclude: [/node_modules/, /protos/],
-      enforce: 'pre',
-      loader: 'eslint-loader',
-      options: {
-        formatter: require('eslint/lib/cli-engine/formatters/stylish')
-      },
-    },
+    // {
+    //   test: /\.js$/,
+    //   exclude: [/node_modules/, /protos/],
+    //   enforce: 'pre',
+    //   loader: 'eslint-loader',
+    //   options: {
+    //     formatter: require('eslint/lib/cli-engine/formatters/stylish')
+    //   },
+    // },
     {
       test: /\.js$/,
       exclude: /node_modules/,

@@ -319,7 +319,12 @@ export class Editor extends React.Component<Props, State> {
     this.updateKeyboardBitmap(e.key, false);
   }
   turnCharacterOn = (e: KeyboardEvent) => {
-    this.updateKeyboardBitmap(e.key, true)
+    // Handle special ctrl + q edge case
+    if (e.ctrlKey && e.key === 'q') {
+      this.setState({ isKeyboardModeToggled: false});
+    } else {
+      this.updateKeyboardBitmap(e.key, true);
+    }
   }
 
   upload = () => {

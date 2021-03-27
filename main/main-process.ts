@@ -91,7 +91,9 @@ app.on('ready', () => {
       });
       videoWindow.maximize();
       videoWindow.loadURL(`file://${__dirname}/../static/video-feed/video.html`);
-      videoWindow.once('ready-to-show', () => {
+      videoWindow.webContents.on('dom-ready', () => RendererBridge.dispatchToWindow('videofeed', 'shepherdScoreboardServerIpAddress', FCObject.bridgeAddress))
+      // setTimeout(() => RendererBridge.windowDispatch('videofeed', 'shepherdScoreboardServerIpAddress', FCObject.bridgeAddress), 3000)
+      videoWindow.on('ready-to-show', () => {
         if (videoWindow) {
           videoWindow.show();
         }

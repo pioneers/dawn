@@ -1,0 +1,102 @@
+body {
+    /* background-color: rgb(0, 0, 225); */
+    background-size: cover;
+    height: 100vh;
+    width: 100%;
+}
+
+
+p {
+    padding-left: 5px;
+}
+
+.outer-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+}
+
+.container {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: stretch;
+    flex-direction: row;
+    padding: 10px;
+    height: calc(20vh);
+}
+
+.total-container {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: stretch;
+    flex-direction: row;
+    padding: 10px;
+    height: calc(25vh);
+}
+
+#stagename-container {
+    height: calc(10vh);
+}
+
+.robotinfo, .time, .penalty, .stamps {
+    margin: 20px;
+    border: solid black;
+    background-color: white;
+    border-radius: 25px;
+    text-align: center;
+    font-family: "Comic Sans MS", "Comic Sans", cursive;
+    font-size: 200%;
+}
+
+.totalinfo {
+    margin: 15px;
+    border: solid black;
+    background-color: white;
+    border-radius: 25px;
+    text-align: center;
+    font-family: "Comic Sans MS", "Comic Sans", cursive;
+    width: calc(40vh);
+    visibility: visible;
+    font-size: 200%
+}
+
+#total {
+    visibility: visible;
+    font-size: 200%
+}
+
+
+.stagename {
+    height: calc(10vh);
+    width: calc(45vh)
+}
+
+.time, .penalty, .stamps {
+    flex-direction: column;
+    vertical-align: top;
+    flex-grow: 1;
+    flex-wrap: wrap;
+}
+
+.robotinfo {
+    flex-grow: 2;
+}
+
+.time {
+    color: black;
+}
+
+.penalty {
+    color: red;
+}
+
+.stamps {
+    color: green;
+}
+
+mark.black {
+    color: black;
+    background: none;
+}
