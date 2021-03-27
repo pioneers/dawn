@@ -57,3 +57,7 @@ export const updateIsKeyboardModeToggled: EditorActions['updateIsKeyboardModeTog
   type: consts.EditorActionsTypes.UPDATE_IS_KEYBOARD_MODE_TOGGLED,
   isKeyboardToggled
 });
+
+export const getLatencyRequest: EditorActions['getLatencyRequest'] = () => ({
+  type: consts.EditorActionsTypes.GET_LATENCY_BUTTON_PRESSED
+});

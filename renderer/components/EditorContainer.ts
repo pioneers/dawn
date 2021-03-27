@@ -9,7 +9,8 @@ import {
   downloadCode,
   uploadCode,
   updateKeyboardBitmap,
-  updateIsKeyboardModeToggled
+  updateIsKeyboardModeToggled,
+  getLatencyRequest
 } from '../actions/EditorActions';
 import { changeTheme, changeFontSize } from '../actions/SettingsActions';
 import { toggleConsole, clearConsole } from '../actions/ConsoleActions';
@@ -31,7 +32,8 @@ const mapStateToProps = (state: ApplicationState) => ({
   fieldControlActivity: state.info.fieldControlActivity,
   disableScroll: state.console.disableScroll,
   consoleUnread: state.console.consoleUnread,
-  keyboardBitmap: state.editor.keyboardBitmap
+  keyboardBitmap: state.editor.keyboardBitmap,
+  latencyValue: state.editor.latencyValue
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
@@ -82,7 +84,12 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   },
   onUpdateKeyboardModeToggle: (isKeyboardToggled: boolean) => {
     dispatch(updateIsKeyboardModeToggled(isKeyboardToggled));
+  },
+  onGetLatencyRequest: () => {
+    dispatch(getLatencyRequest())
   }
+
+
 });
 
 export const EditorContainer = connect(mapStateToProps, mapDispatchToProps)(Editor);
