@@ -9,6 +9,7 @@ import { runtimeDisconnect, infoPerMessage } from '../../renderer/actions/InfoAc
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { Logger, defaults } from '../../renderer/utils/utils';
 import { Peripheral } from '../../renderer/types';
+import { setLatencyValue } from '../../renderer/actions/EditorActions';
 
 /**
  * Define port constants, which must match with Runtime
@@ -32,7 +33,9 @@ enum MsgType {
   LOG = 3,
   DEVICE_DATA = 4,
   // 5 reserved for some Shepherd msg type
-  INPUTS = 6
+  INPUTS = 6,
+  TIME_STAMPS = 7
+  
 }
 
 interface TCPPacket {
@@ -118,6 +121,9 @@ function createPacket(payload: unknown, messageType: MsgType): Buffer {
       break;
     case MsgType.START_POS:
       encodedPayload = protos.StartPos.encode(payload as protos.IStartPos).finish();
+      break;
+    case MsgType.TIME_STAMPS:
+      encodedPayload = protos.TimeStamps.encode(payload as protos.ITimeStamps).finish();
       break;
     case MsgType.CHALLENGE_DATA:
       encodedPayload = protos.Text.encode(payload as protos.IText).finish();
@@ -282,11 +288,16 @@ class TCPConn {
       const { leftoverBytes, processedTCPPackets } = readPackets(data, this.leftoverBytes);
 
       for (const packet of processedTCPPackets) {
-        const decoded = protos.Text.decode(packet.payload);
-
+        let decoded;
         switch (packet.type) {
           case MsgType.LOG:
+            decoded = protos.Text.decode(packet.payload);
             RendererBridge.reduxDispatch(updateConsole(decoded.payload));
+            break;
+          case MsgType.TIME_STAMPS:
+            decoded = protos.TimeStamps.decode(packet.payload);
+            const latency: number = Number(decoded.runtimeTimestamp) - Number(decoded.dawnTimestamp);
+            RendererBridge.reduxDispatch(setLatencyValue(latency))
             break;
           case MsgType.CHALLENGE_DATA:
             // TODO: Dispatch challenge outputs to redux
@@ -302,6 +313,25 @@ class TCPConn {
      */
     ipcMain.on('runModeUpdate', this.sendRunMode);
     ipcMain.on('ipAddress', this.ipAddressListener);
+    ipcMain.on('latencyRequest', this.sendFirstTimestamp);
+  }
+
+
+  /**
+   * 
+   * Send the first time stamp data to runtime
+   * 
+   */
+  sendFirstTimestamp = (_event: IpcMainEvent, data: protos.TimeStamps) => {
+    if (this.socket.pending) {
+      return;
+    }
+    
+    const message = createPacket(data, MsgType.TIME_STAMPS);
+    this.socket.write(message, () => {
+      this.logger.log((`Sent timestamp data to runtime: ${JSON.stringify(data)}` ))
+    })
+
   }
 
   /**
@@ -376,6 +406,7 @@ class TCPConn {
     this.socket.end();
     ipcMain.removeListener('runModeUpdate', this.sendRunMode);
     ipcMain.removeListener('ipAddress', this.ipAddressListener);
+    ipcMain.removeListener('latencyRequest', this.sendFirstTimestamp);
   };
 }
 

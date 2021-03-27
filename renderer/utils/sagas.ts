@@ -264,7 +264,7 @@ function* sendLatencyRequest() {
     dawnTimestamp: time
   });
 
-  ipcRenderer.send('latencyRequest', [getLatency]);
+  ipcRenderer.send('latencyRequest', getLatency);
   
 }
 /*

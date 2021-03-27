@@ -740,7 +740,7 @@ export class Editor extends React.Component<Props, State> {
               />
             <FormControl
                 type="number"
-                value={0}
+                value={this.state.latencyValue}
                 bsSize="small"              
                 style={{ width: 32, padding: 6 }}
                 disabled={true}

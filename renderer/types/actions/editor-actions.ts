@@ -61,6 +61,11 @@ export interface GetLatencyRequest {
   type: consts.EditorActionsTypes.GET_LATENCY_BUTTON_PRESSED;
 }
 
+export interface SetLatencyValue {
+  type: consts.EditorActionsTypes.SET_LATENCY_VALUE;
+  latencyValue: number;
+}
+
 export interface EditorActions {
   editorUpdate: (newVal: string) => EditorUpdateAction;
 
@@ -87,4 +92,6 @@ export interface EditorActions {
   updateIsKeyboardModeToggled: (isKeyboardToggled: boolean) => UpdateIsKeyboardModeToggledAction;
 
   getLatencyRequest: () => GetLatencyRequest;
+
+  setLatencyValue: (latencyValue: number) => SetLatencyValue;
 }

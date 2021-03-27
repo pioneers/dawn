@@ -10,7 +10,8 @@ import {
   uploadCode,
   updateKeyboardBitmap,
   updateIsKeyboardModeToggled,
-  getLatencyRequest
+  getLatencyRequest,
+  setLatencyValue
 } from '../actions/EditorActions';
 import { changeTheme, changeFontSize } from '../actions/SettingsActions';
 import { toggleConsole, clearConsole } from '../actions/ConsoleActions';
@@ -87,8 +88,10 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   },
   onGetLatencyRequest: () => {
     dispatch(getLatencyRequest())
+  },
+  onSetLatencyValue: (latencyValue: number) => {
+    dispatch(setLatencyValue(latencyValue))
   }
-
 
 });
 

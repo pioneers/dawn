@@ -15,7 +15,8 @@ import {
   UploadCodeAction,
   UpdateIsKeyboardModeToggledAction,
   UpdateKeyboardBitmapAction,
-  GetLatencyRequest
+  GetLatencyRequest,
+  SetLatencyValue
 } from '../types';
 
 type Actions =
@@ -31,7 +32,8 @@ type Actions =
   | UploadCodeAction
   | UpdateIsKeyboardModeToggledAction
   | UpdateKeyboardBitmapAction
-  | GetLatencyRequest;
+  | GetLatencyRequest
+  | SetLatencyValue;
 
 interface EditorState {
   latencyValue: number;
@@ -75,6 +77,11 @@ export const editor = (state: EditorState = defaultEditorState, action: Actions)
       return {
         ...state,
         keyboardBitmap: action.keyboardBitmap,
+      };
+    case consts.EditorActionsTypes.SET_LATENCY_VALUE:
+      return {
+        ...state,
+        latencyValue: action.latencyValue,
       };
     case consts.EditorActionsTypes.UPDATE_IS_KEYBOARD_MODE_TOGGLED:
       return {
