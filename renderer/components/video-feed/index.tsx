@@ -4,5 +4,5 @@ import { VideoFeed } from './VideoFeed';
 
 ReactDOM.render(
     <VideoFeed/>,
-    document.getElementById("Videofeed-react")
+    document.getElementById("video-feed-window")
 );
