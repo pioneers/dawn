@@ -204,12 +204,18 @@ export const ConfigBoxComponent = (props: Props) => {
             <FormControl.Feedback />
           </FormGroup>
 
+          {defaults.NGROK ? <FormGroup controlId="fcAddress" validationState={getValidationState(fcAddress)}>
+            <ControlLabel>Overlay URL</ControlLabel>
+            <FormControl type="text" value={fcAddress} placeholder="https://92309a8s09.ngrok.io" onChange={handleFcChange} />
+            <FormControl.Feedback />
+          </FormGroup> : null}
+
           <p>Field Control Settings</p>
-          <FormGroup controlId="fcAddress" validationState={getValidationState(fcAddress)}>
+          {!defaults.NGROK ? <FormGroup controlId="fcAddress" validationState={getValidationState(fcAddress)}>
             <ControlLabel>Field Control IP Address</ControlLabel>
             <FormControl type="text" value={fcAddress} placeholder="i.e. 192.168.100.13" onChange={handleFcChange} />
             <FormControl.Feedback />
-          </FormGroup>
+          </FormGroup> : null}
 
           <FormGroup controlId="stationNumber" validationState={stationNumber >= 0 && stationNumber <= 4 ? 'success' : 'error'}>
             <ControlLabel>Field Control Station Number</ControlLabel>
