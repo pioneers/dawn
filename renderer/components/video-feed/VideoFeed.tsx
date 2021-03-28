@@ -30,7 +30,7 @@ export const VideoFeed = () => {
       sources: [
         {
           type: 'webRTC',
-          file: 'ws://161.35.224.231:3333/overhead/stream',
+          file: 'ws://64.227.109.107:3333/overhead/stream',
           label: '720p'
         }
       ],
@@ -130,6 +130,7 @@ export const VideoFeed = () => {
           onClick={toggleKeyboardControl}
           disabled={false}
           bsStyle={isKeyboardModeToggled ? 'info' : 'default'}
+          style={{ marginRight: '10px' }}
         >
           Toggle Keyboard Control Mode
         </Button>
@@ -140,9 +141,12 @@ export const VideoFeed = () => {
 
       <div className="video-feed-container">
         <div id="driver-video-feed"></div>
-        <div id="overhead-video-feed"></div>
+        <div className="overhead-video-feed-container">
+          <div id="overhead-video-feed"></div>
+        </div>
       </div>
-      <div className="content">
+
+      <div id="shepherd-overlay">
         {shouldShowScoreboard ? ShepherdOverlay() : null}
       </div>
     </>
