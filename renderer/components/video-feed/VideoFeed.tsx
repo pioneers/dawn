@@ -141,9 +141,7 @@ export const VideoFeed = () => {
 
       <div className="video-feed-container">
         <div id="driver-video-feed"></div>
-        <div className="overhead-video-feed-container">
-          <div id="overhead-video-feed"></div>
-        </div>
+        <div id="overhead-video-feed"></div>
       </div>
 
       <div id="shepherd-overlay">
