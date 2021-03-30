@@ -11,7 +11,7 @@ import { ShepherdOverlay } from './ShepherdOverlay';
 export const VideoFeed = () => {
   const [isKeyboardModeToggled, setIsKeyboardModeToggled] = useState(false);
   const [keyboardBitmap, setKeyboardBitmap] = useState(0);
-  const [shouldShowScoreboard, setShouldShowScoreboard] = useState(true);
+  // const [shouldShowScoreboard, setShouldShowScoreboard] = useState(true);
 
   useEffect(() => {
     const driverVideoFeed = OvenPlayer.create('driver-video-feed', {
@@ -124,7 +124,17 @@ export const VideoFeed = () => {
 
   return (
     <>
-      <div id="header">
+      <div className="video-feed-container">
+        <div id="driver-video-feed"></div>
+        <div id="overhead-video-feed"></div>
+      </div>
+
+      <div id="shepherd-overlay">
+        {/* {shouldShowScoreboard ? ShepherdOverlay() : null} */}
+        {ShepherdOverlay()}
+      </div>
+
+      <div id="footer">
         <Button
           id="toggleKeyboardControl"
           onClick={toggleKeyboardControl}
@@ -134,18 +144,9 @@ export const VideoFeed = () => {
         >
           Toggle Keyboard Control Mode
         </Button>
-        <Button onClick={() => setShouldShowScoreboard(!shouldShowScoreboard)} bsStyle={shouldShowScoreboard ? 'info' : 'default'}>
+        {/* <Button onClick={() => setShouldShowScoreboard(!shouldShowScoreboard)} bsStyle={shouldShowScoreboard ? 'info' : 'default'} style={{ zIndex: 100 }}>
           Toggle Overlay  
-        </Button>
-      </div>
-
-      <div className="video-feed-container">
-        <div id="driver-video-feed"></div>
-        <div id="overhead-video-feed"></div>
-      </div>
-
-      <div id="shepherd-overlay">
-        {shouldShowScoreboard ? ShepherdOverlay() : null}
+        </Button> */}
       </div>
     </>
   );

@@ -9,7 +9,7 @@ p {
     padding-left: 5px;
 }
 
-.shepherd-outer-container {
+.scoreboard-outer-container {
     position: absolute;
     top: 0;
     right: 0;
@@ -17,7 +17,7 @@ p {
     height: 100%;
 }
 
-.shepherd-container {
+.scoreboard-container {
     display: flex;
     justify-content: space-evenly;
     align-items: stretch;
