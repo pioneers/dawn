@@ -318,10 +318,11 @@ export class Editor extends React.Component<Props, State> {
     // NOT THE ACTION updateKeyboardBitmap. THIS IS A LOCAL FUNCTION
     this.updateKeyboardBitmap(e.key, false);
   }
+
   turnCharacterOn = (e: KeyboardEvent) => {
     // Handle special ctrl + q edge case
     if (e.ctrlKey && e.key === 'q') {
-      this.setState({ isKeyboardModeToggled: false});
+      this.props.onUpdateKeyboardModeToggle(false);
     } else {
       this.updateKeyboardBitmap(e.key, true);
     }

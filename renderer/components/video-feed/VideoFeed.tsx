@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import OvenPlayer from 'ovenplayer';
 import { keyboardButtons } from '../../consts/keyboard-buttons';
@@ -10,8 +10,11 @@ import { ShepherdOverlay } from './ShepherdOverlay';
 
 export const VideoFeed = () => {
   const [isKeyboardModeToggled, setIsKeyboardModeToggled] = useState(false);
-  const [keyboardBitmap, setKeyboardBitmap] = useState(0);
   // const [shouldShowScoreboard, setShouldShowScoreboard] = useState(true);
+
+  const [keyboardBitmap, setKeyboardBitmap] = useState(0);
+  const keyboardBitmapRef = useRef(0);
+  keyboardBitmapRef.current = keyboardBitmap;
 
   useEffect(() => {
     const driverVideoFeed = OvenPlayer.create('driver-video-feed', {
@@ -58,11 +61,11 @@ export const VideoFeed = () => {
     ipcRenderer.send('stateUpdate', [keyboardConnectionStatus], Source.KEYBOARD);
   }, [isKeyboardModeToggled]);
 
-  const sendKeyboardInputsToRuntime = (keyboardBitmap: number) => {
+  const sendKeyboardInputsToRuntime = (keyboardBitmap_: number) => {
     const keyboard = new Input({
       connected: true,
       axes: [],
-      buttons: keyboardBitmap,
+      buttons: keyboardBitmap_,
       source: Source.KEYBOARD
     });
 
@@ -90,7 +93,7 @@ export const VideoFeed = () => {
 
   const updateKeyboardBitmap = (currentCharacter: string, isKeyPressed: boolean) => {
     const keyboardNum = keyboardButtons[currentCharacter];
-    let newKeyboardBitmap: number = keyboardBitmap;
+    let newKeyboardBitmap: number = keyboardBitmapRef.current;
 
     const shift = bitShiftLeft(1, keyboardNum);
     const MAX_INT32_BITS = 2147483648; // 2^31
