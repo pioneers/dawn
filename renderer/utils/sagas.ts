@@ -257,7 +257,8 @@ function formatGamepads(newGamepads: (Gamepad | null)[]): Input[] {
   });
   return formattedGamepads;
 }
-function* sendLatencyRequest() {
+
+function sendLatencyRequest() {
 
   while (true){
     const time: number = Date.now()
@@ -269,7 +270,7 @@ function* sendLatencyRequest() {
 
     ipcRenderer.send('latencyRequest', getLatency);
 
-    yield delay(1000);
+    yield delay(7000);
   }
   
 }
@@ -647,10 +648,10 @@ export default function* rootSaga() {
     takeEvery('TIMESTAMP_CHECK', timestampBounceback),
     takeEvery('UPDATE_KEYBOARD_BITMAP', sendKeyboardInputs),
     takeEvery('UPDATE_IS_KEYBOARD_MODE_TOGGLED', sendKeyboardConnectionStatus),
-    takeEvery('GET_LATENCY_BUTTON_PRESSED', sendLatencyRequest),
     fork(runtimeHeartbeat),
     fork(runtimeGamepads),
     fork(runtimeSaga),
+    fork(sendLatencyRequest)
   ]);
 }
 

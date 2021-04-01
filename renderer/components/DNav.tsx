@@ -48,9 +48,9 @@ const DNavComponent = (props: Props) => {
   };
 
   const handleColor = (latency : number) => {
-    if (latency < 130) {
+    if (latency < 200) {
       return "success"
-    } else if (latency > 130 && latency < 200) {
+    } else if (latency > 200 && latency < 300) {
       return "warning"
     } else {
       return "danger"
