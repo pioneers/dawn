@@ -258,7 +258,7 @@ function formatGamepads(newGamepads: (Gamepad | null)[]): Input[] {
   return formattedGamepads;
 }
 
-function sendLatencyRequest() {
+function* sendLatencyRequest() {
 
   while (true){
     const time: number = Date.now()
