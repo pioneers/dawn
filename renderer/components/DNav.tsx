@@ -47,6 +47,16 @@ const DNavComponent = (props: Props) => {
     return `Dawn v${VERSION}`;
   };
 
+  const handleColor = (latency : number) => {
+    if (latency < 130) {
+      return "success"
+    } else if (latency > 130 && latency < 200) {
+      return "warning"
+    } else {
+      return "danger"
+    }
+  }
+
   const {
     connectionStatus,
     runtimeStatus,
@@ -99,7 +109,7 @@ const DNavComponent = (props: Props) => {
           />
         </Navbar.Text>
         <Navbar.Text id="Latency">
-          <Label bsStyle="info">{`Latency: ${props.latencyValue}`}</Label>
+          <Label bsStyle={handleColor(props.latencyValue)}>{`Latency: ${props.latencyValue}`}</Label>
         </Navbar.Text>
         <Navbar.Form pullRight>
           <ButtonToolbar>

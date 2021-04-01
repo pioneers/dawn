@@ -258,14 +258,19 @@ function formatGamepads(newGamepads: (Gamepad | null)[]): Input[] {
   return formattedGamepads;
 }
 function* sendLatencyRequest() {
-  const time: number = Date.now()
-  console.log(time);
-  const getLatency = new TimeStamps({
-    dawnTimestamp: time,
-    runtimeTimestamp: 0
-  });
 
-  ipcRenderer.send('latencyRequest', getLatency);
+  while (true){
+    const time: number = Date.now()
+    console.log(time);
+    const getLatency = new TimeStamps({
+      dawnTimestamp: time,
+      runtimeTimestamp: 0
+    });
+
+    ipcRenderer.send('latencyRequest', getLatency);
+
+    yield delay(1000);
+  }
   
 }
 /*
