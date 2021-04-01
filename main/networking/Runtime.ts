@@ -286,10 +286,10 @@ class TCPConn {
      */
     this.socket.on('data', (data) => {
       const { leftoverBytes, processedTCPPackets } = readPackets(data, this.leftoverBytes);
-      console.log("Before the for loop")
+      
       for (const packet of processedTCPPackets) {
         let decoded;
-        console.log("packet type: ", packet.type)
+        
         switch (packet.type) {
           case MsgType.LOG:
             decoded = protos.Text.decode(packet.payload);
@@ -297,8 +297,9 @@ class TCPConn {
             break;
           case MsgType.TIME_STAMPS:
             decoded = protos.TimeStamps.decode(packet.payload);
-            console.log("decoded payload: ", decoded)
+            
             const latency: number = Number(decoded.runtimeTimestamp) - Number(decoded.dawnTimestamp);
+            
             RendererBridge.reduxDispatch(setLatencyValue(latency))
             break;
           case MsgType.CHALLENGE_DATA:
@@ -324,9 +325,9 @@ class TCPConn {
    * Send the first time stamp data to runtime
    * 
    */
-  sendFirstTimestamp = (_event: IpcMainEvent, data: protos.TimeStamps) => {
+  sendFirstTimestamp = (_event: IpcMainEvent, data: protos.ITimeStamps) => {
     
-    console.log("about to send timestamp to runtime");
+    
     if (this.socket.pending) {
       return;
     }

@@ -53,6 +53,7 @@ interface StateProps {
   fieldControlActivity: boolean;
   disableScroll: boolean;
   consoleUnread: boolean;
+  latencyValue: number;
 }
 
 interface OwnProps {
@@ -86,7 +87,6 @@ interface State {
   fontsize?: number;
   isKeyboardModeToggled: boolean;
   keyboardBitmap: number;
-  latencyValue: number;
 }
 
 export class Editor extends React.Component<Props, State> {
@@ -132,7 +132,6 @@ export class Editor extends React.Component<Props, State> {
       simulate: false,
       isKeyboardModeToggled: false,
       keyboardBitmap: 0,
-      latencyValue: 0
     };
   }
 
@@ -740,9 +739,9 @@ export class Editor extends React.Component<Props, State> {
               />
             <FormControl
                 type="number"
-                value={this.state.latencyValue}
+                value={this.props.latencyValue}
                 bsSize="small"              
-                style={{ width: 32, padding: 6 }}
+                style={{ width: 48, padding: 6 }}
                 disabled={true}
               />
             </FormGroup>

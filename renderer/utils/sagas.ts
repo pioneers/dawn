@@ -261,7 +261,8 @@ function* sendLatencyRequest() {
   const time: number = Date.now()
   console.log(time);
   const getLatency = new TimeStamps({
-    dawnTimestamp: time
+    dawnTimestamp: time,
+    runtimeTimestamp: 0
   });
 
   ipcRenderer.send('latencyRequest', getLatency);
