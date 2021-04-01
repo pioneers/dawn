@@ -270,7 +270,7 @@ function* sendLatencyRequest() {
 
     ipcRenderer.send('latencyRequest', getLatency);
 
-    yield delay(7000);
+    yield delay(5000);
   }
   
 }
