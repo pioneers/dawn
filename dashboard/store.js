@@ -6,3 +6,4 @@ let enhancer = electronEnhanncer({
 });
 
 const store = createStore(reducer, initialState, enhancer);
+export default store;

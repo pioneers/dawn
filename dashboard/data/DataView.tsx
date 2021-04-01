@@ -9,6 +9,9 @@ interface Props {
 }
 export default function DataView(props: Props) {
   const { data, viewType } = props;
+  let viewComponent = (
+      <p>Error</p>
+  );
 
   let peripheralGroups = {};
   data.forEach((p: Peripheral) => {
@@ -17,7 +20,7 @@ export default function DataView(props: Props) {
     peripheralGroups[p.device_name] = group;
   });
   if (viewType == "Graph") {
-    return (
+    viewComponent = (
       <div className="graph-view">
         {Object.keys(peripheralGroups).map((deviceName, i) => (
           <PeripheralGraph
@@ -28,11 +31,8 @@ export default function DataView(props: Props) {
         ))}
       </div>
     );
-  }
-
-
-  else {
-    return (
+  } else if (viewType == "Table") {
+    viewComponent = (
       <div className="table-view">
         {Object.keys(peripheralGroups).map((deviceName, i) => (
           <PeripheralTable
@@ -45,4 +45,5 @@ export default function DataView(props: Props) {
     )
   }
 
+  return viewComponent;
 }
