@@ -18,6 +18,7 @@ interface StateProps {
   udpTunnelAddress: string;
   sshAddress: string;
   fieldControlStatus: boolean;
+  latencyValue: number
 }
 
 interface OwnProps {
@@ -97,6 +98,9 @@ const DNavComponent = (props: Props) => {
             fieldControlStatus={fieldControlStatus}
           />
         </Navbar.Text>
+        <Navbar.Text id="Latency">
+          <Label bsStyle="info">{`Latency: ${props.latencyValue}`}</Label>
+        </Navbar.Text>
         <Navbar.Form pullRight>
           <ButtonToolbar>
             <ButtonGroup>
@@ -145,6 +149,7 @@ const mapStateToProps = (state: ApplicationState) => ({
   sshAddress: state.info.sshAddress,
   fieldControlStatus: state.fieldStore.fieldControl,
   runtimeVersion: state.peripherals.runtimeVersion,
+  latencyValue: state.editor.latencyValue
 });
 
 export const DNav = connect(mapStateToProps)(DNavComponent);
