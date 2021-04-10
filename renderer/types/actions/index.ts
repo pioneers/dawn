@@ -12,11 +12,11 @@ export {
   DeleteFileAction,
   CreateNewFileAction,
   DownloadCodeAction,
+  InitiateLatencyCheck,
+  SetLatencyValue,
   UploadCodeAction,
   UpdateIsKeyboardModeToggledAction,
-  UpdateKeyboardBitmapAction,
-  GetLatencyRequest,
-  SetLatencyValue
+  UpdateKeyboardBitmapAction
 } from './editor-actions';
 export { GamepadsActions, UpdateGamepadsAction } from './gamepads-actions';
 export { SettingsActions, ChangeFontSizeAction, ChangeThemeAction } from './settings-actions';

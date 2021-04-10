@@ -57,8 +57,8 @@ export interface UpdateIsKeyboardModeToggledAction {
   isKeyboardToggled: boolean;
 }
 
-export interface GetLatencyRequest {
-  type: consts.EditorActionsTypes.GET_LATENCY_BUTTON_PRESSED;
+export interface InitiateLatencyCheck {
+  type: consts.EditorActionsTypes.INITIATE_LATENCY_CHECK;
 }
 
 export interface SetLatencyValue {
@@ -91,7 +91,7 @@ export interface EditorActions {
 
   updateIsKeyboardModeToggled: (isKeyboardToggled: boolean) => UpdateIsKeyboardModeToggledAction;
 
-  getLatencyRequest: () => GetLatencyRequest;
+  initiateLatencyCheck: () => InitiateLatencyCheck;
 
   setLatencyValue: (latencyValue: number) => SetLatencyValue;
 }

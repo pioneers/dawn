@@ -35,7 +35,6 @@ enum MsgType {
   // 5 reserved for some Shepherd msg type
   INPUTS = 6,
   TIME_STAMPS = 7
-  
 }
 
 interface TCPPacket {
@@ -286,10 +285,10 @@ class TCPConn {
      */
     this.socket.on('data', (data) => {
       const { leftoverBytes, processedTCPPackets } = readPackets(data, this.leftoverBytes);
-      
+
       for (const packet of processedTCPPackets) {
         let decoded;
-        
+
         switch (packet.type) {
           case MsgType.LOG:
             decoded = protos.Text.decode(packet.payload);
@@ -297,8 +296,7 @@ class TCPConn {
             break;
           case MsgType.TIME_STAMPS:
             decoded = protos.TimeStamps.decode(packet.payload);
-            
-            const latency: number = Number(decoded.runtimeTimestamp) - Number(decoded.dawnTimestamp);
+            const latency = Number(decoded.runtimeTimestamp) - Number(decoded.dawnTimestamp);
             
             RendererBridge.reduxDispatch(setLatencyValue(latency))
             break;
@@ -316,25 +314,20 @@ class TCPConn {
      */
     ipcMain.on('runModeUpdate', this.sendRunMode);
     ipcMain.on('ipAddress', this.ipAddressListener);
-    ipcMain.on('latencyRequest', this.sendFirstTimestamp);
+    ipcMain.on('initiateLatencyCheck', this.initiateLatencyCheck);
   }
 
-
   /**
-   * 
-   * Send the first time stamp data to runtime
-   * 
+   * Initiates latency check by sending first packet to Runtime
    */
-  sendFirstTimestamp = (_event: IpcMainEvent, data: protos.ITimeStamps) => {
-    
-    
+  initiateLatencyCheck = (_event: IpcMainEvent, data: protos.ITimeStamps) => {
     if (this.socket.pending) {
       return;
     }
     
     const message = createPacket(data, MsgType.TIME_STAMPS);
     this.socket.write(message, () => {
-      this.logger.log((`Sent timestamp data to runtime: ${JSON.stringify(data)}` ))
+      this.logger.log(`Sent timestamp data to runtime: ${JSON.stringify(data)}`);
     })
 
   }
@@ -411,7 +404,7 @@ class TCPConn {
     this.socket.end();
     ipcMain.removeListener('runModeUpdate', this.sendRunMode);
     ipcMain.removeListener('ipAddress', this.ipAddressListener);
-    ipcMain.removeListener('latencyRequest', this.sendFirstTimestamp);
+    ipcMain.removeListener('initiateLatencyCheck', this.initiateLatencyCheck);
   };
 }
 

@@ -32,6 +32,9 @@ interface OwnProps {
 
 type Props = StateProps & OwnProps;
 
+const LOW_LATENCY_THRESHOLD_MSEC = 200;
+const HIGH_LATENCY_THRESHOLD_MSEC = 300;
+
 /**
  * 3 Icons at the top right of Dawn: Tour, RobotIP, Upload
  * State controls toggling UpdateBox and ConfigBox
@@ -47,10 +50,10 @@ const DNavComponent = (props: Props) => {
     return `Dawn v${VERSION}`;
   };
 
-  const handleColor = (latency : number) => {
-    if (latency < 200) {
+  const getLatencyThresholdColor = (latency : number) => {
+    if (latency <= LOW_LATENCY_THRESHOLD_MSEC) {
       return "success"
-    } else if (latency > 200 && latency < 300) {
+    } else if (latency > LOW_LATENCY_THRESHOLD_MSEC && latency < HIGH_LATENCY_THRESHOLD_MSEC) {
       return "warning"
     } else {
       return "danger"
@@ -109,7 +112,7 @@ const DNavComponent = (props: Props) => {
           />
         </Navbar.Text>
         <Navbar.Text id="Latency">
-          <Label bsStyle={handleColor(props.latencyValue)}>{`Latency: ${props.latencyValue}`}</Label>
+          <Label bsStyle={getLatencyThresholdColor(props.latencyValue)}>{`Latency: ${props.latencyValue}`}</Label>
         </Navbar.Text>
         <Navbar.Form pullRight>
           <ButtonToolbar>

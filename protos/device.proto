@@ -27,5 +27,3 @@ message Device {
 message DevData {
 	repeated Device devices = 1; //this single field has information about all requested params of devices
 }
-
-

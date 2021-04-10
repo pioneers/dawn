@@ -258,17 +258,15 @@ function formatGamepads(newGamepads: (Gamepad | null)[]): Input[] {
   return formattedGamepads;
 }
 
-function* sendLatencyRequest() {
-
-  while (true){
-    const time: number = Date.now()
-    console.log(time);
-    const getLatency = new TimeStamps({
+function* initiateLatencyCheck() {
+  while (true) {
+    const time: number = Date.now();
+    const timestamps = new TimeStamps({
       dawnTimestamp: time,
       runtimeTimestamp: 0
     });
 
-    ipcRenderer.send('latencyRequest', getLatency);
+    ipcRenderer.send('initiateLatencyCheck', timestamps);
 
     yield delay(5000);
   }
@@ -651,7 +649,7 @@ export default function* rootSaga() {
     fork(runtimeHeartbeat),
     fork(runtimeGamepads),
     fork(runtimeSaga),
-    fork(sendLatencyRequest)
+    fork(initiateLatencyCheck)
   ]);
 }
 

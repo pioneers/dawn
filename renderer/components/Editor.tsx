@@ -72,7 +72,7 @@ interface OwnProps {
   onUploadCode: () => void;
   onUpdateKeyboardBitmap: (keyboardBitmap: number) => void;
   onUpdateKeyboardModeToggle: (isKeyboardToggled: boolean) => void;
-  onGetLatencyRequest: () => void;
+  onInitiateLatencyCheck: () => void;
 }
 
 type Props = StateProps & OwnProps;
@@ -131,7 +131,7 @@ export class Editor extends React.Component<Props, State> {
       isRunning: false,
       simulate: false,
       isKeyboardModeToggled: false,
-      keyboardBitmap: 0,
+      keyboardBitmap: 0
     };
   }
 
@@ -278,7 +278,7 @@ export class Editor extends React.Component<Props, State> {
     setTimeout(() => this.onWindowResize(), 0.01);
   }
   checkLatency = () => {
-    this.props.onGetLatencyRequest()
+    this.props.onInitiateLatencyCheck()
   }
   // toggle keyboard control and add/remove listening for key presses to control robot
   toggleKeyboardControl = () => {
@@ -731,19 +731,12 @@ export class Editor extends React.Component<Props, State> {
             </ButtonGroup>
             <FormGroup>
             <TooltipButton
-                id="getLatency"
-                text="Check Latency"
-                onClick={this.checkLatency}
-                glyph="send"
-                disabled={false}
-              />
-            <FormControl
-                type="number"
-                value={this.props.latencyValue}
-                bsSize="small"              
-                style={{ width: 48, padding: 6 }}
-                disabled={true}
-              />
+              id="getLatency"
+              text="Initiate Latency Check"
+              onClick={this.checkLatency}
+              glyph="send"
+              disabled={false}
+            />
             </FormGroup>
           </Form>
           <AceEditor
