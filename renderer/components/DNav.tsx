@@ -19,6 +19,7 @@ interface StateProps {
   udpTunnelAddress: string;
   sshAddress: string;
   fieldControlStatus: boolean;
+  latencyValue: number
 }
 
 interface OwnProps {
@@ -31,6 +32,9 @@ interface OwnProps {
 }
 
 type Props = StateProps & OwnProps;
+
+const LOW_LATENCY_THRESHOLD_MSEC = 200;
+const HIGH_LATENCY_THRESHOLD_MSEC = 300;
 
 /**
  * 3 Icons at the top right of Dawn: Tour, RobotIP, Upload
@@ -46,6 +50,16 @@ const DNavComponent = (props: Props) => {
     }
     return `Dawn v${VERSION}`;
   };
+
+  const getLatencyThresholdColor = (latency : number) => {
+    if (latency <= LOW_LATENCY_THRESHOLD_MSEC) {
+      return "success"
+    } else if (latency > LOW_LATENCY_THRESHOLD_MSEC && latency < HIGH_LATENCY_THRESHOLD_MSEC) {
+      return "warning"
+    } else {
+      return "danger"
+    }
+  }
 
   const {
     connectionStatus,
@@ -97,6 +111,9 @@ const DNavComponent = (props: Props) => {
             ipAddress={ipAddress}
             fieldControlStatus={fieldControlStatus}
           />
+        </Navbar.Text>
+        <Navbar.Text id="Latency">
+          <Label bsStyle={getLatencyThresholdColor(props.latencyValue)}>{`Latency: ${props.latencyValue}`}</Label>
         </Navbar.Text>
         <Navbar.Form pullRight>
           <ButtonToolbar>
@@ -155,6 +172,7 @@ const mapStateToProps = (state: ApplicationState) => ({
   sshAddress: state.info.sshAddress,
   fieldControlStatus: state.fieldStore.fieldControl,
   runtimeVersion: state.peripherals.runtimeVersion,
+  latencyValue: state.editor.latencyValue
 });
 
 export const DNav = connect(mapStateToProps)(DNavComponent);

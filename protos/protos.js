@@ -1969,4 +1969,242 @@ export const Text = $root.Text = (() => {
     return Text;
 })();
 
+export const TimeStamps = $root.TimeStamps = (() => {
+
+    /**
+     * Properties of a TimeStamps.
+     * @exports ITimeStamps
+     * @interface ITimeStamps
+     * @property {number|Long|null} [dawnTimestamp] TimeStamps dawnTimestamp
+     * @property {number|Long|null} [runtimeTimestamp] TimeStamps runtimeTimestamp
+     */
+
+    /**
+     * Constructs a new TimeStamps.
+     * @exports TimeStamps
+     * @classdesc Represents a TimeStamps.
+     * @implements ITimeStamps
+     * @constructor
+     * @param {ITimeStamps=} [properties] Properties to set
+     */
+    function TimeStamps(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * TimeStamps dawnTimestamp.
+     * @member {number|Long} dawnTimestamp
+     * @memberof TimeStamps
+     * @instance
+     */
+    TimeStamps.prototype.dawnTimestamp = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+
+    /**
+     * TimeStamps runtimeTimestamp.
+     * @member {number|Long} runtimeTimestamp
+     * @memberof TimeStamps
+     * @instance
+     */
+    TimeStamps.prototype.runtimeTimestamp = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+
+    /**
+     * Creates a new TimeStamps instance using the specified properties.
+     * @function create
+     * @memberof TimeStamps
+     * @static
+     * @param {ITimeStamps=} [properties] Properties to set
+     * @returns {TimeStamps} TimeStamps instance
+     */
+    TimeStamps.create = function create(properties) {
+        return new TimeStamps(properties);
+    };
+
+    /**
+     * Encodes the specified TimeStamps message. Does not implicitly {@link TimeStamps.verify|verify} messages.
+     * @function encode
+     * @memberof TimeStamps
+     * @static
+     * @param {ITimeStamps} message TimeStamps message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    TimeStamps.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.dawnTimestamp != null && Object.hasOwnProperty.call(message, "dawnTimestamp"))
+            writer.uint32(/* id 1, wireType 1 =*/9).fixed64(message.dawnTimestamp);
+        if (message.runtimeTimestamp != null && Object.hasOwnProperty.call(message, "runtimeTimestamp"))
+            writer.uint32(/* id 2, wireType 1 =*/17).fixed64(message.runtimeTimestamp);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified TimeStamps message, length delimited. Does not implicitly {@link TimeStamps.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof TimeStamps
+     * @static
+     * @param {ITimeStamps} message TimeStamps message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    TimeStamps.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes a TimeStamps message from the specified reader or buffer.
+     * @function decode
+     * @memberof TimeStamps
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {TimeStamps} TimeStamps
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    TimeStamps.decode = function decode(reader, length) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.TimeStamps();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            switch (tag >>> 3) {
+            case 1:
+                message.dawnTimestamp = reader.fixed64();
+                break;
+            case 2:
+                message.runtimeTimestamp = reader.fixed64();
+                break;
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes a TimeStamps message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof TimeStamps
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {TimeStamps} TimeStamps
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    TimeStamps.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies a TimeStamps message.
+     * @function verify
+     * @memberof TimeStamps
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    TimeStamps.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.dawnTimestamp != null && message.hasOwnProperty("dawnTimestamp"))
+            if (!$util.isInteger(message.dawnTimestamp) && !(message.dawnTimestamp && $util.isInteger(message.dawnTimestamp.low) && $util.isInteger(message.dawnTimestamp.high)))
+                return "dawnTimestamp: integer|Long expected";
+        if (message.runtimeTimestamp != null && message.hasOwnProperty("runtimeTimestamp"))
+            if (!$util.isInteger(message.runtimeTimestamp) && !(message.runtimeTimestamp && $util.isInteger(message.runtimeTimestamp.low) && $util.isInteger(message.runtimeTimestamp.high)))
+                return "runtimeTimestamp: integer|Long expected";
+        return null;
+    };
+
+    /**
+     * Creates a TimeStamps message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof TimeStamps
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {TimeStamps} TimeStamps
+     */
+    TimeStamps.fromObject = function fromObject(object) {
+        if (object instanceof $root.TimeStamps)
+            return object;
+        let message = new $root.TimeStamps();
+        if (object.dawnTimestamp != null)
+            if ($util.Long)
+                (message.dawnTimestamp = $util.Long.fromValue(object.dawnTimestamp)).unsigned = false;
+            else if (typeof object.dawnTimestamp === "string")
+                message.dawnTimestamp = parseInt(object.dawnTimestamp, 10);
+            else if (typeof object.dawnTimestamp === "number")
+                message.dawnTimestamp = object.dawnTimestamp;
+            else if (typeof object.dawnTimestamp === "object")
+                message.dawnTimestamp = new $util.LongBits(object.dawnTimestamp.low >>> 0, object.dawnTimestamp.high >>> 0).toNumber();
+        if (object.runtimeTimestamp != null)
+            if ($util.Long)
+                (message.runtimeTimestamp = $util.Long.fromValue(object.runtimeTimestamp)).unsigned = false;
+            else if (typeof object.runtimeTimestamp === "string")
+                message.runtimeTimestamp = parseInt(object.runtimeTimestamp, 10);
+            else if (typeof object.runtimeTimestamp === "number")
+                message.runtimeTimestamp = object.runtimeTimestamp;
+            else if (typeof object.runtimeTimestamp === "object")
+                message.runtimeTimestamp = new $util.LongBits(object.runtimeTimestamp.low >>> 0, object.runtimeTimestamp.high >>> 0).toNumber();
+        return message;
+    };
+
+    /**
+     * Creates a plain object from a TimeStamps message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof TimeStamps
+     * @static
+     * @param {TimeStamps} message TimeStamps
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    TimeStamps.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults) {
+            if ($util.Long) {
+                let long = new $util.Long(0, 0, false);
+                object.dawnTimestamp = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+            } else
+                object.dawnTimestamp = options.longs === String ? "0" : 0;
+            if ($util.Long) {
+                let long = new $util.Long(0, 0, false);
+                object.runtimeTimestamp = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+            } else
+                object.runtimeTimestamp = options.longs === String ? "0" : 0;
+        }
+        if (message.dawnTimestamp != null && message.hasOwnProperty("dawnTimestamp"))
+            if (typeof message.dawnTimestamp === "number")
+                object.dawnTimestamp = options.longs === String ? String(message.dawnTimestamp) : message.dawnTimestamp;
+            else
+                object.dawnTimestamp = options.longs === String ? $util.Long.prototype.toString.call(message.dawnTimestamp) : options.longs === Number ? new $util.LongBits(message.dawnTimestamp.low >>> 0, message.dawnTimestamp.high >>> 0).toNumber() : message.dawnTimestamp;
+        if (message.runtimeTimestamp != null && message.hasOwnProperty("runtimeTimestamp"))
+            if (typeof message.runtimeTimestamp === "number")
+                object.runtimeTimestamp = options.longs === String ? String(message.runtimeTimestamp) : message.runtimeTimestamp;
+            else
+                object.runtimeTimestamp = options.longs === String ? $util.Long.prototype.toString.call(message.runtimeTimestamp) : options.longs === Number ? new $util.LongBits(message.runtimeTimestamp.low >>> 0, message.runtimeTimestamp.high >>> 0).toNumber() : message.runtimeTimestamp;
+        return object;
+    };
+
+    /**
+     * Converts this TimeStamps to JSON.
+     * @function toJSON
+     * @memberof TimeStamps
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    TimeStamps.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    return TimeStamps;
+})();
+
 export { $root as default };

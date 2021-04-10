@@ -796,3 +796,99 @@ export class Text implements IText {
      */
     public toJSON(): { [k: string]: any };
 }
+
+/** Properties of a TimeStamps. */
+export interface ITimeStamps {
+
+    /** TimeStamps dawnTimestamp */
+    dawnTimestamp?: (number|Long|null);
+
+    /** TimeStamps runtimeTimestamp */
+    runtimeTimestamp?: (number|Long|null);
+}
+
+/** Represents a TimeStamps. */
+export class TimeStamps implements ITimeStamps {
+
+    /**
+     * Constructs a new TimeStamps.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: ITimeStamps);
+
+    /** TimeStamps dawnTimestamp. */
+    public dawnTimestamp: (number|Long);
+
+    /** TimeStamps runtimeTimestamp. */
+    public runtimeTimestamp: (number|Long);
+
+    /**
+     * Creates a new TimeStamps instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns TimeStamps instance
+     */
+    public static create(properties?: ITimeStamps): TimeStamps;
+
+    /**
+     * Encodes the specified TimeStamps message. Does not implicitly {@link TimeStamps.verify|verify} messages.
+     * @param message TimeStamps message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: ITimeStamps, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified TimeStamps message, length delimited. Does not implicitly {@link TimeStamps.verify|verify} messages.
+     * @param message TimeStamps message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: ITimeStamps, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a TimeStamps message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns TimeStamps
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): TimeStamps;
+
+    /**
+     * Decodes a TimeStamps message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns TimeStamps
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): TimeStamps;
+
+    /**
+     * Verifies a TimeStamps message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a TimeStamps message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns TimeStamps
+     */
+    public static fromObject(object: { [k: string]: any }): TimeStamps;
+
+    /**
+     * Creates a plain object from a TimeStamps message. Also converts values to other types if specified.
+     * @param message TimeStamps
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: TimeStamps, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this TimeStamps to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+}
