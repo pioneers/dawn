@@ -14,7 +14,9 @@ import {
   DownloadCodeAction,
   UploadCodeAction,
   UpdateIsKeyboardModeToggledAction,
-  UpdateKeyboardBitmapAction
+  UpdateKeyboardBitmapAction,
+  InitiateLatencyCheck,
+  SetLatencyValue
 } from '../types';
 
 type Actions =
@@ -29,9 +31,12 @@ type Actions =
   | DownloadCodeAction
   | UploadCodeAction
   | UpdateIsKeyboardModeToggledAction
-  | UpdateKeyboardBitmapAction;
+  | UpdateKeyboardBitmapAction
+  | InitiateLatencyCheck
+  | SetLatencyValue;
 
 interface EditorState {
+  latencyValue: number;
   filepath: string;
   latestSaveCode: string;
   editorCode: string;
@@ -44,7 +49,8 @@ const defaultEditorState = {
   latestSaveCode: '',
   editorCode: '',
   keyboardBitmap: 0,
-  isKeyboardModeToggled: false
+  isKeyboardModeToggled: false,
+  latencyValue: 0
 };
 
 export const editor = (state: EditorState = defaultEditorState, action: Actions) => {
@@ -71,6 +77,11 @@ export const editor = (state: EditorState = defaultEditorState, action: Actions)
       return {
         ...state,
         keyboardBitmap: action.keyboardBitmap,
+      };
+    case consts.EditorActionsTypes.SET_LATENCY_VALUE:
+      return {
+        ...state,
+        latencyValue: action.latencyValue,
       };
     case consts.EditorActionsTypes.UPDATE_IS_KEYBOARD_MODE_TOGGLED:
       return {
