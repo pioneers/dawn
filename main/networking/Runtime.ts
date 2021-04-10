@@ -297,6 +297,8 @@ class TCPConn {
           case MsgType.TIME_STAMPS:
             decoded = protos.TimeStamps.decode(packet.payload);
             const latency = Number(decoded.runtimeTimestamp) - Number(decoded.dawnTimestamp);
+
+            // TODO: we can probably do an average of n timestamps so the display doesn't change too frequently
             
             RendererBridge.reduxDispatch(setLatencyValue(latency))
             break;
