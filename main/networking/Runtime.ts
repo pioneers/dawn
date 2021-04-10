@@ -1,12 +1,12 @@
 import { createSocket, Socket as UDPSocket } from 'dgram';
 import { Socket as TCPSocket } from 'net';
-import { ipcMain, IpcMainEvent } from 'electron';
+import { ipcMain, IpcMainEvent, Renderer } from 'electron';
 import * as protos from '../../protos/protos';
 
 import RendererBridge from '../RendererBridge';
 import { updateConsole } from '../../renderer/actions/ConsoleActions';
-import { runtimeDisconnect, infoPerMessage } from '../../renderer/actions/InfoActions';
-import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
+import { runtimeDisconnect, infoPerMessage, updateCodeStatus } from '../../renderer/actions/InfoActions';
+import { updateBattery, updatePeripherals, updateRuntimeVersion } from '../../renderer/actions/PeripheralActions';
 import { Logger, defaults } from '../../renderer/utils/utils';
 import { Peripheral } from '../../renderer/types';
 import { setLatencyValue } from '../../renderer/actions/EditorActions';
@@ -34,7 +34,8 @@ enum MsgType {
   DEVICE_DATA = 4,
   // 5 reserved for some Shepherd msg type
   INPUTS = 6,
-  TIME_STAMPS = 7
+  TIME_STAMPS = 7,
+  RUNTIME_STATUS = 8
 }
 
 interface TCPPacket {
@@ -304,6 +305,12 @@ class TCPConn {
             break;
           case MsgType.CHALLENGE_DATA:
             // TODO: Dispatch challenge outputs to redux
+            break;
+          case MsgType.RUNTIME_STATUS:
+            decoded = protos.RuntimeStatus.decode(packet.payload);
+            RendererBridge.reduxDispatch(updateCodeStatus(decoded.mode));
+            RendererBridge.reduxDispatch(updateRuntimeVersion(decoded.version));
+            RendererBridge.reduxDispatch(updateBattery(decoded.battery));
             break;
         }
       }
