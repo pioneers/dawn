@@ -1552,6 +1552,310 @@ export const RunMode = $root.RunMode = (() => {
     return RunMode;
 })();
 
+export const RuntimeStatus = $root.RuntimeStatus = (() => {
+
+    /**
+     * Properties of a RuntimeStatus.
+     * @exports IRuntimeStatus
+     * @interface IRuntimeStatus
+     * @property {boolean|null} [shepConnected] RuntimeStatus shepConnected
+     * @property {boolean|null} [dawnConnected] RuntimeStatus dawnConnected
+     * @property {Mode|null} [mode] RuntimeStatus mode
+     * @property {number|null} [battery] RuntimeStatus battery
+     * @property {string|null} [version] RuntimeStatus version
+     */
+
+    /**
+     * Constructs a new RuntimeStatus.
+     * @exports RuntimeStatus
+     * @classdesc Represents a RuntimeStatus.
+     * @implements IRuntimeStatus
+     * @constructor
+     * @param {IRuntimeStatus=} [properties] Properties to set
+     */
+    function RuntimeStatus(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * RuntimeStatus shepConnected.
+     * @member {boolean} shepConnected
+     * @memberof RuntimeStatus
+     * @instance
+     */
+    RuntimeStatus.prototype.shepConnected = false;
+
+    /**
+     * RuntimeStatus dawnConnected.
+     * @member {boolean} dawnConnected
+     * @memberof RuntimeStatus
+     * @instance
+     */
+    RuntimeStatus.prototype.dawnConnected = false;
+
+    /**
+     * RuntimeStatus mode.
+     * @member {Mode} mode
+     * @memberof RuntimeStatus
+     * @instance
+     */
+    RuntimeStatus.prototype.mode = 0;
+
+    /**
+     * RuntimeStatus battery.
+     * @member {number} battery
+     * @memberof RuntimeStatus
+     * @instance
+     */
+    RuntimeStatus.prototype.battery = 0;
+
+    /**
+     * RuntimeStatus version.
+     * @member {string} version
+     * @memberof RuntimeStatus
+     * @instance
+     */
+    RuntimeStatus.prototype.version = "";
+
+    /**
+     * Creates a new RuntimeStatus instance using the specified properties.
+     * @function create
+     * @memberof RuntimeStatus
+     * @static
+     * @param {IRuntimeStatus=} [properties] Properties to set
+     * @returns {RuntimeStatus} RuntimeStatus instance
+     */
+    RuntimeStatus.create = function create(properties) {
+        return new RuntimeStatus(properties);
+    };
+
+    /**
+     * Encodes the specified RuntimeStatus message. Does not implicitly {@link RuntimeStatus.verify|verify} messages.
+     * @function encode
+     * @memberof RuntimeStatus
+     * @static
+     * @param {IRuntimeStatus} message RuntimeStatus message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    RuntimeStatus.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.shepConnected != null && Object.hasOwnProperty.call(message, "shepConnected"))
+            writer.uint32(/* id 1, wireType 0 =*/8).bool(message.shepConnected);
+        if (message.dawnConnected != null && Object.hasOwnProperty.call(message, "dawnConnected"))
+            writer.uint32(/* id 2, wireType 0 =*/16).bool(message.dawnConnected);
+        if (message.mode != null && Object.hasOwnProperty.call(message, "mode"))
+            writer.uint32(/* id 3, wireType 0 =*/24).int32(message.mode);
+        if (message.battery != null && Object.hasOwnProperty.call(message, "battery"))
+            writer.uint32(/* id 4, wireType 5 =*/37).float(message.battery);
+        if (message.version != null && Object.hasOwnProperty.call(message, "version"))
+            writer.uint32(/* id 5, wireType 2 =*/42).string(message.version);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified RuntimeStatus message, length delimited. Does not implicitly {@link RuntimeStatus.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof RuntimeStatus
+     * @static
+     * @param {IRuntimeStatus} message RuntimeStatus message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    RuntimeStatus.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes a RuntimeStatus message from the specified reader or buffer.
+     * @function decode
+     * @memberof RuntimeStatus
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {RuntimeStatus} RuntimeStatus
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    RuntimeStatus.decode = function decode(reader, length) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.RuntimeStatus();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            switch (tag >>> 3) {
+            case 1:
+                message.shepConnected = reader.bool();
+                break;
+            case 2:
+                message.dawnConnected = reader.bool();
+                break;
+            case 3:
+                message.mode = reader.int32();
+                break;
+            case 4:
+                message.battery = reader.float();
+                break;
+            case 5:
+                message.version = reader.string();
+                break;
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes a RuntimeStatus message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof RuntimeStatus
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {RuntimeStatus} RuntimeStatus
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    RuntimeStatus.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies a RuntimeStatus message.
+     * @function verify
+     * @memberof RuntimeStatus
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    RuntimeStatus.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.shepConnected != null && message.hasOwnProperty("shepConnected"))
+            if (typeof message.shepConnected !== "boolean")
+                return "shepConnected: boolean expected";
+        if (message.dawnConnected != null && message.hasOwnProperty("dawnConnected"))
+            if (typeof message.dawnConnected !== "boolean")
+                return "dawnConnected: boolean expected";
+        if (message.mode != null && message.hasOwnProperty("mode"))
+            switch (message.mode) {
+            default:
+                return "mode: enum value expected";
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                break;
+            }
+        if (message.battery != null && message.hasOwnProperty("battery"))
+            if (typeof message.battery !== "number")
+                return "battery: number expected";
+        if (message.version != null && message.hasOwnProperty("version"))
+            if (!$util.isString(message.version))
+                return "version: string expected";
+        return null;
+    };
+
+    /**
+     * Creates a RuntimeStatus message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof RuntimeStatus
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {RuntimeStatus} RuntimeStatus
+     */
+    RuntimeStatus.fromObject = function fromObject(object) {
+        if (object instanceof $root.RuntimeStatus)
+            return object;
+        let message = new $root.RuntimeStatus();
+        if (object.shepConnected != null)
+            message.shepConnected = Boolean(object.shepConnected);
+        if (object.dawnConnected != null)
+            message.dawnConnected = Boolean(object.dawnConnected);
+        switch (object.mode) {
+        case "IDLE":
+        case 0:
+            message.mode = 0;
+            break;
+        case "AUTO":
+        case 1:
+            message.mode = 1;
+            break;
+        case "TELEOP":
+        case 2:
+            message.mode = 2;
+            break;
+        case "ESTOP":
+        case 3:
+            message.mode = 3;
+            break;
+        case "CHALLENGE":
+        case 4:
+            message.mode = 4;
+            break;
+        }
+        if (object.battery != null)
+            message.battery = Number(object.battery);
+        if (object.version != null)
+            message.version = String(object.version);
+        return message;
+    };
+
+    /**
+     * Creates a plain object from a RuntimeStatus message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof RuntimeStatus
+     * @static
+     * @param {RuntimeStatus} message RuntimeStatus
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    RuntimeStatus.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults) {
+            object.shepConnected = false;
+            object.dawnConnected = false;
+            object.mode = options.enums === String ? "IDLE" : 0;
+            object.battery = 0;
+            object.version = "";
+        }
+        if (message.shepConnected != null && message.hasOwnProperty("shepConnected"))
+            object.shepConnected = message.shepConnected;
+        if (message.dawnConnected != null && message.hasOwnProperty("dawnConnected"))
+            object.dawnConnected = message.dawnConnected;
+        if (message.mode != null && message.hasOwnProperty("mode"))
+            object.mode = options.enums === String ? $root.Mode[message.mode] : message.mode;
+        if (message.battery != null && message.hasOwnProperty("battery"))
+            object.battery = options.json && !isFinite(message.battery) ? String(message.battery) : message.battery;
+        if (message.version != null && message.hasOwnProperty("version"))
+            object.version = message.version;
+        return object;
+    };
+
+    /**
+     * Converts this RuntimeStatus to JSON.
+     * @function toJSON
+     * @memberof RuntimeStatus
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    RuntimeStatus.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    return RuntimeStatus;
+})();
+
 /**
  * Pos enum.
  * @exports Pos

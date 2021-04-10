@@ -145,7 +145,7 @@ export class Device implements IDevice {
     public type: number;
 
     /** Device params. */
-    public params: Param[];
+    public params: IParam[];
 
     /**
      * Creates a new Device instance using the specified properties.
@@ -235,7 +235,7 @@ export class DevData implements IDevData {
     constructor(properties?: IDevData);
 
     /** DevData devices. */
-    public devices: Device[];
+    public devices: IDevice[];
 
     /**
      * Creates a new DevData instance using the specified properties.
@@ -433,7 +433,7 @@ export class UserInputs implements IUserInputs {
     constructor(properties?: IUserInputs);
 
     /** UserInputs inputs. */
-    public inputs: Input[];
+    public inputs: IInput[];
 
     /**
      * Creates a new UserInputs instance using the specified properties.
@@ -606,6 +606,120 @@ export class RunMode implements IRunMode {
 
     /**
      * Converts this RunMode to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+}
+
+/** Properties of a RuntimeStatus. */
+export interface IRuntimeStatus {
+
+    /** RuntimeStatus shepConnected */
+    shepConnected?: (boolean|null);
+
+    /** RuntimeStatus dawnConnected */
+    dawnConnected?: (boolean|null);
+
+    /** RuntimeStatus mode */
+    mode?: (Mode|null);
+
+    /** RuntimeStatus battery */
+    battery?: (number|null);
+
+    /** RuntimeStatus version */
+    version?: (string|null);
+}
+
+/** Represents a RuntimeStatus. */
+export class RuntimeStatus implements IRuntimeStatus {
+
+    /**
+     * Constructs a new RuntimeStatus.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: IRuntimeStatus);
+
+    /** RuntimeStatus shepConnected. */
+    public shepConnected: boolean;
+
+    /** RuntimeStatus dawnConnected. */
+    public dawnConnected: boolean;
+
+    /** RuntimeStatus mode. */
+    public mode: Mode;
+
+    /** RuntimeStatus battery. */
+    public battery: number;
+
+    /** RuntimeStatus version. */
+    public version: string;
+
+    /**
+     * Creates a new RuntimeStatus instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns RuntimeStatus instance
+     */
+    public static create(properties?: IRuntimeStatus): RuntimeStatus;
+
+    /**
+     * Encodes the specified RuntimeStatus message. Does not implicitly {@link RuntimeStatus.verify|verify} messages.
+     * @param message RuntimeStatus message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: IRuntimeStatus, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified RuntimeStatus message, length delimited. Does not implicitly {@link RuntimeStatus.verify|verify} messages.
+     * @param message RuntimeStatus message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: IRuntimeStatus, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a RuntimeStatus message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns RuntimeStatus
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): RuntimeStatus;
+
+    /**
+     * Decodes a RuntimeStatus message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns RuntimeStatus
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): RuntimeStatus;
+
+    /**
+     * Verifies a RuntimeStatus message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a RuntimeStatus message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns RuntimeStatus
+     */
+    public static fromObject(object: { [k: string]: any }): RuntimeStatus;
+
+    /**
+     * Creates a plain object from a RuntimeStatus message. Also converts values to other types if specified.
+     * @param message RuntimeStatus
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: RuntimeStatus, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this RuntimeStatus to JSON.
      * @returns JSON object
      */
     public toJSON(): { [k: string]: any };
