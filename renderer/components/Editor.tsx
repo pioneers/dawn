@@ -730,13 +730,13 @@ export class Editor extends React.Component<Props, State> {
               </DropdownButton>
             </ButtonGroup>
             <FormGroup>
-            <TooltipButton
-              id="getLatency"
-              text="Initiate Latency Check"
-              onClick={this.checkLatency}
-              glyph="send"
-              disabled={false}
-            />
+              <TooltipButton
+                id="checkLatency"
+                text="Initiate Latency Check"
+                onClick={this.checkLatency}
+                glyph="send"
+                disabled={false}
+              />
             </FormGroup>
           </Form>
           <AceEditor

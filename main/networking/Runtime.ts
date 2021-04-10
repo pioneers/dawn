@@ -329,7 +329,6 @@ class TCPConn {
     this.socket.write(message, () => {
       this.logger.log(`Sent timestamp data to runtime: ${JSON.stringify(data)}`);
     })
-
   }
 
   /**

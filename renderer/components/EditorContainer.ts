@@ -8,7 +8,6 @@ import {
   createNewFile,
   downloadCode,
   initiateLatencyCheck,
-  setLatencyValue,
   uploadCode,
   updateKeyboardBitmap,
   updateIsKeyboardModeToggled
