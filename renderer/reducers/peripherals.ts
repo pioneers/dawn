@@ -1,7 +1,7 @@
 import * as consts from '../consts';
-import { UpdatePeripheralsAction, PeripheralRenameAction, Peripheral, PeripheralList } from '../types';
+import { UpdatePeripheralsAction, PeripheralRenameAction, Peripheral, PeripheralList, UpdateRuntimeVersionAction, UpdateBatteryAction } from '../types';
 
-type Actions = UpdatePeripheralsAction | PeripheralRenameAction;
+type Actions = UpdatePeripheralsAction | PeripheralRenameAction | UpdateRuntimeVersionAction | UpdateBatteryAction;
 
 interface PeripheralState {
   peripheralList: PeripheralList;
@@ -21,7 +21,6 @@ const initialPeripheralState: PeripheralState = {
 const IS_UNSAFE = 0;
 const V_BATT = 5;
 
-// TODO: Handle runtimeVersion since no longer sent
 export const peripherals = (state: PeripheralState = initialPeripheralState, action: Actions) => {
   const nextState = Object.assign({}, state);
   const nextPeripherals = nextState.peripheralList;
@@ -62,6 +61,16 @@ export const peripherals = (state: PeripheralState = initialPeripheralState, act
       // nextPeripherals[action.id].name = action.name;
       return nextState;
     }
+    case consts.PeripheralActionsTypes.UPDATE_RUNTIME_VERSION:
+      return {
+        ...state,
+        runtimeVersion: action.version
+      }
+    case consts.PeripheralActionsTypes.UPDATE_BATTERY:
+      return {
+        ...state,
+        batteryLevel: action.battery
+      }
     default: {
       return state;
     }

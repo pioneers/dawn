@@ -1,6 +1,6 @@
 export { AlertActions, AddAsyncAlertAction, RemoveAsyncAlertAction } from './alert-actions';
 export { ConsoleActions, ToggleConsoleAction, UpdateConsoleAction, ClearConsoleAction, ToggleScrollAction } from './console-actions';
-export { PeripheralActions, UpdatePeripheralsAction, PeripheralRenameAction } from './peripheral-actions';
+export { PeripheralActions, UpdatePeripheralsAction, PeripheralRenameAction, UpdateRuntimeVersionAction, UpdateBatteryAction } from './peripheral-actions';
 export {
   EditorActions,
   EditorUpdateAction,
