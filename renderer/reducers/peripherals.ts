@@ -19,7 +19,6 @@ const initialPeripheralState: PeripheralState = {
 
 // Taken from runtime_util.c in Runtime repo
 const IS_UNSAFE = 0;
-const V_BATT = 5;
 
 export const peripherals = (state: PeripheralState = initialPeripheralState, action: Actions) => {
   const nextState = Object.assign({}, state);
@@ -34,9 +33,6 @@ export const peripherals = (state: PeripheralState = initialPeripheralState, act
           if (batteryParams[IS_UNSAFE] && batteryParams[IS_UNSAFE].bval) {
             nextState.batterySafety = batteryParams[IS_UNSAFE].bval!;
           }
-          if (batteryParams[V_BATT] && batteryParams[V_BATT].fval) {
-            nextState.batteryLevel = batteryParams[V_BATT].fval!;
-          }
         } else {
           const key = `${peripheral.type}_${peripheral.uid}`;
           keys.push(key);
@@ -46,6 +42,7 @@ export const peripherals = (state: PeripheralState = initialPeripheralState, act
           }
           nextPeripherals[key] = { ...peripheral, uid: key };
         }
+        nextState.batteryLevel = state.batteryLevel;
       });
 
       Object.keys(nextPeripherals).forEach((uid: string) => {
