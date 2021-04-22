@@ -76,7 +76,7 @@ export const FCObject = {
 
     if (arg.bridgeAddress !== null) {
       FCObject.bridgeAddress = arg.bridgeAddress;
-      RendererBridge.dispatchToWindow('videofeed', 'shepherdScoreboardServerIpAddress', arg.bridgeAddress);
+      RendererBridge.dispatch('video_feed_window', 'shepherdScoreboardServerIpAddress', arg.bridgeAddress);
     }
   },
 };

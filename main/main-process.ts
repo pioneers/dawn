@@ -85,14 +85,13 @@ app.on('ready', () => {
         width: 1000,
         height: 700,
       });
-      RendererBridge.registerWindow('videofeed', videoWindow);
+      RendererBridge.registerWindow('video_feed_window', videoWindow);
       videoWindow.on('closed', () => {
         videoWindow = null;
       });
       videoWindow.maximize();
       videoWindow.loadURL(`file://${__dirname}/../static/video-feed/video.html`);
-      videoWindow.webContents.on('dom-ready', () => RendererBridge.dispatchToWindow('videofeed', 'shepherdScoreboardServerIpAddress', FCObject.bridgeAddress))
-      // setTimeout(() => RendererBridge.windowDispatch('videofeed', 'shepherdScoreboardServerIpAddress', FCObject.bridgeAddress), 3000)
+      videoWindow.webContents.on('dom-ready', () => RendererBridge.dispatch('video_feed_window', 'shepherdScoreboardServerIpAddress', FCObject.bridgeAddress))
       videoWindow.on('ready-to-show', () => {
         if (videoWindow) {
           videoWindow.show();
