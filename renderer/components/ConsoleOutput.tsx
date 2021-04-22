@@ -1,5 +1,5 @@
 import React from 'react';
-import { Panel } from 'react-bootstrap';
+import { Card } from 'react-bootstrap';
 
 interface StateProps {
   toggleConsole: () => void;
@@ -49,14 +49,14 @@ export class ConsoleOutput extends React.Component<Props> {
     const height = `${String(this.props.height)}px`; // TODO: Use Panel.Collapse
     return (
       <div>
-        <Panel
+        <Card
           style={{
             display: show ? 'block' : 'none',
             marginBottom: '0',
             borderRadius: '0',
           }}
         >
-          <Panel.Body>
+          <Card.Body>
             <pre
               style={{
                 position: 'relative',
@@ -80,8 +80,8 @@ export class ConsoleOutput extends React.Component<Props> {
                 ))}
               </div>
             </pre>
-          </Panel.Body>
-        </Panel>
+          </Card.Body>
+        </Card>
       </div>
     );
   }

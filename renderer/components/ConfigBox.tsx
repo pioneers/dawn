@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, Button, FormGroup, Form, FormControl, ControlLabel } from 'react-bootstrap';
+import React, { useState, useEffect, ChangeEventHandler } from 'react';
+import { Modal, Button, Form } from 'react-bootstrap';
 import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
@@ -48,7 +48,7 @@ export const ConfigBoxComponent = (props: Props) => {
   const [originalStationNumber, setOriginalStationNumber] = useState(props.stationNumber);
   const [originalFCAddress, setOriginalFCAddress] = useState(props.fcAddress);
 
-  const saveChanges = (e: React.FormEvent<Form>) => {
+  const saveChanges = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     props.onUDPTunnelingIpAddressChange(udpTunnelIpAddress);
@@ -87,23 +87,24 @@ export const ConfigBoxComponent = (props: Props) => {
     props.hide();
   };
 
-  const handleIpChange = (e: React.FormEvent<FormControl & HTMLInputElement>) => {
+  const handleIpChange = (e: React.ChangeEventHandler<FormControlElement>) => {
     setIPAddress(e.currentTarget.value);
   };
 
-  const handleUDPTunnelIpChange = (e: React.FormEvent<FormControl & HTMLInputElement>) => {
+
+  const handleUDPTunnelIpChange = (e: React.FormEvent<typeof Form.Control & HTMLInputElement>) => {
     setUDPTunnelIpAddress(e.currentTarget.value);
   };
 
-  const handleSSHIpChange = (e: React.FormEvent<FormControl & HTMLInputElement>) => {
+  const handleSSHIpChange = (e: React.FormEvent<typeof Form.Control & HTMLInputElement>) => {
     setSSHAddress(e.currentTarget.value);
   }
 
-  const handleFcChange = (e: React.FormEvent<FormControl & HTMLInputElement>) => {
+  const handleFcChange = (e: React.FormEvent<typeof Form.Control & HTMLInputElement>) => {
     setFCAddress(e.currentTarget.value);
   };
 
-  const handleStationChange = (e: React.FormEvent<FormControl & HTMLInputElement>) => {
+  const handleStationChange = (e: React.FormEvent<typeof Form.Control & HTMLInputElement>) => {
     setStationNumber(parseInt(e.currentTarget.value));
   };
 
@@ -186,39 +187,39 @@ export const ConfigBoxComponent = (props: Props) => {
             Make sure only one computer (running instance of Dawn) is attempting to connect to the robot at a time! (i.e. not trying to
             connect to the same IP Address)
           </p>
-          <FormGroup controlId="ipAddress" validationState={getValidationState(ipAddress)}>
-            <ControlLabel>IP Address</ControlLabel>
-            <FormControl type="text" value={ipAddress} placeholder="i.e. 192.168.100.13" onChange={handleIpChange} />
-            <FormControl.Feedback />
-          </FormGroup>
+          <Form.Group controlId="ipAddress" validationState={getValidationState(ipAddress)}>
+            <Form.Label>IP Address</Form.Label>
+            <Form.Control type="text" value={ipAddress} placeholder="i.e. 192.168.100.13" onChange={handleIpChange} />
+            <Form.Control.Feedback />
+          </Form.Group>
 
-          <FormGroup controlId="ipAddress" validationState={getValidationState(udpTunnelIpAddress)}>
-            <ControlLabel>UDP Tunneling</ControlLabel>
-            <FormControl type="text" value={udpTunnelIpAddress} placeholder="i.e. 192.168.100.13" onChange={handleUDPTunnelIpChange} />
-            <FormControl.Feedback />
-          </FormGroup>
+          <Form.Group controlId="ipAddress" validationState={getValidationState(udpTunnelIpAddress)}>
+            <Form.Label>UDP Tunneling</Form.Label>
+            <Form.Control type="text" value={udpTunnelIpAddress} placeholder="i.e. 192.168.100.13" onChange={handleUDPTunnelIpChange} />
+            <Form.Control.Feedback />
+          </Form.Group>
 
-          <FormGroup controlId="ipAddress" validationState={getValidationState(sshAddress)}>
-            <ControlLabel>SSH Address</ControlLabel>
-            <FormControl type="text" value={sshAddress} placeholder="i.e. 192.168.100.13" onChange={handleSSHIpChange} />
-            <FormControl.Feedback />
-          </FormGroup>
+          <Form.Group controlId="ipAddress" validationState={getValidationState(sshAddress)}>
+            <Form.Label>SSH Address</Form.Label>
+            <Form.Control type="text" value={sshAddress} placeholder="i.e. 192.168.100.13" onChange={handleSSHIpChange} />
+            <Form.Control.Feedback />
+          </Form.Group>
 
           <p>Field Control Settings</p>
-          <FormGroup controlId="fcAddress" validationState={getValidationState(fcAddress)}>
-            <ControlLabel>Field Control IP Address</ControlLabel>
-            <FormControl type="text" value={fcAddress} placeholder="i.e. 192.168.100.13" onChange={handleFcChange} />
-            <FormControl.Feedback />
-          </FormGroup>
+          <Form.Group controlId="fcAddress" validationState={getValidationState(fcAddress)}>
+            <Form.Label>Field Control IP Address</Form.Label>
+            <Form.Control type="text" value={fcAddress} placeholder="i.e. 192.168.100.13" onChange={handleFcChange} />
+            <Form.Control.Feedback />
+          </Form.Group>
 
-          <FormGroup controlId="stationNumber" validationState={stationNumber >= 0 && stationNumber <= 4 ? 'success' : 'error'}>
-            <ControlLabel>Field Control Station Number</ControlLabel>
-            <FormControl type="number" value={stationNumber} placeholder="An integer from 0 to 4" onChange={handleStationChange} />
-            <FormControl.Feedback />
-          </FormGroup>
+          <Form.Group controlId="stationNumber" validationState={stationNumber >= 0 && stationNumber <= 4 ? 'success' : 'error'}>
+            <Form.Label>Field Control Station Number</Form.Label>
+            <Form.Control type="number" value={stationNumber} placeholder="An integer from 0 to 4" onChange={handleStationChange} />
+            <Form.Control.Feedback />
+          </Form.Group>
         </Modal.Body>
         <Modal.Footer>
-          <Button type="submit" bsStyle="primary" disabled={disableUploadUpdate()}>
+          <Button type="submit" variant="primary" disabled={disableUploadUpdate()}>
             Update
           </Button>
         </Modal.Footer>
