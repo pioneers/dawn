@@ -296,7 +296,7 @@ class TCPConn {
             break;
           case MsgType.TIME_STAMPS:
             decoded = protos.TimeStamps.decode(packet.payload);            
-            const oneWayLatency = Math.round((Date.now() - Number(decoded.dawnTimestamp)) / 2);
+            const oneWayLatency = (Date.now() - Number(decoded.dawnTimestamp)) / 2;
 
             // TODO: we can probably do an average of n timestamps so the display doesn't change too frequently
             
