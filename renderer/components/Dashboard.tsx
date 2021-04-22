@@ -12,16 +12,16 @@ interface StateProps {
   isRunningCode: boolean; // Currently not provided by runtime, and not used in Editor
 }
 
-//previously xs="auto" was smPush={8} and smPull={4}
+//smPush={8} and smPull={4} straight up removed
 
 export const Dashboard = (props: StateProps) => (
   <Container fluid>
     <Row>
-      <Col xs="auto" sm={4}>
+      <Col sm={4}>
         <PeripheralList connectionStatus={props.connectionStatus} runtimeStatus={props.runtimeStatus} />
         <GamepadList />
       </Col>
-      <Col xs="auto" sm={8}>
+      <Col sm={8}>
         <EditorContainer runtimeStatus={props.runtimeStatus} />
       </Col>
     </Row>
