@@ -296,11 +296,11 @@ class TCPConn {
             break;
           case MsgType.TIME_STAMPS:
             decoded = protos.TimeStamps.decode(packet.payload);
-            const latency = Date.now() - Number(decoded.dawnTimestamp);
+            const oneWayLatency = (Date.now() - Number(decoded.dawnTimestamp)) / 2;
 
             // TODO: we can probably do an average of n timestamps so the display doesn't change too frequently
             
-            RendererBridge.reduxDispatch(setLatencyValue(latency))
+            RendererBridge.reduxDispatch(setLatencyValue(oneWayLatency))
             break;
           case MsgType.CHALLENGE_DATA:
             // TODO: Dispatch challenge outputs to redux
