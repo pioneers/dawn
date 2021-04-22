@@ -34,7 +34,7 @@ type Props = StateProps & OwnProps;
 
 const LOW_LATENCY_THRESHOLD_MSEC = 200;
 const HIGH_LATENCY_THRESHOLD_MSEC = 300;
-const MSEC_IN_SECONDS = 1000;
+const MSEC_IN_ONE_SECOND = 1000;
 
 /**
  * 3 Icons at the top right of Dawn: Tour, RobotIP, Upload
@@ -62,8 +62,8 @@ const DNavComponent = (props: Props) => {
   }
 
   const formatLatencyValue = (latency: number) => {
-    if (latency > MSEC_IN_SECONDS) {
-      latency = latency / MSEC_IN_SECONDS;
+    if (latency > MSEC_IN_ONE_SECOND) {
+      latency = latency / MSEC_IN_ONE_SECOND;
       return `${latency} sec`;
     }
 
