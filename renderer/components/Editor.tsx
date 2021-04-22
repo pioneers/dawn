@@ -523,7 +523,7 @@ export class Editor extends React.Component<Props, State> {
             <ButtonGroup id="file-operations-buttons">
               <DropdownButton
                 title="File"
-                bsSize="small"
+                size="sm"
                 id="choose-theme"
               >
                 <MenuItem
@@ -543,14 +543,14 @@ export class Editor extends React.Component<Props, State> {
                 id="upload"
                 text="Upload"
                 onClick={this.upload}
-                glyph="upload"
+                icon="arrow-circle-up"
                 disabled={false}
               />
               <TooltipButton
                 id="download"
                 text="Download from Robot"
                 onClick={this.props.onDownloadCode}
-                glyph="download"
+                icon="arrow-circle-down"
                 disabled={!this.props.runtimeStatus}
               />
             </ButtonGroup>
@@ -560,7 +560,7 @@ export class Editor extends React.Component<Props, State> {
                 id="run"
                 text="Run"
                 onClick={this.startRobot}
-                glyph="play"
+                icon="play"
                 disabled={this.state.isRunning
                 || !this.props.runtimeStatus
                 || this.props.fieldControlActivity}
@@ -569,12 +569,12 @@ export class Editor extends React.Component<Props, State> {
                 id="stop"
                 text="Stop"
                 onClick={this.stopRobot}
-                glyph="stop"
+                icon="stop"
                 disabled={!(this.state.isRunning || this.state.simulate)}
               />
               <DropdownButton
                 title={this.state.modeDisplay}
-                bsSize="small"
+                size="sm"
                 key="dropdown"
                 id="modeDropdown"
                 disabled={this.state.isRunning || this.state.simulate
@@ -608,7 +608,7 @@ export class Editor extends React.Component<Props, State> {
                 id="toggle-console"
                 text="Toggle Console"
                 onClick={this.toggleConsole}
-                glyph="console"
+                icon="terminal"
                 disabled={false}
                 bsStyle={this.props.consoleUnread ? 'danger' : ''}
               />
@@ -616,28 +616,28 @@ export class Editor extends React.Component<Props, State> {
                 id="clear-console"
                 text="Clear Console"
                 onClick={this.props.onClearConsole}
-                glyph="remove"
+                icon="times"
                 disabled={false}
               />
               <TooltipButton
                 id="raise-console"
                 text="Raise Console"
                 onClick={this.raiseConsole}
-                glyph="arrow-up"
+                icon="arrow-up"
                 disabled={this.state.consoleHeight > windowInfo.CONSOLEMAX}
               />
               <TooltipButton
                 id="lower-console"
                 text="Lower Console"
                 onClick={this.lowerConsole}
-                glyph="arrow-down"
+                icon="arrow-down"
                 disabled={this.state.consoleHeight < windowInfo.CONSOLEMIN}
               />
               <TooltipButton
                 id="copy-console"
                 text="Copy Console"
                 onClick={this.copyConsole}
-                glyph="copy"
+                icon="clipboard"
                 disabled={false}
               />
             </ButtonGroup>
@@ -647,13 +647,13 @@ export class Editor extends React.Component<Props, State> {
                 <FormControl
                   type="number"
                   value={this.state.fontsize}
-                  bsSize="small"
+                  size="sm"
                   onChange={this.handleChangeFontsize}
                   style={{ width: 32, padding: 6 }}
                 />
                 <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip">Text Size</Tooltip>}>
                   <DropdownButton
-                    componentClass={InputGroup.Button}
+                    as={ButtonGroup}
                     title=""
                     bsSize="small"
                     id="choose-font-size"
@@ -693,7 +693,7 @@ export class Editor extends React.Component<Props, State> {
                 id="toggleKeyboardControl"
                 text="Toggle Keyboard Control Mode"
                 onClick={this.toggleKeyboardControl}
-                glyph="text-background"
+                icon="keyboard"
                 disabled={false}
                 bsStyle={this.state.isKeyboardModeToggled ? 'info' : 'default'}
               />
@@ -703,19 +703,19 @@ export class Editor extends React.Component<Props, State> {
                 id="increase-font-size"
                 text="Increase font size"
                 onClick={this.increaseFontsize}
-                glyph="zoom-in"
+                icon="search-plus"
                 disabled={this.props.fontSize >= 28}
               />
               <TooltipButton
                 id="decrease-font-size"
                 text="Decrease font size"
                 onClick={this.decreaseFontsize}
-                glyph="zoom-out"
+                icon="search-minus"
                 disabled={this.props.fontSize <= 8}
               />
               <DropdownButton
                 title="Theme"
-                bsSize="small"
+                size="sm"
                 id="choose-theme"
               >
                 {this.themes.map((theme: string) => (
@@ -734,7 +734,7 @@ export class Editor extends React.Component<Props, State> {
                 id="checkLatency"
                 text="Initiate Latency Check"
                 onClick={this.checkLatency}
-                glyph="send"
+                icon="paper-plane"
                 disabled={false}
               />
             </FormGroup>

@@ -123,7 +123,7 @@ const DNavComponent = (props: Props) => {
                 bsStyle="info"
                 onClick={startTour}
                 id="tour-button"
-                glyph="info-sign"
+                icon="info-circle"
                 disabled={false}
               />
               <TooltipButton
@@ -132,7 +132,7 @@ const DNavComponent = (props: Props) => {
                 bsStyle="info"
                 onClick={() => toggleConfigModal(!showConfigModal)}
                 id="update-address-button"
-                glyph="transfer"
+                icon="exchange-alt"
                 disabled={false}
               />
               <TooltipButton
@@ -142,7 +142,7 @@ const DNavComponent = (props: Props) => {
                 onClick={() => toggleUpdateModal(!showUpdateModal)}
                 disabled={!runtimeStatus}
                 id="update-software-button"
-                glyph="cloud-upload"
+                icon="cloud-upload-alt"
               />
             </ButtonGroup>
           </ButtonToolbar>
