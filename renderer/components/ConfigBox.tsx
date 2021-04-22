@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ChangeEventHandler } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
@@ -87,24 +87,23 @@ export const ConfigBoxComponent = (props: Props) => {
     props.hide();
   };
 
-  const handleIpChange = (e: React.ChangeEventHandler<FormControlElement>) => {
+  const handleIpChange = (e: React.BaseSyntheticEvent) => {
     setIPAddress(e.currentTarget.value);
   };
 
-
-  const handleUDPTunnelIpChange = (e: React.FormEvent<typeof Form.Control & HTMLInputElement>) => {
+  const handleUDPTunnelIpChange = (e: React.BaseSyntheticEvent) => {
     setUDPTunnelIpAddress(e.currentTarget.value);
   };
 
-  const handleSSHIpChange = (e: React.FormEvent<typeof Form.Control & HTMLInputElement>) => {
+  const handleSSHIpChange = (e: React.BaseSyntheticEvent) => {
     setSSHAddress(e.currentTarget.value);
   }
 
-  const handleFcChange = (e: React.FormEvent<typeof Form.Control & HTMLInputElement>) => {
+  const handleFcChange = (e: React.BaseSyntheticEvent) => {
     setFCAddress(e.currentTarget.value);
   };
 
-  const handleStationChange = (e: React.FormEvent<typeof Form.Control & HTMLInputElement>) => {
+  const handleStationChange = (e: React.BaseSyntheticEvent) => {
     setStationNumber(parseInt(e.currentTarget.value));
   };
 
