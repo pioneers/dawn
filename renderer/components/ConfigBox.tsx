@@ -35,6 +35,8 @@ interface OwnProps {
 }
 
 type Props = StateProps & DispatchProps & OwnProps;
+type FormControlElement = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+
 
 export const ConfigBoxComponent = (props: Props) => {
   const [ipAddress, setIPAddress] = useState(props.ipAddress);
@@ -87,23 +89,23 @@ export const ConfigBoxComponent = (props: Props) => {
     props.hide();
   };
 
-  const handleIpChange = (e: React.BaseSyntheticEvent) => {
+  const handleIpChange = (e: React.FormEvent<FormControlElement>) => {
     setIPAddress(e.currentTarget.value);
   };
 
-  const handleUDPTunnelIpChange = (e: React.BaseSyntheticEvent) => {
+  const handleUDPTunnelIpChange = (e: React.FormEvent<FormControlElement>) => {
     setUDPTunnelIpAddress(e.currentTarget.value);
   };
 
-  const handleSSHIpChange = (e: React.BaseSyntheticEvent) => {
+  const handleSSHIpChange = (e: React.FormEvent<FormControlElement>) => {
     setSSHAddress(e.currentTarget.value);
   }
 
-  const handleFcChange = (e: React.BaseSyntheticEvent) => {
+  const handleFcChange = (e: React.FormEvent<FormControlElement>) => {
     setFCAddress(e.currentTarget.value);
   };
 
-  const handleStationChange = (e: React.BaseSyntheticEvent) => {
+  const handleStationChange = (e: React.FormEvent<FormControlElement>) => {
     setStationNumber(parseInt(e.currentTarget.value));
   };
 
