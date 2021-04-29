@@ -745,11 +745,11 @@ export class Editor extends React.Component<Props, State> {
             </FormGroup>
             <FormGroup>
               <TooltipButton
-                id="checkLatency"
-                text="Initiate Latency Check"
+                id="staffCodeButton"
+                text="Import Staff Code"
                 onClick={() => {
                   const confirmBox = window.confirm(
-                    "Do you really want to overwrite your code with Staff Code?"
+                    "Do you really want to overwrite your code with Staff Code? Make sure you saved your code."
                   )
                   if (confirmBox === true) {
                     this.insertStaffCode()
