@@ -74,7 +74,6 @@ class RendererBridge {
    * Redux actions to the main window to avoid large refactors from the current usage of this method.
    */
   reduxDispatch = (action: any, windowKeys: SingleOrArray<string> | 'all' | 'main' = 'main') => {
-    console.log("Redux dispatch");
     this.dispatch(windowKeys, 'reduxDispatch', action);
   };
 };

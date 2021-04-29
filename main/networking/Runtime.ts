@@ -153,6 +153,7 @@ class UDPTunneledConn {
   udpForwarder: UDPSocket;
   ip: string;
   port: number;
+  connectionInterval: ReturnType<typeof setInterval>;
 
   constructor(logger: Logger) {
     this.logger = logger;
@@ -161,7 +162,7 @@ class UDPTunneledConn {
     this.tcpSocket = new TCPSocket();
 
     // Connect to most recent IP
-    setInterval(() => {
+    this.connectionInterval = setInterval(() => {
       if (!this.tcpSocket.connecting && this.tcpSocket.pending) {
         if (this.ip !== defaults.IPADDRESS) {
           if (this.ip.includes(':')) {
@@ -235,6 +236,7 @@ class UDPTunneledConn {
       this.tcpSocket.end();
     }
     this.udpForwarder.close();
+    clearInterval(this.connectionInterval);
     ipcMain.removeListener('udpTunnelIpAddress', this.ipAddressListener);
   };
 }
@@ -243,13 +245,14 @@ class TCPConn {
   logger: Logger;
   socket: TCPSocket;
   leftoverBytes: Buffer | undefined;
+  connectionInterval: ReturnType<typeof setInterval>;
 
   constructor(logger: Logger) {
     this.logger = logger;
     this.socket = new TCPSocket();
 
     // Connect to most recent IP
-    setInterval(() => {
+    this.connectionInterval = setInterval(() => {
       if (!this.socket.connecting && this.socket.pending) {
         if (runtimeIP !== defaults.IPADDRESS) {
           let port = DEFAULT_TCP_PORT;
@@ -403,6 +406,7 @@ class TCPConn {
 
   close = () => {
     this.socket.end();
+    clearInterval(this.connectionInterval);
     ipcMain.removeListener('runModeUpdate', this.sendRunMode);
     ipcMain.removeListener('ipAddress', this.ipAddressListener);
     ipcMain.removeListener('initiateLatencyCheck', this.initiateLatencyCheck);
