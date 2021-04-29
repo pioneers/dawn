@@ -57,10 +57,11 @@ class RendererBridge {
       for (const key of windowKeys) {
         const registeredWindow = this.registeredWindows[key];
 
-        // Special case for dispatching Redux since we can only dispatch 1 action at a time
+        // Special case for dispatching Redux since we can only dispatch one action at a time
         if (channel === 'reduxDispatch') {
           data = data[0];
         }
+
         registeredWindow?.webContents.send(channel, data);
       }
     } catch (e) {
