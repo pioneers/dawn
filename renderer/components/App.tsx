@@ -12,8 +12,12 @@ import { removeAsyncAlert } from '../actions/AlertActions';
 import { updateFieldControl } from '../actions/FieldActions';
 import { logging, startLog } from '../utils/utils';
 import { FieldControlConfig } from '../types';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { fas } from '@fortawesome/free-solid-svg-icons';
 
 type ElectronJSONStorage = typeof electronJSONStorage;
+
+library.add(fas);
 
 const storage = remote.require('electron-json-storage') as ElectronJSONStorage;
 
