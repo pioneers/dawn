@@ -2,7 +2,7 @@ import React from 'react';
 import {
   Modal,
   Button,
-  ListGroupItem,
+  ListGroup,
   Table,
 } from 'react-bootstrap';
 import _ from 'lodash';
@@ -19,6 +19,7 @@ type Props = OwnProps;
 interface State {
   showModal: boolean;
 }
+
 
 const NUM_GAMEPAD_BUTTONS = 17;
 const NUM_GAMEPAD_AXES = 4;
@@ -67,10 +68,10 @@ export class Gamepad extends React.Component<Props, State> {
     }
     const values = this.roundedValues();
     return (
-      <ListGroupItem>
+      <ListGroup.Item>
         <div style={{ overflow: 'auto', width: '100%' }}>
           <span style={{ float: 'left' }}>{this.renderHeader()}</span>
-          <Button type="button" bsSize="small" onClick={this.openModal} style={{ float: 'right' }}>
+          <Button type="button" size="sm" onClick={this.openModal} style={{ float: 'right' }}>
             Details
           </Button>
         </div>
@@ -107,7 +108,7 @@ export class Gamepad extends React.Component<Props, State> {
             </Table>
           </Modal.Body>
         </Modal>
-      </ListGroupItem>
+      </ListGroup.Item>
     );
   }
 };
