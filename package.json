@@ -117,6 +117,7 @@
     "bufferutil": "4.0.1",
     "create-react-class": "15.6.2",
     "electron-json-storage": "4.0.2",
+    "formik": "^2.2.6",
     "immutable": "3.8.2",
     "json-loader": "0.5.7",
     "keymirror": "0.1.1",

@@ -27,6 +27,13 @@ export const getValidationState = (testIPAddress: string) => {
   return 'error';
 };
 
+export const isValidationState = (testIPAddress: string) => {
+    if (IPV4_REGEX.test(testIPAddress)) {
+        return true;
+    }
+    return false;
+}
+
 export const uploadStatus = {
   RECEIVED: 0,
   SENT: 1,

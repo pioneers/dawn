@@ -4,10 +4,11 @@ import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import _ from 'lodash';
-import { defaults, getValidationState, logging } from '../utils/utils';
+import { defaults, getValidationState, logging, isValidationState } from '../utils/utils';
 import { updateFieldControl } from '../actions/FieldActions';
 import { ipChange, udpTunnelIpChange, sshIpChange } from '../actions/InfoActions';
 import storage from 'electron-json-storage';
+import { Formik } from 'formik';
 
 interface Config {
   stationNumber: number;
@@ -178,54 +179,63 @@ export const ConfigBoxComponent = (props: Props) => {
   const { shouldShow } = props;
 
   return (
-    <Modal show={shouldShow} onHide={handleClose} animation={false}>
-      <Form action="" onSubmit={saveChanges}>
-        <Modal.Header closeButton>
-          <Modal.Title>Dawn Configuration</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>
-            Make sure only one computer (running instance of Dawn) is attempting to connect to the robot at a time! (i.e. not trying to
-            connect to the same IP Address)
-          </p>
-          <Form.Group controlId="ipAddress" validationState={getValidationState(ipAddress)}>
-            <Form.Label>IP Address</Form.Label>
-            <Form.Control type="text" value={ipAddress} placeholder="i.e. 192.168.100.13" onChange={handleIpChange} />
-            <Form.Control.Feedback />
-          </Form.Group>
+      // TODO: Figure out formik stuff
+      <Formik
+    //   validationSchema={schema}
+      onSubmit={console.log}
+      initialValues={{
+        
+      }}
+    >
+        <Modal show={shouldShow} onHide={handleClose} animation={false}>
+        <Form action="" onSubmit={saveChanges}>
+            <Modal.Header closeButton>
+            <Modal.Title>Dawn Configuration</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+            <p>
+                Make sure only one computer (running instance of Dawn) is attempting to connect to the robot at a time! (i.e. not trying to
+                connect to the same IP Address)
+            </p>
+            <Form.Group controlId="ipAddress">
+                <Form.Label>IP Address</Form.Label>
+                <Form.Control type="text" value={ipAddress} placeholder="i.e. 192.168.100.13" onChange={handleIpChange} isValid={isValidationState(ipAddress)} />
+                <Form.Control.Feedback />
+            </Form.Group>
 
-          <Form.Group controlId="ipAddress" validationState={getValidationState(udpTunnelIpAddress)}>
-            <Form.Label>UDP Tunneling</Form.Label>
-            <Form.Control type="text" value={udpTunnelIpAddress} placeholder="i.e. 192.168.100.13" onChange={handleUDPTunnelIpChange} />
-            <Form.Control.Feedback />
-          </Form.Group>
+            <Form.Group controlId="ipAddress">
+                <Form.Label>UDP Tunneling</Form.Label>
+                <Form.Control type="text" value={udpTunnelIpAddress} placeholder="i.e. 192.168.100.13" onChange={handleUDPTunnelIpChange} isValid={isValidationState(ipAddress)} />
+                <Form.Control.Feedback />
+            </Form.Group>
 
-          <Form.Group controlId="ipAddress" validationState={getValidationState(sshAddress)}>
-            <Form.Label>SSH Address</Form.Label>
-            <Form.Control type="text" value={sshAddress} placeholder="i.e. 192.168.100.13" onChange={handleSSHIpChange} />
-            <Form.Control.Feedback />
-          </Form.Group>
+            <Form.Group controlId="ipAddress">
+                <Form.Label>SSH Address</Form.Label>
+                <Form.Control type="text" value={sshAddress} placeholder="i.e. 192.168.100.13" onChange={handleSSHIpChange} isValid={isValidationState(ipAddress)} />
+                <Form.Control.Feedback />
+            </Form.Group>
 
-          <p>Field Control Settings</p>
-          <Form.Group controlId="fcAddress" validationState={getValidationState(fcAddress)}>
-            <Form.Label>Field Control IP Address</Form.Label>
-            <Form.Control type="text" value={fcAddress} placeholder="i.e. 192.168.100.13" onChange={handleFcChange} />
-            <Form.Control.Feedback />
-          </Form.Group>
+            <p>Field Control Settings</p>
+            <Form.Group controlId="fcAddress">
+                <Form.Label>Field Control IP Address</Form.Label>
+                <Form.Control type="text" value={fcAddress} placeholder="i.e. 192.168.100.13" onChange={handleFcChange} isValid={isValidationState(ipAddress)} />
+                <Form.Control.Feedback />
+            </Form.Group>
 
-          <Form.Group controlId="stationNumber" validationState={stationNumber >= 0 && stationNumber <= 4 ? 'success' : 'error'}>
-            <Form.Label>Field Control Station Number</Form.Label>
-            <Form.Control type="number" value={stationNumber} placeholder="An integer from 0 to 4" onChange={handleStationChange} />
-            <Form.Control.Feedback />
-          </Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button type="submit" variant="primary" disabled={disableUploadUpdate()}>
-            Update
-          </Button>
-        </Modal.Footer>
-      </Form>
-    </Modal>
+            <Form.Group controlId="stationNumber">
+                <Form.Label>Field Control Station Number</Form.Label>
+                <Form.Control type="number" value={stationNumber} placeholder="An integer from 0 to 4" onChange={handleStationChange} isValid={stationNumber >= 0 && stationNumber <= 4}/>
+                <Form.Control.Feedback />
+            </Form.Group>
+            </Modal.Body>
+            <Modal.Footer>
+            <Button type="submit" variant="primary" disabled={disableUploadUpdate()}>
+                Update
+            </Button>
+            </Modal.Footer>
+        </Form>
+        </Modal>
+    </Formik>
   );
 };
 
