@@ -16,6 +16,7 @@ import { Ace } from 'ace-builds'
 import { remote, clipboard } from 'electron';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
+import StaffCode from './StaffCode'
 
 // React-ace extensions and modes
 import 'ace-builds/src-noconflict/ext-language_tools';
@@ -279,6 +280,10 @@ export class Editor extends React.Component<Props, State> {
   }
   checkLatency = () => {
     this.props.onInitiateLatencyCheck()
+  }
+  insertStaffCode = () => {
+    
+    this.props.onEditorUpdate(StaffCode)
   }
   // toggle keyboard control and add/remove listening for key presses to control robot
   toggleKeyboardControl = () => {
@@ -735,6 +740,22 @@ export class Editor extends React.Component<Props, State> {
                 text="Initiate Latency Check"
                 onClick={this.checkLatency}
                 glyph="send"
+                disabled={false}
+              />
+            </FormGroup>
+            <FormGroup>
+              <TooltipButton
+                id="checkLatency"
+                text="Initiate Latency Check"
+                onClick={() => {
+                  const confirmBox = window.confirm(
+                    "Do you really want to overwrite your code with Staff Code?"
+                  )
+                  if (confirmBox === true) {
+                    this.insertStaffCode()
+                  }
+                }}
+                glyph="star"
                 disabled={false}
               />
             </FormGroup>
