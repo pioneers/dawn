@@ -200,6 +200,8 @@ function* dragFile(action: any) {
  *
  * NOTE that this is different from whether or not the Runtime connection
  * is still alive.
+ * @deprecated - normally this heartbeat is checked through the Runtime UDP connection, 
+ * but the connection is now checked through TCP so this is no longer needed
  */
 function* runtimeHeartbeat() {
   while (true) {
