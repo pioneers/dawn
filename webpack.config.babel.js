@@ -19,15 +19,6 @@ const modules = {
       exclude: /node_modules/,
       use: [{ loader: 'ts-loader' }]
     },
-    // {
-    //   test: /\.js$/,
-    //   exclude: [/node_modules/, /protos/],
-    //   enforce: 'pre',
-    //   loader: 'eslint-loader',
-    //   options: {
-    //     formatter: require('eslint/lib/cli-engine/formatters/stylish')
-    //   },
-    // },
     {
       test: /\.js$/,
       exclude: /node_modules/,
