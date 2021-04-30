@@ -1,6 +1,4 @@
-
-const staff_code: string = 
-`# NOTE FROM PIE STAFF
+export const ROBOT_STAFF_CODE = `# NOTE FROM PIE STAFF
 # This code has not been tested thoroughly on robots; it is meant to be guidance to help improve
 # the code you currently have. It will be tested throughout the week and will be available for you
 # to use during final competition if you are unable to get working code on your testing day.
@@ -98,5 +96,4 @@ def teleop_main():
     else:
         Robot.set_value(MOTOR_ID, "velocity_" + RIGHT_MTR, 0.0)
         
-`
-export default staff_code
+`;
