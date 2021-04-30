@@ -5,7 +5,7 @@ import * as protos from '../../protos/protos';
 
 import RendererBridge from '../RendererBridge';
 import { updateConsole } from '../../renderer/actions/ConsoleActions';
-import { runtimeDisconnect, infoPerMessage } from '../../renderer/actions/InfoActions';
+import { runtimeConnect, runtimeDisconnect } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { Logger, defaults } from '../../renderer/utils/utils';
 import { Peripheral } from '../../renderer/types';
@@ -270,6 +270,7 @@ class TCPConn {
 
     this.socket.on('connect', () => {
       this.logger.log('Runtime connected');
+      RendererBridge.reduxDispatch(runtimeConnect());
       this.socket.write(new Uint8Array([1])); // Runtime needs first byte to be 1 to recognize client as Dawn (instead of Shepherd)
     });
 
@@ -405,6 +406,7 @@ class TCPConn {
   };
 
   close = () => {
+    RendererBridge.reduxDispatch(runtimeDisconnect());
     this.socket.end();
     clearInterval(this.connectionInterval);
     ipcMain.removeListener('runModeUpdate', this.sendRunMode);
@@ -431,7 +433,6 @@ class UDPConn {
     });
 
     this.socket.on('close', () => {
-      RendererBridge.reduxDispatch(runtimeDisconnect());
       this.logger.log('UDP connection closed');
     });
 
@@ -442,7 +443,6 @@ class UDPConn {
      */
     this.socket.on('message', (msg: Uint8Array) => {
       try {
-        RendererBridge.reduxDispatch(infoPerMessage());
         const sensorData: protos.Device[] = protos.DevData.decode(msg).devices;
         // Need to convert protos.Device to Peripheral here because when dispatching to the renderer over IPC,
         // some of the inner properties (i.e. device.uid which is a Long) loses its prototype, which means any
