@@ -75,7 +75,7 @@ app.on('ready', () => {
     }
   });
 
-  ipcMain.on('SHOW_VIDEOFEED', () => {
+  ipcMain.on('SHOW_VIDEO_FEED', () => {
     if (!videoWindow) {
       videoWindow = new BrowserWindow({
         webPreferences: {
@@ -85,13 +85,13 @@ app.on('ready', () => {
         width: 1000,
         height: 700,
       });
-      RendererBridge.registerWindow('video_feed_window', videoWindow);
+      RendererBridge.registerWindow('video_feed', videoWindow);
       videoWindow.on('closed', () => {
         videoWindow = null;
       });
       videoWindow.maximize();
       videoWindow.loadURL(`file://${__dirname}/../static/video-feed/video.html`);
-      videoWindow.webContents.on('dom-ready', () => RendererBridge.dispatch('video_feed_window', 'shepherdScoreboardServerIpAddress', FCObject.bridgeAddress))
+      videoWindow.webContents.on('dom-ready', () => RendererBridge.dispatch('video_feed', 'shepherdScoreboardServerIpAddress', FCObject.bridgeAddress))
       videoWindow.on('ready-to-show', () => {
         if (videoWindow) {
           videoWindow.show();

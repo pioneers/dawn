@@ -159,7 +159,7 @@ const DNavComponent = (props: Props) => {
                 placement="bottom"
                 text="Open Video Feed"
                 bsStyle="info"
-                onClick={() => ipcRenderer.send('SHOW_VIDEOFEED')}
+                onClick={() => ipcRenderer.send('SHOW_VIDEO_FEED')}
                 id="show-video-feed-button"
                 glyph="play"
                 disabled={false}

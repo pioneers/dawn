@@ -71,7 +71,7 @@ const DebugMenu: MenuItemConstructorOptions = {
     {
       label: 'Toggle Videofeed DevTools',
       click() {
-        RendererBridge.toggleWindowDevtools('videofeed');
+        RendererBridge.toggleWindowDevtools('video_feed');
       },
     },
   ],
