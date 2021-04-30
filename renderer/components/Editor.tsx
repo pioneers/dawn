@@ -35,8 +35,8 @@ import 'ace-builds/src-noconflict/theme-terminal';
 
 import { ConsoleOutput } from './ConsoleOutput';
 import { TooltipButton } from './TooltipButton';
+import { keyboardButtons, ROBOT_STAFF_CODE } from '../consts';
 import { pathToName, robotState, timings, logging, windowInfo } from '../utils/utils';
-import { keyboardButtons } from '../consts/keyboard-buttons';
 
 const { dialog } = remote;
 const currentWindow = remote.getCurrentWindow();
@@ -276,10 +276,16 @@ export class Editor extends React.Component<Props, State> {
     this.props.toggleConsole();
     // Resize since the console overlaps with the editor, but enough time for console changes
     setTimeout(() => this.onWindowResize(), 0.01);
-  }
+  };
+
   checkLatency = () => {
-    this.props.onInitiateLatencyCheck()
-  }
+    this.props.onInitiateLatencyCheck();
+  };
+
+  insertRobotStaffCode = () => {
+    this.props.onEditorUpdate(ROBOT_STAFF_CODE);
+  };
+
   // toggle keyboard control and add/remove listening for key presses to control robot
   toggleKeyboardControl = () => {
     const { isKeyboardModeToggled } = this.state;
@@ -741,6 +747,27 @@ export class Editor extends React.Component<Props, State> {
                 text="Initiate Latency Check"
                 onClick={this.checkLatency}
                 glyph="send"
+                disabled={false}
+              />
+            </FormGroup>
+            <FormGroup>
+              <TooltipButton
+                id="staffCodeButton"
+                text="Import Staff Code"
+                onClick={() => {
+                  if (this.props.editorCode !== this.props.latestSaveCode) {
+                    const shouldOverwrite = window.confirm(
+                      'You currently have unsaved changes. Do you really want to overwrite your code with Staff Code?'
+                    );
+
+                    if (shouldOverwrite) {
+                      this.insertRobotStaffCode();
+                    }
+                  } else {
+                    this.insertRobotStaffCode();
+                  }
+                }}
+                glyph="star"
                 disabled={false}
               />
             </FormGroup>
