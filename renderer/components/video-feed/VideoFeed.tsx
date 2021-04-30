@@ -10,7 +10,6 @@ import { ShepherdOverlay } from './ShepherdOverlay';
 
 export const VideoFeed = () => {
   const [isKeyboardModeToggled, setIsKeyboardModeToggled] = useState(false);
-  // const [shouldShowScoreboard, setShouldShowScoreboard] = useState(true);
 
   const [keyboardBitmap, setKeyboardBitmap] = useState(0);
   const keyboardBitmapRef = useRef(0);
@@ -132,10 +131,7 @@ export const VideoFeed = () => {
         <div id="overhead-video-feed"></div>
       </div>
 
-      <div id="shepherd-overlay">
-        {/* {shouldShowScoreboard ? ShepherdOverlay() : null} */}
-        {ShepherdOverlay()}
-      </div>
+      <div id="shepherd-overlay">{ShepherdOverlay()}</div>
 
       <div id="footer">
         <Button
@@ -147,9 +143,6 @@ export const VideoFeed = () => {
         >
           Toggle Keyboard Control Mode
         </Button>
-        {/* <Button onClick={() => setShouldShowScoreboard(!shouldShowScoreboard)} bsStyle={shouldShowScoreboard ? 'info' : 'default'} style={{ zIndex: 100 }}>
-          Toggle Overlay  
-        </Button> */}
       </div>
     </>
   );
