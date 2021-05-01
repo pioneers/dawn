@@ -15,13 +15,13 @@ RIGHT_MTR = "a"
 ARM_MTR = "b"
 
 # Controls (change these to your preferences)
-LEFT_MOTOR_FORWARD = "q"
-LEFT_MOTOR_BACKWARD = "w"
-RIGHT_MOTOR_FORWARD = "o"
-RIGHT_MOTOR_BACKWARD = "p"
+LEFT_MOTOR_FORWARD = "1"
+LEFT_MOTOR_BACKWARD = "z"
+RIGHT_MOTOR_FORWARD = "0"
+RIGHT_MOTOR_BACKWARD = ","
 
-ARM_DOWN = "t"
-ARM_UP = "u"
+ARM_DOWN = "2"
+ARM_UP = "]"
 
 # Arm positions 
 # (NOT TESTED! You need to find positions that work based on your arm and your reference encoder value)
@@ -76,9 +76,18 @@ def arm_code():
             Robot.set_value(ARM_MOTOR_ID, "velocity_" + ARM_MTR, 0.0)
 
 def teleop_setup():
-    # Start the arm_code() function running simultaneously with teleop_main()
-    # Robot.run(arm_code)
-    pass
+    # Set motor inversions
+    Robot.set_value(MOTOR_ID, "invert_" + LEFT_MTR, LEFT_MTR_INVERT)
+    Robot.set_value(MOTOR_ID, "invert_" + RIGHT_MTR, RIGHT_MTR_INVERT)
+
+    # Disable motor PID
+    Robot.set_value(MOTOR_ID, "pid_enabled_" + LEFT_MTR, False)
+    Robot.set_value(MOTOR_ID, "pid_enabled_" + RIGHT_MTR, False)
+
+    # Tell PiE staff to put arm into reset position before running
+    # This line will set the position of the arm to an encoder value of 0
+    Robot.set_value(ARM_MOTOR_ID, "enc_" + ARM_MTR, 0)
+    Robot.run(arm_code)
 
 def teleop_main():
     # Drive code
@@ -95,5 +104,5 @@ def teleop_main():
         Robot.set_value(MOTOR_ID, "velocity_" + RIGHT_MTR, -1.0)
     else:
         Robot.set_value(MOTOR_ID, "velocity_" + RIGHT_MTR, 0.0)
-
+        
 `;
