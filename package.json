@@ -132,7 +132,7 @@
     "pwa-helpers": "^0.9.1",
     "react": "^16.13.1",
     "react-ace": "^9.1.3",
-    "react-bootstrap": "1.5.2",
+    "react-bootstrap": "^1.6.0",
     "react-dom": "^16.13.1",
     "react-immutable-proptypes": "2.1.0",
     "react-joyride": "^2.2.1",
