@@ -23,7 +23,7 @@ interface StateProp{
 
 export const TooltipButton = (props: StateProp) => {
   // Look up definition of FA icon passed to props 
-  const iconDef = findIconDefinition({ prefix: 'fas', iconName: props.glyph});
+  const iconDef = findIconDefinition({ prefix: 'fas', iconName: props.icon});
 
   const tooltip = (
     <Tooltip id={`tooltip-editor-button-${props.id}`}>{props.text}</Tooltip>

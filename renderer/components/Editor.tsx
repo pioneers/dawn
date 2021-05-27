@@ -1,15 +1,15 @@
 import React from 'react';
 import {
-  Panel,
+  Card,
   ButtonGroup,
   DropdownButton,
-  MenuItem,
   FormGroup,
   FormControl,
   Form,
   InputGroup,
   OverlayTrigger,
   Tooltip,
+  Dropdown,
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import { Ace } from 'ace-builds'
@@ -514,11 +514,11 @@ export class Editor extends React.Component<Props, State> {
     }
 
     return (
-      <Panel bsStyle="primary">
-        <Panel.Heading>
-          <Panel.Title style={{ fontSize: '14px' }}>Editing: {pathToName(this.props.filepath) ? pathToName(this.props.filepath) : '[ New File ]' } {changeMarker}</Panel.Title>
-        </Panel.Heading>
-        <Panel.Body>
+      <Card bg="primary">
+        <Card.Header>
+          <Card.Title style={{ fontSize: '14px' }}>Editing: {pathToName(this.props.filepath) ? pathToName(this.props.filepath) : '[ New File ]' } {changeMarker}</Card.Title>
+        </Card.Header>
+        <Card.Body>
           <Form inline onSubmit={this.handleSubmitFontsize}>
             <ButtonGroup id="file-operations-buttons">
               <DropdownButton
@@ -526,18 +526,18 @@ export class Editor extends React.Component<Props, State> {
                 size="sm"
                 id="choose-theme"
               >
-                <MenuItem
+                <Dropdown.Item
                   onClick={this.props.onCreateNewFile}
-                >New File</MenuItem>
-                <MenuItem
+                >New File</Dropdown.Item>
+                <Dropdown.Item
                   onClick={this.props.onOpenFile}
-                >Open</MenuItem>
-                <MenuItem
+                >Open</Dropdown.Item>
+                <Dropdown.Item
                   onClick={_.partial(this.props.onSaveFile,false)}
-                >Save</MenuItem>
-                <MenuItem
+                >Save</Dropdown.Item>
+                <Dropdown.Item
                   onClick={_.partial(this.props.onSaveFile, true)}
-                >Save As</MenuItem>
+                >Save As</Dropdown.Item>
               </DropdownButton>
               <TooltipButton
                 id="upload"
@@ -581,25 +581,25 @@ export class Editor extends React.Component<Props, State> {
                 || this.props.fieldControlActivity
                 || !this.props.runtimeStatus}
               >
-                <MenuItem
+                <Dropdown.Item
                   eventKey="1"
                   active={this.state.mode === robotState.AUTONOMOUS && !this.state.simulate}
                   onClick={() => {
                     this.setState({ mode: robotState.AUTONOMOUS, modeDisplay: robotState.AUTOSTR });
                   }}
-                >Autonomous</MenuItem>
-                <MenuItem
+                >Autonomous</Dropdown.Item>
+                <Dropdown.Item
                   eventKey="2"
                   active={this.state.mode === robotState.TELEOP && !this.state.simulate}
                   onClick={() => {
                     this.setState({ mode: robotState.TELEOP, modeDisplay: robotState.TELEOPSTR });
                   }}
-                >Tele-Operated</MenuItem>
-                <MenuItem
+                >Tele-Operated</Dropdown.Item>
+                <Dropdown.Item
                   eventKey="3"
                   active={this.state.simulate}
                   onClick={this.simulateCompetition}
-                >Simulate Competition</MenuItem>
+                >Simulate Competition</Dropdown.Item>
               </DropdownButton>
             </ButtonGroup>
             {' '}
@@ -658,34 +658,34 @@ export class Editor extends React.Component<Props, State> {
                     bsSize="small"
                     id="choose-font-size"
                   >
-                    <MenuItem
+                    <Dropdown.Item
                       className="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(8)}
-                    >8</MenuItem>
-                    <MenuItem
+                    >8</Dropdown.Item>
+                    <Dropdown.Item
                       className="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(12)}
-                    >12</MenuItem>
-                    <MenuItem
+                    >12</Dropdown.Item>
+                    <Dropdown.Item
                       className="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(14)}
-                    >14</MenuItem>
-                    <MenuItem
+                    >14</Dropdown.Item>
+                    <Dropdown.Item
                       className="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(16)}
-                    >16</MenuItem>
-                    <MenuItem
+                    >16</Dropdown.Item>
+                    <Dropdown.Item
                       className="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(20)}
-                    >20</MenuItem>
-                    <MenuItem
+                    >20</Dropdown.Item>
+                    <Dropdown.Item
                       className="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(24)}
-                    >24</MenuItem>
-                    <MenuItem
+                    >24</Dropdown.Item>
+                    <Dropdown.Item
                       className="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(28)}
-                    >28</MenuItem>
+                    >28</Dropdown.Item>
                   </DropdownButton>
                 </OverlayTrigger>
               </InputGroup>
@@ -719,13 +719,13 @@ export class Editor extends React.Component<Props, State> {
                 id="choose-theme"
               >
                 {this.themes.map((theme: string) => (
-                  <MenuItem
+                  <Dropdown.Item
                     active={theme === this.props.editorTheme}
                     onClick={_.partial(this.changeTheme, theme)}
                     key={theme}
                   >
                     {theme}
-                  </MenuItem>
+                  </Dropdown.Item>
                 ))}
               </DropdownButton>
             </ButtonGroup>
@@ -760,8 +760,8 @@ export class Editor extends React.Component<Props, State> {
             output={this.props.consoleData}
             disableScroll={this.props.disableScroll}
           />
-        </Panel.Body>
-      </Panel>
+        </Card.Body>
+      </Card>
     );
   }
 }
