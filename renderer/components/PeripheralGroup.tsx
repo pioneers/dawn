@@ -33,9 +33,9 @@ const PeripheralGroup = (props: PGProps) => {
     const groupNameCleaned = groupName; //cleanerNames[groupName] as string;
 
     return (
-      <Card key={`${groupNameCleaned || 'Default'}-Card`} defaultExpanded>
-        <Card.Header onClick={() => setOut(!out)}>
-          <Card.Title toggle style={{ fontWeight: 'bold' }}>
+      <Card key={`${groupNameCleaned || 'Default'}-Card`}>
+        <Card.Header>
+          <Card.Title onClick={() => setOut(!out)} style={{ fontWeight: 'bold' }}>
             {groupName || 'Generic'}
           </Card.Title>
         </Card.Header>
