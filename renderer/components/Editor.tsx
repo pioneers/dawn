@@ -655,7 +655,7 @@ export class Editor extends React.Component<Props, State> {
                   <DropdownButton
                     as={ButtonGroup}
                     title=""
-                    bsSize="small"
+                    variant="small"
                     id="choose-font-size"
                   >
                     <Dropdown.Item
