@@ -28,6 +28,7 @@ const GamepadListComponent = (props: Props) => {
   }
   return (
     <Card
+      className="mb-4"
       border="primary"
       id="gamepads-panel"
     >
