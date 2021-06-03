@@ -1,0 +1,30 @@
+.video-feed-container {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    width: 100%;
+    z-index: -1;
+}
+
+#overhead-video-feed {
+    width: 30%;
+    height: 30%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#shepherd-overlay {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#footer {
+    display: flex;
+    padding: 8px;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}

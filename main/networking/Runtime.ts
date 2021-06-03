@@ -5,7 +5,7 @@ import * as protos from '../../protos/protos';
 
 import RendererBridge from '../RendererBridge';
 import { updateConsole } from '../../renderer/actions/ConsoleActions';
-import { runtimeDisconnect, infoPerMessage } from '../../renderer/actions/InfoActions';
+import { runtimeConnect, runtimeDisconnect } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { Logger, defaults } from '../../renderer/utils/utils';
 import { Peripheral } from '../../renderer/types';
@@ -153,6 +153,7 @@ class UDPTunneledConn {
   udpForwarder: UDPSocket;
   ip: string;
   port: number;
+  connectionInterval: ReturnType<typeof setInterval>;
 
   constructor(logger: Logger) {
     this.logger = logger;
@@ -161,7 +162,7 @@ class UDPTunneledConn {
     this.tcpSocket = new TCPSocket();
 
     // Connect to most recent IP
-    setInterval(() => {
+    this.connectionInterval = setInterval(() => {
       if (!this.tcpSocket.connecting && this.tcpSocket.pending) {
         if (this.ip !== defaults.IPADDRESS) {
           if (this.ip.includes(':')) {
@@ -235,6 +236,7 @@ class UDPTunneledConn {
       this.tcpSocket.end();
     }
     this.udpForwarder.close();
+    clearInterval(this.connectionInterval);
     ipcMain.removeListener('udpTunnelIpAddress', this.ipAddressListener);
   };
 }
@@ -243,13 +245,14 @@ class TCPConn {
   logger: Logger;
   socket: TCPSocket;
   leftoverBytes: Buffer | undefined;
+  connectionInterval: ReturnType<typeof setInterval>;
 
   constructor(logger: Logger) {
     this.logger = logger;
     this.socket = new TCPSocket();
 
     // Connect to most recent IP
-    setInterval(() => {
+    this.connectionInterval = setInterval(() => {
       if (!this.socket.connecting && this.socket.pending) {
         if (runtimeIP !== defaults.IPADDRESS) {
           let port = DEFAULT_TCP_PORT;
@@ -267,6 +270,7 @@ class TCPConn {
 
     this.socket.on('connect', () => {
       this.logger.log('Runtime connected');
+      RendererBridge.reduxDispatch(runtimeConnect());
       this.socket.write(new Uint8Array([1])); // Runtime needs first byte to be 1 to recognize client as Dawn (instead of Shepherd)
     });
 
@@ -402,7 +406,9 @@ class TCPConn {
   };
 
   close = () => {
+    RendererBridge.reduxDispatch(runtimeDisconnect());
     this.socket.end();
+    clearInterval(this.connectionInterval);
     ipcMain.removeListener('runModeUpdate', this.sendRunMode);
     ipcMain.removeListener('ipAddress', this.ipAddressListener);
     ipcMain.removeListener('initiateLatencyCheck', this.initiateLatencyCheck);
@@ -427,7 +433,6 @@ class UDPConn {
     });
 
     this.socket.on('close', () => {
-      RendererBridge.reduxDispatch(runtimeDisconnect());
       this.logger.log('UDP connection closed');
     });
 
@@ -438,7 +443,6 @@ class UDPConn {
      */
     this.socket.on('message', (msg: Uint8Array) => {
       try {
-        RendererBridge.reduxDispatch(infoPerMessage());
         const sensorData: protos.Device[] = protos.DevData.decode(msg).devices;
         // Need to convert protos.Device to Peripheral here because when dispatching to the renderer over IPC,
         // some of the inner properties (i.e. device.uid which is a Long) loses its prototype, which means any

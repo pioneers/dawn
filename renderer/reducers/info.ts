@@ -69,6 +69,7 @@ export const info = (state: InfoState = initialInfoState, action: Actions): Info
     case consts.InfoActionsTypes.RUNTIME_CONNECT:
       return {
         ...state,
+        connectionStatus: true,
         runtimeStatus: true,
       };
     case consts.InfoActionsTypes.RUNTIME_DISCONNECT:

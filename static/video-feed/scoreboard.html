@@ -1,0 +1,53 @@
+<html>
+
+<!-- <head>
+    <script type="text/javascript" src={{url_for( 'static' , filename='jquery-1.12.3.min.js' )}}></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.2/socket.io.js"></script>
+    <script type="text/javascript" src={{url_for( 'static' , filename='scoreboard.js' )}}></script>
+    <link rel="stylesheet" href="{{url_for('static', filename='bootstrap.min.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='scoreboard.css')}}">
+</head> -->
+
+<body>
+    <!-- <img id="sandstorm" src="{{url_for('static', filename='sand1.png')}}" /> -->
+    <!-- <div class="container" id="stagename-container">
+        
+    </div> -->
+    <div class="scoreboard-outer-container">
+        <div class="scoreboard-container">
+            <!-- <div class="stagename">
+                Autonomous
+            </div> -->
+    
+            <div class="robotinfo">
+                <mark class="black" id="team-num">Team 123</mark>
+                <div id="team-name">Bo Gears Elem.</div>
+            </div>
+    
+            <div class="time">
+                <div><mark class="black">Time</mark></div>
+                <div id="stage-timer">0:00</div>
+            </div>
+    
+            <div class="penalty">
+                <div><mark class="black">Penalty</mark></div>
+                <div id="penalty">+ 0:00</div>
+            </div>
+    
+            <div class="stamps">
+                <div><mark class="black">Stamps</mark></div>
+                <div id="stamp_time">- 0:00</div>
+            </div>
+        </div>
+    
+        <div class="total-container">
+            <div class="totalinfo">
+                <div><mark class="black">Total Score</mark></div>
+                <div id="total">0</div>
+            </div>
+        </div>
+    </div>
+    
+</body>
+
+</html> 
