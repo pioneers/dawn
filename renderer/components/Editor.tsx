@@ -646,7 +646,7 @@ export class Editor extends React.Component<Props, State> {
               <InputGroup>
                 <FormControl
                   type="number"
-                  value={this.state.fontsize}
+                  value={this.state.fontsize ?? '16'}
                   size="sm"
                   onChange={this.handleChangeFontsize}
                   style={{ width: 32, padding: 6 }}
