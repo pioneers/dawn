@@ -646,7 +646,7 @@ export class Editor extends React.Component<Props, State> {
               <InputGroup>
                 <FormControl
                   type="number"
-                  value={this.state.fontsize}
+                  value={this.state.fontsize ?? '16'}
                   size="sm"
                   onChange={this.handleChangeFontsize}
                   style={{ width: 32, padding: 6 }}
@@ -655,7 +655,7 @@ export class Editor extends React.Component<Props, State> {
                   <DropdownButton
                     as={ButtonGroup}
                     title=""
-                    bsSize="small"
+                    variant="small"
                     id="choose-font-size"
                   >
                     <Dropdown.Item
