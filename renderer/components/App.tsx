@@ -145,7 +145,7 @@ class AppComponent extends React.Component<Props, State> {
     const { tourRunning } = this.state;
 
     return (
-      <div>
+      <div className="mt-4">
         <DNav
           startTour={this.startTour}
           runtimeStatus={runtimeStatus}
