@@ -84,7 +84,7 @@ const DNavComponent = (props: Props) => {
    */
 
   return (
-    <Navbar fixed={"top"}>
+    <Navbar fixed={"top"} bg="light">
       <UpdateBox
         isRunningCode={isRunningCode}
         connectionStatus={connectionStatus}
