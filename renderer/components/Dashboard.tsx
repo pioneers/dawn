@@ -17,12 +17,12 @@ interface StateProps {
 export const Dashboard = (props: StateProps) => (
   <Container fluid>
     <Row>
+      <Col sm={8}>
+        <EditorContainer runtimeStatus={props.runtimeStatus} />
+      </Col>
       <Col sm={4}>
         <PeripheralList connectionStatus={props.connectionStatus} runtimeStatus={props.runtimeStatus} />
         <GamepadList />
-      </Col>
-      <Col sm={8}>
-        <EditorContainer runtimeStatus={props.runtimeStatus} />
       </Col>
     </Row>
   </Container>
