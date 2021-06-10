@@ -1,6 +1,6 @@
 import { createSocket, Socket as UDPSocket } from 'dgram';
 import { Socket as TCPSocket } from 'net';
-import { ipcMain, IpcMainEvent } from 'electron';
+import { ipcMain, IpcMainEvent, Renderer } from 'electron';
 import * as protos from '../../protos/protos';
 
 import RendererBridge from '../RendererBridge';
@@ -454,14 +454,15 @@ class UDPConn {
           // There is a weird bug that happens with the protobufs decoding when device.type is specifically 0
           // where the property can be accessed but when trying to view object contents, the property doesn't exist.
           // Below is a way to get around this problem.
-          if (device.type.toString() === '0') {
-            device.type = 0;
-          }
+          // if (device.type.toString() === '0') {
+          //   device.type = 0;
+          // }
 
           peripherals.push({ ...device, uid: device.uid.toString() });
         });
 
-        RendererBridge.reduxDispatch(updatePeripherals(peripherals));
+        RendererBridge.dispatch('main', 'runtime-peripherals', peripherals);
+        // RendererBridge.reduxDispatch(updatePeripherals(peripherals));
       } catch (err) {
         this.logger.log('Error decoding UDP');
         this.logger.log(err);

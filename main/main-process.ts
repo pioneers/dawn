@@ -109,6 +109,7 @@ app.on('ready', () => {
   const menu = Menu.buildFromTemplate(Template);
   Menu.setApplicationMenu(menu);
 
+  console.log(process.env.NODE_ENV);
   if (process.env.NODE_ENV !== 'production') {
     installExtension(REACT_DEVELOPER_TOOLS).then((name: string) => {
       console.log(`Added Extension:  ${name}`);

@@ -59,10 +59,10 @@ class RendererBridge {
 
         // Special case for dispatching Redux since we can only dispatch one action at a time
         if (channel === 'reduxDispatch') {
-          data = data[0];
+          data = [data[0]];
         }
 
-        registeredWindow?.webContents.send(channel, data);
+        registeredWindow?.webContents.send(channel, ...data);
       }
     } catch (e) {
       console.log(`[RendererBridge] dispatch caught error:`, e)

@@ -35,15 +35,13 @@ const getParamValue = (param: Param) => {
 /**
  * Param component that memoizes the display of a param value and will only rerender if the underlying data is different.
  */
-const ParamComponent = React.memo(
+const ParamComponent = 
   (props: ParamComponentProps) => (
     <div key={`${props.param.name}-${props.uid}-Overall`}>
       <h4 style={{ clear: 'right', float: 'right', height: '10px' }} key={`${props.param.name}-${props.uid}`}>
         {`${props.param.name}: ${getParamValue(props.param)}`}
       </h4>
     </div>
-  ),
-  (prevProps, nextProps) => _.isEqual(prevProps, nextProps)
 );
 
 /**

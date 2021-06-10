@@ -5,6 +5,9 @@ import { PeripheralTypes } from '../consts';
 import { Peripheral as PeripheralComponent } from './Peripheral';
 import { Peripheral, PeripheralList } from '../types';
 import { connect } from 'react-redux';
+import { observer } from 'mobx-react-lite';
+import { PeripheralStore } from '../stores/peripherals';
+import { isObservable, toJS } from 'mobx';
 
 const cleanerNames = {};
 cleanerNames[PeripheralTypes.MOTOR_SCALAR] = 'Motors';
@@ -33,11 +36,11 @@ interface StateProps {
   peripheralList: PeripheralList;
 }
 
-const handleAccordion = (devices: Peripheral[]) => {
+const Accordion = observer(({ peripherals }: { peripherals: PeripheralList }) => {
   const peripheralGroups: { [peripheralName: string]: Peripheral[] } = {};
 
   // Filter and group peripherals by name (type)
-  devices
+  Object.values(peripherals)
     // .filter((p: Peripheral) => !filter.has(p.uid))
     .forEach((peripheral) => {
       const group: Peripheral[] = peripheralGroups[peripheral.name] ?? [];
@@ -45,71 +48,92 @@ const handleAccordion = (devices: Peripheral[]) => {
       peripheralGroups[peripheral.name] = group;
     });
 
-  return Object.keys(peripheralGroups).map((groupName: string) => {
-    const groupNameCleaned = groupName; //cleanerNames[groupName] as string;
+  // console.log('peripheral groups', peripheralGroups);
 
-    return (
-      <PanelGroup
-        accordion
-        style={{ marginBottom: '0px' }}
-        key={`${groupNameCleaned || 'Default'}-Accordion`}
-        id={`${groupNameCleaned || 'Default'}-Accordion`}
-      >
-        <Panel key={`${groupNameCleaned || 'Default'}-Panel`} defaultExpanded>
-          <Panel.Heading>
-            <Panel.Title toggle style={{ fontWeight: 'bold' }}>
-              {groupName || 'Generic'}
-            </Panel.Title>
-          </Panel.Heading>
-          <Panel.Collapse>
-            <Panel.Body style={{ padding: '10px' }}>
-              {_.map(peripheralGroups[groupName], (peripheral) => (
-                <PeripheralComponent
-                  key={peripheral.uid}
-                  uid={peripheral.uid}
-                  name={peripheral.name}
-                  type={peripheral.type}
-                  params={peripheral.params}
-                />
-              ))}
-            </Panel.Body>
-          </Panel.Collapse>
-        </Panel>
-      </PanelGroup>
-    );
-  });
-};
+  return (
+    <ListGroup>
+      {Object.keys(peripheralGroups).map((groupName: string) => {
+        const groupNameCleaned = groupName; //cleanerNames[groupName] as string;
 
-const PeripheralListComponent = (props: StateProps & OwnProps) => {
-  let errorMsg = null;
+        return (
+          <PanelGroup
+            accordion
+            style={{ marginBottom: '0px' }}
+            key={`${groupNameCleaned || 'Default'}-Accordion`}
+            id={`${groupNameCleaned || 'Default'}-Accordion`}
+          >
+            <Panel key={`${groupNameCleaned || 'Default'}-Panel`} defaultExpanded>
+              <Panel.Heading>
+                <Panel.Title toggle style={{ fontWeight: 'bold' }}>
+                  {groupName || 'Generic'}
+                </Panel.Title>
+              </Panel.Heading>
+              <Panel.Collapse>
+                <Panel.Body style={{ padding: '10px' }}>
+                  {peripheralGroups[groupName].map((peripheral) => (
+                    <PeripheralComponent
+                      key={peripheral.uid}
+                      uid={peripheral.uid}
+                      name={peripheral.name}
+                      type={peripheral.type}
+                      params={peripheral.params}
+                    />
+                  ))}
+                </Panel.Body>
+              </Panel.Collapse>
+            </Panel>
+          </PanelGroup>
+        );
+      })}
+    </ListGroup>
+  );
+});
 
-  if (!props.connectionStatus) {
-    errorMsg = 'You are currently disconnected from the robot.';
-  } else if (!props.runtimeStatus) {
-    errorMsg = 'There appears to be some sort of General error. No data is being received.';
-  }
+// const PeripheralListComponent = (props: StateProps & OwnProps) => {
+//   let errorMsg = null;
 
-  let panelBody = null;
-  if (errorMsg) {
-    panelBody = <p className="panelText">{errorMsg}</p>;
-  } else {
-    panelBody = handleAccordion(Object.values(props.peripheralList));
-  }
+//   if (!props.connectionStatus) {
+//     errorMsg = 'You are currently disconnected from the robot.';
+//   } else if (!props.runtimeStatus) {
+//     errorMsg = 'There appears to be some sort of General error. No data is being received.';
+//   }
+
+//   let panelBody = null;
+//   if (errorMsg) {
+//     panelBody = <p className="panelText">{errorMsg}</p>;
+//   } else {
+//     panelBody = handleAccordion(Object.values(props.peripheralList));
+//   }
+
+//   return (
+//     <Panel id="peripherals-panel" bsStyle="primary">
+//       <Panel.Heading>Peripherals</Panel.Heading>
+//       <Panel.Body style={{ padding: '0px' }}>
+//         <ListGroup>{panelBody}</ListGroup>
+//       </Panel.Body>
+//     </Panel>
+//   );
+// };
+
+export const PeripheralListContainer = () => {
+  const peripheralStore = React.useContext(PeripheralStore);
+  const { peripherals } = peripheralStore;
+  // panelBody = handleAccordion(Object.values(peripherals));
 
   return (
     <Panel id="peripherals-panel" bsStyle="primary">
       <Panel.Heading>Peripherals</Panel.Heading>
       <Panel.Body style={{ padding: '0px' }}>
-        <ListGroup>{panelBody}</ListGroup>
+        <Accordion peripherals={peripherals} />
       </Panel.Body>
     </Panel>
   );
 };
 
-const mapStateToProps = (state: ApplicationState) => ({
-  peripheralList: Object.assign({}, state.peripherals.peripheralList)
-});
+// const mapStateToProps = (state: ApplicationState) => ({
+//   peripheralList: Object.assign({}, state.peripherals.peripheralList)
+// });
 
-const PeripheralListContainer = connect(mapStateToProps)(PeripheralListComponent);
+// const PeripheralListContainer = connect(mapStateToProps)(PeripheralListComponent);
 
 export default PeripheralListContainer;
