@@ -1,6 +1,7 @@
 import { ConsoleStore } from './console';
+// Make sure store imports are in alphabetical order
 
-export class RootStore {
+class RootStore_ {
   console: ConsoleStore;
 
   constructor() {
@@ -8,3 +9,5 @@ export class RootStore {
     /** Initialize more stores here (try to keep it in alphabetical order) */
   }
 }
+
+export const RootStore = new RootStore_();

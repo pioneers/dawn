@@ -2,14 +2,14 @@ import { makeAutoObservable } from 'mobx';
 import { RootStore } from './root';
 
 export class ConsoleStore {
-  rootStore: RootStore;
+  rootStore: typeof RootStore;
 
   showConsole = false;
   consoleData: string[] = [];
   disableScroll = false;
   consoleUnread = false;
 
-  constructor(rootStore: RootStore) {
+  constructor(rootStore: typeof RootStore) {
     makeAutoObservable(this);
     this.rootStore = rootStore;
   }
