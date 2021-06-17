@@ -9,8 +9,11 @@ node_modules
 .project
 .settings
 .idea/*
-
-build
+.vscode/
 
 *.log
 *~
+
+# Dawn build
+build/
+dawn-packaged/

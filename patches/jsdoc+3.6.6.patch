@@ -1,0 +1,13 @@
+diff --git a/node_modules/jsdoc/lib/jsdoc/src/handlers.js b/node_modules/jsdoc/lib/jsdoc/src/handlers.js
+index 0c4e255..7498a05 100644
+--- a/node_modules/jsdoc/lib/jsdoc/src/handlers.js
++++ b/node_modules/jsdoc/lib/jsdoc/src/handlers.js
+@@ -84,7 +84,7 @@ function createSymbolDoclet(comment, e) {
+ }
+ 
+ function setCurrentModule(doclet) {
+-    if (doclet.kind === 'module') {
++    if (doclet.kind === 'module' && !doclet.isEnum) {
+         currentModule = new CurrentModule(doclet);
+     }
+ }

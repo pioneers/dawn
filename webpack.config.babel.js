@@ -1,12 +1,28 @@
-import path from 'path';
+import * as path from 'path';
 
 const modules = {
   rules: [
     {
-      test: /\.js$/,
+      test: /\.css$/,
+      use: ['style-loader', 'css-loader'],
+    },
+    {
+      test: /\.(png|jpe?g|gif)$/i,
+      use: ['file-loader'],
+    },
+    {
+      test: /\.(ts|tsx)?$/,
       exclude: /node_modules/,
+      use: [{ loader: 'ts-loader' }]
+    },
+    {
+      test: /\.js$/,
+      exclude: [/node_modules/, /protos/],
       enforce: 'pre',
       loader: 'eslint-loader',
+      options: {
+        formatter: require('eslint/lib/cli-engine/formatters/stylish')
+      },
     },
     {
       test: /\.js$/,
@@ -18,8 +34,11 @@ const modules = {
 
 export default [
   {
-    entry: './renderer/index.js',
+    entry: './renderer/index.tsx',
     devtool: 'cheap-module-eval-source-map',
+    resolve: {
+      extensions: ['.tsx', '.ts', '.js'],
+    },
     output: {
       path: path.join(__dirname, 'build'),
       filename: 'bundle.js',
@@ -28,7 +47,10 @@ export default [
     module: modules,
   },
   {
-    entry: './main/main-process.js',
+    entry: './main/main-process.ts',
+    resolve: {
+      extensions: ['.tsx', '.ts', '.js'],
+    },
     output: {
       path: path.join(__dirname, 'build'),
       filename: 'main.js',

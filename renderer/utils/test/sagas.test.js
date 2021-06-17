@@ -17,8 +17,8 @@ import {
   runtimeHeartbeat,
   gamepadsState,
   updateMainProcess,
-  ansibleReceiver,
-  ansibleSaga,
+  runtimeReceiver,
+  runtimeSaga,
 } from '../sagas';
 import fromGenerator from './redux-saga-test';
 import { TIMEOUT } from '../../utils/utils';
@@ -138,11 +138,11 @@ describe('runtime sagas', () => {
     expect.next().select(gamepadsState);
   });
 
-  it('should take data from ansibleReceiver and dispatch to store', () => {
-    const expect = fromGenerator(assert, ansibleSaga());
-    expect.next().call(ansibleReceiver);
+  it('should take data from runtimeReceiver and dispatch to store', () => {
+    const expect = fromGenerator(assert, runtimeSaga());
+    expect.next().call(runtimeReceiver);
     /* cannot test ipcRenderer for is undefined in test env
-    const chan = ansibleReceiver();
+    const chan = runtimeReceiver();
     expect.next(chan).take(chan);
     expect.next({
       type: "SOME_ACTION"
