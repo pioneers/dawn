@@ -38,6 +38,10 @@ class PeripheralStoreImpl {
 
     this.peripherals = nextPeripherals;
   };
+
+  get groupedPeripherals () {
+    return group(this.peripherals)
+  }
 }
 
 export const PeripheralStore = createContext(new PeripheralStoreImpl());

@@ -5,9 +5,10 @@ import { PeripheralTypes } from '../consts';
 import { Peripheral as PeripheralComponent } from './Peripheral';
 import { Peripheral, PeripheralList } from '../types';
 import { connect } from 'react-redux';
-import { observer } from 'mobx-react-lite';
+import { Observer, observer } from 'mobx-react-lite';
 import { PeripheralStore } from '../stores/peripherals';
 import { isObservable, toJS } from 'mobx';
+import { useRootStore } from '../stores/root';
 
 const cleanerNames = {};
 cleanerNames[PeripheralTypes.MOTOR_SCALAR] = 'Motors';
@@ -119,6 +120,16 @@ export const PeripheralListContainer = () => {
   const peripheralStore = React.useContext(PeripheralStore);
   const { peripherals } = peripheralStore;
   // panelBody = handleAccordion(Object.values(peripherals));
+  const { console } = useRootStore();
+
+  return (
+    <Panel id="peripherals-panel" bsStyle="primary">
+      <Panel.Heading>Peripherals</Panel.Heading>
+      <Panel.Body style={{ padding: '0px' }}>
+        <Observer>{() => <Accordion peripherals={peripherals.groupedPeripherals} />}</Observer>
+      </Panel.Body>
+    </Panel>
+  );
 
   return (
     <Panel id="peripherals-panel" bsStyle="primary">
