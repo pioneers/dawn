@@ -12,8 +12,12 @@ import { removeAsyncAlert } from '../actions/AlertActions';
 import { updateFieldControl } from '../actions/FieldActions';
 import { logging, startLog } from '../utils/utils';
 import { FieldControlConfig } from '../types';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { fas } from '@fortawesome/free-solid-svg-icons';
 
 type ElectronJSONStorage = typeof electronJSONStorage;
+
+library.add(fas);
 
 const storage = remote.require('electron-json-storage') as ElectronJSONStorage;
 
@@ -29,6 +33,7 @@ interface StateProps {
   masterStatus: boolean;
   isRunningCode: boolean;
   asyncAlerts: Array<Object>;
+  globalTheme: string;
 }
 
 interface DispatchProps {
@@ -140,8 +145,10 @@ class AppComponent extends React.Component<Props, State> {
     const { runtimeStatus, masterStatus, connectionStatus, isRunningCode } = this.props;
     const { tourRunning } = this.state;
 
+    const bsPrefix = (this.props.globalTheme === 'dark' ? 'text-light bg-dark ' : ''); // mind the space at the end
+
     return (
-      <div>
+      <div className={bsPrefix + "mt-4"}>
         <DNav
           startTour={this.startTour}
           runtimeStatus={runtimeStatus}
@@ -186,6 +193,7 @@ const mapStateToProps = (state: ApplicationState) => ({
   asyncAlerts: state.asyncAlerts,
   stationNumber: state.fieldStore.stationNumber,
   isRunningCode: state.info.isRunningCode,
+  globalTheme: state.settings.globalTheme,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({

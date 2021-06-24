@@ -10,3 +10,8 @@ export const changeTheme: SettingsActions['changeTheme'] = (theme: string) => ({
   type: consts.SettingsActionsTypes.CHANGE_THEME,
   theme,
 });
+
+export const toggleThemeGlobal: SettingsActions['toggleThemeGlobal'] = (globalTheme: 'light' | 'dark') => ({
+  type: consts.SettingsActionsTypes.TOGGLE_THEME_GLOBAL,
+  globalTheme,
+});
