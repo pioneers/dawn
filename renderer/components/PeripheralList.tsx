@@ -15,6 +15,7 @@ interface OwnProps {
 
 interface StateProps {
   peripheralList: PeripheralList;
+  globalTheme: string;
 }
 
 const handleAccordion = (devices: Peripheral[]) => {
@@ -62,7 +63,12 @@ const PeripheralListComponent = (props: StateProps & OwnProps) => {
   }
 
   return (
-    <Card className="mb-4" id="peripherals-panel" bg="primary">
+    <Card 
+      className="mb-4" 
+      id="peripherals-panel" 
+      bg={props.globalTheme === 'dark' ? 'dark' : 'light'}
+      text={props.globalTheme === 'dark' ? 'light' : 'dark'}
+      >
       <Card.Header>Peripherals</Card.Header>
       <Card.Body style={{ padding: '0px' }}>
         <ListGroup>{panelBody}</ListGroup>
@@ -72,7 +78,8 @@ const PeripheralListComponent = (props: StateProps & OwnProps) => {
 };
 
 const mapStateToProps = (state: ApplicationState) => ({
-  peripheralList: Object.assign({}, state.peripherals.peripheralList)
+  peripheralList: Object.assign({}, state.peripherals.peripheralList),
+  globalTheme: state.settings.globalTheme,
 });
 
 const PeripheralListContainer = connect(mapStateToProps)(PeripheralListComponent);

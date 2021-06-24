@@ -18,7 +18,8 @@ interface StateProps {
   udpTunnelAddress: string;
   sshAddress: string;
   fieldControlStatus: boolean;
-  latencyValue: number
+  latencyValue: number;
+  globalTheme: string;
 }
 
 interface OwnProps {
@@ -84,7 +85,11 @@ const DNavComponent = (props: Props) => {
    */
 
   return (
-    <Navbar fixed={"top"} bg="light">
+    <Navbar 
+      fixed={"top"} 
+      bg={props.globalTheme === 'dark' ? 'dark' : 'light'} 
+      variant={props.globalTheme === 'dark' ? 'dark' : 'light'}
+      >
       <UpdateBox
         isRunningCode={isRunningCode}
         connectionStatus={connectionStatus}
@@ -169,7 +174,8 @@ const mapStateToProps = (state: ApplicationState) => ({
   sshAddress: state.info.sshAddress,
   fieldControlStatus: state.fieldStore.fieldControl,
   runtimeVersion: state.peripherals.runtimeVersion,
-  latencyValue: state.editor.latencyValue
+  latencyValue: state.editor.latencyValue,
+  globalTheme: state.settings.globalTheme,
 });
 
 export const DNav = connect(mapStateToProps)(DNavComponent);

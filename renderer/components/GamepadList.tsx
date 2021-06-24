@@ -7,6 +7,7 @@ import { Input } from '../../protos/protos';
 
 interface StateProps {
   gamepads: Input[] | undefined;
+  globalTheme: string;
 }
 
 type Props = StateProps;
@@ -28,8 +29,10 @@ const GamepadListComponent = (props: Props) => {
   }
   return (
     <Card
+      bg={props.globalTheme === 'dark' ? 'dark' : 'light'}
+      text={props.globalTheme === 'dark' ? 'light' : 'dark'}
       className="mb-4"
-      border="primary"
+      //border="primary"
       id="gamepads-panel"
     >
       <Card.Header>Gamepads</Card.Header>
@@ -44,6 +47,7 @@ const GamepadListComponent = (props: Props) => {
 
 const mapStateToProps = (state: ApplicationState) => ({
   gamepads: state.gamepads.gamepads,
+  globalTheme: state.settings.globalTheme,
 });
 
 export const GamepadList = connect(mapStateToProps)(GamepadListComponent);

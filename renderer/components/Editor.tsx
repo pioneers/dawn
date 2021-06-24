@@ -54,6 +54,7 @@ interface StateProps {
   disableScroll: boolean;
   consoleUnread: boolean;
   latencyValue: number;
+  globalTheme: string;
 }
 
 interface OwnProps {
@@ -514,7 +515,9 @@ export class Editor extends React.Component<Props, State> {
     }
 
     return (
-      <Card bg="primary">
+      <Card 
+        bg={this.props.globalTheme === 'dark' ? 'dark' : 'light'} 
+        text={this.props.globalTheme === 'dark' ? 'light' : 'dark'} >
         <Card.Header>
           <Card.Title style={{ fontSize: '14px' }}>Editing: {pathToName(this.props.filepath) ? pathToName(this.props.filepath) : '[ New File ]' } {changeMarker}</Card.Title>
         </Card.Header>
@@ -522,6 +525,7 @@ export class Editor extends React.Component<Props, State> {
           <Form inline onSubmit={this.handleSubmitFontsize}>
             <ButtonGroup id="file-operations-buttons">
               <DropdownButton
+                variant={this.props.globalTheme === 'dark' ? 'outline-info' : 'primary'}
                 title="File"
                 size="sm"
                 id="choose-theme"
@@ -573,6 +577,7 @@ export class Editor extends React.Component<Props, State> {
                 disabled={!(this.state.isRunning || this.state.simulate)}
               />
               <DropdownButton
+                variant={this.props.globalTheme === 'dark' ? 'outline-info' : 'primary'}
                 title={this.state.modeDisplay}
                 size="sm"
                 key="dropdown"
@@ -714,6 +719,7 @@ export class Editor extends React.Component<Props, State> {
                 disabled={this.props.fontSize <= 8}
               />
               <DropdownButton
+                variant={this.props.globalTheme === 'dark' ? 'outline-info' : 'primary'}
                 title="Theme"
                 size="sm"
                 id="choose-theme"
