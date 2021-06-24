@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { Navbar, ButtonToolbar, ButtonGroup, Label } from 'react-bootstrap';
+import { Navbar, ButtonToolbar, ButtonGroup, Badge } from 'react-bootstrap';
 import { ConfigBox } from './ConfigBox';
 import { UpdateBox } from './UpdateBox';
 import { StatusLabel } from './StatusLabel';
@@ -18,7 +18,8 @@ interface StateProps {
   udpTunnelAddress: string;
   sshAddress: string;
   fieldControlStatus: boolean;
-  latencyValue: number
+  latencyValue: number;
+  globalTheme: string;
 }
 
 interface OwnProps {
@@ -86,8 +87,19 @@ const DNavComponent = (props: Props) => {
     startTour,
   } = props;
 
+  /**
+   * 4.21.2021
+   * DELETE THIS COMMENT BLOCK IF THIS WORKS
+   * (lines: 98, 101) Navbar.Header replaced with: Navbar
+   * (lines: 124, 156) Navbar.Form pullRight replaced with: Navbar
+   */
+
   return (
-    <Navbar fixedTop fluid>
+    <Navbar 
+      fixed={"top"} 
+      bg={props.globalTheme === 'dark' ? 'dark' : 'light'} 
+      variant={props.globalTheme === 'dark' ? 'dark' : 'light'}
+      >
       <UpdateBox
         isRunningCode={isRunningCode}
         connectionStatus={connectionStatus}
@@ -98,14 +110,14 @@ const DNavComponent = (props: Props) => {
         hide={() => toggleUpdateModal(!showUpdateModal)}
       />
       <ConfigBox shouldShow={showConfigModal} ipAddress={ipAddress} udpTunnelAddress={udpTunnelAddress} sshAddress={sshAddress} hide={() => toggleConfigModal(!showConfigModal)} />
-      <Navbar.Header>
+      <Navbar>
         <Navbar.Brand id="header-title">{createHeader()}</Navbar.Brand>
         <Navbar.Toggle />
-      </Navbar.Header>
+      </Navbar>
       <Navbar.Collapse>
         {runtimeStatus ? (
           <Navbar.Text id="runtime-version">
-            <Label bsStyle="info">{`Runtime v${runtimeVersion}: ${String(robotState[codeStatus])}`}</Label>
+            <Badge variant="info">{`Runtime v${runtimeVersion}: ${String(robotState[codeStatus])}`}</Badge>
           </Navbar.Text>
         ) : (
           ''
@@ -122,9 +134,9 @@ const DNavComponent = (props: Props) => {
           />
         </Navbar.Text>
         <Navbar.Text id="Latency">
-          <Label bsStyle={getLatencyThresholdColor(props.latencyValue)}>{`Latency: ${formatLatencyValue(props.latencyValue)}`}</Label>
+          <Badge variant={getLatencyThresholdColor(props.latencyValue)}>{`Latency: ${props.latencyValue}`}</Badge>
         </Navbar.Text>
-        <Navbar.Form pullRight>
+        <Navbar>
           <ButtonToolbar>
             <ButtonGroup>
               <TooltipButton
@@ -133,7 +145,7 @@ const DNavComponent = (props: Props) => {
                 bsStyle="info"
                 onClick={startTour}
                 id="tour-button"
-                glyph="info-sign"
+                icon="info-circle"
                 disabled={false}
               />
               <TooltipButton
@@ -142,7 +154,7 @@ const DNavComponent = (props: Props) => {
                 bsStyle="info"
                 onClick={() => toggleConfigModal(!showConfigModal)}
                 id="update-address-button"
-                glyph="transfer"
+                icon="exchange-alt"
                 disabled={false}
               />
               <TooltipButton
@@ -152,11 +164,11 @@ const DNavComponent = (props: Props) => {
                 onClick={() => toggleUpdateModal(!showUpdateModal)}
                 disabled={!runtimeStatus}
                 id="update-software-button"
-                glyph="cloud-upload"
+                icon="cloud-upload-alt"
               />
             </ButtonGroup>
           </ButtonToolbar>
-        </Navbar.Form>
+        </Navbar>
       </Navbar.Collapse>
     </Navbar>
   );
@@ -172,7 +184,8 @@ const mapStateToProps = (state: ApplicationState) => ({
   sshAddress: state.info.sshAddress,
   fieldControlStatus: state.fieldStore.fieldControl,
   runtimeVersion: state.peripherals.runtimeVersion,
-  latencyValue: state.editor.latencyValue
+  latencyValue: state.editor.latencyValue,
+  globalTheme: state.settings.globalTheme,
 });
 
 export const DNav = connect(mapStateToProps)(DNavComponent);

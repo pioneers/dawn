@@ -33,7 +33,8 @@ const mapStateToProps = (state: ApplicationState) => ({
   disableScroll: state.console.disableScroll,
   consoleUnread: state.console.consoleUnread,
   keyboardBitmap: state.editor.keyboardBitmap,
-  latencyValue: state.editor.latencyValue
+  latencyValue: state.editor.latencyValue,
+  globalTheme: state.settings.globalTheme,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
