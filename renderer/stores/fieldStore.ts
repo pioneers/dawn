@@ -37,14 +37,17 @@ export class FieldStore {
         this.heart = !this.heart;
     }
 
-    updateMaster() {
+    updateMaster(blueMasterTeamNumber: number, goldMasterTeamNumber: number) {
         this.masterStatus = true;
-        this.blueMasterTeamNumber 
+        this.blueMasterTeamNumber = blueMasterTeamNumber;
+        this.goldMasterTeamNumber = goldMasterTeamNumber;
     }
 
-    updateMatch() {
-
+    updateMatch(matchNumber: number, teamNumbers: number[], teamNames: string[]) {
+       this.mMatchNumber = matchNumber;
+       this.mTeamNumbers = teamNumbers;
+       this.mTeamNames = teamNames;
+       this.rTeamNumber = teamNumbers[this.stationNumber];
+       this.rTeamName = teamNames[this.stationNumber];
     }
-
-
 }
