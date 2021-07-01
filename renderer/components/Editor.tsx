@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Card,
   ButtonGroup,
@@ -90,50 +90,62 @@ interface State {
   keyboardBitmap: number;
 }
 
-export class Editor extends React.Component<Props, State> {
-  themes: string[];
-  CodeEditor: AceEditor;
+export function Editor(props: Props) {
+  const CodeEditor: AceEditor;
+
+  const themes: string[] = [
+    'monokai',
+    'github',
+    'tomorrow',
+    'kuroir',
+    'twilight',
+    'xcode',
+    'textmate',
+    'solarized_dark',
+    'solarized_light',
+    'terminal',
+  ];
   /*
    * ASCII Enforcement
    */
-  static onEditorPaste(correctedText: string) {
+  const onEditorPaste = (correctedText: string) => {
     correctedText = correctedText.normalize('NFD');
     correctedText = correctedText.replace(/[”“]/g, '"');
     correctedText = correctedText.replace(/[‘’]/g, "'");
-    Editor.correctText(correctedText);
+    correctText(correctedText);
     // TODO: Create some notification that an attempt was made at correcting non-ASCII chars.
     //pasteData.text = correctedText; // eslint-disable-line no-param-reassign
   }
 
   // TODO: Take onEditorPaste items and move to utils?
-  static correctText(text: string) {
+  const correctText = (text: string): string => {
     return text.replace(/[^\x00-\x7F]/g, ''); // eslint-disable-line no-control-regex
   }
 
   constructor(props: Props) {
     super(props);
-    this.themes = [
-      'monokai',
-      'github',
-      'tomorrow',
-      'kuroir',
-      'twilight',
-      'xcode',
-      'textmate',
-      'solarized_dark',
-      'solarized_light',
-      'terminal',
-    ];
-    this.state = {
-      consoleHeight: windowInfo.CONSOLESTART,
-      editorHeight: 0, // Filled in later during componentDidMount
-      mode: robotState.TELEOP,
-      modeDisplay: robotState.TELEOPSTR,
-      isRunning: false,
-      simulate: false,
-      isKeyboardModeToggled: false,
-      keyboardBitmap: 0
-    };
+    // this.themes = [
+    //   'monokai',
+    //   'github',
+    //   'tomorrow',
+    //   'kuroir',
+    //   'twilight',
+    //   'xcode',
+    //   'textmate',
+    //   'solarized_dark',
+    //   'solarized_light',
+    //   'terminal',
+    // ];
+    
+  
+    const [consoleHeight, setConsoleHeight] = useState(windowInfo.CONSOLESTART);
+    const [editorHeight, setEditorHeight] = useState('0px');
+    const [mode, setMode] = useState(robotState.TELEOP);
+    const [modeDisplay, setModeDisplay] = useState(robotState.TELEOPSTR);
+    const [isRunning, setIsRunning] = useState(false);
+    const [simulate, setSimulate] = useState(false);
+    const [isKeyboardModeToggled, setIsKeyboardModeToggled] = useState(false);
+    const [keyboardBitmap, setKeyboardBitmap] = useState(0),
   }
 
   /*
@@ -730,7 +742,7 @@ export class Editor extends React.Component<Props, State> {
                 size="sm"
                 id="choose-theme"
               >
-                {this.themes.map((theme: string) => (
+                {themes.map((theme: string) => (
                   <Dropdown.Item
                     active={theme === this.props.editorTheme}
                     onClick={_.partial(this.changeTheme, theme)}
