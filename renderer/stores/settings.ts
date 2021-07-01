@@ -21,7 +21,7 @@ export class SettingsStore {
         this.editorTheme = theme;
     };
 
-    toggleThemeGlobal(theme: string) {
+    toggleThemeGlobal() {
         this.globalTheme = (this.globalTheme === 'dark' ? 'light' : 'dark');
     };
 }
