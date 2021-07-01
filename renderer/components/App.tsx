@@ -68,7 +68,6 @@ export const AppComponent = (props: Props) => {
         });
       }
     });
-    console.log("step! ", steps)
 
     // eslint-disable-next-line @typescript-eslint/ban-types
     storage.get('fieldControl', (err: any, data: object) => {
@@ -83,12 +82,10 @@ export const AppComponent = (props: Props) => {
   }, []);
 
   const addSteps = (newSteps: Array<Step>) => {
-    console.log("hi!")
     if (!Array.isArray(newSteps)) {
       newSteps = [newSteps];
     }
     if (newSteps.length === 0) {
-      console.log("hi!")
       return;
     }
     changeSteps(steps => [...steps, ...newSteps]);
