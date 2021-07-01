@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState }  from 'react';
 import Joyride, { Step } from 'react-joyride';
 import { remote, ipcRenderer } from 'electron';
 import * as electronJSONStorage from 'electron-json-storage';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
-import smalltalk from 'smalltalk';
 import { Dashboard } from './Dashboard';
 import { DNav } from './DNav';
 import { joyrideSteps } from './JoyrideSteps';
@@ -41,29 +40,20 @@ interface DispatchProps {
   onFCUpdate: (param: FieldControlConfig) => void;
 }
 
-interface State {
-  steps: Array<Step>;
-  tourRunning: boolean;
-}
 
 type Props = StateProps & DispatchProps;
 
-class AppComponent extends React.Component<Props, State> {
-  joyride: Joyride | null;
+export const AppComponent = (props: Props) => {
+  let joyride: Joyride | null;
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      steps: [],
-      tourRunning: false,
-    };
-    startLog();
-  }
+  const [steps, changeSteps] = useState<Array<Step>>([]);
+  const [tourRunning, changeTourRunning] = useState(false);
+  startLog();
 
-  componentDidMount = () => {
-    this.addSteps(joyrideSteps);
+  useEffect(() => {
+    addSteps(joyrideSteps);
     ipcRenderer.on('start-interactive-tour', () => {
-      this.startTour();
+      startTour();
     });
     storage.has('firstTime', (hasErr: any, hasKey: any) => {
       if (hasErr) {
@@ -72,7 +62,7 @@ class AppComponent extends React.Component<Props, State> {
       }
 
       if (!hasKey) {
-        this.startTour();
+        startTour();
         storage.set('firstTime', { first: true }, (setErr: any) => {
           if (setErr) logging.log(setErr);
         });
@@ -86,71 +76,40 @@ class AppComponent extends React.Component<Props, State> {
         return;
       }
       const fieldControlConfig = data as FieldControlConfig;
-      this.props.onFCUpdate(fieldControlConfig);
+      props.onFCUpdate(fieldControlConfig);
       ipcRenderer.send('FC_CONFIG_CHANGE', fieldControlConfig);
     });
-  };
+  });
 
-  componentWillReceiveProps = (nextProps: Props) => {
-    const { asyncAlerts } = nextProps;
-    // If the alerts list has changed, display the latest one.
-    if (asyncAlerts !== this.props.asyncAlerts) {
-      const latestAlert = asyncAlerts[asyncAlerts.length - 1] as AlertType;
-      if (latestAlert !== undefined) {
-        this.updateAlert(latestAlert);
-      }
-    }
-  };
-
-  shouldComponentUpdate = (nextProps: Props, nextState: State) => {
-    return nextProps !== this.props || nextState !== this.state;
-  };
-
-  addSteps = (steps: Array<Step>) => {
-    if (!Array.isArray(steps)) {
-      steps = [steps];
+  const addSteps = (newSteps: Array<Step>) => {
+    if (!Array.isArray(newSteps)) {
+      newSteps = [newSteps];
     }
     if (steps.length === 0) {
       return;
     }
-    this.setState((currentState: { steps: Array<Step> }) => {
-      currentState.steps = currentState.steps.concat(steps);
-      return currentState;
-    });
+    changeSteps(steps => [...steps, ...newSteps]);
   };
 
-  startTour = () => {
-    this.setState({ tourRunning: true });
+  const startTour = () => {
+    changeTourRunning(true);
   };
 
-  joyrideCallback = (action: { type: string }) => {
+  const joyrideCallback = (action: { type: string }) => {
     // Confirm this still works
     if (action.type === 'finished') {
-      this.setState({ tourRunning: false });
+      changeTourRunning(false);
     }
   };
 
-  updateAlert = (latestAlert: AlertType) => {
-    smalltalk.alert(latestAlert.heading, latestAlert.message).then(
-      () => {
-        this.props.onAlertDone(latestAlert.id);
-      },
-      () => {
-        this.props.onAlertDone(latestAlert.id);
-      }
-    );
-  };
+    const { runtimeStatus, masterStatus, connectionStatus, isRunningCode } = props;
 
-  render() {
-    const { runtimeStatus, masterStatus, connectionStatus, isRunningCode } = this.props;
-    const { tourRunning } = this.state;
-
-    const bsPrefix = (this.props.globalTheme === 'dark' ? 'text-light bg-dark ' : ''); // mind the space at the end
+    const bsPrefix = (props.globalTheme === 'dark' ? 'text-light bg-dark ' : ''); // mind the space at the end
 
     return (
       <div className={bsPrefix + "mt-4"}>
         <DNav
-          startTour={this.startTour}
+          startTour={startTour}
           runtimeStatus={runtimeStatus}
           masterStatus={masterStatus}
           connectionStatus={connectionStatus}
@@ -158,13 +117,13 @@ class AppComponent extends React.Component<Props, State> {
         />
         <Joyride
           ref={(c: any) => {
-            this.joyride = c;
+            joyride = c;
           }}
-          steps={this.state.steps}
+          steps={steps}
           continuous={true}
           showSkipButton
           run={tourRunning}
-          callback={this.joyrideCallback}
+          callback={joyrideCallback}
           locale={{
             back: 'Previous',
             close: 'Close',
@@ -175,8 +134,8 @@ class AppComponent extends React.Component<Props, State> {
         />
         <div style={{ height: '35px', marginBottom: '21px' }} />
         <Dashboard
-          {...this.props}
-          addSteps={this.addSteps}
+          {...props}
+          addSteps={addSteps}
           connectionStatus={connectionStatus}
           runtimeStatus={runtimeStatus}
           isRunningCode={isRunningCode}
@@ -184,7 +143,6 @@ class AppComponent extends React.Component<Props, State> {
       </div>
     );
   }
-}
 
 const mapStateToProps = (state: ApplicationState) => ({
   connectionStatus: state.info.connectionStatus,
