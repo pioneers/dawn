@@ -44,8 +44,6 @@ interface DispatchProps {
 type Props = StateProps & DispatchProps;
 
 export const AppComponent = (props: Props) => {
-  let joyride: Joyride | null;
-
   const [steps, changeSteps] = useState<Array<Step>>([]);
   const [tourRunning, changeTourRunning] = useState(false);
   startLog();
@@ -116,9 +114,6 @@ export const AppComponent = (props: Props) => {
           isRunningCode={isRunningCode}
         />
         <Joyride
-          ref={(c: any) => {
-            joyride = c;
-          }}
           steps={steps}
           continuous={true}
           showSkipButton
