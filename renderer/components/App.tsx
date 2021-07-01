@@ -1,4 +1,4 @@
-import React, { useEffect, useState }  from 'react';
+import React, { useEffect, useState } from 'react';
 import Joyride, { Step } from 'react-joyride';
 import { remote, ipcRenderer } from 'electron';
 import * as electronJSONStorage from 'electron-json-storage';
@@ -20,12 +20,6 @@ library.add(fas);
 
 const storage = remote.require('electron-json-storage') as ElectronJSONStorage;
 
-interface AlertType {
-  heading: string;
-  message: string;
-  id: number;
-}
-
 interface StateProps {
   connectionStatus: boolean;
   runtimeStatus: boolean;
@@ -39,7 +33,6 @@ interface DispatchProps {
   onAlertDone: (id: number) => void;
   onFCUpdate: (param: FieldControlConfig) => void;
 }
-
 
 type Props = StateProps & DispatchProps;
 
@@ -86,7 +79,7 @@ export const AppComponent = (props: Props) => {
     if (newSteps.length === 0) {
       return;
     }
-    changeSteps(steps => [...steps, ...newSteps]);
+    changeSteps((steps) => [...steps, ...newSteps]);
   };
 
   const startTour = () => {
@@ -100,44 +93,44 @@ export const AppComponent = (props: Props) => {
     }
   };
 
-    const { runtimeStatus, masterStatus, connectionStatus, isRunningCode } = props;
+  const { runtimeStatus, masterStatus, connectionStatus, isRunningCode } = props;
 
-    const bsPrefix = (props.globalTheme === 'dark' ? 'text-light bg-dark ' : ''); // mind the space at the end
+  const bsPrefix = props.globalTheme === 'dark' ? 'text-light bg-dark ' : ''; // mind the space at the end
 
-    return (
-      <div className={bsPrefix + "mt-4"}>
-        <DNav
-          startTour={startTour}
-          runtimeStatus={runtimeStatus}
-          masterStatus={masterStatus}
-          connectionStatus={connectionStatus}
-          isRunningCode={isRunningCode}
-        />
-        <Joyride
-          steps={steps}
-          continuous={true}
-          showSkipButton
-          run={tourRunning}
-          callback={joyrideCallback}
-          locale={{
-            back: 'Previous',
-            close: 'Close',
-            last: 'End Tour',
-            next: 'Next',
-            skip: 'Skip Tour',
-          }}
-        />
-        <div style={{ height: '35px', marginBottom: '21px' }} />
-        <Dashboard
-          {...props}
-          addSteps={addSteps}
-          connectionStatus={connectionStatus}
-          runtimeStatus={runtimeStatus}
-          isRunningCode={isRunningCode}
-        />
-      </div>
-    );
-  }
+  return (
+    <div className={bsPrefix + 'mt-4'}>
+      <DNav
+        startTour={startTour}
+        runtimeStatus={runtimeStatus}
+        masterStatus={masterStatus}
+        connectionStatus={connectionStatus}
+        isRunningCode={isRunningCode}
+      />
+      <Joyride
+        steps={steps}
+        continuous={true}
+        showSkipButton
+        run={tourRunning}
+        callback={joyrideCallback}
+        locale={{
+          back: 'Previous',
+          close: 'Close',
+          last: 'End Tour',
+          next: 'Next',
+          skip: 'Skip Tour'
+        }}
+      />
+      <div style={{ height: '35px', marginBottom: '21px' }} />
+      <Dashboard
+        {...props}
+        addSteps={addSteps}
+        connectionStatus={connectionStatus}
+        runtimeStatus={runtimeStatus}
+        isRunningCode={isRunningCode}
+      />
+    </div>
+  );
+};
 
 const mapStateToProps = (state: ApplicationState) => ({
   connectionStatus: state.info.connectionStatus,
@@ -146,7 +139,7 @@ const mapStateToProps = (state: ApplicationState) => ({
   asyncAlerts: state.asyncAlerts,
   stationNumber: state.fieldStore.stationNumber,
   isRunningCode: state.info.isRunningCode,
-  globalTheme: state.settings.globalTheme,
+  globalTheme: state.settings.globalTheme
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
@@ -155,7 +148,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   },
   onFCUpdate: (param: FieldControlConfig) => {
     dispatch(updateFieldControl(param));
-  },
+  }
 });
 
 export const App = connect(mapStateToProps, mapDispatchToProps)(AppComponent);
