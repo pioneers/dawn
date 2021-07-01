@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Card,
   ButtonGroup,
@@ -78,21 +78,18 @@ interface OwnProps {
 
 type Props = StateProps & OwnProps;
 
-interface State {
-  consoleHeight: number;
-  editorHeight: number | string;
-  mode: number;
-  modeDisplay: string;
-  simulate: boolean;
-  isRunning: boolean;
-  fontsize?: number;
-  isKeyboardModeToggled: boolean;
-  keyboardBitmap: number;
-}
-
 export function Editor(props: Props) {
-  const CodeEditor: AceEditor;
-
+  const [consoleHeight, setConsoleHeight] = useState(windowInfo.CONSOLESTART);
+  const [editorHeight, setEditorHeight] = useState('0px');
+  const [fontSize, setFontSize] = useState(16);
+  const [mode, setMode] = useState(robotState.TELEOP);
+  const [modeDisplay, setModeDisplay] = useState(robotState.TELEOPSTR);
+  const [isRunning, setIsRunning] = useState(false);
+  const [simulate, setSimulate] = useState(false);
+  const [isKeyboardModeToggled, setIsKeyboardModeToggled] = useState(false);
+  const [keyboardBitmap, setKeyboardBitmap] = useState(0);
+  
+  let CodeEditor: AceEditor;
   const themes: string[] = [
     'monokai',
     'github',
@@ -105,6 +102,7 @@ export function Editor(props: Props) {
     'solarized_light',
     'terminal',
   ];
+
   /*
    * ASCII Enforcement
    */
@@ -122,37 +120,11 @@ export function Editor(props: Props) {
     return text.replace(/[^\x00-\x7F]/g, ''); // eslint-disable-line no-control-regex
   }
 
-  constructor(props: Props) {
-    super(props);
-    // this.themes = [
-    //   'monokai',
-    //   'github',
-    //   'tomorrow',
-    //   'kuroir',
-    //   'twilight',
-    //   'xcode',
-    //   'textmate',
-    //   'solarized_dark',
-    //   'solarized_light',
-    //   'terminal',
-    // ];
-    
-  
-    const [consoleHeight, setConsoleHeight] = useState(windowInfo.CONSOLESTART);
-    const [editorHeight, setEditorHeight] = useState('0px');
-    const [mode, setMode] = useState(robotState.TELEOP);
-    const [modeDisplay, setModeDisplay] = useState(robotState.TELEOPSTR);
-    const [isRunning, setIsRunning] = useState(false);
-    const [simulate, setSimulate] = useState(false);
-    const [isKeyboardModeToggled, setIsKeyboardModeToggled] = useState(false);
-    const [keyboardBitmap, setKeyboardBitmap] = useState(0),
-  }
-
   /*
    * Confirmation Dialog on Quit, Stored Editor Settings, Window Size-Editor Re-render
    */
-  componentDidMount = () => {
-    this.CodeEditor.editor.setOptions({
+  useEffect(() => {
+    CodeEditor.editor.setOptions({
       enableBasicAutocompletion: true,
       enableLiveAutocompletion: true,
     });
@@ -202,15 +174,15 @@ export function Editor(props: Props) {
         ]);
       },
     };
-    this.CodeEditor.editor.completers = [autoComplete];
+    CodeEditor.editor.completers = [autoComplete];
 
-    this.onWindowResize();
+    onWindowResize();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     storage.get('editorTheme', (err: any, data: { theme?: string }) => {
       if (err) {
         logging.log(err);
       } else if (!_.isEmpty(data)) {
-        this.props.onChangeTheme(data.theme ?? 'github');
+        props.onChangeTheme(data.theme ?? 'github');
       }
     });
 
@@ -219,107 +191,106 @@ export function Editor(props: Props) {
       if (err) {
         logging.log(err);
       } else if (!_.isEmpty(data)) {
-        this.props.onChangeFontsize(data.editorFontSize ?? 14);
-        this.setState({ fontsize: this.props.fontSize });
+        props.onChangeFontsize(data.editorFontSize ?? 14);
+        // this.setState({ fontsize: this.props.fontSize });
+        setFontSize(props.fontSize);
       }
     });
 
-    window.addEventListener('beforeunload', this.beforeUnload);
-    window.addEventListener('resize', this.onWindowResize, { passive: true });
+    window.addEventListener('beforeunload', beforeUnload);
+    window.addEventListener('resize', onWindowResize, { passive: true });
     window.addEventListener('dragover', (e: any) => {
       e.preventDefault();
       return false;
     });
+
     window.addEventListener('drop', (e: any) => {
       e.preventDefault();
-      this.props.onDragFile(e.dataTransfer.files[0].path);
+      props.onDragFile(e.dataTransfer.files[0].path);
       return false;
     });
-  }
 
-  componentWillUnmount = () => {
-    window.removeEventListener('beforeunload', this.beforeUnload);
-    window.removeEventListener('resize', this.onWindowResize);
-  }
-
-  onWindowResize = () => {
-    // Trigger editor to re-render on window resizing.
-    this.setState({ editorHeight: this.getEditorHeight() });
-  }
-
-  getEditorHeight = () => {
-    const windowNonEditorHeight = windowInfo.NONEDITOR +
-      (+!!this.props.showConsole * (this.state.consoleHeight + windowInfo.CONSOLEPAD));
-    return `${String(window.innerHeight - windowNonEditorHeight)}px`;
-  }
-
-  beforeUnload = (event: any) => {
-    // If there are unsaved changes and the user tries to close Dawn,
-    // check if they want to save their changes first.
-    if (this.hasUnsavedChanges()) {
-      dialog.showMessageBox(currentWindow, {
-        type: 'warning',
-        buttons: ['Save...', 'Don\'t Save', 'Cancel'],
-        defaultId: 0,
-        cancelId: 2,
-        title: 'You have unsaved changes!',
-        message: 'Do you want to save the changes made to your program?',
-        detail: 'Your changes will be lost if you don\'t save them.',
-      })      
-      // NOTE: For whatever reason, `event.preventDefault()` does not work within
-      // beforeunload events, so we use `event.returnValue = false` instead.
-      .then(clickedId => {
-        if (clickedId.response === 0) {
-          // FIXME: Figure out a way to make Save and Close, well, close.
-          event.returnValue = false;
-          this.props.onSaveFile();
-        } else if (clickedId.response === 2) {
-          event.returnValue = false;
-        }
-      })
-
+    function beforeUnload(event: any) {
+      // If there are unsaved changes and the user tries to close Dawn,
+      // check if they want to save their changes first.
+      if (hasUnsavedChanges()) {
+        dialog.showMessageBox(currentWindow, {
+          type: 'warning',
+          buttons: ['Save...', 'Don\'t Save', 'Cancel'],
+          defaultId: 0,
+          cancelId: 2,
+          title: 'You have unsaved changes!',
+          message: 'Do you want to save the changes made to your program?',
+          detail: 'Your changes will be lost if you don\'t save them.',
+        })      
+        // NOTE: For whatever reason, `event.preventDefault()` does not work within
+        // beforeunload events, so we use `event.returnValue = false` instead.
+        .then(clickedId => {
+          if (clickedId.response === 0) {
+            // FIXME: Figure out a way to make Save and Close, well, close.
+            event.returnValue = false;
+            props.onSaveFile();
+          } else if (clickedId.response === 2) {
+            event.returnValue = false;
+          }
+        })
+      }
     }
-  }
+    return function cleanup() {
+      window.removeEventListener('beforeunload', beforeUnload);
+      window.removeEventListener('resize', onWindowResize);
+    }
+  });
 
-  bitShiftLeft = (value: number, numPositions: number) => {
+  const bitShiftLeft = (value: number, numPositions: number) => {
     return value * Math.pow(2, numPositions);
   }
 
-  toggleConsole = () => {
-    this.props.toggleConsole();
+  const toggleConsole = () => {
+    props.toggleConsole();
     // Resize since the console overlaps with the editor, but enough time for console changes
-    setTimeout(() => this.onWindowResize(), 0.01);
+    setTimeout(() => onWindowResize(), 0.01);
   };
 
-  checkLatency = () => {
-    this.props.onInitiateLatencyCheck();
+  const checkLatency = () => {
+    props.onInitiateLatencyCheck();
   };
 
-  insertRobotStaffCode = () => {
-    this.props.onEditorUpdate(ROBOT_STAFF_CODE);
+  const insertRobotStaffCode = () => {
+    props.onEditorUpdate(ROBOT_STAFF_CODE);
   };
 
   // toggle keyboard control and add/remove listening for key presses to control robot
-  toggleKeyboardControl = () => {
-    const { isKeyboardModeToggled } = this.state;
-    this.setState({ isKeyboardModeToggled: !isKeyboardModeToggled });
-    this.props.onUpdateKeyboardModeToggle(!isKeyboardModeToggled);
+  const toggleKeyboardControl = () => {
+    setIsKeyboardModeToggled(!isKeyboardModeToggled);
+    props.onUpdateKeyboardModeToggle(!isKeyboardModeToggled);
 
     if (!isKeyboardModeToggled) {
       // We need passive true so that we are able to remove the event listener when we are not in Keyboard Control mode
-      window.addEventListener('keydown', this.turnCharacterOn, { passive: true });
-      window.addEventListener('keyup', this.turnCharacterOff, { passive: true });
+      window.addEventListener('keydown', turnCharacterOn, { passive: true });
+      window.addEventListener('keyup', turnCharacterOff, { passive: true });
     } else {
-      window.removeEventListener('keydown', this.turnCharacterOn);
-      window.removeEventListener('keyup', this.turnCharacterOff);
+      window.removeEventListener('keydown', turnCharacterOn);
+      window.removeEventListener('keyup', turnCharacterOff);
     }
   };
 
-  updateKeyboardBitmap = (currentCharacter: string, isKeyPressed: boolean) => {
-    const keyboardNum = keyboardButtons[currentCharacter];
-    let newKeyboardBitmap: number = this.state.keyboardBitmap;
+  const getEditorHeight = () => {
+    const windowNonEditorHeight = windowInfo.NONEDITOR +
+      (+!!props.showConsole * (consoleHeight + windowInfo.CONSOLEPAD));
+    return `${String(window.innerHeight - windowNonEditorHeight)}px`;
+  }
 
-    const shift = this.bitShiftLeft(1, keyboardNum);
+  const onWindowResize = () => {
+    // Trigger editor to re-render on window resizing.
+    setEditorHeight(getEditorHeight());
+  }
+
+  const updateKeyboardBitmap = (currentCharacter: string, isKeyPressed: boolean) => {
+    const keyboardNum = keyboardButtons[currentCharacter];
+    let newKeyboardBitmap: number = keyboardBitmap;
+
+    const shift = bitShiftLeft(1, keyboardNum);
     const MAX_INT32_BITS = 2147483648; // 2^31
 
     const shiftHighBits = shift / MAX_INT32_BITS;
@@ -333,38 +304,38 @@ export function Editor(props: Props) {
       newKeyboardBitmap = (shiftHighBits | mapHighBits) * MAX_INT32_BITS + (shiftLowBits | mapLowBits);
     }
 
-    this.setState({ keyboardBitmap: newKeyboardBitmap });
-    this.props.onUpdateKeyboardBitmap(this.state.keyboardBitmap);
+    setKeyboardBitmap(newKeyboardBitmap);
+    props.onUpdateKeyboardBitmap(keyboardBitmap);
   };
 
-  turnCharacterOff = (e: KeyboardEvent) => {
+  const turnCharacterOff = (e: KeyboardEvent) => {
     // NOT THE ACTION updateKeyboardBitmap. THIS IS A LOCAL FUNCTION
-    this.updateKeyboardBitmap(e.key, false);
+    updateKeyboardBitmap(e.key, false);
   }
-  turnCharacterOn = (e: KeyboardEvent) => {
-    this.updateKeyboardBitmap(e.key, true)
+  const turnCharacterOn = (e: KeyboardEvent) => {
+    updateKeyboardBitmap(e.key, true)
   }
 
-  upload = () => {
-    const { filepath } = this.props;
+  const upload = () => {
+    const { filepath } = props;
     if (filepath === '') {
-      this.props.onAlertAdd(
+      props.onAlertAdd(
         'Not Working on a File',
         'Please save first',
       );
       logging.log('Upload: Not Working on File');
       return;
     }
-    if (this.hasUnsavedChanges()) {
-      this.props.onAlertAdd(
+    if (hasUnsavedChanges()) {
+      props.onAlertAdd(
         'Unsaved File',
         'Please save first',
       );
       logging.log('Upload: Not Working on Saved File');
       return;
     }
-    if (Editor.correctText(this.props.editorCode) !== this.props.editorCode) {
-      this.props.onAlertAdd(
+    if (correctText(props.editorCode) !== props.editorCode) {
+      props.onAlertAdd(
         'Invalid characters detected',
         'Your code has non-ASCII characters, which won\'t work on the robot. ' +
         'Please remove them and try again.',
@@ -373,43 +344,40 @@ export function Editor(props: Props) {
       return;
     }
 
-    this.props.onUploadCode();
+    props.onUploadCode();
   }
 
-  startRobot = () => {
-    this.setState({ isRunning: true });
-    this.props.onUpdateCodeStatus(this.state.mode);
+  const startRobot = () => {
+    setIsRunning(true);
+    props.onUpdateCodeStatus(mode);
     // this.props.onClearConsole();
   }
 
-  stopRobot = () => {
-    this.setState({
-      simulate: false,
-      isRunning: false,
-      modeDisplay: (this.state.mode === robotState.AUTONOMOUS) ?
-        robotState.AUTOSTR : robotState.TELEOPSTR,
-    });
-    this.props.onUpdateCodeStatus(robotState.IDLE);
+  const stopRobot = () => {
+    setSimulate(false);
+    setIsRunning(false);
+    setModeDisplay(mode === robotState.AUTONOMOUS ? robotState.AUTOSTR : robotState.TELEOPSTR);
+    props.onUpdateCodeStatus(robotState.IDLE);
   }
 
-
-  simulateCompetition = () => {
-    this.setState({ simulate: true, modeDisplay: robotState.SIMSTR });
+  const simulateCompetition = () => {
+    setSimulate(true);
+    setModeDisplay(robotState.SIMSTR);
     const simulation = new Promise((resolve, reject) => {
       logging.log(`Beginning ${timings.AUTO}s ${robotState.AUTOSTR}`);
-      this.props.onUpdateCodeStatus(robotState.AUTONOMOUS);
+      props.onUpdateCodeStatus(robotState.AUTONOMOUS);
       const timestamp = Date.now();
       const autoInt = setInterval(() => {
         const diff = Math.trunc((Date.now() - timestamp) / timings.SEC);
         if (diff > timings.AUTO) {
           clearInterval(autoInt);
           resolve();
-        } else if (!this.state.simulate) {
+        } else if (!simulate) {
           logging.log(`${robotState.AUTOSTR} Quit`);
           clearInterval(autoInt);
           reject();
         } else {
-          this.setState({ modeDisplay: `${robotState.AUTOSTR}: ${timings.AUTO - diff}` });
+          setModeDisplay(`${robotState.AUTOSTR}: ${timings.AUTO - diff}`);
         }
       }, timings.SEC);
     });
@@ -417,396 +385,396 @@ export function Editor(props: Props) {
     simulation.then(() =>
       new Promise((resolve, reject) => {
         logging.log(`Beginning ${timings.IDLE}s Cooldown`);
-        this.props.onUpdateCodeStatus(robotState.IDLE);
+        props.onUpdateCodeStatus(robotState.IDLE);
         const timestamp = Date.now();
         const coolInt = setInterval(() => {
           const diff = Math.trunc((Date.now() - timestamp) / timings.SEC);
           if (diff > timings.IDLE) {
             clearInterval(coolInt);
             resolve();
-          } else if (!this.state.simulate) {
+          } else if (!simulate) {
             clearInterval(coolInt);
             logging.log('Cooldown Quit');
             reject();
           } else {
-            this.setState({ modeDisplay: `Cooldown: ${timings.IDLE - diff}` });
+            setModeDisplay(`Cooldown: ${timings.IDLE - diff}`);
           }
         }, timings.SEC);
       })).then(() => {
       new Promise((resolve, reject) => {
         logging.log(`Beginning ${timings.TELEOP}s ${robotState.TELEOPSTR}`);
-        this.props.onUpdateCodeStatus(robotState.TELEOP);
+        props.onUpdateCodeStatus(robotState.TELEOP);
         const timestamp = Date.now();
         const teleInt = setInterval(() => {
           const diff = Math.trunc((Date.now() - timestamp) / timings.SEC);
           if (diff > timings.TELEOP) {
             clearInterval(teleInt);
             resolve();
-          } else if (!this.state.simulate) {
+          } else if (!simulate) {
             clearInterval(teleInt);
             logging.log(`${robotState.TELEOPSTR} Quit`);
             reject();
           } else {
-            this.setState({ modeDisplay: `${robotState.TELEOPSTR}: ${timings.TELEOP - diff}` });
+            setModeDisplay(`${robotState.TELEOPSTR}: ${timings.TELEOP - diff}`);
           }
         }, timings.SEC);
       }).then(() => {
         logging.log('Simulation Finished');
-        this.props.onUpdateCodeStatus(robotState.IDLE);
+        props.onUpdateCodeStatus(robotState.IDLE);
       }, () => {
         logging.log('Simulation Aborted');
-        this.props.onUpdateCodeStatus(robotState.IDLE);
+        props.onUpdateCodeStatus(robotState.IDLE);
       });
     });
   }
 
-  hasUnsavedChanges = () => {
-    return (this.props.latestSaveCode !== this.props.editorCode);
+  const hasUnsavedChanges = () => {
+    return (props.latestSaveCode !== props.editorCode);
   }
 
-  changeTheme = (theme: string) => {
-    this.props.onChangeTheme(theme);
+  const changeTheme = (theme: string) => {
+    props.onChangeTheme(theme);
     storage.set('editorTheme', { theme }, (err: any) => {
       if (err) logging.log(err);
     });
   }
 
-  increaseFontsize = () => {
-    this.setState({ fontsize: this.props.fontSize + 1 });
-    this.props.onChangeFontsize(this.props.fontSize + 1);
-    storage.set('editorFontSize', { editorFontSize: this.props.fontSize + 1 }, (err: any) => {
+  const increaseFontsize = () => {
+    setFontSize(props.fontSize + 1);
+    props.onChangeFontsize(props.fontSize + 1);
+    storage.set('editorFontSize', { editorFontSize: props.fontSize + 1 }, (err: any) => {
       if (err) logging.log(err);
     });
   }
 
-  handleChangeFontsize = (event: any) => {
-    this.setState({ fontsize: event.target.value });
+  const handleChangeFontsize = (event: any) => {
+    setFontSize(event.target.value);
   }
 
-  handleSubmitFontsize = (event: any) => {
-    this.changeFontsizeToFont(Number(this.state.fontsize));
+  const handleSubmitFontsize = (event: any) => {
+    changeFontsizeToFont(Number(fontSize));
     event.preventDefault();
   }
 
-  changeFontsizeToFont = (fontSize: number) => {
+  const changeFontsizeToFont = (fontSize: number) => {
     if (fontSize > 28) {
       fontSize = 28;
     }
     if (fontSize < 8) {
       fontSize = 8;
     }
-    this.props.onChangeFontsize(fontSize);
-    this.setState({ fontsize: fontSize });
+    props.onChangeFontsize(fontSize);
+    setFontSize(fontSize);
     storage.set('editorFontSize', { editorFontSize: fontSize }, (err: any) => {
       if (err) logging.log(err);
     });
   }
 
-  raiseConsole = () => {
-    this.setState({ consoleHeight: this.state.consoleHeight + windowInfo.UNIT }, () => {
-      this.onWindowResize();
-    });
+  const raiseConsole = () => {
+    setConsoleHeight(consoleHeight + windowInfo.UNIT);
   }
 
-  lowerConsole = () => {
-    this.setState({ consoleHeight: this.state.consoleHeight - windowInfo.UNIT }, () => {
-      this.onWindowResize();
-    });
+  const lowerConsole = () => {
+    setConsoleHeight(consoleHeight - windowInfo.UNIT);
   }
 
-  copyConsole = () => {
-    clipboard.writeText(this.props.consoleData.join(''));
+  useEffect(() => {
+    onWindowResize();
+  }, [consoleHeight]);
+  
+  const copyConsole = () => {
+    clipboard.writeText(props.consoleData.join(''));
   }
 
-  decreaseFontsize = () => {
-    this.setState({ fontsize: this.props.fontSize - 1 });
-    this.props.onChangeFontsize(this.props.fontSize - 1);
-    storage.set('editorFontSize', { editorFontSize: this.props.fontSize - 1 }, (err: any) => {
+  const decreaseFontsize = () => {
+    setFontSize(props.fontSize - 1);
+    props.onChangeFontsize(props.fontSize - 1);
+    storage.set('editorFontSize', { editorFontSize: props.fontSize - 1 }, (err: any) => {
       if (err) logging.log(err);
     });
   }
 
-  render() {
-    const changeMarker = this.hasUnsavedChanges() ? '*' : '';
-    if (this.props.consoleUnread) {
-      this.toggleConsole();
-    }
-
-    return (
-      <Card 
-        bg={this.props.globalTheme === 'dark' ? 'dark' : 'light'} 
-        text={this.props.globalTheme === 'dark' ? 'light' : 'dark'} >
-        <Card.Header>
-          <Card.Title style={{ fontSize: '14px' }}>Editing: {pathToName(this.props.filepath) ? pathToName(this.props.filepath) : '[ New File ]' } {changeMarker}</Card.Title>
-        </Card.Header>
-        <Card.Body>
-          <Form inline onSubmit={this.handleSubmitFontsize}>
-            <ButtonGroup id="file-operations-buttons">
-              <DropdownButton
-                variant={this.props.globalTheme === 'dark' ? 'outline-info' : 'primary'}
-                title="File"
-                size="sm"
-                id="choose-theme"
-              >
-                <Dropdown.Item
-                  onClick={this.props.onCreateNewFile}
-                >New File</Dropdown.Item>
-                <Dropdown.Item
-                  onClick={this.props.onOpenFile}
-                >Open</Dropdown.Item>
-                <Dropdown.Item
-                  onClick={_.partial(this.props.onSaveFile,false)}
-                >Save</Dropdown.Item>
-                <Dropdown.Item
-                  onClick={_.partial(this.props.onSaveFile, true)}
-                >Save As</Dropdown.Item>
-              </DropdownButton>
-              <TooltipButton
-                id="upload"
-                text="Upload"
-                onClick={this.upload}
-                icon="arrow-circle-up"
-                disabled={false}
-              />
-              <TooltipButton
-                id="download"
-                text="Download from Robot"
-                onClick={this.props.onDownloadCode}
-                icon="arrow-circle-down"
-                disabled={!this.props.runtimeStatus}
-              />
-            </ButtonGroup>
-            {' '}
-            <ButtonGroup id="code-execution-buttons">
-              <TooltipButton
-                id="run"
-                text="Run"
-                onClick={this.startRobot}
-                icon="play"
-                disabled={this.state.isRunning
-                || !this.props.runtimeStatus
-                || this.props.fieldControlActivity}
-              />
-              <TooltipButton
-                id="stop"
-                text="Stop"
-                onClick={this.stopRobot}
-                icon="stop"
-                disabled={!(this.state.isRunning || this.state.simulate)}
-              />
-              <DropdownButton
-                variant={this.props.globalTheme === 'dark' ? 'outline-info' : 'primary'}
-                title={this.state.modeDisplay}
-                size="sm"
-                key="dropdown"
-                id="modeDropdown"
-                disabled={this.state.isRunning || this.state.simulate
-                || this.props.fieldControlActivity
-                || !this.props.runtimeStatus}
-              >
-                <Dropdown.Item
-                  eventKey="1"
-                  active={this.state.mode === robotState.AUTONOMOUS && !this.state.simulate}
-                  onClick={() => {
-                    this.setState({ mode: robotState.AUTONOMOUS, modeDisplay: robotState.AUTOSTR });
-                  }}
-                >Autonomous</Dropdown.Item>
-                <Dropdown.Item
-                  eventKey="2"
-                  active={this.state.mode === robotState.TELEOP && !this.state.simulate}
-                  onClick={() => {
-                    this.setState({ mode: robotState.TELEOP, modeDisplay: robotState.TELEOPSTR });
-                  }}
-                >Tele-Operated</Dropdown.Item>
-                <Dropdown.Item
-                  eventKey="3"
-                  active={this.state.simulate}
-                  onClick={this.simulateCompetition}
-                >Simulate Competition</Dropdown.Item>
-              </DropdownButton>
-            </ButtonGroup>
-            {' '}
-            <ButtonGroup id="console-buttons">
-              <TooltipButton
-                id="toggle-console"
-                text="Toggle Console"
-                onClick={this.toggleConsole}
-                icon="terminal"
-                disabled={false}
-                bsStyle={this.props.consoleUnread ? 'danger' : ''}
-              />
-              <TooltipButton
-                id="clear-console"
-                text="Clear Console"
-                onClick={this.props.onClearConsole}
-                icon="times"
-                disabled={false}
-              />
-              <TooltipButton
-                id="raise-console"
-                text="Raise Console"
-                onClick={this.raiseConsole}
-                icon="arrow-up"
-                disabled={this.state.consoleHeight > windowInfo.CONSOLEMAX}
-              />
-              <TooltipButton
-                id="lower-console"
-                text="Lower Console"
-                onClick={this.lowerConsole}
-                icon="arrow-down"
-                disabled={this.state.consoleHeight < windowInfo.CONSOLEMIN}
-              />
-              <TooltipButton
-                id="copy-console"
-                text="Copy Console"
-                onClick={this.copyConsole}
-                icon="clipboard"
-                disabled={false}
-              />
-            </ButtonGroup>
-            {' '}
-            <FormGroup>
-              <InputGroup>
-                <FormControl
-                  type="number"
-                  value={this.state.fontsize ?? '16'}
-                  size="sm"
-                  onChange={this.handleChangeFontsize}
-                  style={{ width: 32, padding: 6 }}
-                />
-                <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip">Text Size</Tooltip>}>
-                  <DropdownButton
-                    as={ButtonGroup}
-                    title=""
-                    variant="small"
-                    id="choose-font-size"
-                  >
-                    <Dropdown.Item
-                      className="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(8)}
-                    >8</Dropdown.Item>
-                    <Dropdown.Item
-                      className="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(12)}
-                    >12</Dropdown.Item>
-                    <Dropdown.Item
-                      className="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(14)}
-                    >14</Dropdown.Item>
-                    <Dropdown.Item
-                      className="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(16)}
-                    >16</Dropdown.Item>
-                    <Dropdown.Item
-                      className="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(20)}
-                    >20</Dropdown.Item>
-                    <Dropdown.Item
-                      className="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(24)}
-                    >24</Dropdown.Item>
-                    <Dropdown.Item
-                      className="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(28)}
-                    >28</Dropdown.Item>
-                  </DropdownButton>
-                </OverlayTrigger>
-              </InputGroup>
-              <TooltipButton
-                id="toggleKeyboardControl"
-                text="Toggle Keyboard Control Mode"
-                onClick={this.toggleKeyboardControl}
-                icon="keyboard"
-                disabled={false}
-                bsStyle={this.state.isKeyboardModeToggled ? 'info' : 'default'}
-              />
-            </FormGroup>{' '}
-            <ButtonGroup id="editor-settings-buttons" className="form-inline">
-              <TooltipButton
-                id="increase-font-size"
-                text="Increase font size"
-                onClick={this.increaseFontsize}
-                icon="search-plus"
-                disabled={this.props.fontSize >= 28}
-              />
-              <TooltipButton
-                id="decrease-font-size"
-                text="Decrease font size"
-                onClick={this.decreaseFontsize}
-                icon="search-minus"
-                disabled={this.props.fontSize <= 8}
-              />
-              <DropdownButton
-                variant={this.props.globalTheme === 'dark' ? 'outline-info' : 'primary'}
-                title="Theme"
-                size="sm"
-                id="choose-theme"
-              >
-                {themes.map((theme: string) => (
-                  <Dropdown.Item
-                    active={theme === this.props.editorTheme}
-                    onClick={_.partial(this.changeTheme, theme)}
-                    key={theme}
-                  >
-                    {theme}
-                  </Dropdown.Item>
-                ))}
-              </DropdownButton>
-            </ButtonGroup>
-            <FormGroup>
-              <TooltipButton
-                id="checkLatency"
-                text="Initiate Latency Check"
-                onClick={this.checkLatency}
-                icon="paper-plane"
-                disabled={false}
-              />
-            </FormGroup>
-            <FormGroup>
-              <TooltipButton
-                id="staffCodeButton"
-                text="Import Staff Code"
-                onClick={() => {
-                  if (this.props.editorCode !== this.props.latestSaveCode) {
-                    const shouldOverwrite = window.confirm(
-                      'You currently have unsaved changes. Do you really want to overwrite your code with Staff Code?'
-                    );
-
-                    if (shouldOverwrite) {
-                      this.insertRobotStaffCode();
-                    }
-                  } else {
-                    this.insertRobotStaffCode();
-                  }
-                }}
-                glyph="star"
-                disabled={false}
-              />
-            </FormGroup>
-          </Form>
-          <AceEditor
-            mode="python"
-            theme={this.props.editorTheme}
-            width="100%"
-            fontSize={this.props.fontSize}
-            ref={(input: AceEditor) => { this.CodeEditor = input; }}
-            name="CodeEditor"
-            height={this.state.editorHeight.toString()}
-            value={this.props.editorCode}
-            onChange={this.props.onEditorUpdate}
-            onPaste={Editor.onEditorPaste}
-            editorProps={{ $blockScrolling: Infinity }}
-            readOnly={this.state.isKeyboardModeToggled}
-          />
-          <ConsoleOutput
-            toggleConsole={this.toggleConsole}
-            show={this.props.showConsole}
-            height={this.state.consoleHeight}
-            output={this.props.consoleData}
-            disableScroll={this.props.disableScroll}
-          />
-        </Card.Body>
-      </Card>
-    );
+  const changeMarker = hasUnsavedChanges() ? '*' : '';
+  if (props.consoleUnread) {
+    toggleConsole();
   }
+  
+  return (
+    <Card 
+      bg={props.globalTheme === 'dark' ? 'dark' : 'light'} 
+      text={props.globalTheme === 'dark' ? 'light' : 'dark'} >
+      <Card.Header>
+        <Card.Title style={{ fontSize: '14px' }}>Editing: {pathToName(props.filepath) ? pathToName(props.filepath) : '[ New File ]' } {changeMarker}</Card.Title>
+      </Card.Header>
+      <Card.Body>
+        <Form inline onSubmit={handleSubmitFontsize}>
+          <ButtonGroup id="file-operations-buttons">
+            <DropdownButton
+              variant={props.globalTheme === 'dark' ? 'outline-info' : 'primary'}
+              title="File"
+              size="sm"
+              id="choose-theme"
+            >
+              <Dropdown.Item
+                onClick={props.onCreateNewFile}
+              >New File</Dropdown.Item>
+              <Dropdown.Item
+                onClick={props.onOpenFile}
+              >Open</Dropdown.Item>
+              <Dropdown.Item
+                onClick={_.partial(props.onSaveFile,false)}
+              >Save</Dropdown.Item>
+              <Dropdown.Item
+                onClick={_.partial(props.onSaveFile, true)}
+              >Save As</Dropdown.Item>
+            </DropdownButton>
+            <TooltipButton
+              id="upload"
+              text="Upload"
+              onClick={upload}
+              icon="arrow-circle-up"
+              disabled={false}
+            />
+            <TooltipButton
+              id="download"
+              text="Download from Robot"
+              onClick={props.onDownloadCode}
+              icon="arrow-circle-down"
+              disabled={!props.runtimeStatus}
+            />
+          </ButtonGroup>
+          {' '}
+          <ButtonGroup id="code-execution-buttons">
+            <TooltipButton
+              id="run"
+              text="Run"
+              onClick={startRobot}
+              icon="play"
+              disabled={isRunning
+              || !props.runtimeStatus
+              || props.fieldControlActivity}
+            />
+            <TooltipButton
+              id="stop"
+              text="Stop"
+              onClick={stopRobot}
+              icon="stop"
+              disabled={!(isRunning || simulate)}
+            />
+            <DropdownButton
+              variant={props.globalTheme === 'dark' ? 'outline-info' : 'primary'}
+              title={modeDisplay}
+              size="sm"
+              key="dropdown"
+              id="modeDropdown"
+              disabled={isRunning || simulate
+              || props.fieldControlActivity
+              || !props.runtimeStatus}
+            >
+              <Dropdown.Item
+                eventKey="1"
+                active={mode === robotState.AUTONOMOUS && !simulate}
+                onClick={() => {
+                  setMode(robotState.AUTONOMOUS);
+                  setModeDisplay(robotState.AUTOSTR);
+                }}
+              >Autonomous</Dropdown.Item>
+              <Dropdown.Item
+                eventKey="2"
+                active={mode === robotState.TELEOP && !simulate}
+                onClick={() => {
+                  setMode(robotState.TELEOP);
+                  setModeDisplay(robotState.TELEOPSTR);
+                }}
+              >Tele-Operated</Dropdown.Item>
+              <Dropdown.Item
+                eventKey="3"
+                active={simulate}
+                onClick={simulateCompetition}
+              >Simulate Competition</Dropdown.Item>
+            </DropdownButton>
+          </ButtonGroup>
+          {' '}
+          <ButtonGroup id="console-buttons">
+            <TooltipButton
+              id="toggle-console"
+              text="Toggle Console"
+              onClick={toggleConsole}
+              icon="terminal"
+              disabled={false}
+              bsStyle={props.consoleUnread ? 'danger' : ''}
+            />
+            <TooltipButton
+              id="clear-console"
+              text="Clear Console"
+              onClick={props.onClearConsole}
+              icon="times"
+              disabled={false}
+            />
+            <TooltipButton
+              id="raise-console"
+              text="Raise Console"
+              onClick={raiseConsole}
+              icon="arrow-up"
+              disabled={consoleHeight > windowInfo.CONSOLEMAX}
+            />
+            <TooltipButton
+              id="lower-console"
+              text="Lower Console"
+              onClick={lowerConsole}
+              icon="arrow-down"
+              disabled={consoleHeight < windowInfo.CONSOLEMIN}
+            />
+            <TooltipButton
+              id="copy-console"
+              text="Copy Console"
+              onClick={copyConsole}
+              icon="clipboard"
+              disabled={false}
+            />
+          </ButtonGroup>
+          {' '}
+          <FormGroup>
+            <InputGroup>
+              <FormControl
+                type="number"
+                value={fontSize ?? '16'}
+                size="sm"
+                onChange={handleChangeFontsize}
+                style={{ width: 32, padding: 6 }}
+              />
+              <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip">Text Size</Tooltip>}>
+                <DropdownButton
+                  as={ButtonGroup}
+                  title=""
+                  variant="small"
+                  id="choose-font-size"
+                >
+                  <Dropdown.Item
+                    className="dropdown-item"
+                    onClick={() => changeFontsizeToFont(8)}
+                  >8</Dropdown.Item>
+                  <Dropdown.Item
+                    className="dropdown-item"
+                    onClick={() => changeFontsizeToFont(12)}
+                  >12</Dropdown.Item>
+                  <Dropdown.Item
+                    className="dropdown-item"
+                    onClick={() => changeFontsizeToFont(14)}
+                  >14</Dropdown.Item>
+                  <Dropdown.Item
+                    className="dropdown-item"
+                    onClick={() => changeFontsizeToFont(16)}
+                  >16</Dropdown.Item>
+                  <Dropdown.Item
+                    className="dropdown-item"
+                    onClick={() => changeFontsizeToFont(20)}
+                  >20</Dropdown.Item>
+                  <Dropdown.Item
+                    className="dropdown-item"
+                    onClick={() => changeFontsizeToFont(24)}
+                  >24</Dropdown.Item>
+                  <Dropdown.Item
+                    className="dropdown-item"
+                    onClick={() => changeFontsizeToFont(28)}
+                  >28</Dropdown.Item>
+                </DropdownButton>
+              </OverlayTrigger>
+            </InputGroup>
+            <TooltipButton
+              id="toggleKeyboardControl"
+              text="Toggle Keyboard Control Mode"
+              onClick={toggleKeyboardControl}
+              icon="keyboard"
+              disabled={false}
+              bsStyle={isKeyboardModeToggled ? 'info' : 'default'}
+            />
+          </FormGroup>{' '}
+          <ButtonGroup id="editor-settings-buttons" className="form-inline">
+            <TooltipButton
+              id="increase-font-size"
+              text="Increase font size"
+              onClick={increaseFontsize}
+              icon="search-plus"
+              disabled={props.fontSize >= 28}
+            />
+            <TooltipButton
+              id="decrease-font-size"
+              text="Decrease font size"
+              onClick={decreaseFontsize}
+              icon="search-minus"
+              disabled={props.fontSize <= 8}
+            />
+            <DropdownButton
+              variant={props.globalTheme === 'dark' ? 'outline-info' : 'primary'}
+              title="Theme"
+              size="sm"
+              id="choose-theme"
+            >
+              {themes.map((theme: string) => (
+                <Dropdown.Item
+                  active={theme === props.editorTheme}
+                  onClick={_.partial(changeTheme, theme)}
+                  key={theme}
+                >
+                  {theme}
+                </Dropdown.Item>
+              ))}
+            </DropdownButton>
+          </ButtonGroup>
+          <FormGroup>
+            <TooltipButton
+              id="checkLatency"
+              text="Initiate Latency Check"
+              onClick={checkLatency}
+              icon="paper-plane"
+              disabled={false}
+            />
+          </FormGroup>
+          <FormGroup>
+            <TooltipButton
+              id="staffCodeButton"
+              text="Import Staff Code"
+              onClick={() => {
+                if (props.editorCode !== props.latestSaveCode) {
+                  const shouldOverwrite = window.confirm(
+                    'You currently have unsaved changes. Do you really want to overwrite your code with Staff Code?'
+                  );
+
+                  if (shouldOverwrite) {
+                    insertRobotStaffCode();
+                  }
+                } else {
+                  insertRobotStaffCode();
+                }
+              }}
+              icon="star"
+              disabled={false}
+            />
+          </FormGroup>
+        </Form>
+        <AceEditor
+          mode="python"
+          theme={props.editorTheme}
+          width="100%"
+          fontSize={props.fontSize}
+          ref={(input: AceEditor) => { CodeEditor = input; }}
+          name="CodeEditor"
+          height={editorHeight.toString()}
+          value={props.editorCode}
+          onChange={props.onEditorUpdate}
+          onPaste={onEditorPaste}
+          editorProps={{ $blockScrolling: Infinity }}
+          readOnly={isKeyboardModeToggled}
+        />
+        <ConsoleOutput
+          toggleConsole={toggleConsole}
+          show={props.showConsole}
+          height={consoleHeight}
+          output={props.consoleData}
+          // disableScroll={props.disableScroll}
+        />
+      </Card.Body>
+    </Card>
+  );
 }
