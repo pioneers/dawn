@@ -11,10 +11,6 @@ interface OwnProps {
 
 type Props = OwnProps;
 
-interface State {
-  showModal: boolean;
-}
-
 const NUM_GAMEPAD_BUTTONS = 17;
 const NUM_GAMEPAD_AXES = 4;
 
@@ -28,11 +24,11 @@ export const Gamepad = (props: Props) => {
     const gamepadButtons: string[] = [];
 
     for (let i = 0; i < NUM_GAMEPAD_BUTTONS; i++) {
-      gamepadButtons.push(numeral((Number(this.props.gamepad.buttons) & (1 << i)) >> i).format('0'));
+      gamepadButtons.push(numeral((Number(props.gamepad.buttons) & (1 << i)) >> i).format('0'));
     }
 
     return {
-      axes: this.props.gamepad.axes.map((axis: number) => numeral(axis).format('0.00000')),
+      axes: props.gamepad.axes.map((axis: number) => numeral(axis).format('0.00000')),
       buttons: gamepadButtons
     };
   };
