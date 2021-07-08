@@ -1,5 +1,5 @@
+import { Card } from 'react-bootstrap';
 import React, { useEffect, useRef } from 'react';
-import { Panel } from 'react-bootstrap';
 
 interface StateProps {
   toggleConsole: () => void;
@@ -15,7 +15,7 @@ interface OwnProps {
 type Props = StateProps & OwnProps;
 
 export function ConsoleOutput(props: Props) {
-  let outerDiv: HTMLDivElement | null;
+  let outerDiv: HTMLDivElement | HTMLPreElement|  null;
   let { show, output } = props;
 
   const prevOutputRef = useRef([] as string[]);
@@ -35,24 +35,28 @@ export function ConsoleOutput(props: Props) {
       }
     }
   }
-
+    
   const height = `${String(props.height)}px`; // TODO: Use Panel.Collapse
   return (
     <div>
-      <Panel
+      <Card
         style={{
           display: show ? 'block' : 'none',
           marginBottom: '0',
           borderRadius: '0',
         }}
       >
-        <Panel.Body>
+        <Card.Body>
           <pre
             style={{
-              position: 'relative',
-              margin: '0',
-              height,
+              position: 'absolute',
+              bottom: '0',
+              maxHeight: height,
+              overflowY: 'auto',
+              padding: '20px',
+              width: '99%',
             }}
+            ref={(el) => { outerDiv = el; }}
           >
             <div
               style={{
@@ -65,13 +69,13 @@ export function ConsoleOutput(props: Props) {
               }}
               ref={(el) => { outerDiv = el; }}
             >
-              {output.map((line: string) => (
+              {output.map(line => (
                 <code key={`${line}-Code-${Math.random()}`}>{line}</code>
               ))}
             </div>
           </pre>
-        </Panel.Body>
-      </Panel>
+        </Card.Body>
+      </Card>
     </div>
   );
 }
