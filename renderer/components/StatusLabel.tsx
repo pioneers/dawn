@@ -1,5 +1,5 @@
 import React from 'react';
-import { Label } from 'react-bootstrap';
+import { Badge } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import numeral from 'numeral';
 
@@ -52,11 +52,11 @@ const StatusLabelComponent = (props: Props) => {
   }
   return (
     <div id="parent">
-      <Label bsStyle={labelStyle}>{labelText}</Label>
+      <Badge variant={labelStyle}>{labelText}</Badge>
       {' '}
-      <Label bsStyle={masterRobotStyle !== ' ' ? masterRobotStyle : labelStyle}>
+      <Badge variant={masterRobotStyle !== ' ' ? masterRobotStyle : labelStyle}>
         {masterRobot !== null ? masterRobotHeader + masterRobot : null}
-      </Label>
+      </Badge>
     </div>
   );
 };

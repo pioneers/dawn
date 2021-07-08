@@ -74,7 +74,7 @@ app.on('ready', () => {
   });
 
   // Binding for the main process to inject into Redux workflow
-  RendererBridge.registerWindow(mainWindow);
+  RendererBridge.registerWindow('main', mainWindow);
 
   mainWindow.maximize();
   mainWindow.loadURL(`file://${__dirname}/../static/index.html`);

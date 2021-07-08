@@ -1,13 +1,14 @@
-import React from 'react';
-import { Modal, Button, FormGroup, Form, FormControl, ControlLabel } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Modal, Button, Form } from 'react-bootstrap';
 import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import _ from 'lodash';
-import { getValidationState, logging } from '../utils/utils';
+import { defaults, getValidationState, logging, isValidationState } from '../utils/utils';
 import { updateFieldControl } from '../actions/FieldActions';
-import { ipChange } from '../actions/InfoActions';
+import { ipChange, udpTunnelIpChange, sshIpChange } from '../actions/InfoActions';
 import storage from 'electron-json-storage';
+import { Formik } from 'formik';
 
 interface Config {
   stationNumber: number;
@@ -17,10 +18,14 @@ interface Config {
 interface StateProps {
   stationNumber: number;
   ipAddress: string;
+  udpTunnelAddress: string;
+  sshAddress: string;
 }
 
 interface DispatchProps {
   onIPChange: (ipAddress: string) => void;
+  onUDPTunnelingIpAddressChange: (ipAddress: string) => void;
+  onSSHAddressChange: (ipAddress: string) => void;
   onFCUpdate: (config: Config) => void;
 }
 
@@ -31,43 +36,130 @@ interface OwnProps {
 }
 
 type Props = StateProps & DispatchProps & OwnProps;
+type FormControlElement = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 
-interface State {
-  ipAddress: string;
-  fcAddress: string;
-  stationNumber: number;
-  originalIPAddress: string;
-  originalStationNumber: number;
-  originalFCAddress: string;
-}
 
-class ConfigBoxComponent extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+export const ConfigBoxComponent = (props: Props) => {
+  const [ipAddress, setIPAddress] = useState(props.ipAddress);
+  const [udpTunnelIpAddress, setUDPTunnelIpAddress] = useState(props.udpTunnelAddress);
+  const [sshAddress, setSSHAddress] = useState(props.sshAddress);
+  const [fcAddress, setFCAddress] = useState(props.fcAddress);
+  const [stationNumber, setStationNumber] = useState(props.stationNumber);
+  const [originalIPAddress, setOriginalIPAddress] = useState(props.ipAddress);
+  const [originalUDPTunnelIpAddress, setOriginalUDPTunnelIpAddress] = useState(props.udpTunnelAddress);
+  const [originalSSHAddress, setOriginalSSHAddress] = useState(props.sshAddress);
+  const [originalStationNumber, setOriginalStationNumber] = useState(props.stationNumber);
+  const [originalFCAddress, setOriginalFCAddress] = useState(props.fcAddress);
 
-    this.state = {
-      ipAddress: this.props.ipAddress,
-      fcAddress: this.props.fcAddress,
-      stationNumber: this.props.stationNumber,
-      originalIPAddress: this.props.ipAddress,
-      originalStationNumber: this.props.stationNumber,
-      originalFCAddress: this.props.fcAddress,
+  const saveChanges = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    props.onUDPTunnelingIpAddressChange(udpTunnelIpAddress);
+    setOriginalFCAddress(udpTunnelIpAddress);
+    storage.set('udpTunnelIpAddress', { udpTunnelIpAddress }, (err: any) => {
+      if (err) logging.log(err);
+    });
+
+    props.onIPChange(ipAddress);
+    setOriginalIPAddress(ipAddress);
+    storage.set('ipAddress', { ipAddress }, (err: any) => {
+      if (err) logging.log(err);
+    });
+
+    props.onSSHAddressChange(sshAddress);
+    setOriginalSSHAddress(sshAddress);
+    storage.set('sshAddress', { sshAddress }, (err: any) => {
+      if (err) {
+        logging.log(err);
+      }
+    })
+
+    const newConfig = {
+      stationNumber: stationNumber,
+      bridgeAddress: fcAddress,
     };
+    props.onFCUpdate(newConfig);
+    setOriginalStationNumber(stationNumber);
+    setOriginalFCAddress(fcAddress);
+
+    storage.set('fieldControl', newConfig, (err: any) => {
+      if (err) logging.log(err);
+    });
+    ipcRenderer.send('FC_CONFIG_CHANGE', newConfig);
+
+    props.hide();
+  };
+
+  const handleIpChange = (e: React.FormEvent<FormControlElement>) => {
+    setIPAddress(e.currentTarget.value);
+  };
+
+  const handleUDPTunnelIpChange = (e: React.FormEvent<FormControlElement>) => {
+    setUDPTunnelIpAddress(e.currentTarget.value);
+  };
+
+  const handleSSHIpChange = (e: React.FormEvent<FormControlElement>) => {
+    setSSHAddress(e.currentTarget.value);
   }
 
-  componentDidMount() {
-    /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types */
+  const handleFcChange = (e: React.FormEvent<FormControlElement>) => {
+    setFCAddress(e.currentTarget.value);
+  };
+
+  const handleStationChange = (e: React.FormEvent<FormControlElement>) => {
+    setStationNumber(parseInt(e.currentTarget.value));
+  };
+
+  const handleClose = () => {
+    setIPAddress(originalIPAddress);
+    setStationNumber(originalStationNumber);
+    setFCAddress(originalFCAddress);
+    setUDPTunnelIpAddress(originalUDPTunnelIpAddress);
+    setSSHAddress(originalSSHAddress);
+    props.hide();
+  };
+
+  const disableUploadUpdate = () => {
+    if (defaults.NGROK) {
+      return false;
+    }
+    return getValidationState(ipAddress) === 'error' || getValidationState(fcAddress) === 'error' || (stationNumber < 0 && stationNumber > 4);
+  };
+
+  useEffect(() => {
     storage.get('ipAddress', (err: any, data: object) => {
       if (err) {
         logging.log(err);
       } else if (!_.isEmpty(data)) {
-        const ipAddress = (data as { ipAddress: string }).ipAddress;
+        const ipAddress = (data as { ipAddress: string | undefined }).ipAddress ?? defaults.IPADDRESS;
 
-        this.props.onIPChange(ipAddress);
-        this.setState({
-          ipAddress: ipAddress,
-          originalIPAddress: ipAddress,
-        });
+        props.onIPChange(ipAddress);
+        setIPAddress(ipAddress);
+        setOriginalIPAddress(ipAddress);
+      }
+    });
+
+    storage.get('udpTunnelIpAddress', (err: any, data: object) => {
+      if (err) {
+        logging.log(err);
+      } else if (!_.isEmpty(data)) {
+        const udpTunnelIpAddress = (data as { udpTunnelIpAddress: string | undefined }).udpTunnelIpAddress ?? defaults.IPADDRESS;
+
+        props.onUDPTunnelingIpAddressChange(udpTunnelIpAddress);
+        setUDPTunnelIpAddress(udpTunnelIpAddress);
+        setOriginalUDPTunnelIpAddress(udpTunnelIpAddress);
+      }
+    });
+
+    storage.get('sshAddress', (err: any, data: object) => {
+      if (err) {
+        logging.log(err);
+      } else if (!_.isEmpty(data)) {
+        const sshAddress = (data as { sshAddress: string | undefined }).sshAddress ?? defaults.IPADDRESS;
+
+        props.onSSHAddressChange(sshAddress);
+        setSSHAddress(sshAddress);
+        setOriginalSSHAddress(sshAddress);
       }
     });
 
@@ -76,126 +168,90 @@ class ConfigBoxComponent extends React.Component<Props, State> {
         logging.log(err);
       } else if (!_.isEmpty(data)) {
         const { bridgeAddress, stationNumber } = data as Config;
-
-        this.setState({
-          fcAddress: bridgeAddress,
-          originalFCAddress: bridgeAddress,
-          stationNumber: stationNumber,
-          originalStationNumber: stationNumber,
-        });
+        setFCAddress(bridgeAddress);
+        setOriginalFCAddress(bridgeAddress);
+        setStationNumber(stationNumber);
+        setOriginalStationNumber(stationNumber);
       }
     });
-  }
+  }, []);
 
-  saveChanges = (e: React.FormEvent<Form>) => {
-    e.preventDefault();
+  const { shouldShow } = props;
 
-    const { ipAddress } = this.state;
-
-    this.props.onIPChange(ipAddress);
-    this.setState({ originalIPAddress: ipAddress });
-    storage.set('ipAddress', { ipAddress: this.state.ipAddress }, (err: any) => {
-      if (err) logging.log(err);
-    });
-
-    const newConfig = {
-      stationNumber: this.state.stationNumber,
-      bridgeAddress: this.state.fcAddress,
-    };
-    this.props.onFCUpdate(newConfig);
-    this.setState({
-      originalStationNumber: this.state.stationNumber,
-      originalFCAddress: this.state.fcAddress,
-    });
-    storage.set('fieldControl', newConfig, (err: any) => {
-      if (err) logging.log(err);
-    });
-    ipcRenderer.send('FC_CONFIG_CHANGE', newConfig);
-
-    this.props.hide();
-  };
-
-  handleIpChange = (e: React.FormEvent<FormControl & HTMLInputElement>) => {
-    this.setState({ ipAddress: e.currentTarget.value });
-  };
-
-  handleFcChange = (e: React.FormEvent<FormControl& HTMLInputElement>) => {
-    this.setState({ fcAddress: e.currentTarget.value });
-  };
-
-  handleStationChange = (e: React.FormEvent<FormControl & HTMLInputElement>) => {
-    this.setState({ stationNumber: parseInt(e.currentTarget.value) });
-  };
-
-  handleClose = () => {
-    this.setState({
-      ipAddress: this.state.originalIPAddress,
-      stationNumber: this.state.originalStationNumber,
-      fcAddress: this.state.originalFCAddress,
-    });
-    this.props.hide();
-  };
-
-  disableUploadUpdate = () => {
-    return (
-      getValidationState(this.state.ipAddress) === 'error' ||
-      getValidationState(this.state.fcAddress) === 'error' ||
-      (this.state.stationNumber < 0 && this.state.stationNumber > 4)
-    );
-  };
-
-  render() {
-    const { shouldShow } = this.props;
-    const { ipAddress, fcAddress, stationNumber } = this.state;
-
-    return (
-      <Modal show={shouldShow} onHide={this.handleClose}>
-        <Form action="" onSubmit={this.saveChanges}>
-          <Modal.Header closeButton>
+  return (
+      // TODO: Figure out formik stuff
+      <Formik
+    //   validationSchema={schema}
+      onSubmit={console.log}
+      initialValues={{
+        
+      }}
+    >
+        <Modal show={shouldShow} onHide={handleClose} animation={false}>
+        <Form action="" onSubmit={saveChanges}>
+            <Modal.Header closeButton>
             <Modal.Title>Dawn Configuration</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
+            </Modal.Header>
+            <Modal.Body>
             <p>
-              Make sure only one computer (running instance of Dawn) is attempting to connect to the robot at a time! (i.e. not trying to
-              connect to the same IP Address)
+                Make sure only one computer (running instance of Dawn) is attempting to connect to the robot at a time! (i.e. not trying to
+                connect to the same IP Address)
             </p>
-            <FormGroup controlId="ipAddress" validationState={getValidationState(ipAddress)}>
-              <ControlLabel>IP Address</ControlLabel>
-              <FormControl type="text" value={ipAddress} placeholder="i.e. 192.168.100.13" onChange={this.handleIpChange} />
-              <FormControl.Feedback />
-            </FormGroup>
+            <Form.Group controlId="ipAddress">
+                <Form.Label>IP Address</Form.Label>
+                <Form.Control type="text" value={ipAddress} placeholder="i.e. 192.168.100.13" onChange={handleIpChange} isValid={isValidationState(ipAddress)} />
+                <Form.Control.Feedback />
+            </Form.Group>
+
+            <Form.Group controlId="ipAddress">
+                <Form.Label>UDP Tunneling</Form.Label>
+                <Form.Control type="text" value={udpTunnelIpAddress} placeholder="i.e. 192.168.100.13" onChange={handleUDPTunnelIpChange} isValid={isValidationState(ipAddress)} />
+                <Form.Control.Feedback />
+            </Form.Group>
+
+            <Form.Group controlId="ipAddress">
+                <Form.Label>SSH Address</Form.Label>
+                <Form.Control type="text" value={sshAddress} placeholder="i.e. 192.168.100.13" onChange={handleSSHIpChange} isValid={isValidationState(ipAddress)} />
+                <Form.Control.Feedback />
+            </Form.Group>
 
             <p>Field Control Settings</p>
-            <FormGroup controlId="fcAddress" validationState={getValidationState(fcAddress)}>
-              <ControlLabel>Field Control IP Address</ControlLabel>
-              <FormControl type="text" value={fcAddress} placeholder="i.e. 192.168.100.13" onChange={this.handleFcChange} />
-              <FormControl.Feedback />
-            </FormGroup>
+            <Form.Group controlId="fcAddress">
+                <Form.Label>Field Control IP Address</Form.Label>
+                <Form.Control type="text" value={fcAddress} placeholder="i.e. 192.168.100.13" onChange={handleFcChange} isValid={isValidationState(ipAddress)} />
+                <Form.Control.Feedback />
+            </Form.Group>
 
-            <FormGroup controlId="stationNumber" validationState={stationNumber >= 0 && stationNumber <= 4 ? 'success' : 'error'}>
-              <ControlLabel>Field Control Station Number</ControlLabel>
-              <FormControl type="number" value={stationNumber} placeholder="An integer from 0 to 4" onChange={this.handleStationChange} />
-              <FormControl.Feedback />
-            </FormGroup>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button type="submit" bsStyle="primary" disabled={this.disableUploadUpdate()}>
-              Update
+            <Form.Group controlId="stationNumber">
+                <Form.Label>Field Control Station Number</Form.Label>
+                <Form.Control type="number" value={stationNumber} placeholder="An integer from 0 to 4" onChange={handleStationChange} isValid={stationNumber >= 0 && stationNumber <= 4}/>
+                <Form.Control.Feedback />
+            </Form.Group>
+            </Modal.Body>
+            <Modal.Footer>
+            <Button type="submit" variant="primary" disabled={disableUploadUpdate()}>
+                Update
             </Button>
-          </Modal.Footer>
+            </Modal.Footer>
         </Form>
-      </Modal>
-    );
-  }
-}
+        </Modal>
+    </Formik>
+  );
+};
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   onIPChange: (ipAddress: string) => {
     dispatch(ipChange(ipAddress));
   },
+  onUDPTunnelingIpAddressChange: (ipAddress: string) => {
+    dispatch(udpTunnelIpChange(ipAddress));
+  },
+  onSSHAddressChange: (ipAddress: string) => {
+    dispatch(sshIpChange(ipAddress));
+  },
   onFCUpdate: (config: Config) => {
     dispatch(updateFieldControl(config));
-  },
+  }
 });
 
 const mapStateToProps = (state: ApplicationState) => ({

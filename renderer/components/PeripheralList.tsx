@@ -1,26 +1,10 @@
 import React from 'react';
 import _ from 'lodash';
-import { Panel, PanelGroup, ListGroup } from 'react-bootstrap';
-import { PeripheralTypes } from '../consts';
-import { Peripheral as PeripheralComponent } from './Peripheral';
+import { Card, CardGroup, ListGroup } from 'react-bootstrap';
+// import { Peripheral as PeripheralComponent } from './Peripheral';
 import { Peripheral, PeripheralList } from '../types';
 import { connect } from 'react-redux';
-
-const cleanerNames = {};
-cleanerNames[PeripheralTypes.MOTOR_SCALAR] = 'Motors';
-cleanerNames[PeripheralTypes.SENSOR_BOOLEAN] = 'Boolean Sensors';
-cleanerNames[PeripheralTypes.SENSOR_SCALAR] = 'Numerical Sensors';
-cleanerNames[PeripheralTypes.LimitSwitch] = 'Limit Switches';
-cleanerNames[PeripheralTypes.LineFollower] = 'Line Followers';
-cleanerNames[PeripheralTypes.Potentiometer] = 'Potentiometers';
-cleanerNames[PeripheralTypes.Encoder] = 'Encoders';
-cleanerNames[PeripheralTypes.MetalDetector] = 'Metal Detectors';
-cleanerNames[PeripheralTypes.ServoControl] = 'Servo Controllers';
-cleanerNames[PeripheralTypes.RFID] = 'RFID';
-cleanerNames[PeripheralTypes.YogiBear] = 'Yogi Bear';
-cleanerNames[PeripheralTypes.GameValues] = 'Game Values';
-cleanerNames[PeripheralTypes.PolarBear] = 'Polar Bear';
-cleanerNames[PeripheralTypes.KoalaBear] = 'Koala Bear';
+import PeripheralGroup from './PeripheralGroup';
 
 // const filter = new Set();
 
@@ -31,6 +15,7 @@ interface OwnProps {
 
 interface StateProps {
   peripheralList: PeripheralList;
+  globalTheme: string;
 }
 
 const handleAccordion = (devices: Peripheral[]) => {
@@ -45,38 +30,18 @@ const handleAccordion = (devices: Peripheral[]) => {
       peripheralGroups[peripheral.name] = group;
     });
 
-
   return Object.keys(peripheralGroups).map((groupName: string) => {
     const groupNameCleaned = groupName; //cleanerNames[groupName] as string;
 
     return (
-      <PanelGroup
-        accordion
+      <CardGroup
+        // accordion
         style={{ marginBottom: '0px' }}
         key={`${groupNameCleaned || 'Default'}-Accordion`}
         id={`${groupNameCleaned || 'Default'}-Accordion`}
       >
-        <Panel key={`${groupNameCleaned || 'Default'}-Panel`} defaultExpanded>
-          <Panel.Heading>
-            <Panel.Title toggle style={{ fontWeight: 'bold' }}>
-              {groupName || 'Generic'}
-            </Panel.Title>
-          </Panel.Heading>
-          <Panel.Collapse>
-            <Panel.Body style={{ padding: '10px' }}>
-              {_.map(peripheralGroups[groupName], (peripheral) => (
-                <PeripheralComponent
-                  key={String(peripheral.uid)}
-                  uid={String(peripheral.uid)}
-                  name={peripheral.name}
-                  type={peripheral.name}
-                  params={peripheral.params}
-                />
-              ))}
-            </Panel.Body>
-          </Panel.Collapse>
-        </Panel>
-      </PanelGroup>
+        <PeripheralGroup groupName={groupName} peripherals={peripheralGroups[groupName]}/>
+      </CardGroup>
     );
   });
 };
@@ -98,19 +63,25 @@ const PeripheralListComponent = (props: StateProps & OwnProps) => {
   }
 
   return (
-    <Panel id="peripherals-panel" bsStyle="primary">
-      <Panel.Heading>Peripherals</Panel.Heading>
-      <Panel.Body style={{ padding: '0px' }}>
+    <Card 
+      className="mb-4" 
+      id="peripherals-panel" 
+      bg={props.globalTheme === 'dark' ? 'dark' : 'light'}
+      text={props.globalTheme === 'dark' ? 'light' : 'dark'}
+      >
+      <Card.Header>Peripherals</Card.Header>
+      <Card.Body style={{ padding: '0px' }}>
         <ListGroup>{panelBody}</ListGroup>
-      </Panel.Body>
-    </Panel>
+      </Card.Body>
+    </Card>
   );
 };
 
 const mapStateToProps = (state: ApplicationState) => ({
-  peripheralList: Object.assign({}, state.peripherals.peripheralList)
+  peripheralList: Object.assign({}, state.peripherals.peripheralList),
+  globalTheme: state.settings.globalTheme,
 });
 
-const PeripheralListContainer = connect<StateProps, {}, OwnProps, ApplicationState>(mapStateToProps, {})(PeripheralListComponent);
+const PeripheralListContainer = connect(mapStateToProps)(PeripheralListComponent);
 
 export default PeripheralListContainer;

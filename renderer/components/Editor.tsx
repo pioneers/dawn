@@ -1,22 +1,21 @@
 import React from 'react';
 import {
-  Panel,
+  Card,
   ButtonGroup,
   DropdownButton,
-  MenuItem,
   FormGroup,
   FormControl,
   Form,
   InputGroup,
   OverlayTrigger,
   Tooltip,
+  Dropdown,
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import { Ace } from 'ace-builds'
 import { remote, clipboard } from 'electron';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
-
 
 // React-ace extensions and modes
 import 'ace-builds/src-noconflict/ext-language_tools';
@@ -36,6 +35,7 @@ import 'ace-builds/src-noconflict/theme-terminal';
 
 import { ConsoleOutput } from './ConsoleOutput';
 import { TooltipButton } from './TooltipButton';
+import { keyboardButtons, ROBOT_STAFF_CODE } from '../consts';
 import { pathToName, robotState, timings, logging, windowInfo } from '../utils/utils';
 
 const { dialog } = remote;
@@ -43,33 +43,37 @@ const currentWindow = remote.getCurrentWindow();
 
 interface StateProps {
   editorTheme: string;
-  editorCode: string;  
+  editorCode: string;
   latestSaveCode: string;
   filepath: string;
   fontSize: number;
   showConsole: boolean;
   consoleData: string[];
-  isRunningCode: boolean;
   runtimeStatus: boolean;
   fieldControlActivity: boolean;
   disableScroll: boolean;
   consoleUnread: boolean;
+  latencyValue: number;
+  globalTheme: string;
 }
 
 interface OwnProps {
   onAlertAdd: (heading: string, message: string) => void;
   onEditorUpdate: (newVal: string) => void;
   onSaveFile: (saveAs?: boolean) => void;
-  onDragFile: (filepath: string) => void; 
-  onOpenFile: () => void; 
+  onDragFile: (filepath: string) => void;
+  onOpenFile: () => void;
   onCreateNewFile: () => void;
   onChangeTheme: (theme: string) => void;
-  onChangeFontsize: (newFontsize: number) => void; 
+  onChangeFontsize: (newFontsize: number) => void;
   toggleConsole: () => void;
   onClearConsole: () => void;
   onUpdateCodeStatus: (status: number) => void;
   onDownloadCode: () => void;
   onUploadCode: () => void;
+  onUpdateKeyboardBitmap: (keyboardBitmap: number) => void;
+  onUpdateKeyboardModeToggle: (isKeyboardToggled: boolean) => void;
+  onInitiateLatencyCheck: () => void;
 }
 
 type Props = StateProps & OwnProps;
@@ -80,8 +84,11 @@ interface State {
   mode: number;
   modeDisplay: string;
   simulate: boolean;
+  isRunning: boolean;
   fontsize?: number;
-};
+  isKeyboardModeToggled: boolean;
+  keyboardBitmap: number;
+}
 
 export class Editor extends React.Component<Props, State> {
   themes: string[];
@@ -122,7 +129,10 @@ export class Editor extends React.Component<Props, State> {
       editorHeight: 0, // Filled in later during componentDidMount
       mode: robotState.TELEOP,
       modeDisplay: robotState.TELEOPSTR,
+      isRunning: false,
       simulate: false,
+      isKeyboardModeToggled: false,
+      keyboardBitmap: 0
     };
   }
 
@@ -259,10 +269,68 @@ export class Editor extends React.Component<Props, State> {
     }
   }
 
+  bitShiftLeft = (value: number, numPositions: number) => {
+    return value * Math.pow(2, numPositions);
+  }
+
   toggleConsole = () => {
     this.props.toggleConsole();
     // Resize since the console overlaps with the editor, but enough time for console changes
     setTimeout(() => this.onWindowResize(), 0.01);
+  };
+
+  checkLatency = () => {
+    this.props.onInitiateLatencyCheck();
+  };
+
+  insertRobotStaffCode = () => {
+    this.props.onEditorUpdate(ROBOT_STAFF_CODE);
+  };
+
+  // toggle keyboard control and add/remove listening for key presses to control robot
+  toggleKeyboardControl = () => {
+    const { isKeyboardModeToggled } = this.state;
+    this.setState({ isKeyboardModeToggled: !isKeyboardModeToggled });
+    this.props.onUpdateKeyboardModeToggle(!isKeyboardModeToggled);
+
+    if (!isKeyboardModeToggled) {
+      // We need passive true so that we are able to remove the event listener when we are not in Keyboard Control mode
+      window.addEventListener('keydown', this.turnCharacterOn, { passive: true });
+      window.addEventListener('keyup', this.turnCharacterOff, { passive: true });
+    } else {
+      window.removeEventListener('keydown', this.turnCharacterOn);
+      window.removeEventListener('keyup', this.turnCharacterOff);
+    }
+  };
+
+  updateKeyboardBitmap = (currentCharacter: string, isKeyPressed: boolean) => {
+    const keyboardNum = keyboardButtons[currentCharacter];
+    let newKeyboardBitmap: number = this.state.keyboardBitmap;
+
+    const shift = this.bitShiftLeft(1, keyboardNum);
+    const MAX_INT32_BITS = 2147483648; // 2^31
+
+    const shiftHighBits = shift / MAX_INT32_BITS;
+    const shiftLowBits = shift % MAX_INT32_BITS;
+    const mapHighBits = newKeyboardBitmap / MAX_INT32_BITS;
+    const mapLowBits = newKeyboardBitmap % MAX_INT32_BITS;
+
+    if (!isKeyPressed) {
+      newKeyboardBitmap = (~shiftHighBits & mapHighBits) * MAX_INT32_BITS + (~shiftLowBits & mapLowBits);
+    } else if (isKeyPressed) {
+      newKeyboardBitmap = (shiftHighBits | mapHighBits) * MAX_INT32_BITS + (shiftLowBits | mapLowBits);
+    }
+
+    this.setState({ keyboardBitmap: newKeyboardBitmap });
+    this.props.onUpdateKeyboardBitmap(this.state.keyboardBitmap);
+  };
+
+  turnCharacterOff = (e: KeyboardEvent) => {
+    // NOT THE ACTION updateKeyboardBitmap. THIS IS A LOCAL FUNCTION
+    this.updateKeyboardBitmap(e.key, false);
+  }
+  turnCharacterOn = (e: KeyboardEvent) => {
+    this.updateKeyboardBitmap(e.key, true)
   }
 
   upload = () => {
@@ -297,23 +365,21 @@ export class Editor extends React.Component<Props, State> {
   }
 
   startRobot = () => {
+    this.setState({ isRunning: true });
     this.props.onUpdateCodeStatus(this.state.mode);
-    this.props.onClearConsole();
+    // this.props.onClearConsole();
   }
 
   stopRobot = () => {
     this.setState({
       simulate: false,
+      isRunning: false,
       modeDisplay: (this.state.mode === robotState.AUTONOMOUS) ?
         robotState.AUTOSTR : robotState.TELEOPSTR,
     });
     this.props.onUpdateCodeStatus(robotState.IDLE);
   }
 
-  estop = () => {
-    this.setState({ simulate: false, modeDisplay: robotState.ESTOPSTR });
-    this.props.onUpdateCodeStatus(robotState.ESTOP);
-  }
 
   simulateCompetition = () => {
     this.setState({ simulate: true, modeDisplay: robotState.SIMSTR });
@@ -453,44 +519,48 @@ export class Editor extends React.Component<Props, State> {
     if (this.props.consoleUnread) {
       this.toggleConsole();
     }
+
     return (
-      <Panel bsStyle="primary">
-        <Panel.Heading>
-          <Panel.Title style={{ fontSize: '14px' }}>Editing: {pathToName(this.props.filepath) ? pathToName(this.props.filepath) : '[ New File ]' } {changeMarker}</Panel.Title>
-        </Panel.Heading>
-        <Panel.Body>
+      <Card 
+        bg={this.props.globalTheme === 'dark' ? 'dark' : 'light'} 
+        text={this.props.globalTheme === 'dark' ? 'light' : 'dark'} >
+        <Card.Header>
+          <Card.Title style={{ fontSize: '14px' }}>Editing: {pathToName(this.props.filepath) ? pathToName(this.props.filepath) : '[ New File ]' } {changeMarker}</Card.Title>
+        </Card.Header>
+        <Card.Body>
           <Form inline onSubmit={this.handleSubmitFontsize}>
             <ButtonGroup id="file-operations-buttons">
               <DropdownButton
+                variant={this.props.globalTheme === 'dark' ? 'outline-info' : 'primary'}
                 title="File"
-                bsSize="small"
+                size="sm"
                 id="choose-theme"
               >
-                <MenuItem
+                <Dropdown.Item
                   onClick={this.props.onCreateNewFile}
-                >New File</MenuItem>
-                <MenuItem
+                >New File</Dropdown.Item>
+                <Dropdown.Item
                   onClick={this.props.onOpenFile}
-                >Open</MenuItem>
-                <MenuItem
+                >Open</Dropdown.Item>
+                <Dropdown.Item
                   onClick={_.partial(this.props.onSaveFile,false)}
-                >Save</MenuItem>
-                <MenuItem
+                >Save</Dropdown.Item>
+                <Dropdown.Item
                   onClick={_.partial(this.props.onSaveFile, true)}
-                >Save As</MenuItem>
+                >Save As</Dropdown.Item>
               </DropdownButton>
               <TooltipButton
                 id="upload"
                 text="Upload"
                 onClick={this.upload}
-                glyph="upload"
+                icon="arrow-circle-up"
                 disabled={false}
               />
               <TooltipButton
                 id="download"
                 text="Download from Robot"
                 onClick={this.props.onDownloadCode}
-                glyph="download"
+                icon="arrow-circle-down"
                 disabled={!this.props.runtimeStatus}
               />
             </ButtonGroup>
@@ -500,8 +570,8 @@ export class Editor extends React.Component<Props, State> {
                 id="run"
                 text="Run"
                 onClick={this.startRobot}
-                glyph="play"
-                disabled={this.props.isRunningCode
+                icon="play"
+                disabled={this.state.isRunning
                 || !this.props.runtimeStatus
                 || this.props.fieldControlActivity}
               />
@@ -509,51 +579,39 @@ export class Editor extends React.Component<Props, State> {
                 id="stop"
                 text="Stop"
                 onClick={this.stopRobot}
-                glyph="stop"
-                disabled={!(this.props.isRunningCode || this.state.simulate)}
+                icon="stop"
+                disabled={!(this.state.isRunning || this.state.simulate)}
               />
               <DropdownButton
+                variant={this.props.globalTheme === 'dark' ? 'outline-info' : 'primary'}
                 title={this.state.modeDisplay}
-                bsSize="small"
+                size="sm"
                 key="dropdown"
                 id="modeDropdown"
-                disabled={this.state.simulate
+                disabled={this.state.isRunning || this.state.simulate
                 || this.props.fieldControlActivity
                 || !this.props.runtimeStatus}
               >
-                <MenuItem
+                <Dropdown.Item
                   eventKey="1"
-                  active={this.state.mode === robotState.TELEOP && !this.state.simulate}
-                  onClick={() => {
-                    this.setState({ mode: robotState.TELEOP, modeDisplay: robotState.TELEOPSTR });
-                  }}
-                >
-                  Tele-Operated
-                </MenuItem>
-                <MenuItem
-                  eventKey="2"
                   active={this.state.mode === robotState.AUTONOMOUS && !this.state.simulate}
                   onClick={() => {
                     this.setState({ mode: robotState.AUTONOMOUS, modeDisplay: robotState.AUTOSTR });
                   }}
-                >
-                  Autonomous
-                </MenuItem>
-                <MenuItem
+                >Autonomous</Dropdown.Item>
+                <Dropdown.Item
+                  eventKey="2"
+                  active={this.state.mode === robotState.TELEOP && !this.state.simulate}
+                  onClick={() => {
+                    this.setState({ mode: robotState.TELEOP, modeDisplay: robotState.TELEOPSTR });
+                  }}
+                >Tele-Operated</Dropdown.Item>
+                <Dropdown.Item
                   eventKey="3"
                   active={this.state.simulate}
                   onClick={this.simulateCompetition}
-                >
-                  Simulate Competition
-                </MenuItem>
+                >Simulate Competition</Dropdown.Item>
               </DropdownButton>
-              <TooltipButton
-                id="e-stop"
-                text="E-STOP"
-                onClick={this.estop}
-                glyph="fire"
-                disabled={false}
-              />
             </ButtonGroup>
             {' '}
             <ButtonGroup id="console-buttons">
@@ -561,7 +619,7 @@ export class Editor extends React.Component<Props, State> {
                 id="toggle-console"
                 text="Toggle Console"
                 onClick={this.toggleConsole}
-                glyph="console"
+                icon="terminal"
                 disabled={false}
                 bsStyle={this.props.consoleUnread ? 'danger' : ''}
               />
@@ -569,28 +627,28 @@ export class Editor extends React.Component<Props, State> {
                 id="clear-console"
                 text="Clear Console"
                 onClick={this.props.onClearConsole}
-                glyph="remove"
+                icon="times"
                 disabled={false}
               />
               <TooltipButton
                 id="raise-console"
                 text="Raise Console"
                 onClick={this.raiseConsole}
-                glyph="arrow-up"
+                icon="arrow-up"
                 disabled={this.state.consoleHeight > windowInfo.CONSOLEMAX}
               />
               <TooltipButton
                 id="lower-console"
                 text="Lower Console"
                 onClick={this.lowerConsole}
-                glyph="arrow-down"
+                icon="arrow-down"
                 disabled={this.state.consoleHeight < windowInfo.CONSOLEMIN}
               />
               <TooltipButton
                 id="copy-console"
                 text="Copy Console"
                 onClick={this.copyConsole}
-                glyph="copy"
+                icon="clipboard"
                 disabled={false}
               />
             </ButtonGroup>
@@ -599,84 +657,121 @@ export class Editor extends React.Component<Props, State> {
               <InputGroup>
                 <FormControl
                   type="number"
-                  value={this.state.fontsize}
-                  bsSize="small"
+                  value={this.state.fontsize ?? '16'}
+                  size="sm"
                   onChange={this.handleChangeFontsize}
                   style={{ width: 32, padding: 6 }}
                 />
                 <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip">Text Size</Tooltip>}>
                   <DropdownButton
-                    componentClass={InputGroup.Button}
+                    as={ButtonGroup}
                     title=""
-                    bsSize="small"
+                    variant="small"
                     id="choose-font-size"
                   >
-                    <MenuItem
+                    <Dropdown.Item
                       className="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(8)}
-                    >8</MenuItem>
-                    <MenuItem
+                    >8</Dropdown.Item>
+                    <Dropdown.Item
                       className="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(12)}
-                    >12</MenuItem>
-                    <MenuItem
+                    >12</Dropdown.Item>
+                    <Dropdown.Item
                       className="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(14)}
-                    >14</MenuItem>
-                    <MenuItem
+                    >14</Dropdown.Item>
+                    <Dropdown.Item
                       className="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(16)}
-                    >16</MenuItem>
-                    <MenuItem
+                    >16</Dropdown.Item>
+                    <Dropdown.Item
                       className="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(20)}
-                    >20</MenuItem>
-                    <MenuItem
+                    >20</Dropdown.Item>
+                    <Dropdown.Item
                       className="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(24)}
-                    >24</MenuItem>
-                    <MenuItem
+                    >24</Dropdown.Item>
+                    <Dropdown.Item
                       className="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(28)}
-                    >28</MenuItem>
+                    >28</Dropdown.Item>
                   </DropdownButton>
                 </OverlayTrigger>
               </InputGroup>
-            </FormGroup>
-            {' '}
+              <TooltipButton
+                id="toggleKeyboardControl"
+                text="Toggle Keyboard Control Mode"
+                onClick={this.toggleKeyboardControl}
+                icon="keyboard"
+                disabled={false}
+                bsStyle={this.state.isKeyboardModeToggled ? 'info' : 'default'}
+              />
+            </FormGroup>{' '}
             <ButtonGroup id="editor-settings-buttons" className="form-inline">
               <TooltipButton
                 id="increase-font-size"
                 text="Increase font size"
                 onClick={this.increaseFontsize}
-                glyph="zoom-in"
+                icon="search-plus"
                 disabled={this.props.fontSize >= 28}
               />
               <TooltipButton
                 id="decrease-font-size"
                 text="Decrease font size"
                 onClick={this.decreaseFontsize}
-                glyph="zoom-out"
+                icon="search-minus"
                 disabled={this.props.fontSize <= 8}
               />
               <DropdownButton
+                variant={this.props.globalTheme === 'dark' ? 'outline-info' : 'primary'}
                 title="Theme"
-                bsSize="small"
+                size="sm"
                 id="choose-theme"
               >
                 {this.themes.map((theme: string) => (
-                  <MenuItem
+                  <Dropdown.Item
                     active={theme === this.props.editorTheme}
                     onClick={_.partial(this.changeTheme, theme)}
                     key={theme}
                   >
                     {theme}
-                  </MenuItem>
+                  </Dropdown.Item>
                 ))}
               </DropdownButton>
             </ButtonGroup>
-          </Form>
+            <FormGroup>
+              <TooltipButton
+                id="checkLatency"
+                text="Initiate Latency Check"
+                onClick={this.checkLatency}
+                icon="paper-plane"
+                disabled={false}
+              />
+            </FormGroup>
+            <FormGroup>
+              <TooltipButton
+                id="staffCodeButton"
+                text="Import Staff Code"
+                onClick={() => {
+                  if (this.props.editorCode !== this.props.latestSaveCode) {
+                    const shouldOverwrite = window.confirm(
+                      'You currently have unsaved changes. Do you really want to overwrite your code with Staff Code?'
+                    );
 
+                    if (shouldOverwrite) {
+                      this.insertRobotStaffCode();
+                    }
+                  } else {
+                    this.insertRobotStaffCode();
+                  }
+                }}
+                glyph="star"
+                disabled={false}
+              />
+            </FormGroup>
+          </Form>
           <AceEditor
             mode="python"
             theme={this.props.editorTheme}
@@ -689,6 +784,7 @@ export class Editor extends React.Component<Props, State> {
             onChange={this.props.onEditorUpdate}
             onPaste={Editor.onEditorPaste}
             editorProps={{ $blockScrolling: Infinity }}
+            readOnly={this.state.isKeyboardModeToggled}
           />
           <ConsoleOutput
             toggleConsole={this.toggleConsole}
@@ -697,8 +793,8 @@ export class Editor extends React.Component<Props, State> {
             output={this.props.consoleData}
             disableScroll={this.props.disableScroll}
           />
-        </Panel.Body>
-      </Panel>
+        </Card.Body>
+      </Card>
     );
   }
 }

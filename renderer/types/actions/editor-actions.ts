@@ -47,6 +47,25 @@ export interface UploadCodeAction {
   type: consts.EditorActionsTypes.UPLOAD_CODE;
 }
 
+export interface UpdateKeyboardBitmapAction {
+  type: consts.EditorActionsTypes.UPDATE_KEYBOARD_BITMAP;
+  keyboardBitmap: number;
+}
+
+export interface UpdateIsKeyboardModeToggledAction {
+  type: consts.EditorActionsTypes.UPDATE_IS_KEYBOARD_MODE_TOGGLED;
+  isKeyboardToggled: boolean;
+}
+
+export interface InitiateLatencyCheck {
+  type: consts.EditorActionsTypes.INITIATE_LATENCY_CHECK;
+}
+
+export interface SetLatencyValue {
+  type: consts.EditorActionsTypes.SET_LATENCY_VALUE;
+  latencyValue: number;
+}
+
 export interface EditorActions {
   editorUpdate: (newVal: string) => EditorUpdateAction;
 
@@ -67,4 +86,12 @@ export interface EditorActions {
   downloadCode: () => DownloadCodeAction;
 
   uploadCode: () => UploadCodeAction;
+
+  updateKeyboardBitmap: (keyboardBitmap: number) => UpdateKeyboardBitmapAction;
+
+  updateIsKeyboardModeToggled: (isKeyboardToggled: boolean) => UpdateIsKeyboardModeToggledAction;
+
+  initiateLatencyCheck: () => InitiateLatencyCheck;
+
+  setLatencyValue: (latencyValue: number) => SetLatencyValue;
 }

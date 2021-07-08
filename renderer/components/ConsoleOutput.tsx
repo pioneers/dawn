@@ -1,5 +1,5 @@
+import React from 'react';
 import { Card } from 'react-bootstrap';
-import React, { useEffect, useRef } from 'react';
 
 interface StateProps {
   toggleConsole: () => void;
@@ -35,30 +35,23 @@ export function ConsoleOutput(props: Props) {
       }
     }
   }
-    
-  const height = `${String(props.height)}px`; // TODO: Use Panel.Collapse
-  return (
-    <div>
-      <Card
-        style={{
-          display: show ? 'block' : 'none',
-          marginBottom: '0',
-          borderRadius: '0',
-        }}
-      >
-        <Card.Body>
-          <pre
-            style={{
-              position: 'absolute',
-              bottom: '0',
-              maxHeight: height,
-              overflowY: 'auto',
-              padding: '20px',
-              width: '99%',
-            }}
-            ref={(el) => { outerDiv = el; }}
-          >
-            <div
+
+
+  render() {
+    const { show, output } = this.props;
+
+    const height = `${String(this.props.height)}px`; // TODO: Use Panel.Collapse
+    return (
+      <div>
+        <Card
+          style={{
+            display: show ? 'block' : 'none',
+            marginBottom: '0',
+            borderRadius: '0',
+          }}
+        >
+          <Card.Body>
+            <pre
               style={{
                 position: 'absolute',
                 bottom: '0',
@@ -69,13 +62,25 @@ export function ConsoleOutput(props: Props) {
               }}
               ref={(el) => { outerDiv = el; }}
             >
-              {output.map(line => (
-                <code key={`${line}-Code-${Math.random()}`}>{line}</code>
-              ))}
-            </div>
-          </pre>
-        </Card.Body>
-      </Card>
-    </div>
-  );
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: '0',
+                  maxHeight: height,
+                  overflowY: 'auto',
+                  padding: '20px',
+                  width: '99%',
+                }}
+                ref={(el) => { this.outerDiv = el; }}
+              >
+                {output.map(line => (
+                  <code key={`${line}-Code-${Math.random()}`}>{line}</code>
+                ))}
+              </div>
+            </pre>
+          </Card.Body>
+        </Card>
+      </div>
+    );
+  }
 }

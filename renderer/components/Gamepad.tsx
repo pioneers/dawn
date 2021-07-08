@@ -2,15 +2,15 @@ import React from 'react';
 import {
   Modal,
   Button,
-  ListGroupItem,
+  ListGroup,
   Table,
 } from 'react-bootstrap';
 import _ from 'lodash';
 import numeral from 'numeral';
-import { GpState } from '../../protos/protos';
+import { Input } from '../../protos/protos';
 
 interface OwnProps {
-  gamepad: GpState;
+  gamepad: Input;
   index: number;
 }
 
@@ -19,6 +19,7 @@ type Props = OwnProps;
 interface State {
   showModal: boolean;
 }
+
 
 const NUM_GAMEPAD_BUTTONS = 17;
 const NUM_GAMEPAD_AXES = 4;
@@ -39,16 +40,16 @@ export class Gamepad extends React.Component<Props, State> {
 
   roundedValues = () => {
     const gamepadButtons: string[] = [];
-  
-    for (let i = 0; i < 32; i++) {
-      gamepadButtons.push(numeral(this.props.gamepad.buttons | (1 << i)).format('0'));
+
+    for (let i = 0; i < NUM_GAMEPAD_BUTTONS; i++) {
+      gamepadButtons.push(numeral((Number(this.props.gamepad.buttons) & (1 << i)) >> i).format('0'));
     }
 
     return {
-      axes: _.map(this.props.gamepad.axes, (axis: number) => numeral(axis).format('0.00000')),
+      axes: this.props.gamepad.axes.map((axis: number) => numeral(axis).format('0.00000')),
       buttons: gamepadButtons
     };
-  }
+  };
 
   renderHeader = () => {
     return (
@@ -59,19 +60,18 @@ export class Gamepad extends React.Component<Props, State> {
   }
 
   render() {
-
     const { gamepad } = this.props;
     const { showModal } = this.state;
 
     if (!gamepad) {
-      return (<div />);
+      return <></>;
     }
     const values = this.roundedValues();
     return (
-      <ListGroupItem>
+      <ListGroup.Item>
         <div style={{ overflow: 'auto', width: '100%' }}>
           <span style={{ float: 'left' }}>{this.renderHeader()}</span>
-          <Button type="button" bsSize="small" onClick={this.openModal} style={{ float: 'right' }}>
+          <Button type="button" size="sm" onClick={this.openModal} style={{ float: 'right' }}>
             Details
           </Button>
         </div>
@@ -102,13 +102,13 @@ export class Gamepad extends React.Component<Props, State> {
                 </tr>
                 <tr>
                   <th>Value</th>
-                  {_.range(NUM_GAMEPAD_AXES).map((gamepadButtonAxis: number) => <td>{values.buttons[gamepadButtonAxis]}</td>)}
+                  {_.range(NUM_GAMEPAD_AXES).map((gamepadButtonAxis: number) => <td>{values.axes[gamepadButtonAxis]}</td>)}
                 </tr>
               </tbody>
             </Table>
           </Modal.Body>
         </Modal>
-      </ListGroupItem>
+      </ListGroup.Item>
     );
   }
 };
