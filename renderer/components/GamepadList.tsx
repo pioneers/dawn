@@ -4,6 +4,8 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 import { Gamepad } from './Gamepad';
 import { Input } from '../../protos/protos';
+import { useStores } from '../hooks';
+import { Observer } from 'mobx-react';
 
 interface StateProps {
   gamepads: Input[] | undefined;
@@ -13,6 +15,8 @@ interface StateProps {
 type Props = StateProps;
 
 const GamepadListComponent = (props: Props) => {
+  const {settings} = useStores();
+  
   let interior;
   if (_.some(props.gamepads, (gamepad: Input) => gamepad !== undefined)) {
     interior = _.map(
@@ -28,9 +32,10 @@ const GamepadListComponent = (props: Props) => {
     );
   }
   return (
+    <Observer>{() =>
     <Card
-      bg={props.globalTheme === 'dark' ? 'dark' : 'light'}
-      text={props.globalTheme === 'dark' ? 'light' : 'dark'}
+      bg={settings.globalTheme === 'dark' ? 'dark' : 'light'}
+      text={settings.globalTheme === 'dark' ? 'light' : 'dark'}
       className="mb-4"
       //border="primary"
       id="gamepads-panel"
@@ -41,7 +46,7 @@ const GamepadListComponent = (props: Props) => {
           {interior}
         </ListGroup>
       </Card.Body>
-    </Card>
+    </Card>}</Observer>
   );
 };
 

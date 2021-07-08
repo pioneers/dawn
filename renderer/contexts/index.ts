@@ -1,0 +1,1 @@
+export { storesContext } from './stores';

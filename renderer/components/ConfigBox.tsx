@@ -9,6 +9,8 @@ import { updateFieldControl } from '../actions/FieldActions';
 import { ipChange, udpTunnelIpChange, sshIpChange } from '../actions/InfoActions';
 import storage from 'electron-json-storage';
 import { Formik } from 'formik';
+import { useStores } from '../hooks';
+import { Observer } from 'mobx-react';
 
 interface Config {
   stationNumber: number;
@@ -40,33 +42,36 @@ type FormControlElement = HTMLInputElement | HTMLSelectElement | HTMLTextAreaEle
 
 
 export const ConfigBoxComponent = (props: Props) => {
-  const [ipAddress, setIPAddress] = useState(props.ipAddress);
-  const [udpTunnelIpAddress, setUDPTunnelIpAddress] = useState(props.udpTunnelAddress);
-  const [sshAddress, setSSHAddress] = useState(props.sshAddress);
-  const [fcAddress, setFCAddress] = useState(props.fcAddress);
-  const [stationNumber, setStationNumber] = useState(props.stationNumber);
-  const [originalIPAddress, setOriginalIPAddress] = useState(props.ipAddress);
-  const [originalUDPTunnelIpAddress, setOriginalUDPTunnelIpAddress] = useState(props.udpTunnelAddress);
-  const [originalSSHAddress, setOriginalSSHAddress] = useState(props.sshAddress);
-  const [originalStationNumber, setOriginalStationNumber] = useState(props.stationNumber);
-  const [originalFCAddress, setOriginalFCAddress] = useState(props.fcAddress);
+
+  const {info, fieldStore} = useStores();
+
+  const [ipAddress, setIPAddress] = useState(info.ipAddress);
+  const [udpTunnelIpAddress, setUDPTunnelIpAddress] = useState(info.udpTunnelIpAddress);
+  const [sshAddress, setSSHAddress] = useState(info.sshAddress);
+  const [fcAddress, setFCAddress] = useState(props.fcAddress); //TODO
+  const [stationNumber, setStationNumber] = useState(fieldStore.stationNumber);
+  const [originalIPAddress, setOriginalIPAddress] = useState(info.ipAddress);
+  const [originalUDPTunnelIpAddress, setOriginalUDPTunnelIpAddress] = useState(info.udpTunnelIpAddress);
+  const [originalSSHAddress, setOriginalSSHAddress] = useState(info.sshAddress);
+  const [originalStationNumber, setOriginalStationNumber] = useState(fieldStore.stationNumber);
+  const [originalFCAddress, setOriginalFCAddress] = useState(props.fcAddress); //TODO
 
   const saveChanges = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    props.onUDPTunnelingIpAddressChange(udpTunnelIpAddress);
+    info.udpTunnelIpChange(udpTunnelIpAddress);
     setOriginalFCAddress(udpTunnelIpAddress);
     storage.set('udpTunnelIpAddress', { udpTunnelIpAddress }, (err: any) => {
       if (err) logging.log(err);
     });
 
-    props.onIPChange(ipAddress);
+    info.ipChange(ipAddress);
     setOriginalIPAddress(ipAddress);
     storage.set('ipAddress', { ipAddress }, (err: any) => {
       if (err) logging.log(err);
     });
 
-    props.onSSHAddressChange(sshAddress);
+    info.sshIpChange(sshAddress);
     setOriginalSSHAddress(sshAddress);
     storage.set('sshAddress', { sshAddress }, (err: any) => {
       if (err) {
@@ -78,7 +83,7 @@ export const ConfigBoxComponent = (props: Props) => {
       stationNumber: stationNumber,
       bridgeAddress: fcAddress,
     };
-    props.onFCUpdate(newConfig);
+    props.onFCUpdatefield(newConfig);
     setOriginalStationNumber(stationNumber);
     setOriginalFCAddress(fcAddress);
 
@@ -133,7 +138,7 @@ export const ConfigBoxComponent = (props: Props) => {
       } else if (!_.isEmpty(data)) {
         const ipAddress = (data as { ipAddress: string | undefined }).ipAddress ?? defaults.IPADDRESS;
 
-        props.onIPChange(ipAddress);
+        info.ipChange(ipAddress);
         setIPAddress(ipAddress);
         setOriginalIPAddress(ipAddress);
       }
@@ -145,7 +150,7 @@ export const ConfigBoxComponent = (props: Props) => {
       } else if (!_.isEmpty(data)) {
         const udpTunnelIpAddress = (data as { udpTunnelIpAddress: string | undefined }).udpTunnelIpAddress ?? defaults.IPADDRESS;
 
-        props.onUDPTunnelingIpAddressChange(udpTunnelIpAddress);
+        info.udpTunnelIpChange(udpTunnelIpAddress);
         setUDPTunnelIpAddress(udpTunnelIpAddress);
         setOriginalUDPTunnelIpAddress(udpTunnelIpAddress);
       }
@@ -157,7 +162,7 @@ export const ConfigBoxComponent = (props: Props) => {
       } else if (!_.isEmpty(data)) {
         const sshAddress = (data as { sshAddress: string | undefined }).sshAddress ?? defaults.IPADDRESS;
 
-        props.onSSHAddressChange(sshAddress);
+        info.sshIpChange(sshAddress);
         setSSHAddress(sshAddress);
         setOriginalSSHAddress(sshAddress);
       }
@@ -179,6 +184,7 @@ export const ConfigBoxComponent = (props: Props) => {
   const { shouldShow } = props;
 
   return (
+    <Observer>{() => 
       // TODO: Figure out formik stuff
       <Formik
     //   validationSchema={schema}
@@ -235,7 +241,7 @@ export const ConfigBoxComponent = (props: Props) => {
             </Modal.Footer>
         </Form>
         </Modal>
-    </Formik>
+    </Formik>}</Observer>
   );
 };
 
