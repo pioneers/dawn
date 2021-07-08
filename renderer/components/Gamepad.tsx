@@ -2,14 +2,18 @@ import React, { useState } from 'react';
 import { Modal, Button, ListGroupItem, Table } from 'react-bootstrap';
 import _ from 'lodash';
 import numeral from 'numeral';
-import { GpState } from '../../protos/protos';
+import { Input } from '../../protos/protos';
 
 interface OwnProps {
-  gamepad: GpState;
+  gamepad: Input;
   index: number;
 }
 
 type Props = OwnProps;
+
+interface State {
+  showModal: boolean;
+}
 
 const NUM_GAMEPAD_BUTTONS = 17;
 const NUM_GAMEPAD_AXES = 4;
@@ -23,12 +27,12 @@ export const Gamepad = (props: Props) => {
   const roundedValues = () => {
     const gamepadButtons: string[] = [];
 
-    for (let i = 0; i < 32; i++) {
-      gamepadButtons.push(numeral(props.gamepad.buttons | (1 << i)).format('0'));
+    for (let i = 0; i < NUM_GAMEPAD_BUTTONS; i++) {
+      gamepadButtons.push(numeral((Number(this.props.gamepad.buttons) & (1 << i)) >> i).format('0'));
     }
 
     return {
-      axes: _.map(props.gamepad.axes, (axis: number) => numeral(axis).format('0.00000')),
+      axes: this.props.gamepad.axes.map((axis: number) => numeral(axis).format('0.00000')),
       buttons: gamepadButtons
     };
   };

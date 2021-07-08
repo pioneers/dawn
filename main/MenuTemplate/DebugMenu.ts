@@ -19,9 +19,7 @@ const DebugMenu: MenuItemConstructorOptions = {
     {
       label: 'Toggle DevTools',
       click() {
-        if (RendererBridge.registeredWindow) {
-          RendererBridge.registeredWindow.webContents.toggleDevTools();
-        }
+        RendererBridge.toggleWindowDevtools('main');
       },
       accelerator: 'CommandOrControl+alt+I',
     },
@@ -57,9 +55,7 @@ const DebugMenu: MenuItemConstructorOptions = {
       label: 'Reload',
       accelerator: 'CommandOrControl+R',
       click() {
-        if (RendererBridge.registeredWindow) {
-          RendererBridge.registeredWindow.reload();
-        }
+        RendererBridge.reloadWindow('main');
       },
     },
 

@@ -21,8 +21,18 @@ export const getValidationState = (testIPAddress: string) => {
   if (testIPAddress === 'localhost') {
     return 'warning';
   }
+  if (defaults.NGROK) {
+    return 'warning'; // Don't care about regex for ngrok IPs
+  }
   return 'error';
 };
+
+export const isValidationState = (testIPAddress: string) => {
+    if (IPV4_REGEX.test(testIPAddress)) {
+        return true;
+    }
+    return false;
+}
 
 export const uploadStatus = {
   RECEIVED: 0,
@@ -33,10 +43,13 @@ export const uploadStatus = {
 export const robotState = {
   IDLE: 0,
   IDLESTR: 'Idle',
+  0: 'Idle',
   AUTONOMOUS: 1,
   AUTOSTR: 'Autonomous',
+  1: 'Autonomous',
   TELEOP: 2,
   TELEOPSTR: 'Tele-Operated',
+  2: 'Tele-Operated',
   SIMSTR: 'Simulation',
 };
 
@@ -60,6 +73,7 @@ export const defaults = {
   PASSWORD: 'raspberry',
   IPADDRESS: '192.168.0.0',
   STUDENTCODELOC: '/home/pi/runtime/executor/studentcode.py',
+  NGROK: true,
 };
 
 export const timings = {

@@ -5,24 +5,24 @@
  */
 
 /* eslint-disable camelcase */
-import { Param, DevData, Device } from '../protos/protos';
+import { DevData, IParam, IDevice, IDevData } from '../protos/protos';
 import { createSocket, Socket as UDPSocket } from 'dgram';
 import { createServer, Server as TCPServer } from 'net';
 
 const TCP_PORT = 8101;
 const UDP_SEND_PORT = 9001;
 const UDP_LISTEN_PORT = 9000;
-const MSGINTERVAL = 1000; // 1 sec in msec
+const MSG_INTERVAL_MSEC = 50;
 
 const randomFloat = (min: number, max: number) => (max - min) * Math.random() + min;
-const sensor = (name: string, type: number, params: Param[], uid: number): Device => ({
+const sensor = (name: string, type: number, params: IParam[], uid: number): IDevice => ({
   name,
   type,
   params,
   uid,
 });
 
-const param = (name: string, type: string, value: any) => ({
+const param = (name: string, type: string, value: any): IParam => ({
   // eslint-disable-line no-shadow
   name,
   fval: type === 'float' ? value : undefined,
@@ -55,7 +55,7 @@ class FakeRuntime {
       print('server bound');
     })
 
-    setInterval(this.onInterval, MSGINTERVAL);
+    setInterval(this.onInterval, MSG_INTERVAL_MSEC);
   }
 
   generateFakeData = () => {
@@ -85,10 +85,10 @@ class FakeRuntime {
   }
 
   onInterval = () => {
-    const fakeData: DevData = this.generateFakeData();
+    const fakeData: IDevData = this.generateFakeData();
     this.sendSocket.send(DevData.encode(fakeData).finish(), UDP_SEND_PORT, 'localhost');
     // TODO: Handle TCP writes to console
   }
 }
 
-new FakeRuntime(); // eslint-disable-line no-new
+new FakeRuntime();

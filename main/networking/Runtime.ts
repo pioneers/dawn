@@ -8,13 +8,15 @@ import { updateConsole } from '../../renderer/actions/ConsoleActions';
 import { runtimeDisconnect, infoPerMessage } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { Logger, defaults } from '../../renderer/utils/utils';
+import { Peripheral } from '../../renderer/types';
+import { setLatencyValue } from '../../renderer/actions/EditorActions';
 
 /**
  * Define port constants, which must match with Runtime
  */
 const UDP_SEND_PORT = 9000;
 const UDP_LISTEN_PORT = 9001;
-const TCP_PORT = 8101;
+const DEFAULT_TCP_PORT = 8101;
 
 /**
  * Runtime IP Address used for TCP and UDP connections
@@ -25,34 +27,80 @@ let runtimeIP = defaults.IPADDRESS;
  * Define message ID constants, which must match with Runtime
  */
 enum MsgType {
-  RUN_MODE,
-  START_POS,
-  CHALLENGE_DATA,
-  LOG,
-  DEVICE_DATA,
+  RUN_MODE = 0,
+  START_POS = 1,
+  CHALLENGE_DATA = 2,
+  LOG = 3,
+  DEVICE_DATA = 4,
+  // 5 reserved for some Shepherd msg type
+  INPUTS = 6,
+  TIME_STAMPS = 7
 }
 
 interface TCPPacket {
-  messageType: MsgType;
-  messageLength: number;
+  type: MsgType;
+  length: number;
   payload: Buffer;
 }
 
-/**
- * Unpack TCP packet header from payload
- * as sent from Runtime.
+/** Given a data buffer, read as many TCP Packets as possible.
+ *  If there are leftover bytes, return them so that they can be used in the next cycle of data.
  */
-function readPacket(data: any): TCPPacket {
-  const buf = Buffer.from(data);
-  const header = buf.slice(0, 3);
-  const msgType = header[0];
-  const msgLength = new Uint16Array(header.slice(1))[0];
-  const load = buf.slice(3);
+function readPackets(
+  data: Buffer,
+  previousLeftoverBytes?: Buffer
+): { leftoverBytes: Buffer | undefined; processedTCPPackets: TCPPacket[] } {
+  const bytesToRead = Buffer.concat([previousLeftoverBytes ?? new Uint8Array(), data]);
+  let leftoverBytes;
+  let i = 0;
+  const processedTCPPackets: TCPPacket[] = [];
+
+  while (i < bytesToRead.length) {
+    let header;
+    let msgType;
+    let msgLength;
+    let payload: Buffer;
+
+    if (i + 3 <= bytesToRead.length) {
+      // Have enough bytes to read in 3 byte header
+      header = bytesToRead.slice(i, i + 3);
+      msgType = header[0];
+      msgLength = (header[2] << 8) | header[1];
+    } else {
+      // Don't have enough bytes to read 3 byte header so we save the bytes for the next data cycle
+      leftoverBytes = bytesToRead.slice(i);
+
+      return {
+        leftoverBytes,
+        processedTCPPackets
+      };
+    }
+
+    i += 3;
+
+    if (i + msgLength <= bytesToRead.length) {
+      // Have enough bytes to read entire payload from 1 TCP packet
+      payload = bytesToRead.slice(i, i + msgLength);
+    } else {
+      // Don't have enough bytes to read entire payload
+      leftoverBytes = bytesToRead.slice(i);
+
+      return {
+        // Note: Need to save header so we know how many bytes to read for this packet in the next data cycle
+        leftoverBytes: Buffer.concat([header, leftoverBytes]),
+        processedTCPPackets
+      };
+    }
+
+    const newTCPPacket = { type: msgType, length: msgLength, payload: payload! };
+    processedTCPPackets.push(newTCPPacket);
+
+    i += msgLength;
+  }
 
   return {
-    messageType: msgType,
-    messageLength: msgLength,
-    payload: load,
+    leftoverBytes,
+    processedTCPPackets
   };
 }
 
@@ -62,7 +110,7 @@ function readPacket(data: any): TCPPacket {
  */
 function createPacket(payload: unknown, messageType: MsgType): Buffer {
   let encodedPayload: Uint8Array;
-  
+
   switch (messageType) {
     case MsgType.DEVICE_DATA:
       encodedPayload = protos.DevData.encode(payload as protos.IDevData).finish();
@@ -73,15 +121,22 @@ function createPacket(payload: unknown, messageType: MsgType): Buffer {
     case MsgType.START_POS:
       encodedPayload = protos.StartPos.encode(payload as protos.IStartPos).finish();
       break;
+    case MsgType.TIME_STAMPS:
+      encodedPayload = protos.TimeStamps.encode(payload as protos.ITimeStamps).finish();
+      break;
     case MsgType.CHALLENGE_DATA:
       encodedPayload = protos.Text.encode(payload as protos.IText).finish();
+      break;
+    case MsgType.INPUTS:
+      // Special case for 2021 competition where Input data is sent over tunneled TCP connection
+      encodedPayload = payload as Uint8Array;
       break;
     default:
       console.log('ERROR: trying to create TCP Packet with type LOG');
       encodedPayload = new Uint8Array();
       break;
   }
-  
+
   const msgLength = Buffer.byteLength(encodedPayload);
   const msgLengthArr = new Uint8Array([msgLength & 0x00ff, msgLength & 0xff00]); // Assuming little-endian byte order, since runs on x64
   const msgTypeArr = new Uint8Array([messageType]);
@@ -89,21 +144,123 @@ function createPacket(payload: unknown, messageType: MsgType): Buffer {
   return Buffer.concat([msgTypeArr, msgLengthArr, encodedPayload], msgLength + 3);
 }
 
+/** Uses TCP connection to tunnel UDP messages. */
+class UDPTunneledConn {
+  /* Leftover bytes from reading 1 cycle of the TCP data buffer. */
+  leftoverBytes: Buffer | undefined;
+  logger: Logger;
+  tcpSocket: TCPSocket;
+  udpForwarder: UDPSocket;
+  ip: string;
+  port: number;
+
+  constructor(logger: Logger) {
+    this.logger = logger;
+    this.ip = defaults.IPADDRESS;
+
+    this.tcpSocket = new TCPSocket();
+
+    // Connect to most recent IP
+    setInterval(() => {
+      if (!this.tcpSocket.connecting && this.tcpSocket.pending) {
+        if (this.ip !== defaults.IPADDRESS) {
+          if (this.ip.includes(':')) {
+            const split = this.ip.split(':');
+            this.ip = split[0];
+            this.port = Number(split[1]);
+          }
+          console.log(`UDPTunneledConn: Trying to TCP connect to ${this.ip}:${this.port}`);
+          this.tcpSocket.connect(this.port, this.ip);
+        }
+      }
+    }, 1000);
+
+    this.tcpSocket.on('connect', () => {
+      this.logger.log(`UDPTunneledConn connected`);
+    });
+
+    this.tcpSocket.on('end', () => {
+      this.logger.log(`UDPTunneledConn disconnected`);
+    });
+
+    this.tcpSocket.on('error', (err: string) => {
+      this.logger.log(err);
+    });
+
+    this.tcpSocket.on('data', (data) => {
+      const { leftoverBytes, processedTCPPackets } = readPackets(data, this.leftoverBytes);
+
+      try {
+        for (const packet of processedTCPPackets) {
+          // Send to UDP Connection
+          udpForwarder.send(packet.payload, 0, packet.payload.length, UDP_LISTEN_PORT, 'localhost');
+        }
+
+        this.leftoverBytes = leftoverBytes;
+      } catch (e) {
+        this.logger.log('UDPTunneledConn udpForwarder failed to send to UDP connection: ' + String(e));
+      }
+    });
+
+    /* Bidirectional - Can send to and receive from UDP connection. */
+    const udpForwarder = createSocket({ type: 'udp4', reuseAddr: true });
+
+    udpForwarder.bind(UDP_SEND_PORT, () => {
+      console.log(`UDP forwarder receives from port ${UDP_SEND_PORT}`);
+    });
+
+    // Received a new message from UDP connection
+    udpForwarder.on('message', (msg: Uint8Array) => {
+      const message = createPacket(msg, MsgType.INPUTS);
+      this.tcpSocket.write(message);
+    });
+
+    this.udpForwarder = udpForwarder;
+
+    ipcMain.on('udpTunnelIpAddress', this.ipAddressListener);
+  }
+
+  ipAddressListener = (_event: IpcMainEvent, ipAddress: string) => {
+    if (ipAddress != this.ip) {
+      console.log(`UDPTunneledConn - Switching IP from ${this.ip} to ${ipAddress}`);
+      if (this.tcpSocket.connecting || !this.tcpSocket.pending) {
+        this.tcpSocket.end();
+      }
+      this.ip = ipAddress;
+    }
+  };
+
+  close = () => {
+    if (!this.tcpSocket.pending) {
+      this.tcpSocket.end();
+    }
+    this.udpForwarder.close();
+    ipcMain.removeListener('udpTunnelIpAddress', this.ipAddressListener);
+  };
+}
+
 class TCPConn {
   logger: Logger;
   socket: TCPSocket;
+  leftoverBytes: Buffer | undefined;
 
   constructor(logger: Logger) {
     this.logger = logger;
     this.socket = new TCPSocket();
 
-    this.socket.setTimeout(5000);
-
+    // Connect to most recent IP
     setInterval(() => {
       if (!this.socket.connecting && this.socket.pending) {
-        console.log('Trying to TCP connect to ', runtimeIP);
         if (runtimeIP !== defaults.IPADDRESS) {
-          this.socket.connect(TCP_PORT, runtimeIP)
+          let port = DEFAULT_TCP_PORT;
+          let ip = runtimeIP;
+          if (runtimeIP.includes(':')) {
+            const split = runtimeIP.split(':');
+            ip = split[0];
+            port = Number(split[1]);
+          }
+          console.log(`TCPConn: Trying to TCP connect to ${ip}:${port}`);
+          this.socket.connect(port, ip);
         }
       }
     }, 1000);
@@ -111,11 +268,6 @@ class TCPConn {
     this.socket.on('connect', () => {
       this.logger.log('Runtime connected');
       this.socket.write(new Uint8Array([1])); // Runtime needs first byte to be 1 to recognize client as Dawn (instead of Shepherd)
-    });
-
-    this.socket.on('timeout', () => {
-      this.logger.log('TCP socket timeout');
-      this.socket.end();
     });
 
     this.socket.on('end', () => {
@@ -132,19 +284,31 @@ class TCPConn {
      * when using payload to update console
      */
     this.socket.on('data', (data) => {
-      const message = readPacket(data);
-      let decoded: protos.Text;
+      const { leftoverBytes, processedTCPPackets } = readPackets(data, this.leftoverBytes);
 
-      switch (message.messageType) {
-        case MsgType.LOG:
-          decoded = protos.Text.decode(message.payload);
-          RendererBridge.reduxDispatch(updateConsole(decoded.payload));
-          break;
-        case MsgType.CHALLENGE_DATA:
-          decoded = protos.Text.decode(message.payload);
-          // TODO: Dispatch challenge outputs to redux
-          break;
+      for (const packet of processedTCPPackets) {
+        let decoded;
+
+        switch (packet.type) {
+          case MsgType.LOG:
+            decoded = protos.Text.decode(packet.payload);
+            RendererBridge.reduxDispatch(updateConsole(decoded.payload));
+            break;
+          case MsgType.TIME_STAMPS:
+            decoded = protos.TimeStamps.decode(packet.payload);
+            const oneWayLatency = (Date.now() - Number(decoded.dawnTimestamp)) / 2;
+
+            // TODO: we can probably do an average of n timestamps so the display doesn't change too frequently
+            
+            RendererBridge.reduxDispatch(setLatencyValue(oneWayLatency))
+            break;
+          case MsgType.CHALLENGE_DATA:
+            // TODO: Dispatch challenge outputs to redux
+            break;
+        }
       }
+
+      this.leftoverBytes = leftoverBytes;
     });
 
     /**
@@ -152,6 +316,21 @@ class TCPConn {
      */
     ipcMain.on('runModeUpdate', this.sendRunMode);
     ipcMain.on('ipAddress', this.ipAddressListener);
+    ipcMain.on('initiateLatencyCheck', this.initiateLatencyCheck);
+  }
+
+  /**
+   * Initiates latency check by sending first packet to Runtime
+   */
+  initiateLatencyCheck = (_event: IpcMainEvent, data: protos.ITimeStamps) => {
+    if (this.socket.pending) {
+      return;
+    }
+    
+    const message = createPacket(data, MsgType.TIME_STAMPS);
+    this.socket.write(message, () => {
+      this.logger.log(`Sent timestamp data to runtime: ${JSON.stringify(data)}`);
+    })
   }
 
   /**
@@ -159,7 +338,13 @@ class TCPConn {
    * Receives new IP Address to send messages to.
    */
   ipAddressListener = (_event: IpcMainEvent, ipAddress: string) => {
-    runtimeIP = ipAddress;
+    if (ipAddress != runtimeIP) {
+      console.log(`TCPConn - Switching IP from ${runtimeIP} to ${ipAddress}`);
+      if (this.socket.connecting || !this.socket.pending) {
+        this.socket.end();
+      }
+      runtimeIP = ipAddress;
+    }
   };
 
   // TODO: We can possibly combine below methods into single handler.
@@ -220,6 +405,7 @@ class TCPConn {
     this.socket.end();
     ipcMain.removeListener('runModeUpdate', this.sendRunMode);
     ipcMain.removeListener('ipAddress', this.ipAddressListener);
+    ipcMain.removeListener('initiateLatencyCheck', this.initiateLatencyCheck);
   };
 }
 
@@ -254,28 +440,38 @@ class UDPConn {
       try {
         RendererBridge.reduxDispatch(infoPerMessage());
         const sensorData: protos.Device[] = protos.DevData.decode(msg).devices;
-        
+        // Need to convert protos.Device to Peripheral here because when dispatching to the renderer over IPC,
+        // some of the inner properties (i.e. device.uid which is a Long) loses its prototype, which means any
+        // data we are sending over through IPC should be serializable.
+        // https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
+        const peripherals: Peripheral[] = [];
+
         sensorData.forEach((device) => {
-          if (device.uid.toString() === '0') {
-            device.uid = 0;
+          // There is a weird bug that happens with the protobufs decoding when device.type is specifically 0
+          // where the property can be accessed but when trying to view object contents, the property doesn't exist.
+          // Below is a way to get around this problem.
+          if (device.type.toString() === '0') {
+            device.type = 0;
           }
+
+          peripherals.push({ ...device, uid: device.uid.toString() });
         });
 
-        RendererBridge.reduxDispatch(updatePeripherals(sensorData));
+        RendererBridge.reduxDispatch(updatePeripherals(peripherals));
       } catch (err) {
         this.logger.log('Error decoding UDP');
         this.logger.log(err);
       }
     });
 
-    this.socket.bind(UDP_LISTEN_PORT, () => {
+    this.socket.bind(UDP_LISTEN_PORT, 'localhost', () => {
       this.logger.log(`UDP connection bound`);
     });
 
     /**
      * UDP Send Socket IPC Connections
      */
-    ipcMain.on('stateUpdate', this.sendGamepadMessages);
+    ipcMain.on('stateUpdate', this.sendInputs);
   }
 
   /**
@@ -283,37 +479,39 @@ class UDPConn {
    * Sends messages when Gamepad information changes
    * or when 100 ms has passed (with 50 ms cooldown)
    */
-  sendGamepadMessages = (_event: IpcMainEvent, data: protos.GpState[]) => {
+  sendInputs = (_event: IpcMainEvent, data: protos.Input[], source: protos.Source) => {
     if (data.length === 0) {
       data.push(
-        protos.GpState.create({
+        protos.Input.create({
           connected: false,
+          source
         })
       );
     }
 
-    const message = protos.GpState.encode(data[0]).finish();
-    this.logger.debug(`Dawn sent UDP to ${runtimeIP}`);
-    this.socket.send(message, UDP_SEND_PORT, runtimeIP);
+    const message = protos.UserInputs.encode({ inputs: data }).finish();
+
+    // Change IP to use runtimeIP again after 2021 Competition
+    this.socket.send(message, UDP_SEND_PORT, 'localhost');
   };
 
   close() {
     this.socket.close();
-    ipcMain.removeListener('stateUpdate', this.sendGamepadMessages);
+    ipcMain.removeListener('stateUpdate', this.sendInputs);
   }
 }
 
-const RuntimeConnections: Array<UDPConn | TCPConn> = [];
+const RuntimeConnections: Array<UDPConn | TCPConn | UDPTunneledConn> = [];
 
 export const Runtime = {
   conns: RuntimeConnections,
   logger: new Logger('runtime', 'Runtime Debug'),
 
   setup() {
-    this.conns = [new UDPConn(this.logger), new TCPConn(this.logger)];
+    this.conns = [new UDPConn(this.logger), new TCPConn(this.logger), new UDPTunneledConn(this.logger)];
   },
 
   close() {
     this.conns.forEach((conn) => conn.close()); // Logger's fs closes automatically
-  },
+  }
 };

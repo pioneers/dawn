@@ -16,7 +16,7 @@ import { toggleFieldControl } from '../actions/FieldActions';
 import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
 import { TIMEOUT, defaults, logging } from '../utils/utils';
-import { GpState } from '../../protos/protos';
+import { Input, Source, TimeStamps } from '../../protos/protos';
 
 let timestamp = Date.now();
 
@@ -33,7 +33,7 @@ function openFileDialog() {
     remote.dialog.showOpenDialog({
       filters: [{ name: 'python', extensions: ['py'] }],
     }).then((openDialogReturnValue: OpenDialogReturnValue) => {
-      const { filePaths } = openDialogReturnValue; 
+      const { filePaths } = openDialogReturnValue;
       // If filepaths is undefined, the user did not specify a file.
       if (_.isEmpty(filePaths)) {
         reject();
@@ -57,7 +57,7 @@ function saveFileDialog() {
     remote.dialog.showSaveDialog({
       filters: [{ name: 'python', extensions: ['py'] }],
     }).then((saveDialogReturnValue: SaveDialogReturnValue) => {
-      const { filePath } = saveDialogReturnValue; 
+      const { filePath } = saveDialogReturnValue;
       // If filepath is undefined, the user did not specify a file.
       if (filePath === undefined) {
         reject();
@@ -108,9 +108,11 @@ function* writeCodeToFile(filepath: string, code: string): Generator<any, void, 
   yield put(saveFileSucceeded(code, filepath));
 }
 
-const editorState = (state: any) => ({
+const editorState = (state: ApplicationState) => ({
   filepath: state.editor.filepath,
   code: state.editor.editorCode,
+  keyboardBitmap: state.editor.keyboardBitmap,
+  isKeyboardModeToggled: state.editor.isKeyboardModeToggled
 });
 
 function* saveFile(action: any) {
@@ -206,7 +208,7 @@ function* runtimeHeartbeat() {
     const result = yield race({
       update: take('PER_MESSAGE'),
       timeout: delay(TIMEOUT)
-    }); 
+    });
 
     // If update wins, we assume we are connected, otherwise disconnected.
     if (result.update) {
@@ -232,8 +234,8 @@ function _needToUpdate(newGamepads: (Gamepad | null)[]): boolean {
   });
 }
 
-function formatGamepads(newGamepads: (Gamepad | null)[]): GpState[] {
-  let formattedGamepads: GpState[] = [];
+function formatGamepads(newGamepads: (Gamepad | null)[]): Input[] {
+  let formattedGamepads: Input[] = [];
   // Currently there is a bug on windows where navigator.getGamepads()
   // returns a second, 'ghost' gamepad even when only one is connected.
   // The filter on 'mapping' filters out the ghost gamepad.
@@ -245,14 +247,58 @@ function formatGamepads(newGamepads: (Gamepad | null)[]): GpState[] {
           bitmap |= (1 << index);
         }
       });
-      formattedGamepads[indexGamepad] = new GpState({
+      formattedGamepads[indexGamepad] = new Input({
         connected: gamepad.connected,
         axes: gamepad.axes.slice(),
         buttons: bitmap,
+        source: Source.GAMEPAD
       });
     }
   });
   return formattedGamepads;
+}
+
+function* initiateLatencyCheck() {
+  while (true) {
+    const time: number = Date.now();
+    const timestamps = new TimeStamps({
+      dawnTimestamp: time,
+      runtimeTimestamp: 0
+    });
+
+    ipcRenderer.send('initiateLatencyCheck', timestamps);
+
+    yield delay(5000);
+  }
+  
+}
+/*
+ Send an update to Runtime indicating whether keyboard mode is on/off
+*/
+function* sendKeyboardConnectionStatus() {
+  const currEditorState = yield select(editorState);
+
+  const keyboardConnectionStatus = new Input({
+    connected: currEditorState.isKeyboardModeToggled,
+    axes: [],
+    buttons: 0,
+    source: Source.KEYBOARD
+  });
+
+  ipcRenderer.send('stateUpdate', [keyboardConnectionStatus], Source.KEYBOARD);
+}
+
+function* sendKeyboardInputs() {
+  const currEditorState = yield select(editorState);
+
+  const keyboard = new Input({
+    connected: true,
+    axes: [],
+    buttons: currEditorState.keyboardBitmap,
+    source: Source.KEYBOARD
+  });
+
+  ipcRenderer.send('stateUpdate', [keyboard], Source.KEYBOARD);
 }
 
 /**
@@ -260,22 +306,27 @@ function formatGamepads(newGamepads: (Gamepad | null)[]): GpState[] {
  * redux action to update gamepad state.
  */
 function* runtimeGamepads() {
-  while (true) {
-    // navigator.getGamepads always returns a reference to the same object. This
-    // confuses redux, so we use assignIn to clone to a new object each time.
-    const newGamepads = navigator.getGamepads();
-    if (_needToUpdate(newGamepads) || Date.now() - timestamp > 100) {
-      const formattedGamepads = formatGamepads(newGamepads);
-      yield put(updateGamepads(formattedGamepads));
 
-      // Send gamepad data to Runtime.
-      if (_.some(newGamepads) || Date.now() - timestamp > 100) {
-        timestamp = Date.now();
-        yield put({ type: 'UPDATE_MAIN_PROCESS' });
+  const currEditorState = yield select(editorState)
+
+  if (!currEditorState.isKeyboardModeToggled) {
+    while (true) {
+      // navigator.getGamepads always returns a reference to the same object. This
+      // confuses redux, so we use assignIn to clone to a new object each time.
+      const newGamepads = navigator.getGamepads();
+      if (_needToUpdate(newGamepads) || Date.now() - timestamp > 100) {
+        const formattedGamepads = formatGamepads(newGamepads);
+        yield put(updateGamepads(formattedGamepads));
+
+        // Send gamepad data to Runtime.
+        if (_.some(newGamepads) || Date.now() - timestamp > 100) {
+          timestamp = Date.now();
+          yield put({ type: 'UPDATE_MAIN_PROCESS' });
+        }
       }
-    }
 
-    yield delay(50); // wait 50 ms before updating again.
+      yield delay(50); // wait 50 ms before updating again.
+    }
   }
 }
 
@@ -289,10 +340,10 @@ function runtimeReceiver() {
       emitter(action);
     };
     // Suscribe listener to dispatches from main process.
-    ipcRenderer.on('dispatch', listener);
+    ipcRenderer.on('reduxDispatch', listener);
     // Return an unsuscribe function.
     return () => {
-      ipcRenderer.removeListener('dispatch', listener);
+      ipcRenderer.removeListener('reduxDispatch', listener);
     };
   });
 }
@@ -322,7 +373,7 @@ const gamepadsState = (state: any) => state.gamepads.gamepads;
  */
 function* updateMainProcess() {
   const stateSlice = yield select(gamepadsState); // Get gamepads from Redux state store
-  ipcRenderer.send('stateUpdate', stateSlice);
+  ipcRenderer.send('stateUpdate', stateSlice, Source.GAMEPAD);
 }
 
 function* restartRuntime() {
@@ -371,8 +422,16 @@ function* downloadStudentCode() {
   const conn = new Client();
   const stateSlice = yield select((state: any) => ({
     runtimeStatus: state.info.runtimeStatus,
-    ipAddress: state.info.ipAddress,
+    ipAddress: state.info.sshAddress,
   }));
+  let port = defaults.PORT;
+  let ip = stateSlice.ipAddress;
+  if (ip.includes(':')) {
+    const split = ip.split(':');
+    ip = split[0];
+    port = Number(split[1]);
+  }
+  console.log(`SSHing into ${ip}:${port} to download code`);
   const path = `${require('electron').remote.app.getPath('desktop')}/Dawn`; // eslint-disable-line global-require
   try {
     fs.statSync(path);
@@ -408,8 +467,8 @@ function* downloadStudentCode() {
         debug: (inpt: any) => {
           logging.log(inpt);
         },
-        host: stateSlice.ipAddress,
-        port: defaults.PORT,
+        host: ip,
+        port: port,
         username: defaults.USERNAME,
         password: defaults.PASSWORD,
       });
@@ -463,9 +522,16 @@ function* uploadStudentCode() {
   const conn = new Client();
   const stateSlice = yield select((state: any) => ({
     runtimeStatus: state.info.runtimeStatus,
-    ipAddress: state.info.ipAddress,
+    ipAddress: state.info.sshAddress,
     filepath: state.editor.filepath,
   }));
+  let port = defaults.PORT;
+  let ip = stateSlice.ipAddress;
+  if (ip.includes(':')) {
+    const split = ip.split(':');
+    ip = split[0];
+    port = Number(split[1]);
+  }
   if (stateSlice.runtimeStatus) {
     logging.log(`Uploading ${stateSlice.filepath}`);
     const errors = yield call(() => new Promise((resolve) => {
@@ -495,8 +561,8 @@ function* uploadStudentCode() {
         debug: (input: any) => {
           logging.log(input);
         },
-        host: stateSlice.ipAddress,
-        port: defaults.PORT,
+        host: ip,
+        port: port,
         username: defaults.USERNAME,
         password: defaults.PASSWORD,
       });
@@ -578,9 +644,12 @@ export default function* rootSaga() {
     takeEvery('UPLOAD_CODE', uploadStudentCode),
     takeEvery('TOGGLE_FIELD_CONTROL', handleFieldControl),
     takeEvery('TIMESTAMP_CHECK', timestampBounceback),
+    takeEvery('UPDATE_KEYBOARD_BITMAP', sendKeyboardInputs),
+    takeEvery('UPDATE_IS_KEYBOARD_MODE_TOGGLED', sendKeyboardConnectionStatus),
     fork(runtimeHeartbeat),
     fork(runtimeGamepads),
     fork(runtimeSaga),
+    fork(initiateLatencyCheck)
   ]);
 }
 

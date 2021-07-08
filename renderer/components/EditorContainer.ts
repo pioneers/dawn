@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import  { Editor } from './Editor';
+import { Editor } from './Editor';
 import {
   editorUpdate,
   saveFile,
@@ -7,16 +7,13 @@ import {
   dragFile,
   createNewFile,
   downloadCode,
+  initiateLatencyCheck,
   uploadCode,
+  updateKeyboardBitmap,
+  updateIsKeyboardModeToggled
 } from '../actions/EditorActions';
-import {
-  changeTheme,
-  changeFontSize,
-} from '../actions/SettingsActions';
-import {
-  toggleConsole,
-  clearConsole,
-} from '../actions/ConsoleActions';
+import { changeTheme, changeFontSize } from '../actions/SettingsActions';
+import { toggleConsole, clearConsole } from '../actions/ConsoleActions';
 import { addAsyncAlert } from '../actions/AlertActions';
 import { updateCodeStatus, ipChange } from '../actions/InfoActions';
 import { Dispatch } from 'redux';
@@ -35,6 +32,9 @@ const mapStateToProps = (state: ApplicationState) => ({
   fieldControlActivity: state.info.fieldControlActivity,
   disableScroll: state.console.disableScroll,
   consoleUnread: state.console.consoleUnread,
+  keyboardBitmap: state.editor.keyboardBitmap,
+  latencyValue: state.editor.latencyValue,
+  globalTheme: state.settings.globalTheme,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
@@ -80,7 +80,15 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   onUploadCode: () => {
     dispatch(uploadCode());
   },
+  onUpdateKeyboardBitmap: (keyboardBitmap: number) => {
+    dispatch(updateKeyboardBitmap(keyboardBitmap));
+  },
+  onUpdateKeyboardModeToggle: (isKeyboardToggled: boolean) => {
+    dispatch(updateIsKeyboardModeToggled(isKeyboardToggled));
+  },
+  onInitiateLatencyCheck: () => {
+    dispatch(initiateLatencyCheck())
+  }
 });
 
 export const EditorContainer = connect(mapStateToProps, mapDispatchToProps)(Editor);
-
