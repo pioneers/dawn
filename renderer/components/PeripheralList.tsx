@@ -5,6 +5,8 @@ import { Card, CardGroup, ListGroup } from 'react-bootstrap';
 import { Peripheral, PeripheralList } from '../types';
 import { connect } from 'react-redux';
 import PeripheralGroup from './PeripheralGroup';
+import { useStores } from '../hooks';
+import { Observer } from 'mobx-react';
 
 // const filter = new Set();
 
@@ -47,11 +49,13 @@ const handleAccordion = (devices: Peripheral[]) => {
 };
 
 const PeripheralListComponent = (props: StateProps & OwnProps) => {
+  const {info, settings} = useStores();
+
   let errorMsg = null;
 
-  if (!props.connectionStatus) {
+  if (!info.connectionStatus) {
     errorMsg = 'You are currently disconnected from the robot.';
-  } else if (!props.runtimeStatus) {
+  } else if (!info.runtimeStatus) {
     errorMsg = 'There appears to be some sort of General error. No data is being received.';
   }
 
@@ -63,17 +67,18 @@ const PeripheralListComponent = (props: StateProps & OwnProps) => {
   }
 
   return (
+    <Observer>{() => 
     <Card 
       className="mb-4" 
       id="peripherals-panel" 
-      bg={props.globalTheme === 'dark' ? 'dark' : 'light'}
-      text={props.globalTheme === 'dark' ? 'light' : 'dark'}
+      bg={settings.globalTheme === 'dark' ? 'dark' : 'light'}
+      text={settings.globalTheme === 'dark' ? 'light' : 'dark'}
       >
       <Card.Header>Peripherals</Card.Header>
       <Card.Body style={{ padding: '0px' }}>
         <ListGroup>{panelBody}</ListGroup>
       </Card.Body>
-    </Card>
+    </Card>}</Observer>
   );
 };
 

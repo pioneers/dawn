@@ -2,6 +2,8 @@ import React from 'react';
 import { Badge } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import numeral from 'numeral';
+import { useStores } from '../hooks';
+import { Observer } from 'mobx-react';
 
 interface StateProps {
   connectionStatus: boolean;
@@ -22,24 +24,27 @@ interface OwnProps {
 type Props = StateProps & OwnProps;
 
 const StatusLabelComponent = (props: Props) => {
+
+  const {info, fieldStore} = useStores();
+
   let labelStyle = 'default';
   let labelText = 'Disconnected';
   const masterRobotHeader = 'Master Robot: Team ';
-  const teamIP = props.ipAddress.substring(props.ipAddress.length - 2, props.ipAddress.length);
+  const teamIP = props.ipAddress.substring(info.ipAddress.length - 2, info.ipAddress.length);
   const shouldDisplayMaster = (teamNumber: number) => parseInt(teamIP, 10) === teamNumber
                                             && props.fieldControlStatus;
   let masterRobot = null;
   let masterRobotStyle = ' ';
-  if (shouldDisplayMaster(props.blueMasterTeamNumber)) {
-    masterRobot = props.blueMasterTeamNumber;
+  if (shouldDisplayMaster(fieldStore.blueMasterTeamNumber)) {
+    masterRobot = fieldStore.blueMasterTeamNumber;
     masterRobotStyle = 'primary';
-  } else if (shouldDisplayMaster(props.goldMasterTeamNumber)) {
-    masterRobot = props.goldMasterTeamNumber;
+  } else if (shouldDisplayMaster(fieldStore.goldMasterTeamNumber)) {
+    masterRobot =fieldStore.goldMasterTeamNumber;
     masterRobotStyle = 'warning';
   }
 
-  if (props.connectionStatus) {
-    if (!props.runtimeStatus) {
+  if (info.connectionStatus) {
+    if (!info.runtimeStatus) {
       labelStyle = 'danger';
       labelText = 'General Error';
     } else if (props.batterySafety) {
@@ -51,13 +56,14 @@ const StatusLabelComponent = (props: Props) => {
     }
   }
   return (
+    <Observer>{() => 
     <div id="parent">
       <Badge variant={labelStyle}>{labelText}</Badge>
       {' '}
       <Badge variant={masterRobotStyle !== ' ' ? masterRobotStyle : labelStyle}>
         {masterRobot !== null ? masterRobotHeader + masterRobot : null}
       </Badge>
-    </div>
+    </div>}</Observer>
   );
 };
 
