@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Card } from 'react-bootstrap';
 
 interface StateProps {
@@ -28,7 +28,7 @@ export function ConsoleOutput(props: Props) {
     }
   });
   
-  function scrollToBottom() {
+  const scrollToBottom = () => {
     if (!props.disableScroll) {
       if (outerDiv !== null) {
         outerDiv.scrollTop = outerDiv.scrollHeight;
@@ -37,32 +37,30 @@ export function ConsoleOutput(props: Props) {
   }
 
 
-  render() {
-    const { show, output } = this.props;
-
-    const height = `${String(this.props.height)}px`; // TODO: Use Panel.Collapse
-    return (
-      <div>
-        <Card
-          style={{
-            display: show ? 'block' : 'none',
-            marginBottom: '0',
-            borderRadius: '0',
-          }}
-        >
-          <Card.Body>
-            <pre
-              style={{
-                position: 'absolute',
-                bottom: '0',
-                maxHeight: height,
-                overflowY: 'auto',
-                padding: '20px',
-                width: '99%',
-              }}
-              ref={(el) => { outerDiv = el; }}
-            >
-              <div
+  
+  const height = `${String(props.height)}px`; // TODO: Use Panel.Collapse
+  return (
+    <div>
+      <Card
+        style={{
+          display: show ? 'block' : 'none',
+          marginBottom: '0',
+          borderRadius: '0',
+        }}
+      >
+        <Card.Body>
+          <pre
+            style={{
+              position: 'absolute',
+              bottom: '0',
+              maxHeight: height,
+              overflowY: 'auto',
+              padding: '20px',
+              width: '99%',
+            }}
+            ref={(el) => { outerDiv = el; }}
+          >
+           <div
                 style={{
                   position: 'absolute',
                   bottom: '0',
@@ -71,7 +69,7 @@ export function ConsoleOutput(props: Props) {
                   padding: '20px',
                   width: '99%',
                 }}
-                ref={(el) => { this.outerDiv = el; }}
+                ref={(el) => {outerDiv = el; }}
               >
                 {output.map(line => (
                   <code key={`${line}-Code-${Math.random()}`}>{line}</code>
@@ -81,6 +79,5 @@ export function ConsoleOutput(props: Props) {
           </Card.Body>
         </Card>
       </div>
-    );
-  }
+          )
 }
