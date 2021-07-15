@@ -36,7 +36,7 @@ export function ConsoleOutput(props: Props) {
     }
   };
 
-  const height = `${String(props.height)}px`; // TODO: Use Panel.Collapse
+  const height = `${String(props.height)}px`;
   return (
     <div>
       <Card
