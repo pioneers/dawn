@@ -8,7 +8,8 @@ export {
   InfoActionsTypes,
   FieldActionsTypes,
 } from './actions';
-export { keyboardButtons } from './keyboard-buttons';
+export { AUTOCOMPLETION_LIST } from './autocomplete';
+export { keyboardButtons, KeyboardButtons } from './keyboard-buttons';
 export { ROBOT_STAFF_CODE } from './robotStaffCode';
 export { PeripheralTypes } from './peripheral-types';
 export { VERSION } from './version';
