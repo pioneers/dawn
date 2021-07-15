@@ -8,15 +8,15 @@ interface StateProps {
 
 interface OwnProps {
   height: number;
-  output: Array<any>
+  output: string[];
   show: boolean;
 }
 
 type Props = StateProps & OwnProps;
 
 export function ConsoleOutput(props: Props) {
-  let outerDiv: HTMLDivElement | HTMLPreElement|  null;
-  let { show, output } = props;
+  let outerDiv: HTMLDivElement | HTMLPreElement | null;
+  const { show, output } = props;
 
   const prevOutputRef = useRef([] as string[]);
   const prevOutput = prevOutputRef.current;
@@ -27,17 +27,15 @@ export function ConsoleOutput(props: Props) {
       props.toggleConsole();
     }
   });
-  
+
   const scrollToBottom = () => {
     if (!props.disableScroll) {
       if (outerDiv !== null) {
         outerDiv.scrollTop = outerDiv.scrollHeight;
       }
     }
-  }
+  };
 
-
-  
   const height = `${String(props.height)}px`; // TODO: Use Panel.Collapse
   return (
     <div>
@@ -45,7 +43,7 @@ export function ConsoleOutput(props: Props) {
         style={{
           display: show ? 'block' : 'none',
           marginBottom: '0',
-          borderRadius: '0',
+          borderRadius: '0'
         }}
       >
         <Card.Body>
@@ -56,28 +54,32 @@ export function ConsoleOutput(props: Props) {
               maxHeight: height,
               overflowY: 'auto',
               padding: '20px',
-              width: '99%',
+              width: '99%'
             }}
-            ref={(el) => { outerDiv = el; }}
+            ref={(el) => {
+              outerDiv = el;
+            }}
           >
-           <div
-                style={{
-                  position: 'absolute',
-                  bottom: '0',
-                  maxHeight: height,
-                  overflowY: 'auto',
-                  padding: '20px',
-                  width: '99%',
-                }}
-                ref={(el) => {outerDiv = el; }}
-              >
-                {output.map(line => (
-                  <code key={`${line}-Code-${Math.random()}`}>{line}</code>
-                ))}
-              </div>
-            </pre>
-          </Card.Body>
-        </Card>
-      </div>
-          )
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '0',
+                maxHeight: height,
+                overflowY: 'auto',
+                padding: '20px',
+                width: '99%'
+              }}
+              ref={(el) => {
+                outerDiv = el;
+              }}
+            >
+              {output.map((line) => (
+                <code key={`${line}-Code-${Math.random()}`}>{line}</code>
+              ))}
+            </div>
+          </pre>
+        </Card.Body>
+      </Card>
+    </div>
+  );
 }
