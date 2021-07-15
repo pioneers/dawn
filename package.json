@@ -33,7 +33,7 @@
     "lint": "eslint '*/**/*.ts?(x)'",
     "lintfix": "eslint '*/**/*.ts?(x)' --fix",
     "postinstall": "patch-package",
-    "build-protos": "pbjs -t static-module -w es6 -o protos/protos.js protos/*.proto && pbts -o protos/protos.d.ts protos/protos.js ",
+    "build-protos": "pbjs -t static-module -w es6 -o protos-main/protos.js protos/*.proto && pbts -o protos-main/protos.d.ts protos-main/protos.js ",
     "watch": "webpack --mode development --watch --progress",
     "test": "mocha --require babel-core/register --recursive renderer/**/test/*.test.js",
     "release": "yarn build && ts-node release.ts",
@@ -41,13 +41,13 @@
   },
   "betterScripts": {
     "start": {
-      "command": "mkdirp ./build/protos && cp ./protos/*.proto ./build/protos && electron build/main.js",
+      "command": "mkdirp ./build/protos && cp ./protos-main/protos/*.proto ./build/protos && electron build/main.js",
       "env": {
         "NODE_ENV": "development"
       }
     },
     "build": {
-      "command": "mkdirp ./build/protos && cp ./protos/*.proto ./build/protos && webpack --mode production --progress",
+      "command": "mkdirp ./build/protos && cp ./protos-main/protos/*.proto ./build/protos && webpack --mode production --progress",
       "env": {
         "NODE_ENV": "production"
       }
