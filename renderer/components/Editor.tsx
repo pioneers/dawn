@@ -96,9 +96,11 @@ export const Editor = (props: Props) => {
     setTimeout(() => onWindowResize(), 0.01);
   };
 
-  const { consoleData, isConsoleOpen, isConsoleUnread, consoleHeight, toggleConsole, raiseConsole, lowerConsole, copyConsole } = useConsole({
-    onToggled: onConsoleToggle
-  });
+  const { consoleData, isConsoleOpen, isConsoleUnread, consoleHeight, toggleConsole, raiseConsole, lowerConsole, copyConsole } = useConsole(
+    {
+      onToggled: onConsoleToggle
+    }
+  );
 
   const {
     changeFontSize,
@@ -408,10 +410,6 @@ export const Editor = (props: Props) => {
 
   const changeMarker = hasUnsavedChanges() ? '*' : '';
 
-  // if (props.consoleUnread) {
-  //   toggleConsole();
-  // }
-
   return (
     <Card bg={props.globalTheme === 'dark' ? 'dark' : 'light'} text={props.globalTheme === 'dark' ? 'light' : 'dark'}>
       <Card.Header>
@@ -607,4 +605,4 @@ export const Editor = (props: Props) => {
       </Card.Body>
     </Card>
   );
-}
+};
