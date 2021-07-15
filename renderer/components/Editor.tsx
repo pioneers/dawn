@@ -13,7 +13,7 @@ import {
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import { Ace } from 'ace-builds';
-import { remote, clipboard } from 'electron';
+import { remote } from 'electron';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
 import { useConsole, useFontResizer } from '../hooks';
