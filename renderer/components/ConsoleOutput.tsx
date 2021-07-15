@@ -49,12 +49,9 @@ export function ConsoleOutput(props: Props) {
         <Card.Body>
           <pre
             style={{
-              position: 'absolute',
-              bottom: '0',
-              maxHeight: height,
-              overflowY: 'auto',
-              padding: '20px',
-              width: '99%'
+              position: 'relative',
+              margin: '0',
+              height
             }}
             ref={(el) => {
               outerDiv = el;
