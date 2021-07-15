@@ -1,0 +1,3 @@
+[submodule "protos-main/protos"]
+	path = protos-main/protos
+	url = https://github.com/pioneers/protos.git
