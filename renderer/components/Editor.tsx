@@ -96,7 +96,7 @@ export const Editor = (props: Props) => {
     setTimeout(() => onWindowResize(), 0.01);
   };
 
-  const { consoleData, isConsoleOpen, consoleHeight, toggleConsole, raiseConsole, lowerConsole, copyConsole } = useConsole({
+  const { consoleData, isConsoleOpen, isConsoleUnread, consoleHeight, toggleConsole, raiseConsole, lowerConsole, copyConsole } = useConsole({
     onToggled: onConsoleToggle
   });
 
@@ -402,25 +402,12 @@ export const Editor = (props: Props) => {
     });
   };
 
-  // const raiseConsole = () => {
-  //   setConsoleHeight(consoleHeight + windowInfo.UNIT);
-  // };
-
-  // const lowerConsole = () => {
-  //   setConsoleHeight(consoleHeight - windowInfo.UNIT);
-  // };
-
   useEffect(() => {
     onWindowResize();
   }, [consoleHeight, onWindowResize]);
 
-  // const copyConsole = () => {
-  //   clipboard.writeText(props.consoleData.join(''));
-  // };
-
   const changeMarker = hasUnsavedChanges() ? '*' : '';
 
-  console.log('console unread', props.consoleUnread);
   // if (props.consoleUnread) {
   //   toggleConsole();
   // }
@@ -499,7 +486,7 @@ export const Editor = (props: Props) => {
               onClick={toggleConsole}
               icon="terminal"
               disabled={false}
-              bsStyle={props.consoleUnread ? 'danger' : ''}
+              bsStyle={isConsoleUnread ? 'danger' : ''}
             />
             <TooltipButton id="clear-console" text="Clear Console" onClick={props.onClearConsole} icon="times" disabled={false} />
             <TooltipButton

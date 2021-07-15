@@ -1,5 +1,6 @@
 import { clipboard } from 'electron';
-import { useState } from 'react';
+import _ from 'lodash';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { windowInfo } from '../../utils/utils';
 
@@ -15,6 +16,14 @@ export const useConsole = ({ onToggled, isOpenOnStart = false, initialHeight = w
   const [isConsoleUnread, setIsConsoleUnread] = useState(false);
 
   const consoleData = useSelector((state: ApplicationState) => state.console.consoleData);
+
+  useEffect(() => {
+    if (isConsoleOpen) {
+      setIsConsoleUnread(false);
+    } else if (!isConsoleOpen && !_.isEmpty(consoleData)) {
+      setIsConsoleUnread(true);
+    }
+  }, [consoleData, isConsoleOpen]);
 
   const toggleConsole = () => {
     setIsConsoleOpen(!isConsoleOpen);
@@ -36,5 +45,5 @@ export const useConsole = ({ onToggled, isOpenOnStart = false, initialHeight = w
     clipboard.writeText(consoleData.join(''));
   };
 
-  return { consoleData, isConsoleOpen, consoleHeight, toggleConsole, raiseConsole, lowerConsole, copyConsole };
+  return { consoleData, isConsoleOpen, isConsoleUnread, consoleHeight, toggleConsole, raiseConsole, lowerConsole, copyConsole };
 };
