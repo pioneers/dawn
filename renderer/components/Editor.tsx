@@ -37,7 +37,7 @@ import 'ace-builds/src-noconflict/theme-terminal';
 import { ConsoleOutput } from './ConsoleOutput';
 import { TooltipButton } from './TooltipButton';
 import { AUTOCOMPLETION_LIST, ROBOT_STAFF_CODE } from '../consts';
-import { pathToName, robotState, timings, logging, windowInfo } from '../utils/utils';
+import { pathToName, robotState, logging, windowInfo } from '../utils/utils';
 
 const { dialog } = remote;
 const currentWindow = remote.getCurrentWindow();
@@ -82,14 +82,10 @@ type Props = StateProps & OwnProps;
 const FONT_SIZES = [8, 12, 14, 16, 20, 24, 28];
 
 export const Editor = (props: Props) => {
-  // const [consoleHeight, setConsoleHeight] = useState(windowInfo.CONSOLESTART);
   const [editorHeight, setEditorHeight] = useState('0px');
   const [mode, setMode] = useState(robotState.TELEOP);
   const [modeDisplay, setModeDisplay] = useState(robotState.TELEOPSTR);
   const [isRunning, setIsRunning] = useState(false);
-  const [simulate, setSimulate] = useState(false);
-  // const [isKeyboardModeToggled, setIsKeyboardModeToggled] = useState(false);
-  // const [keyboardBitmap, setKeyboardBitmap] = useState(0);
 
   const onConsoleToggle = () => {
     // Resize since the console overlaps with the editor, but enough time for console changes
@@ -111,7 +107,7 @@ export const Editor = (props: Props) => {
     handleSubmitFontsize
   } = useFontResizer();
 
-  const { isKeyboardModeToggled, keyboardBitmap, toggleKeyboardControl } = useKeyboardMode({
+  const { isKeyboardModeToggled, toggleKeyboardControl } = useKeyboardMode({
     onUpdateKeyboardBitmap: props.onUpdateKeyboardBitmap,
     onUpdateKeyboardModeToggle: props.onUpdateKeyboardModeToggle
   });
@@ -269,85 +265,9 @@ export const Editor = (props: Props) => {
   };
 
   const stopRobot = () => {
-    setSimulate(false);
     setIsRunning(false);
     setModeDisplay(mode === robotState.AUTONOMOUS ? robotState.AUTOSTR : robotState.TELEOPSTR);
     props.onUpdateCodeStatus(robotState.IDLE);
-  };
-
-  const simulateCompetition = () => {
-    setSimulate(true);
-    setModeDisplay(robotState.SIMSTR);
-    const simulation = new Promise((resolve, reject) => {
-      logging.log(`Beginning ${timings.AUTO}s ${robotState.AUTOSTR}`);
-      props.onUpdateCodeStatus(robotState.AUTONOMOUS);
-      const timestamp = Date.now();
-      const autoInt = setInterval(() => {
-        const diff = Math.trunc((Date.now() - timestamp) / timings.SEC);
-        if (diff > timings.AUTO) {
-          clearInterval(autoInt);
-          resolve();
-        } else if (!simulate) {
-          logging.log(`${robotState.AUTOSTR} Quit`);
-          clearInterval(autoInt);
-          reject();
-        } else {
-          setModeDisplay(`${robotState.AUTOSTR}: ${timings.AUTO - diff}`);
-        }
-      }, timings.SEC);
-    });
-
-    simulation
-      .then(
-        () =>
-          new Promise((resolve, reject) => {
-            logging.log(`Beginning ${timings.IDLE}s Cooldown`);
-            props.onUpdateCodeStatus(robotState.IDLE);
-            const timestamp = Date.now();
-            const coolInt = setInterval(() => {
-              const diff = Math.trunc((Date.now() - timestamp) / timings.SEC);
-              if (diff > timings.IDLE) {
-                clearInterval(coolInt);
-                resolve();
-              } else if (!simulate) {
-                clearInterval(coolInt);
-                logging.log('Cooldown Quit');
-                reject();
-              } else {
-                setModeDisplay(`Cooldown: ${timings.IDLE - diff}`);
-              }
-            }, timings.SEC);
-          })
-      )
-      .then(() => {
-        new Promise((resolve, reject) => {
-          logging.log(`Beginning ${timings.TELEOP}s ${robotState.TELEOPSTR}`);
-          props.onUpdateCodeStatus(robotState.TELEOP);
-          const timestamp = Date.now();
-          const teleInt = setInterval(() => {
-            const diff = Math.trunc((Date.now() - timestamp) / timings.SEC);
-            if (diff > timings.TELEOP) {
-              clearInterval(teleInt);
-              resolve();
-            } else if (!simulate) {
-              clearInterval(teleInt);
-              logging.log(`${robotState.TELEOPSTR} Quit`);
-              reject();
-            } else {
-              setModeDisplay(`${robotState.TELEOPSTR}: ${timings.TELEOP - diff}`);
-            }
-          }, timings.SEC);
-        }).then(
-          () => {
-            logging.log('Simulation Finished');
-            props.onUpdateCodeStatus(robotState.IDLE);
-          },
-          () => {
-            logging.log('Simulation Aborted');
-            props.onUpdateCodeStatus(robotState.IDLE);
-          }
-        );
-      });
   };
 
   const hasUnsavedChanges = () => {
@@ -400,18 +320,18 @@ export const Editor = (props: Props) => {
               icon="play"
               disabled={isRunning || !props.runtimeStatus || props.fieldControlActivity}
             />
-            <TooltipButton id="stop" text="Stop" onClick={stopRobot} icon="stop" disabled={!(isRunning || simulate)} />
+            <TooltipButton id="stop" text="Stop" onClick={stopRobot} icon="stop" disabled={!(isRunning)} />
             <DropdownButton
               variant={props.globalTheme === 'dark' ? 'outline-info' : 'primary'}
               title={modeDisplay}
               size="sm"
               key="dropdown"
               id="modeDropdown"
-              disabled={isRunning || simulate || props.fieldControlActivity || !props.runtimeStatus}
+              disabled={false}
             >
               <Dropdown.Item
                 eventKey="1"
-                active={mode === robotState.AUTONOMOUS && !simulate}
+                active={mode === robotState.AUTONOMOUS}
                 onClick={() => {
                   setMode(robotState.AUTONOMOUS);
                   setModeDisplay(robotState.AUTOSTR);
@@ -421,16 +341,13 @@ export const Editor = (props: Props) => {
               </Dropdown.Item>
               <Dropdown.Item
                 eventKey="2"
-                active={mode === robotState.TELEOP && !simulate}
+                active={mode === robotState.TELEOP}
                 onClick={() => {
                   setMode(robotState.TELEOP);
                   setModeDisplay(robotState.TELEOPSTR);
                 }}
               >
                 Tele-Operated
-              </Dropdown.Item>
-              <Dropdown.Item eventKey="3" active={simulate} onClick={simulateCompetition}>
-                Simulate Competition
               </Dropdown.Item>
             </DropdownButton>
           </ButtonGroup>{' '}
