@@ -47,5 +47,3 @@ export const keyboardButtons = {
   ArrowUp: 45,
   ArrowDown: 46
 };
-
-export type KeyboardButtons = keyof typeof keyboardButtons;

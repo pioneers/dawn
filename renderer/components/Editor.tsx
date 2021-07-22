@@ -16,7 +16,7 @@ import { Ace } from 'ace-builds';
 import { remote } from 'electron';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
-import { useConsole, useFontResizer } from '../hooks';
+import { useConsole, useFontResizer, useKeyboardMode } from '../hooks';
 
 // React-ace extensions and modes
 import 'ace-builds/src-noconflict/ext-language_tools';
@@ -36,7 +36,7 @@ import 'ace-builds/src-noconflict/theme-terminal';
 
 import { ConsoleOutput } from './ConsoleOutput';
 import { TooltipButton } from './TooltipButton';
-import { AUTOCOMPLETION_LIST, keyboardButtons, ROBOT_STAFF_CODE } from '../consts';
+import { AUTOCOMPLETION_LIST, ROBOT_STAFF_CODE } from '../consts';
 import { pathToName, robotState, timings, logging, windowInfo } from '../utils/utils';
 
 const { dialog } = remote;
@@ -88,8 +88,8 @@ export const Editor = (props: Props) => {
   const [modeDisplay, setModeDisplay] = useState(robotState.TELEOPSTR);
   const [isRunning, setIsRunning] = useState(false);
   const [simulate, setSimulate] = useState(false);
-  const [isKeyboardModeToggled, setIsKeyboardModeToggled] = useState(false);
-  const [keyboardBitmap, setKeyboardBitmap] = useState(0);
+  // const [isKeyboardModeToggled, setIsKeyboardModeToggled] = useState(false);
+  // const [keyboardBitmap, setKeyboardBitmap] = useState(0);
 
   const onConsoleToggle = () => {
     // Resize since the console overlaps with the editor, but enough time for console changes
@@ -110,6 +110,11 @@ export const Editor = (props: Props) => {
     handleChangeFontsize,
     handleSubmitFontsize
   } = useFontResizer();
+
+  const { isKeyboardModeToggled, keyboardBitmap, toggleKeyboardControl } = useKeyboardMode({
+    onUpdateKeyboardBitmap: props.onUpdateKeyboardBitmap,
+    onUpdateKeyboardModeToggle: props.onUpdateKeyboardModeToggle
+  });
 
   let CodeEditor: AceEditor;
   const themes: string[] = [
@@ -214,9 +219,6 @@ export const Editor = (props: Props) => {
     };
   }, []);
 
-  const bitShiftLeft = (value: number, numPositions: number) => {
-    return value * Math.pow(2, numPositions);
-  };
 
   const checkLatency = () => {
     props.onInitiateLatencyCheck();
@@ -224,21 +226,6 @@ export const Editor = (props: Props) => {
 
   const insertRobotStaffCode = () => {
     props.onEditorUpdate(ROBOT_STAFF_CODE);
-  };
-
-  // toggle keyboard control and add/remove listening for key presses to control robot
-  const toggleKeyboardControl = () => {
-    setIsKeyboardModeToggled(!isKeyboardModeToggled);
-    props.onUpdateKeyboardModeToggle(!isKeyboardModeToggled);
-
-    if (!isKeyboardModeToggled) {
-      // We need passive true so that we are able to remove the event listener when we are not in Keyboard Control mode
-      window.addEventListener('keydown', turnCharacterOn, { passive: true });
-      window.addEventListener('keyup', turnCharacterOff, { passive: true });
-    } else {
-      window.removeEventListener('keydown', turnCharacterOn);
-      window.removeEventListener('keyup', turnCharacterOff);
-    }
   };
 
   const getEditorHeight = () => {
@@ -249,36 +236,6 @@ export const Editor = (props: Props) => {
   const onWindowResize = () => {
     // Trigger editor to re-render on window resizing.
     setEditorHeight(getEditorHeight());
-  };
-
-  const updateKeyboardBitmap = (currentCharacter: string, isKeyPressed: boolean) => {
-    const keyboardNum = keyboardButtons[currentCharacter];
-    let newKeyboardBitmap: number = keyboardBitmap;
-
-    const shift = bitShiftLeft(1, keyboardNum);
-    const MAX_INT32_BITS = 2147483648; // 2^31
-
-    const shiftHighBits = shift / MAX_INT32_BITS;
-    const shiftLowBits = shift % MAX_INT32_BITS;
-    const mapHighBits = newKeyboardBitmap / MAX_INT32_BITS;
-    const mapLowBits = newKeyboardBitmap % MAX_INT32_BITS;
-
-    if (!isKeyPressed) {
-      newKeyboardBitmap = (~shiftHighBits & mapHighBits) * MAX_INT32_BITS + (~shiftLowBits & mapLowBits);
-    } else if (isKeyPressed) {
-      newKeyboardBitmap = (shiftHighBits | mapHighBits) * MAX_INT32_BITS + (shiftLowBits | mapLowBits);
-    }
-
-    setKeyboardBitmap(newKeyboardBitmap);
-    props.onUpdateKeyboardBitmap(keyboardBitmap);
-  };
-
-  const turnCharacterOff = (e: KeyboardEvent) => {
-    // NOT THE ACTION updateKeyboardBitmap. THIS IS A LOCAL FUNCTION
-    updateKeyboardBitmap(e.key, false);
-  };
-  const turnCharacterOn = (e: KeyboardEvent) => {
-    updateKeyboardBitmap(e.key, true);
   };
 
   const upload = () => {
