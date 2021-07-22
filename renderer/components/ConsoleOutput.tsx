@@ -1,22 +1,21 @@
 import React, { useEffect, useRef } from 'react';
 import { Card } from 'react-bootstrap';
-
-interface StateProps {
-  toggleConsole: () => void;
-  disableScroll: boolean;
-}
+import { useStores } from '../hooks';
 
 interface OwnProps {
+  toggleConsole: () => void;
   height: number;
   output: string[];
   show: boolean;
 }
 
-type Props = StateProps & OwnProps;
+type Props = OwnProps;
 
 export function ConsoleOutput(props: Props) {
   let outerDiv: HTMLDivElement | HTMLPreElement | null;
   const { show, output } = props;
+
+  const {console} = useStores();
 
   const prevOutputRef = useRef([] as string[]);
   const prevOutput = prevOutputRef.current;
@@ -29,7 +28,7 @@ export function ConsoleOutput(props: Props) {
   });
 
   const scrollToBottom = () => {
-    if (!props.disableScroll) {
+    if (!console.disableScroll) {
       if (outerDiv !== null) {
         outerDiv.scrollTop = outerDiv.scrollHeight;
       }

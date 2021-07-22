@@ -1,19 +1,13 @@
 import { OpenDialogReturnValue, remote } from 'electron';
+import { Observer } from 'mobx-react';
 import React, { useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import { Client, SFTPWrapper } from 'ssh2';
 import { addAsyncAlert } from '../actions/AlertActions';
+import { useStores } from '../hooks';
 import { defaults, logging } from '../utils/utils';
-
-interface StateProps {
-  connectionStatus: boolean;
-  runtimeStatus: boolean;
-  masterStatus: boolean;
-  isRunningCode: boolean;
-  ipAddress: string;
-}
 
 interface DispatchProps {
   onAlertAdd: (heading: string, message: string) => void;
@@ -24,11 +18,13 @@ interface OwnProps {
   hide: () => void;
 }
 
-type Props = StateProps & DispatchProps & OwnProps;
+type Props = DispatchProps & OwnProps;
 
 export function UpdateBoxContainer(props: Props) {
   const [isUploading, changeIsUploading] = useState(false);
   const [updateFilepath, changeUpdateFilepath] = useState('');
+
+  const {info, alert} = useStores();
 
   const chooseUpdate = () => {
     remote.dialog
@@ -59,17 +55,17 @@ export function UpdateBoxContainer(props: Props) {
               changeIsUploading(false);
               props.hide();
               if (err2) {
-                props.onAlertAdd(
-                  'Robot Connectivity Error',
-                  `Dawn was unable to upload the update to the robot.
-                  Please check your connectivity, or try restarting the robot.`
+                alert.addAsyncAlert(
+                  {heading:'Robot Connectivity Error',
+                  message: `Dawn was unable to upload the update to the robot.
+                  Please check your connectivity, or try restarting the robot.`}
                 );
                 logging.log(err2);
               } else {
-                props.onAlertAdd(
-                  'Robot Update Initiated',
-                  `Update is installing and Runtime will restart soon.
-                  Please leave your robot on for the next 1 minute.`
+                alert.addAsyncAlert(
+                  {heading: 'Robot Update Initiated',
+                  message:`Update is installing and Runtime will restart soon.
+                  Please leave your robot on for the next 1 minute.`}
                 );
               }
             });
@@ -80,7 +76,7 @@ export function UpdateBoxContainer(props: Props) {
         debug: (debugInfo: string) => {
           logging.log(debugInfo);
         },
-        host: props.ipAddress,
+        host: info.ipAddress,
         port: defaults.PORT,
         username: defaults.USERNAME,
         password: defaults.PASSWORD
@@ -88,7 +84,7 @@ export function UpdateBoxContainer(props: Props) {
   };
 
   const disableUploadUpdate = () => {
-    return !updateFilepath || isUploading || !(props.connectionStatus && props.runtimeStatus) || props.isRunningCode;
+    return !updateFilepath || isUploading || !(info.connectionStatus && info.runtimeStatus) || info.isRunningCode;
   };
 
   const { shouldShow, hide } = props;
@@ -114,6 +110,7 @@ export function UpdateBoxContainer(props: Props) {
     );
   }
   return (
+    <Observer>{() =>
     <Modal show={shouldShow} onHide={hide} animation={false}>
       <Modal.Header closeButton>
         <Modal.Title>Upload Update</Modal.Title>
@@ -124,7 +121,7 @@ export function UpdateBoxContainer(props: Props) {
           {isUploading ? 'Uploading...' : 'Upload Files'}
         </Button>
       </Modal.Footer>
-    </Modal>
+    </Modal>}</Observer>
   );
 }
 

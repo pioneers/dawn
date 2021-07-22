@@ -8,8 +8,6 @@ import { useStores } from '../hooks';
 
 interface StateProps {
   addSteps: (steps: Array<Step>) => void;
-  connectionStatus: boolean;
-  runtimeStatus: boolean;
   isRunningCode: boolean; // Currently not provided by runtime, and not used in Editor
 }
 

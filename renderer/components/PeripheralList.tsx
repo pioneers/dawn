@@ -10,11 +10,6 @@ import { Observer } from 'mobx-react';
 
 // const filter = new Set();
 
-interface OwnProps {
-  connectionStatus: boolean;
-  runtimeStatus: boolean;
-}
-
 interface StateProps {
   peripheralList: PeripheralList;
   globalTheme: string;
@@ -48,7 +43,7 @@ const handleAccordion = (devices: Peripheral[]) => {
   });
 };
 
-const PeripheralListComponent = (props: StateProps & OwnProps) => {
+const PeripheralListComponent = (props: StateProps) => {
   const {info, settings} = useStores();
 
   let errorMsg = null;

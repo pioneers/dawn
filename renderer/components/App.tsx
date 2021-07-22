@@ -32,7 +32,6 @@ interface StateProps {
 }
 
 interface DispatchProps {
-  onAlertDone: (id: number) => void;
   onFCUpdate: (param: FieldControlConfig) => void;
 }
 
@@ -43,7 +42,7 @@ export const AppComponent = (props: Props) => {
   const [tourRunning, changeTourRunning] = useState(false);
   startLog();
 
-  const{info} = useStores()
+  const{info, settings} = useStores()
 
   useEffect(() => {
     addSteps(joyrideSteps);
@@ -97,9 +96,7 @@ export const AppComponent = (props: Props) => {
     }
   };
 
-  const { runtimeStatus, masterStatus, connectionStatus, isRunningCode } = props;
-
-  const bsPrefix = props.globalTheme === 'dark' ? 'text-light bg-dark ' : ''; // mind the space at the end
+  const bsPrefix = settings.globalTheme === 'dark' ? 'text-light bg-dark ' : ''; // mind the space at the end
 
   return (
     <Observer>{() =>
@@ -125,9 +122,7 @@ export const AppComponent = (props: Props) => {
       <Dashboard
         {...props}
         addSteps={addSteps}
-        connectionStatus={connectionStatus}
-        runtimeStatus={runtimeStatus}
-        isRunningCode={isRunningCode}
+        isRunningCode={info.isRunningCode}
       />
     </div>
 }</Observer>
@@ -145,9 +140,6 @@ const mapStateToProps = (state: ApplicationState) => ({
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  onAlertDone: (id: number) => {
-    dispatch(removeAsyncAlert(id));
-  },
   onFCUpdate: (param: FieldControlConfig) => {
     dispatch(updateFieldControl(param));
   }

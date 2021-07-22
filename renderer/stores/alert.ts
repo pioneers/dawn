@@ -1,16 +1,19 @@
 import { makeAutoObservable } from 'mobx';
 import { RootStore } from './root';
+import seedrandom from 'seedrandom';
 
 type AsyncAlertsState = Array<AsyncAlert>;
 
 type AsyncAlert = {
     id?: number;
-    heading?: string;
-    message?: string;
+    heading: string;
+    message: string;
 }
 
+const rng = seedrandom('alertseed');
 export class AlertStore {
   rootStore: typeof RootStore;
+  
 
   alertState: AsyncAlertsState = []
 
@@ -21,9 +24,9 @@ export class AlertStore {
   
   addAsyncAlert = (alert: AsyncAlert) => {
       this.alertState = [...this.alertState, {
-        id: alert.id,
+        id: rng.int32(),
         heading: alert.heading,
-        message: alert.message,
+        message: alert.message
       }]
   };
 

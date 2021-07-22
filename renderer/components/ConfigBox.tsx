@@ -17,17 +17,7 @@ interface Config {
   bridgeAddress: string;
 }
 
-interface StateProps {
-  stationNumber: number;
-  ipAddress: string;
-  udpTunnelAddress: string;
-  sshAddress: string;
-}
-
 interface DispatchProps {
-  onIPChange: (ipAddress: string) => void;
-  onUDPTunnelingIpAddressChange: (ipAddress: string) => void;
-  onSSHAddressChange: (ipAddress: string) => void;
   onFCUpdate: (config: Config) => void;
 }
 
@@ -37,7 +27,7 @@ interface OwnProps {
   hide: () => void;
 }
 
-type Props = StateProps & DispatchProps & OwnProps;
+type Props = DispatchProps & OwnProps;
 type FormControlElement = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 
 
@@ -246,15 +236,6 @@ export const ConfigBoxComponent = (props: Props) => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  onIPChange: (ipAddress: string) => {
-    dispatch(ipChange(ipAddress));
-  },
-  onUDPTunnelingIpAddressChange: (ipAddress: string) => {
-    dispatch(udpTunnelIpChange(ipAddress));
-  },
-  onSSHAddressChange: (ipAddress: string) => {
-    dispatch(sshIpChange(ipAddress));
-  },
   onFCUpdate: (config: Config) => {
     dispatch(updateFieldControl(config));
   }

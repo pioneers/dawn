@@ -11,26 +11,14 @@ import { useStores } from '../hooks';
 import { Observer } from 'mobx-react';
 
 interface StateProps {
-  runtimeVersion: string;
   codeStatus: number;
-  heart: boolean;
-  blueMasterTeamNumber: number;
-  goldMasterTeamNumber: number;
-  ipAddress: string;
-  udpTunnelAddress: string;
-  sshAddress: string;
   fieldControlStatus: boolean;
   latencyValue: number;
   globalTheme: string;
 }
 
 interface OwnProps {
-  ipAddress: string;
   startTour: () => void;
-  runtimeStatus: boolean;
-  masterStatus: boolean;
-  connectionStatus: boolean;
-  isRunningCode: boolean;
 }
 
 type Props = StateProps & OwnProps;
@@ -76,17 +64,8 @@ const DNavComponent = (props: Props) => {
   }
 
   const {
-    connectionStatus,
-    runtimeStatus,
-    masterStatus,
-    isRunningCode,
-    ipAddress,
-    udpTunnelAddress,
-    sshAddress,
     runtimeVersion,
     codeStatus,
-    blueMasterTeamNumber,
-    goldMasterTeamNumber,
     fieldControlStatus,
     startTour,
   } = props;
@@ -106,21 +85,16 @@ const DNavComponent = (props: Props) => {
       variant={settings.globalTheme === 'dark' ? 'dark' : 'light'}
       >
       <UpdateBox
-        isRunningCode={isRunningCode}
-        connectionStatus={connectionStatus}
-        runtimeStatus={runtimeStatus}
-        masterStatus={masterStatus}
         shouldShow={showUpdateModal}
-        ipAddress={ipAddress}
         hide={() => toggleUpdateModal(!showUpdateModal)}
       />
-      <ConfigBox shouldShow={showConfigModal} ipAddress={info.ipAddress} udpTunnelAddress={info.udpTunnelIpAddress} sshAddress={info.sshAddress} hide={() => toggleConfigModal(!showConfigModal)} />
+      <ConfigBox shouldShow={showConfigModal} hide={() => toggleConfigModal(!showConfigModal)} />
       <Navbar>
         <Navbar.Brand id="header-title">{createHeader()}</Navbar.Brand>
         <Navbar.Toggle />
       </Navbar>
       <Navbar.Collapse>
-        {runtimeStatus ? (
+        {info.runtimeStatus ? (
           <Navbar.Text id="runtime-version">
             <Badge variant="info">{`Runtime v${runtimeVersion}: ${String(robotState[codeStatus])}`}</Badge>
           </Navbar.Text>
