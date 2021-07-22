@@ -13,6 +13,8 @@ import { logging, startLog } from '../utils/utils';
 import { FieldControlConfig } from '../types';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { fas } from '@fortawesome/free-solid-svg-icons';
+import { Observer } from 'mobx-react';
+import { useStores } from '../hooks';
 
 type ElectronJSONStorage = typeof electronJSONStorage;
 
@@ -40,6 +42,8 @@ export const AppComponent = (props: Props) => {
   const [steps, changeSteps] = useState<Array<Step>>([]);
   const [tourRunning, changeTourRunning] = useState(false);
   startLog();
+
+  const{info} = useStores()
 
   useEffect(() => {
     addSteps(joyrideSteps);
@@ -98,13 +102,10 @@ export const AppComponent = (props: Props) => {
   const bsPrefix = props.globalTheme === 'dark' ? 'text-light bg-dark ' : ''; // mind the space at the end
 
   return (
+    <Observer>{() =>
     <div className={bsPrefix + 'mt-4'}>
       <DNav
         startTour={startTour}
-        runtimeStatus={runtimeStatus}
-        masterStatus={masterStatus}
-        connectionStatus={connectionStatus}
-        isRunningCode={isRunningCode}
       />
       <Joyride
         steps={steps}
@@ -129,6 +130,7 @@ export const AppComponent = (props: Props) => {
         isRunningCode={isRunningCode}
       />
     </div>
+}</Observer>
   );
 };
 

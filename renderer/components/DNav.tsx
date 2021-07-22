@@ -7,6 +7,8 @@ import { StatusLabel } from './StatusLabel';
 import { TooltipButton } from './TooltipButton';
 import { VERSION } from '../consts';
 import { robotState } from '../utils/utils';
+import { useStores } from '../hooks';
+import { Observer } from 'mobx-react';
 
 interface StateProps {
   runtimeVersion: string;
@@ -45,9 +47,11 @@ const DNavComponent = (props: Props) => {
   const [showUpdateModal, toggleUpdateModal] = useState(false);
   const [showConfigModal, toggleConfigModal] = useState(false);
 
+  const {info, fieldStore, editor, settings} = useStores();
+
   const createHeader = () => {
     if (props.fieldControlStatus) {
-      return `Dawn FC v${VERSION} ${props.heart ? '+' : '-'}`;
+      return `Dawn FC v${VERSION} ${fieldStore.heart ? '+' : '-'}`;
     }
     return `Dawn v${VERSION}`;
   };
@@ -95,10 +99,11 @@ const DNavComponent = (props: Props) => {
    */
 
   return (
+    <Observer>{() =>
     <Navbar 
       fixed={"top"} 
-      bg={props.globalTheme === 'dark' ? 'dark' : 'light'} 
-      variant={props.globalTheme === 'dark' ? 'dark' : 'light'}
+      bg={settings.globalTheme === 'dark' ? 'dark' : 'light'} 
+      variant={settings.globalTheme === 'dark' ? 'dark' : 'light'}
       >
       <UpdateBox
         isRunningCode={isRunningCode}
@@ -109,7 +114,7 @@ const DNavComponent = (props: Props) => {
         ipAddress={ipAddress}
         hide={() => toggleUpdateModal(!showUpdateModal)}
       />
-      <ConfigBox shouldShow={showConfigModal} ipAddress={ipAddress} udpTunnelAddress={udpTunnelAddress} sshAddress={sshAddress} hide={() => toggleConfigModal(!showConfigModal)} />
+      <ConfigBox shouldShow={showConfigModal} ipAddress={info.ipAddress} udpTunnelAddress={info.udpTunnelIpAddress} sshAddress={info.sshAddress} hide={() => toggleConfigModal(!showConfigModal)} />
       <Navbar>
         <Navbar.Brand id="header-title">{createHeader()}</Navbar.Brand>
         <Navbar.Toggle />
@@ -124,17 +129,11 @@ const DNavComponent = (props: Props) => {
         )}
         <Navbar.Text id="battery-indicator">
           <StatusLabel
-            connectionStatus={connectionStatus}
-            runtimeStatus={runtimeStatus}
-            masterStatus={masterStatus}
-            blueMasterTeamNumber={blueMasterTeamNumber}
-            goldMasterTeamNumber={goldMasterTeamNumber}
-            ipAddress={ipAddress}
             fieldControlStatus={fieldControlStatus}
           />
         </Navbar.Text>
         <Navbar.Text id="Latency">
-          <Badge variant={getLatencyThresholdColor(props.latencyValue)}>{`Latency: ${props.latencyValue}`}</Badge>
+          <Badge variant={getLatencyThresholdColor(editor.latencyValue)}>{`Latency: ${editor.latencyValue}`}</Badge>
         </Navbar.Text>
         <Navbar>
           <ButtonToolbar>
@@ -162,7 +161,7 @@ const DNavComponent = (props: Props) => {
                 text="Upload Upgrade"
                 bsStyle="info"
                 onClick={() => toggleUpdateModal(!showUpdateModal)}
-                disabled={!runtimeStatus}
+                disabled={!info.runtimeStatus}
                 id="update-software-button"
                 icon="cloud-upload-alt"
               />
@@ -170,7 +169,7 @@ const DNavComponent = (props: Props) => {
           </ButtonToolbar>
         </Navbar>
       </Navbar.Collapse>
-    </Navbar>
+    </Navbar>}</Observer>
   );
 };
 

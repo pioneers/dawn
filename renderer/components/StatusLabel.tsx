@@ -6,19 +6,12 @@ import { useStores } from '../hooks';
 import { Observer } from 'mobx-react';
 
 interface StateProps {
-  connectionStatus: boolean;
-  runtimeStatus: boolean;
-  masterStatus: boolean;
   batteryLevel?: number;
   batterySafety?: boolean;
-  blueMasterTeamNumber: number;
-  goldMasterTeamNumber: number;
-  ipAddress: string;
 }
 
 interface OwnProps {
   fieldControlStatus?: boolean;
-  masterStatus: boolean;
 }
 
 type Props = StateProps & OwnProps;
@@ -30,7 +23,7 @@ const StatusLabelComponent = (props: Props) => {
   let labelStyle = 'default';
   let labelText = 'Disconnected';
   const masterRobotHeader = 'Master Robot: Team ';
-  const teamIP = props.ipAddress.substring(info.ipAddress.length - 2, info.ipAddress.length);
+  const teamIP = info.ipAddress.substring(info.ipAddress.length - 2, info.ipAddress.length);
   const shouldDisplayMaster = (teamNumber: number) => parseInt(teamIP, 10) === teamNumber
                                             && props.fieldControlStatus;
   let masterRobot = null;
