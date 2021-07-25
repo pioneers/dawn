@@ -58,7 +58,7 @@ export const editor = (state: EditorState = defaultEditorState, action: Actions)
     case consts.EditorActionsTypes.UPDATE_EDITOR:
       return {
         ...state,
-        editorCode: action.code,
+        editorCode: correctText(action.code),
       };
     case consts.EditorActionsTypes.OPEN_FILE_SUCCEEDED:
       return {
@@ -91,4 +91,11 @@ export const editor = (state: EditorState = defaultEditorState, action: Actions)
     default:
       return state;
   }
+};
+
+const correctText = (text: string): string => {
+  text = text.normalize('NFD');
+  text = text.replace(/[”“]/g, '"');
+  text = text.replace(/[‘’]/g, "'");
+  return text.replace(/[^\x00-\x7F]/g, ''); // eslint-disable-line no-control-regex
 };

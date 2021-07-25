@@ -24,16 +24,9 @@ export const useFontResizer = (defaultFontSize = 14) => {
     storage.set('editorFontSize', { editorFontSize: fontSize }, (err: any) => {
       if (err) logging.log(err);
     });
-    console.log('saved font size', fontSize, 'to local storage');
   }, [fontSize]);
 
   const changeFontSize = (fontSize: number) => {
-    if (fontSize > MAX_FONT_SIZE) {
-      fontSize = MAX_FONT_SIZE;
-    }
-    if (fontSize < MIN_FONT_SIZE) {
-      fontSize = MIN_FONT_SIZE;
-    }
     setFontSize(fontSize);
   };
 

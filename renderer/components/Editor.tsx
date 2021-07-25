@@ -127,23 +127,6 @@ export const Editor = (props: Props) => {
   ];
 
   /*
-   * ASCII Enforcement
-   */
-  const onEditorPaste = (correctedText: string) => {
-    correctedText = correctedText.normalize('NFD');
-    correctedText = correctedText.replace(/[”“]/g, '"');
-    correctedText = correctedText.replace(/[‘’]/g, "'");
-    correctText(correctedText);
-    // TODO: Create some notification that an attempt was made at correcting non-ASCII chars.
-    //pasteData.text = correctedText; // eslint-disable-line no-param-reassign
-  };
-
-  // TODO: Take onEditorPaste items and move to utils?
-  const correctText = (text: string): string => {
-    return text.replace(/[^\x00-\x7F]/g, ''); // eslint-disable-line no-control-regex
-  };
-
-  /*
    * Confirmation Dialog on Quit, Stored Editor Settings, Window Size-Editor Re-render
    */
   useEffect(() => {
@@ -381,7 +364,7 @@ export const Editor = (props: Props) => {
             <InputGroup>
               <FormControl
                 type="number"
-                value={currentFontSize}
+                value={currentFontSize === 0 ? '' : currentFontSize}
                 size="sm"
                 onChange={handleChangeFontsize}
                 style={{ width: 32, padding: 6 }}
@@ -465,7 +448,6 @@ export const Editor = (props: Props) => {
           height={editorHeight.toString()}
           value={props.editorCode}
           onChange={props.onEditorUpdate}
-          onPaste={onEditorPaste}
           editorProps={{ $blockScrolling: Infinity }}
           readOnly={isKeyboardModeToggled}
         />
