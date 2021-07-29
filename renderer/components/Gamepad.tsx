@@ -52,7 +52,7 @@ export const Gamepad = (props: Props) => {
     <ListGroupItem>
       <div style={{ overflow: 'auto', width: '100%' }}>
         <span style={{ float: 'left' }}>{renderHeader()}</span>
-        <Button type="button" bsSize="small" onClick={() => setModal(true)} style={{ float: 'right' }}>
+        <Button type="button" size="sm" onClick={() => setModal(true)} style={{ float: 'right' }}>
           Details
         </Button>
       </div>

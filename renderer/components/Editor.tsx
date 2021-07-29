@@ -767,7 +767,7 @@ export class Editor extends React.Component<Props, State> {
                     this.insertRobotStaffCode();
                   }
                 }}
-                glyph="star"
+                icon="star"
                 disabled={false}
               />
             </FormGroup>

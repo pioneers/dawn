@@ -134,7 +134,7 @@ const DNavComponent = (props: Props) => {
           />
         </Navbar.Text>
         <Navbar.Text id="Latency">
-          <Badge variant={getLatencyThresholdColor(props.latencyValue)}>{`Latency: ${props.latencyValue}`}</Badge>
+          <Badge variant={getLatencyThresholdColor(props.latencyValue)}>{`Latency: ${formatLatencyValue(props.latencyValue)}`}</Badge>
         </Navbar.Text>
         <Navbar>
           <ButtonToolbar>
