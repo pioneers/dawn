@@ -37,7 +37,7 @@ import 'ace-builds/src-noconflict/theme-terminal';
 import { ConsoleOutput } from './ConsoleOutput';
 import { TooltipButton } from './TooltipButton';
 import { AUTOCOMPLETION_LIST, ROBOT_STAFF_CODE } from '../consts';
-import { pathToName, robotState, logging, windowInfo } from '../utils/utils';
+import { correctText, pathToName, robotState, logging, windowInfo } from '../utils/utils';
 
 const { dialog } = remote;
 const currentWindow = remote.getCurrentWindow();
