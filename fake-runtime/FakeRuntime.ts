@@ -5,7 +5,7 @@
  */
 
 /* eslint-disable camelcase */
-import { DevData, IParam, IDevice, IDevData } from '../protos/protos';
+import { DevData, IParam, IDevice, IDevData } from '../protos-main/protos';
 import { createSocket, Socket as UDPSocket } from 'dgram';
 import { createServer, Server as TCPServer } from 'net';
 

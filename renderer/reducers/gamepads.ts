@@ -1,6 +1,6 @@
 import * as consts from '../consts';
 import { UpdateGamepadsAction } from '../types';
-import { Input } from '../../protos/protos';
+import { Input } from '../../protos-main/protos';
 
 interface GamePadsState {
   gamepads?: Input[];

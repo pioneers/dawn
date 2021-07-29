@@ -1,7 +1,7 @@
 import { createSocket, Socket as UDPSocket } from 'dgram';
 import { Socket as TCPSocket } from 'net';
 import { ipcMain, IpcMainEvent } from 'electron';
-import * as protos from '../../protos/protos';
+import * as protos from '../../protos-main/protos';
 
 import RendererBridge from '../RendererBridge';
 import { updateConsole } from '../../renderer/actions/ConsoleActions';

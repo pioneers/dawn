@@ -3,7 +3,7 @@ import { Card, ListGroup } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import { Gamepad } from './Gamepad';
-import { Input } from '../../protos/protos';
+import { Input } from '../../protos-main/protos';
 
 interface StateProps {
   gamepads: Input[] | undefined;

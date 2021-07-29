@@ -1,5 +1,5 @@
 import * as consts from '../../consts';
-import { Input } from "../../../protos/protos";
+import { Input } from "../../../protos-main/protos";
 
 export interface UpdateGamepadsAction {
   type: consts.GamepadsActionsTypes.UPDATE_GAMEPADS;

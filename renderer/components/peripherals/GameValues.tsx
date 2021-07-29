@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import React from 'react';
 import _ from 'lodash';
-import { Device } from '../../../protos/protos';
+import { Device } from '../../../protos-main/protos';
 
 /**
  * Generic Peripheral for General Case

@@ -3,7 +3,7 @@ import React from 'react';
 import _ from 'lodash';
 import numeral from 'numeral';
 import { ProgressBar } from 'react-bootstrap';
-import { Device } from '../../../protos/protos';
+import { Device } from '../../../protos-main/protos';
 
 /**
  *  Motor Component

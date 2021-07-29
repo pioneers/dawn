@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import { Peripheral } from '../../types';
-import { Param } from '../../../protos/protos';
+import { Param } from '../../../protos-main/protos';
 
 interface ParamComponentProps {
   uid: string;
