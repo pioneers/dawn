@@ -7,7 +7,7 @@ import {
 } from 'react-bootstrap';
 import _ from 'lodash';
 import numeral from 'numeral';
-import { Input } from '../../protos-main/protos';
+import { Input } from '../../protos-main';
 
 interface OwnProps {
   gamepad: Input;

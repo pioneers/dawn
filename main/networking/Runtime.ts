@@ -1,7 +1,7 @@
 import { createSocket, Socket as UDPSocket } from 'dgram';
 import { Socket as TCPSocket } from 'net';
 import { ipcMain, IpcMainEvent } from 'electron';
-import * as protos from '../../protos-main/protos';
+import * as protos from '../../protos-main';
 
 import RendererBridge from '../RendererBridge';
 import { updateConsole } from '../../renderer/actions/ConsoleActions';
@@ -299,8 +299,8 @@ class TCPConn {
             const oneWayLatency = (Date.now() - Number(decoded.dawnTimestamp)) / 2;
 
             // TODO: we can probably do an average of n timestamps so the display doesn't change too frequently
-            
-            RendererBridge.reduxDispatch(setLatencyValue(oneWayLatency))
+
+            RendererBridge.reduxDispatch(setLatencyValue(oneWayLatency));
             break;
           case MsgType.CHALLENGE_DATA:
             // TODO: Dispatch challenge outputs to redux
@@ -326,12 +326,12 @@ class TCPConn {
     if (this.socket.pending) {
       return;
     }
-    
+
     const message = createPacket(data, MsgType.TIME_STAMPS);
     this.socket.write(message, () => {
       this.logger.log(`Sent timestamp data to runtime: ${JSON.stringify(data)}`);
-    })
-  }
+    });
+  };
 
   /**
    * IPC Connection with ConfigBox.ts' saveChanges()
@@ -387,7 +387,7 @@ class TCPConn {
     this.socket.write(message, () => {
       this.logger.log(`Challenge inputs sent: ${textData.toString()}`);
     });
-  }
+  };
 
   sendRobotStartPos = (_event: IpcMainEvent, startPosData: protos.IStartPos) => {
     // TODO: Get start pos from sagas

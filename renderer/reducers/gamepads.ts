@@ -1,6 +1,6 @@
 import * as consts from '../consts';
 import { UpdateGamepadsAction } from '../types';
-import { Input } from '../../protos-main/protos';
+import { Input } from '../../protos-main';
 
 interface GamePadsState {
   gamepads?: Input[];
@@ -11,7 +11,7 @@ export const gamepads = (state: GamePadsState = {}, action: UpdateGamepadsAction
     case consts.GamepadsActionsTypes.UPDATE_GAMEPADS:
       return {
         ...state,
-        gamepads: action.gamepads,
+        gamepads: action.gamepads
       };
     default:
       return state;

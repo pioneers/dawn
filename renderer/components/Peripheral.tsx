@@ -5,7 +5,7 @@ import { BooleanSensor } from './peripherals/BooleanSensor';
 import { GenericPeripheral } from './peripherals/GenericPeripheral';
 import { GameValues } from './peripherals/GameValues';
 import { Motor } from './peripherals/Motor';
-import { Param } from '../../protos-main/protos';
+import { Param } from '../../protos-main';
 
 // Mapping between peripheral types and components
 const typesToComponents = {};
