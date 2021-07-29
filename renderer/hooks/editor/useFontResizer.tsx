@@ -3,9 +3,6 @@ import storage from 'electron-json-storage';
 import _ from 'lodash';
 import { logging } from '../../utils/utils';
 
-const MIN_FONT_SIZE = 8;
-const MAX_FONT_SIZE = 28;
-
 export const useFontResizer = (defaultFontSize = 14) => {
   const [fontSize, setFontSize] = useState(defaultFontSize);
 
