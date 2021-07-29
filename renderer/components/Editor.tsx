@@ -244,7 +244,6 @@ export const Editor = (props: Props) => {
   const startRobot = () => {
     setIsRunning(true);
     props.onUpdateCodeStatus(mode);
-    // this.props.onClearConsole();
   };
 
   const stopRobot = () => {
