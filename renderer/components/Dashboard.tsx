@@ -5,6 +5,7 @@ import PeripheralList from './PeripheralList';
 import { GamepadList } from './GamepadList';
 import { EditorContainer } from './EditorContainer';
 import { useStores } from '../hooks';
+import { Observer } from 'mobx-react';
 
 interface StateProps {
   addSteps: (steps: Array<Step>) => void;
@@ -13,7 +14,7 @@ interface StateProps {
 
 //smPush={8} and smPull={4} straight up removed
 
-export const Dashboard = (props: StateProps) => (
+export const Dashboard = (props: StateProps) => {
 
   const {info} = useStores();
 
@@ -31,5 +32,5 @@ export const Dashboard = (props: StateProps) => (
     </Row>
   </Container>}</Observer>
   )
-);
+};
 

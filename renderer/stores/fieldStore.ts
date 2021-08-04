@@ -1,4 +1,5 @@
 import { makeAutoObservable } from 'mobx';
+import { FieldControlConfig } from '../types';
 import { RootStore } from './root';
 
 export class FieldStore {
@@ -24,9 +25,9 @@ export class FieldStore {
         this.rootStore = rootStore;
     }
 
-    updateFCConfig(stationNumber: number, bridgeAddress: string) {
-        this.stationNumber = stationNumber;
-        this.bridgeAddress = bridgeAddress;
+    updateFCConfig(data: FieldControlConfig) { //Changed into a single object because it is decompiled in the actions
+        this.stationNumber = data.stationNumber;
+        this.bridgeAddress = data.bridgeAddress;
     }
 
     toggleFieldControl() { // formerly FIELD_CONTROL reducer

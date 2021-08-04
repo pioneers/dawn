@@ -49,14 +49,13 @@ const StatusLabelComponent = (props: Props) => {
     }
   }
   return (
-    <Observer>{() => 
     <div id="parent">
       <Badge variant={labelStyle}>{labelText}</Badge>
       {' '}
       <Badge variant={masterRobotStyle !== ' ' ? masterRobotStyle : labelStyle}>
         {masterRobot !== null ? masterRobotHeader + masterRobot : null}
       </Badge>
-    </div>}</Observer>
+    </div>
   );
 };
 

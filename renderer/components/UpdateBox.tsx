@@ -110,7 +110,6 @@ export function UpdateBoxContainer(props: Props) {
     );
   }
   return (
-    <Observer>{() =>
     <Modal show={shouldShow} onHide={hide} animation={false}>
       <Modal.Header closeButton>
         <Modal.Title>Upload Update</Modal.Title>
@@ -121,7 +120,7 @@ export function UpdateBoxContainer(props: Props) {
           {isUploading ? 'Uploading...' : 'Upload Files'}
         </Button>
       </Modal.Footer>
-    </Modal>}</Observer>
+    </Modal>
   );
 }
 

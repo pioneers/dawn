@@ -42,7 +42,7 @@ export const AppComponent = (props: Props) => {
   const [tourRunning, changeTourRunning] = useState(false);
   startLog();
 
-  const{info, settings} = useStores()
+  const{info, settings, fieldStore} = useStores()
 
   useEffect(() => {
     addSteps(joyrideSteps);
@@ -70,7 +70,7 @@ export const AppComponent = (props: Props) => {
         return;
       }
       const fieldControlConfig = data as FieldControlConfig;
-      props.onFCUpdate(fieldControlConfig);
+      fieldStore.updateFCConfig(fieldControlConfig);
       ipcRenderer.send('FC_CONFIG_CHANGE', fieldControlConfig);
     });
   }, []);
@@ -99,7 +99,6 @@ export const AppComponent = (props: Props) => {
   const bsPrefix = settings.globalTheme === 'dark' ? 'text-light bg-dark ' : ''; // mind the space at the end
 
   return (
-    <Observer>{() =>
     <div className={bsPrefix + 'mt-4'}>
       <DNav
         startTour={startTour}
@@ -119,13 +118,13 @@ export const AppComponent = (props: Props) => {
         }}
       />
       <div style={{ height: '35px', marginBottom: '21px' }} />
+      <Observer>{() =>
       <Dashboard
         {...props}
         addSteps={addSteps}
         isRunningCode={info.isRunningCode}
-      />
+      />}</Observer>
     </div>
-}</Observer>
   );
 };
 

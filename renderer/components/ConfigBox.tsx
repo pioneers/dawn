@@ -73,7 +73,7 @@ export const ConfigBoxComponent = (props: Props) => {
       stationNumber: stationNumber,
       bridgeAddress: fcAddress,
     };
-    props.onFCUpdatefield(newConfig);
+    fieldStore.updateFCConfig(newConfig);
     setOriginalStationNumber(stationNumber);
     setOriginalFCAddress(fcAddress);
 
@@ -174,7 +174,6 @@ export const ConfigBoxComponent = (props: Props) => {
   const { shouldShow } = props;
 
   return (
-    <Observer>{() => 
       // TODO: Figure out formik stuff
       <Formik
     //   validationSchema={schema}
@@ -231,7 +230,7 @@ export const ConfigBoxComponent = (props: Props) => {
             </Modal.Footer>
         </Form>
         </Modal>
-    </Formik>}</Observer>
+    </Formik>
   );
 };
 

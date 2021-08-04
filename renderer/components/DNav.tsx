@@ -38,7 +38,7 @@ const DNavComponent = (props: Props) => {
   const {info, fieldStore, editor, settings} = useStores();
 
   const createHeader = () => {
-    if (props.fieldControlStatus) {
+    if (fieldStore.fieldControl) {
       return `Dawn FC v${VERSION} ${fieldStore.heart ? '+' : '-'}`;
     }
     return `Dawn v${VERSION}`;
