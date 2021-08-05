@@ -16,6 +16,7 @@ import { Ace } from 'ace-builds';
 import { remote } from 'electron';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
+import { MAX_FONT_SIZE, MIN_FONT_SIZE } from '../consts';
 import { useConsole, useFontResizer, useKeyboardMode } from '../hooks';
 
 // React-ace extensions and modes
@@ -182,14 +183,14 @@ export const Editor = (props: Props) => {
 
     window.addEventListener('beforeunload', beforeUnload);
     window.addEventListener('resize', onWindowResize, { passive: true });
-    window.addEventListener('dragover', (e: any) => {
+    window.addEventListener('dragover', (e: DragEvent) => {
       e.preventDefault();
       return false;
     });
 
-    window.addEventListener('drop', (e: any) => {
+    window.addEventListener('drop', (e: DragEvent) => {
       e.preventDefault();
-      props.onDragFile(e.dataTransfer.files[0].path);
+      props.onDragFile(e.dataTransfer?.files?.[0].path ?? '');
       return false;
     });
 
@@ -198,7 +199,6 @@ export const Editor = (props: Props) => {
       window.removeEventListener('resize', onWindowResize);
     };
   }, []);
-
 
   const checkLatency = () => {
     props.onInitiateLatencyCheck();
@@ -395,14 +395,14 @@ export const Editor = (props: Props) => {
               text="Increase font size"
               onClick={increaseFontsize}
               icon="search-plus"
-              disabled={submittedFontSize >= 28}
+              disabled={submittedFontSize >= MAX_FONT_SIZE}
             />
             <TooltipButton
               id="decrease-font-size"
               text="Decrease font size"
               onClick={decreaseFontsize}
               icon="search-minus"
-              disabled={submittedFontSize <= 8}
+              disabled={submittedFontSize <= MIN_FONT_SIZE}
             />
             <DropdownButton variant={props.globalTheme === 'dark' ? 'outline-info' : 'primary'} title="Theme" size="sm" id="choose-theme">
               {themes.map((theme: string) => (

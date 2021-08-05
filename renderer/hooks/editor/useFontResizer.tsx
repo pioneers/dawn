@@ -1,6 +1,7 @@
 import { ChangeEvent, FocusEvent, useEffect, useState } from 'react';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
+import { MAX_FONT_SIZE, MIN_FONT_SIZE } from '../../consts';
 import { logging } from '../../utils/utils';
 
 export const useFontResizer = (defaultFontSize = 14) => {
@@ -41,7 +42,7 @@ export const useFontResizer = (defaultFontSize = 14) => {
   };
 
   const submitFontSize = (fontSize: number) => {
-    setSubmittedFontSize(fontSize);
+    setSubmittedFontSize(Math.max(MIN_FONT_SIZE, Math.min(fontSize, MAX_FONT_SIZE)));
     storage.set('editorFontSize', { editorFontSize: fontSize }, (err: any) => {
       if (err) logging.log(err);
     });
