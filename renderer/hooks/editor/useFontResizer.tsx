@@ -1,10 +1,11 @@
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import { ChangeEvent, FocusEvent, useEffect, useState } from 'react';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
 import { logging } from '../../utils/utils';
 
 export const useFontResizer = (defaultFontSize = 14) => {
-  const [fontSize, setFontSize] = useState(defaultFontSize);
+  const [onChangeFontSize, setOnChangeFontSize] = useState<number | undefined>(undefined);
+  const [submittedFontSize, setSubmittedFontSize] = useState<number>(defaultFontSize);
 
   // Get editor font size from local storage by default
   useEffect(() => {
@@ -12,37 +13,47 @@ export const useFontResizer = (defaultFontSize = 14) => {
       if (err) {
         logging.log(err);
       } else if (!_.isEmpty(data) && data.editorFontSize !== undefined) {
-        setFontSize(data.editorFontSize);
+        setSubmittedFontSize(data.editorFontSize);
       }
     });
   }, []);
 
-  useEffect(() => {
-    storage.set('editorFontSize', { editorFontSize: fontSize }, (err: any) => {
-      if (err) logging.log(err);
-    });
-  }, [fontSize]);
-
   const changeFontSize = (fontSize: number) => {
-    setFontSize(fontSize);
+    setOnChangeFontSize(fontSize);
   };
 
   const decreaseFontsize = () => {
-    changeFontSize(fontSize - 1);
+    setSubmittedFontSize(submittedFontSize - 1);
   };
 
   const increaseFontsize = () => {
-    changeFontSize(fontSize + 1);
+    setSubmittedFontSize(submittedFontSize + 1);
   };
 
   const handleChangeFontsize = (event: ChangeEvent<HTMLInputElement>) => {
     changeFontSize(Number(event.target.value));
   };
 
-  const handleSubmitFontsize = (event: FormEvent<HTMLFormElement>) => {
-    changeFontSize(Number(fontSize));
-    event.preventDefault();
+  const handleOnBlurFontSize = (event: FocusEvent<HTMLInputElement>) => {
+    const fontSize = Number(event.target.value);
+    setOnChangeFontSize(undefined);
+    submitFontSize(fontSize);
   };
 
-  return { currentFontSize: fontSize, decreaseFontsize, increaseFontsize, handleChangeFontsize, changeFontSize, handleSubmitFontsize };
+  const submitFontSize = (fontSize: number) => {
+    setSubmittedFontSize(fontSize);
+    storage.set('editorFontSize', { editorFontSize: fontSize }, (err: any) => {
+      if (err) logging.log(err);
+    });
+  };
+
+  return {
+    onChangeFontSize,
+    submittedFontSize,
+    changeFontSize,
+    decreaseFontsize,
+    increaseFontsize,
+    handleChangeFontsize,
+    handleOnBlurFontSize
+  };
 };

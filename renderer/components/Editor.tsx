@@ -99,12 +99,13 @@ export const Editor = (props: Props) => {
   );
 
   const {
+    onChangeFontSize,
+    submittedFontSize,
     changeFontSize,
-    currentFontSize,
     decreaseFontsize,
     increaseFontsize,
     handleChangeFontsize,
-    handleSubmitFontsize
+    handleOnBlurFontSize
   } = useFontResizer();
 
   const { isKeyboardModeToggled, toggleKeyboardControl } = useKeyboardMode({
@@ -277,7 +278,7 @@ export const Editor = (props: Props) => {
         </Card.Title>
       </Card.Header>
       <Card.Body>
-        <Form inline onSubmit={handleSubmitFontsize}>
+        <Form inline>
           <ButtonGroup id="file-operations-buttons">
             <DropdownButton variant={props.globalTheme === 'dark' ? 'outline-info' : 'primary'} title="File" size="sm" id="choose-theme">
               <Dropdown.Item onClick={props.onCreateNewFile}>New File</Dropdown.Item>
@@ -362,9 +363,10 @@ export const Editor = (props: Props) => {
           <FormGroup>
             <InputGroup>
               <FormControl
-                type="number"
-                value={currentFontSize === 0 ? '' : currentFontSize}
+                // type="number"
+                value={String(onChangeFontSize ?? submittedFontSize)}
                 size="sm"
+                onBlur={handleOnBlurFontSize}
                 onChange={handleChangeFontsize}
                 style={{ width: 32, padding: 6 }}
               />
@@ -393,14 +395,14 @@ export const Editor = (props: Props) => {
               text="Increase font size"
               onClick={increaseFontsize}
               icon="search-plus"
-              disabled={currentFontSize >= 28}
+              disabled={submittedFontSize >= 28}
             />
             <TooltipButton
               id="decrease-font-size"
               text="Decrease font size"
               onClick={decreaseFontsize}
               icon="search-minus"
-              disabled={currentFontSize <= 8}
+              disabled={submittedFontSize <= 8}
             />
             <DropdownButton variant={props.globalTheme === 'dark' ? 'outline-info' : 'primary'} title="Theme" size="sm" id="choose-theme">
               {themes.map((theme: string) => (
@@ -439,7 +441,7 @@ export const Editor = (props: Props) => {
           mode="python"
           theme={props.editorTheme}
           width="100%"
-          fontSize={currentFontSize}
+          fontSize={submittedFontSize}
           ref={(input: AceEditor) => {
             CodeEditor = input;
           }}
