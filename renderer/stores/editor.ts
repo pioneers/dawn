@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx'
+import { IObservableValue, observable } from 'mobx'
 import { RootStore } from './root';
 
 interface EditorState {
@@ -12,42 +12,41 @@ interface EditorState {
 
 export class EditorStore {
     rootStore: typeof RootStore;
-    filepath: string = ''
-    latestSaveCode: string = ''
-    editorCode: string = ''
-    keyboardBitmap: number = 0
-    isKeyboardModeToggled: boolean = false
-    latencyValue: number = 0
+    filepath: IObservableValue<string> = observable.box('')
+    latestSaveCode: IObservableValue<string> = observable.box('')
+    editorCode: IObservableValue<string> = observable.box('')
+    keyboardBitmap: IObservableValue<number> = observable.box(0)
+    isKeyboardModeToggled: IObservableValue<boolean> = observable.box(false)
+    latencyValue: IObservableValue<number> = observable.box(0)
 
     constructor(rootStore: typeof RootStore) {
-        makeAutoObservable(this);
         this.rootStore = rootStore;
     }
 
     updateEditor = (editor: EditorState) => {
-        this.editorCode = editor.editorCode;
+        this.editorCode.set(editor.editorCode);
     }
 
     openFileSucceeded = (editor: EditorState) => {
-        this.editorCode = editor.editorCode;
-        this.filepath = editor.filepath;
-        this.latestSaveCode = editor.latestSaveCode;
+        this.editorCode.set(editor.editorCode);
+        this.filepath.set(editor.filepath);
+        this.latestSaveCode.set(editor.latestSaveCode);
     }
 
     saveFileSucceeded = (editor: EditorState) => {
-        this.filepath = editor.filepath;
-        this.latestSaveCode = editor.latestSaveCode;
+        this.filepath.set(editor.filepath);
+        this.latestSaveCode.set(editor.latestSaveCode);
     }
 
     updateKeyboardBitmap = (editor: EditorState) => {
-        this.keyboardBitmap = editor.keyboardBitmap;
+        this.keyboardBitmap.set(editor.keyboardBitmap);
     }
 
     setLatencyValue = (editor: EditorState) => {
-        this.latencyValue = editor.latencyValue
+        this.latencyValue.set(editor.latencyValue)
     }
 
     updateIsKeyboardModeToggled = (editor: EditorState) => {
-        this.isKeyboardModeToggled = editor.isKeyboardModeToggled;
+        this.isKeyboardModeToggled.set(editor.isKeyboardModeToggled);
     }
 }

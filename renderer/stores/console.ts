@@ -1,30 +1,29 @@
-import { makeAutoObservable } from 'mobx';
+import { IObservableArray, observable } from 'mobx';
 import { RootStore } from './root';
 
 export class ConsoleStore {
   rootStore: typeof RootStore;
 
-  showConsole = false;
-  consoleData: string[] = [];
-  disableScroll = false;
-  consoleUnread = false;
+  showConsole = observable.box(false);
+  consoleData: IObservableArray = observable.array([], {deep: false});
+  disableScroll = observable.box(false);
+  consoleUnread = observable.box(false);
 
   constructor(rootStore: typeof RootStore) {
-    makeAutoObservable(this);
     this.rootStore = rootStore;
   }
 
   updateConsole = (value: string[]) => {
-    this.consoleData = [...this.consoleData, ...value];
-    this.consoleUnread = !this.consoleUnread;
+    this.consoleData.replace([...this.consoleData, ...value]);
+    this.consoleUnread.set(!this.consoleUnread.get());
   };
 
   clearConsole = () => {
-    this.consoleData = [];
+    this.consoleData.clear();
   };
 
   toggleConsole = () => {
-    this.showConsole = !this.showConsole;
-    this.consoleUnread = false;
+    this.showConsole.set(!this.showConsole.get());
+    this.consoleUnread.set(false);
   };
 }

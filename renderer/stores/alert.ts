@@ -1,8 +1,6 @@
-import { makeAutoObservable } from 'mobx';
+import { IObservableArray, observable } from 'mobx';
 import { RootStore } from './root';
 import seedrandom from 'seedrandom';
-
-type AsyncAlertsState = Array<AsyncAlert>;
 
 type AsyncAlert = {
     id?: number;
@@ -15,23 +13,22 @@ export class AlertStore {
   rootStore: typeof RootStore;
   
 
-  alertState: AsyncAlertsState = []
+  alertState: IObservableArray<AsyncAlert> = observable.array([])
 
   constructor(rootStore: typeof RootStore) {
-    makeAutoObservable(this);
     this.rootStore = rootStore;
   }
   
   addAsyncAlert = (alert: AsyncAlert) => {
-      this.alertState = [...this.alertState, {
+      this.alertState.replace([...this.alertState, {
         id: rng.int32(),
         heading: alert.heading,
         message: alert.message
-      }]
+      }])
   };
 
   removeAsyncAlert = (id: number) => {
-    this.alertState.filter((el: { id?: number }) => el.id !== id)
+    this.alertState.filter((el: { id?: number }) => el.id !== id) //This line is not redlining. Use array.replace?
   };
 }
 

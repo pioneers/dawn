@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx'
+import {  IObservableValue, observable } from 'mobx'
 import { RootStore } from './root';
 
 interface TimerState {
@@ -12,23 +12,22 @@ interface TimerState {
 export class TimerStore {
     rootStore: typeof RootStore;
 
-    timestamp: number = 0
-    timeLeft: number = 0
-    computedTime: number = 0 
-    totalTime: number = 0
-    stage: string = ''
+    timestamp: IObservableValue<number> = observable.box(0)
+    timeLeft: IObservableValue<number> = observable.box(0)
+    computedTime: IObservableValue<number> = observable.box(0)
+    totalTime: IObservableValue<number> = observable.box(0)
+    stage: IObservableValue<string> = observable.box('')
 
     constructor(rootStore: typeof RootStore) {
-        makeAutoObservable(this);
         this.rootStore = rootStore;
     }
 
     updateTimer = (timer: TimerState) => {
-        this.timestamp = Date.now()
-        this.timeLeft = timer.timeLeft
-        this.computedTime = timer.computedTime
-        this.totalTime = timer.totalTime
-        this.stage = timer.stage
+        this.timestamp.set(Date.now())
+        this.timeLeft.set(timer.timeLeft)
+        this.computedTime.set(timer.computedTime)
+        this.totalTime.set(timer.totalTime)
+        this.stage.set(timer.stage)
     }
 }
 

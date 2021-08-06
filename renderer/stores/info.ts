@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron';
-import { makeAutoObservable } from 'mobx';
+import { IObservableValue, observable } from 'mobx';
 import { robotState, defaults } from '../utils/utils';
 import { RootStore } from './root';
 
@@ -11,70 +11,69 @@ type updateState = {
 export class InfoStore {
     rootStore: typeof RootStore;
 
-    ipAddress: string= defaults.IPADDRESS
-    udpTunnelIpAddress: string = defaults.IPADDRESS
-    sshAddress: string = defaults.IPADDRESS
-    studentCodeStatus: number = robotState.IDLE
-    isRunningCode: boolean = false
-    connectionStatus: boolean = false
-    runtimeStatus: boolean = false
-    masterStatus: boolean = false
-    notificationHold: number = 0
-    fieldControlDirective: number = robotState.TELEOP
-    fieldControlActivity: boolean = false
+    ipAddress: IObservableValue<string> = observable.box(defaults.IPADDRESS)
+    udpTunnelIpAddress: IObservableValue<string> = observable.box(defaults.IPADDRESS)
+    sshAddress: IObservableValue<string> = observable.box(defaults.IPADDRESS)
+    studentCodeStatus: IObservableValue<number> = observable.box(robotState.IDLE)
+    isRunningCode: IObservableValue<boolean> = observable.box(false)
+    connectionStatus: IObservableValue<boolean> = observable.box(false)
+    runtimeStatus: IObservableValue<boolean> = observable.box(false)
+    masterStatus: IObservableValue<boolean> = observable.box(false)
+    notificationHold: IObservableValue<number> = observable.box(0)
+    fieldControlDirective: IObservableValue<number> = observable.box(robotState.TELEOP)
+    fieldControlActivity: IObservableValue<boolean> = observable.box(false)
   
     constructor(rootStore: typeof RootStore) {
-      makeAutoObservable(this);
       this.rootStore = rootStore;
     }
 
     perMessage = () => {
-        this.connectionStatus = true
+        this.connectionStatus.set(true)
     }
     
     notificationChange = (notification: number) => {
-        this.notificationHold = notification
+        this.notificationHold.set(notification)
     };
   
     runtimeConnect = () => {
-        this.runtimeStatus = true
+        this.runtimeStatus.set(true)
     };
 
     runtimeDisconnect = () => {
-        this.runtimeStatus = false;
-        this.connectionStatus = false;
-        this.studentCodeStatus = robotState.IDLE;
+        this.runtimeStatus.set(false);
+        this.connectionStatus.set(false);
+        this.studentCodeStatus.set(robotState.IDLE);
     }
 
     masterRobot = () => {
-        this.masterStatus = true;
+        this.masterStatus.set(true);
     }
 
     codeStatus = (codeStatus: number) => {
         ipcRenderer.send('runModeUpdate', { mode: codeStatus });
-        this.studentCodeStatus = codeStatus;
+        this.studentCodeStatus.set(codeStatus);
     }
 
     ipChange = (address: string) => {
         ipcRenderer.send('ipAddress', address);
-        this.ipAddress = address;
+        this.ipAddress.set(address);
     }
 
     udpTunnelIpChange = (address: string) => {
         ipcRenderer.send('udpTunnelIpAddress', address);
-        this.udpTunnelIpAddress = address
+        this.udpTunnelIpAddress.set(address)
     }
 
     sshIpChange = (address: string) => {
-        this.sshAddress = address
+        this.sshAddress.set(address)
     }
 
     updateRobot = (status: updateState) => {
         const stateChange = (status.autonomous) ? robotState.AUTONOMOUS : robotState.TELEOP;
         const codeStatus = (!status.enabled) ? robotState.IDLE : stateChange;
 
-        this.fieldControlDirective = stateChange;
-        this.fieldControlActivity = status.enabled;
-        this.studentCodeStatus = codeStatus
+        this.fieldControlDirective.set(stateChange);
+        this.fieldControlActivity.set(status.enabled);
+        this.studentCodeStatus.set(codeStatus)
     }
   }

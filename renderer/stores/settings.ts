@@ -1,27 +1,26 @@
-import { makeAutoObservable } from 'mobx';
+import { IObservableValue, observable } from 'mobx';
 import { RootStore } from './root';
 
 export class SettingsStore {
     rootStore: typeof RootStore;
 
-    fontSize: number = 14;
-    editorTheme: string = 'tomorrow';
-    globalTheme: string = 'light';
+    fontSize: IObservableValue<number> = observable.box(14);
+    editorTheme: IObservableValue<string> = observable.box('tomorrow');
+    globalTheme: IObservableValue<string> = observable.box('light');
 
     constructor(rootStore: typeof RootStore) {
-        makeAutoObservable(this);
         this.rootStore = rootStore;
     }
 
     changeFontSize(size: number) {
-        this.fontSize = size;
+        this.fontSize.set(size);
     };
 
     changeTheme(theme: string) {
-        this.editorTheme = theme;
+        this.editorTheme.set(theme);
     };
 
     toggleThemeGlobal() {
-        this.globalTheme = (this.globalTheme === 'dark' ? 'light' : 'dark');
+        this.globalTheme.set((this.globalTheme.get() === 'dark' ? 'light' : 'dark'));
     };
 }
