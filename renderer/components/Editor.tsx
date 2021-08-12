@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Card,
   ButtonGroup,
@@ -208,15 +208,13 @@ export const Editor = (props: Props) => {
     props.onEditorUpdate(ROBOT_STAFF_CODE);
   };
 
-  const getEditorHeight = useCallback(() => {
-    const windowNonEditorHeight = windowInfo.NONEDITOR + +!!isConsoleOpen * (consoleHeight + windowInfo.CONSOLEPAD);
-    return `${String(window.innerHeight - windowNonEditorHeight)}px`;
-  }, [consoleHeight, isConsoleOpen]);
-
-  const onWindowResize = useCallback(() => {
+  const onWindowResize = () => {
     // Trigger editor to re-render on window resizing.
-    setEditorHeight(getEditorHeight());
-  }, [getEditorHeight, setEditorHeight]);
+    const windowNonEditorHeight = windowInfo.NONEDITOR + +!!isConsoleOpen * (consoleHeight + windowInfo.CONSOLEPAD);
+    const newEditorHeight = `${window.innerHeight - windowNonEditorHeight}px`;
+
+    setEditorHeight(newEditorHeight);
+  };
 
   const upload = () => {
     const { filepath } = props;

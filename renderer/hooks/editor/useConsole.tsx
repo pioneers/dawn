@@ -15,7 +15,7 @@ export const useConsole = ({ onToggled, isOpenOnStart = false, initialHeight = w
   const [consoleHeight, setConsoleHeight] = useState(initialHeight);
   const [isConsoleUnread, setIsConsoleUnread] = useState(false);
 
-  const consoleData = useSelector((state: ApplicationState) => state.console.consoleData);
+  const consoleData: string[] = useSelector((state: ApplicationState) => state.console.consoleData);
 
   useEffect(() => {
     if (isConsoleOpen) {
@@ -28,9 +28,7 @@ export const useConsole = ({ onToggled, isOpenOnStart = false, initialHeight = w
   const toggleConsole = () => {
     setIsConsoleOpen(!isConsoleOpen);
 
-    if (onToggled !== undefined) {
-      onToggled();
-    }
+    onToggled?.();
   };
 
   const raiseConsole = () => {
