@@ -21,7 +21,6 @@ export const useFontResizer = (defaultFontSize = 14) => {
     });
   }, []);
 
-
   const decreaseFontsize = () => {
     setSubmittedFontSize(submittedFontSize - 1);
   };

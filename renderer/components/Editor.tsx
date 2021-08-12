@@ -444,7 +444,7 @@ export const Editor = (props: Props) => {
             CodeEditor = input;
           }}
           name="CodeEditor"
-          height={editorHeight.toString()}
+          height={editorHeight}
           value={props.editorCode}
           onChange={props.onEditorUpdate}
           editorProps={{ $blockScrolling: Infinity }}
