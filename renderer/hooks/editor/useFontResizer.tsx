@@ -1,4 +1,4 @@
-import { ChangeEvent, FocusEvent, KeyboardEvent,useEffect, useState } from 'react';
+import { ChangeEvent, FocusEvent, KeyboardEvent, useEffect, useState } from 'react';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
 import { MAX_FONT_SIZE, MIN_FONT_SIZE } from '../../consts';
@@ -19,9 +19,6 @@ export const useFontResizer = (defaultFontSize = 14) => {
     });
   }, []);
 
-  const changeFontSize = (fontSize: number) => {
-    setOnChangeFontSize(fontSize);
-  };
 
   const decreaseFontsize = () => {
     setSubmittedFontSize(submittedFontSize - 1);
@@ -33,7 +30,7 @@ export const useFontResizer = (defaultFontSize = 14) => {
 
   const handleChangeFontsize = (event: ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
-    changeFontSize(Number(event.target.value));
+    setOnChangeFontSize(Number(event.target.value));
   };
 
   const handleOnBlurFontSize = (event: FocusEvent<HTMLInputElement>) => {
@@ -62,11 +59,11 @@ export const useFontResizer = (defaultFontSize = 14) => {
   return {
     onChangeFontSize,
     submittedFontSize,
-    changeFontSize,
     decreaseFontsize,
     increaseFontsize,
     handleChangeFontsize,
     handleOnBlurFontSize,
-    handleOnKeyDownFontSize
+    handleOnKeyDownFontSize,
+    submitFontSize
   };
 };

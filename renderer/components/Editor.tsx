@@ -101,12 +101,12 @@ export const Editor = (props: Props) => {
   const {
     onChangeFontSize,
     submittedFontSize,
-    changeFontSize,
     decreaseFontsize,
     increaseFontsize,
     handleChangeFontsize,
     handleOnBlurFontSize,
-    handleOnKeyDownFontSize
+    handleOnKeyDownFontSize,
+    submitFontSize
   } = useFontResizer();
 
   const { isKeyboardModeToggled, toggleKeyboardControl } = useKeyboardMode({
@@ -371,7 +371,7 @@ export const Editor = (props: Props) => {
               <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip">Text Size</Tooltip>}>
                 <DropdownButton as={ButtonGroup} title="" variant="small" id="choose-font-size">
                   {FONT_SIZES.map((fontSize: number) => (
-                    <Dropdown.Item key={`font-size-${fontSize}`} className="dropdown-item" onClick={() => changeFontSize(fontSize)}>
+                    <Dropdown.Item key={`font-size-${fontSize}`} className="dropdown-item" onClick={() => submitFontSize(fontSize)}>
                       {fontSize}
                     </Dropdown.Item>
                   ))}
