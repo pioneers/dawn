@@ -5,7 +5,9 @@ import { MAX_FONT_SIZE, MIN_FONT_SIZE } from '../../consts';
 import { logging } from '../../utils/utils';
 
 export const useFontResizer = (defaultFontSize = 14) => {
+  /** Font size when user is still in the middle of changing it */
   const [onChangeFontSize, setOnChangeFontSize] = useState<number | undefined>(undefined);
+  /** Final font size after user submits either through pressing the Enter key or pressing off of the input */
   const [submittedFontSize, setSubmittedFontSize] = useState<number>(defaultFontSize);
 
   // Get editor font size from local storage by default
