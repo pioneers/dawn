@@ -106,7 +106,8 @@ export const Editor = (props: Props) => {
     decreaseFontsize,
     increaseFontsize,
     handleChangeFontsize,
-    handleOnBlurFontSize
+    handleOnBlurFontSize,
+    handleOnKeyDownFontSize
   } = useFontResizer();
 
   const { isKeyboardModeToggled, toggleKeyboardControl } = useKeyboardMode({
@@ -270,6 +271,8 @@ export const Editor = (props: Props) => {
 
   const changeMarker = hasUnsavedChanges() ? '*' : '';
 
+  console.log('font', onChangeFontSize ?? submittedFontSize);
+
   return (
     <Card bg={props.globalTheme === 'dark' ? 'dark' : 'light'} text={props.globalTheme === 'dark' ? 'light' : 'dark'}>
       <Card.Header>
@@ -294,7 +297,7 @@ export const Editor = (props: Props) => {
               icon="arrow-circle-down"
               disabled={!props.runtimeStatus}
             />
-          </ButtonGroup>{' '}
+          </ButtonGroup>
           <ButtonGroup id="code-execution-buttons">
             <TooltipButton
               id="run"
@@ -333,7 +336,7 @@ export const Editor = (props: Props) => {
                 Tele-Operated
               </Dropdown.Item>
             </DropdownButton>
-          </ButtonGroup>{' '}
+          </ButtonGroup>
           <ButtonGroup id="console-buttons">
             <TooltipButton
               id="toggle-console"
@@ -359,15 +362,15 @@ export const Editor = (props: Props) => {
               disabled={consoleHeight < windowInfo.CONSOLEMIN}
             />
             <TooltipButton id="copy-console" text="Copy Console" onClick={copyConsole} icon="clipboard" disabled={false} />
-          </ButtonGroup>{' '}
+          </ButtonGroup>
           <FormGroup>
             <InputGroup>
               <FormControl
-                // type="number"
-                value={String(onChangeFontSize ?? submittedFontSize)}
+                value={String(onChangeFontSize ?? submittedFontSize).replace(/^0/, '')}
                 size="sm"
                 onBlur={handleOnBlurFontSize}
                 onChange={handleChangeFontsize}
+                onKeyDown={handleOnKeyDownFontSize}
                 style={{ width: 32, padding: 6 }}
               />
               <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip">Text Size</Tooltip>}>
@@ -388,7 +391,7 @@ export const Editor = (props: Props) => {
               disabled={false}
               bsStyle={isKeyboardModeToggled ? 'info' : 'default'}
             />
-          </FormGroup>{' '}
+          </FormGroup>
           <ButtonGroup id="editor-settings-buttons" className="form-inline">
             <TooltipButton
               id="increase-font-size"
