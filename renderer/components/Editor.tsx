@@ -16,8 +16,6 @@ import { Ace } from 'ace-builds';
 import { remote } from 'electron';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
-import { MAX_FONT_SIZE, MIN_FONT_SIZE } from '../consts';
-import { useConsole, useFontResizer, useKeyboardMode } from '../hooks';
 
 // React-ace extensions and modes
 import 'ace-builds/src-noconflict/ext-language_tools';
@@ -37,7 +35,8 @@ import 'ace-builds/src-noconflict/theme-terminal';
 
 import { ConsoleOutput } from './ConsoleOutput';
 import { TooltipButton } from './TooltipButton';
-import { AUTOCOMPLETION_LIST, ROBOT_STAFF_CODE } from '../consts';
+import { AUTOCOMPLETION_LIST, MAX_FONT_SIZE, MIN_FONT_SIZE, ROBOT_STAFF_CODE } from '../consts';
+import { useConsole, useFontResizer, useKeyboardMode } from '../hooks';
 import { correctText, pathToName, robotState, logging, windowInfo } from '../utils/utils';
 
 const { dialog } = remote;
