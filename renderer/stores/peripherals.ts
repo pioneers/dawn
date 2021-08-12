@@ -1,5 +1,6 @@
-import { IObservableValue, makeAutoObservable, observable } from 'mobx';
+import { IObservableValue, observable, ObservableMap } from 'mobx';
 import { RootStore } from './root';
+import * as consts from '../consts';
 import { Peripheral, PeripheralList } from '../types';
 
 interface PeripheralState {
@@ -12,10 +13,10 @@ interface PeripheralState {
 export class PeripheralsStore {
   rootStore: typeof RootStore;
 
-  IS_UNSAFE = 0;
+  IS_UNSAFE = 0; //Move to Consts?
   V_BATT = 5;
 
-  peripheralList = observable.map({});
+  peripheralList: ObservableMap = observable.map({});
   batterySafety: IObservableValue<boolean> = observable.box(false);
   batteryLevel: IObservableValue<number> = observable.box(0);
   runtimeVersion: IObservableValue<string> = observable.box('1.0.0')
@@ -24,7 +25,31 @@ export class PeripheralsStore {
     this.rootStore = rootStore;
   }
 
-  updatePeripherals = () => {
+  updatePeripherals = (peripherals: Peripheral[]) => {
+    (peripherals ?? []).forEach((peripheral: Peripheral) => {
+      if (peripheral.name === consts.PeripheralTypes.BatteryBuzzer) {
+        const batteryParams = peripheral.params;
+        if (batteryParams[this.IS_UNSAFE] && batteryParams[this.IS_UNSAFE].bval) {
+          this.peripheralList.merge({"batterySafety" : batteryParams[this.IS_UNSAFE].bval!});
+        }
+        if (batteryParams[this.V_BATT] && batteryParams[this.V_BATT].fval) {
+          this.peripheralList.merge({"batteryLevel" : batteryParams[this.V_BATT].fval!});
+        }
+      } else {
+        const key = `${peripheral.type}_${peripheral.uid}`;
+        keys.push(key);
 
+        if (key in nextPeripherals) {
+          peripheral.name = nextPeripherals[key].name; // ensures that the device keeps the name, if it was a custom name
+        }
+        nextPeripherals[key] = { ...peripheral, uid: key };
+      }})
+
+      this.peripheralList.keys().forEach((uid: string) => {
+        if (keys.indexOf(uid) === -1) {
+          this.peripheralList.delete(uid) // Delete old devices
+        }
+      });
+    });
   }
 }
