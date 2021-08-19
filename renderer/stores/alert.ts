@@ -19,11 +19,11 @@ export class AlertStore {
     this.rootStore = rootStore;
   }
   
-  addAsyncAlert = (alert: AsyncAlert) => {
+  addAsyncAlert = (heading:string, message:string) => {
       this.alertState.replace([...this.alertState, {
         id: rng.int32(),
-        heading: alert.heading,
-        message: alert.message
+        heading: heading,
+        message: message
       }])
   };
 

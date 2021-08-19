@@ -113,15 +113,21 @@ export class Logger {
     this.lastStr = '';
   }
 
-  log = (output: string) => {
-    console.log(output);
-    this._write(output, `\n[${(new Date()).toString()}]`);
-  }
-  debug = (output: string) => {
-    this._write(output, `\n[${(new Date()).toString()} DEBUG]`);
+  debug = (message?: any, ...optionalParams: any[]) => {
+    console.debug(message, optionalParams);
+    this._write(`[${(new Date()).toString()} DEBUG]`, `${message} ${optionalParams}`);
   }
 
-  _write = (output: string, prefix: string) => {
+  error = (message?: any, ...optionalParams: any[]) => {
+    console.error(message, optionalParams);
+  }
+
+  log = (message?: any, ...optionalParams: any[]) => {
+    console.log(message, optionalParams);
+    this._write('[${(new Date()).toString()}]', `${message} ${optionalParams}`);
+  }
+
+  _write = (prefix: string, output: any) => {
     output = String(output);
     if (output !== this.lastStr) {
       this.log_file.write(`${prefix} ${output}`);
