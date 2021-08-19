@@ -1,4 +1,4 @@
-import { IObservableArray, IObservableValue, makeAutoObservable, observable } from 'mobx';
+import { IObservableArray, IObservableValue, observable } from 'mobx';
 import { FieldControlConfig } from '../types';
 import { RootStore } from './root';
 

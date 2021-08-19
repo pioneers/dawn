@@ -33,6 +33,35 @@ export class EditorStore {
         this.latestSaveCode.set(editor.latestSaveCode);
     }
 
+    *openFile = (action: any) => {
+        const type = (action.type === 'OPEN_FILE') ? 'open' : 'create';
+        let res = 1;
+        if (this.editorCode !== this.latestSaveCode) {
+          res = yield call(unsavedDialog, type);
+          if (res === 0) {
+            yield* saveFile({
+              type: 'SAVE_FILE',
+              saveAs: false,
+            });
+          }
+        }
+        if (res === 0 || res === 1) {
+          if (type === 'open') {
+            try {
+              const filepath: string = yield call(openFileDialog);
+              const data: Buffer = yield cps([fs, readFile], filepath);
+              yield put(openFileSucceeded(data.toString(), filepath));
+            } catch (e) {
+              logging.log('No filename specified, no file opened.');
+            }
+          } else if (type === 'create') {
+            yield put(openFileSucceeded('', ''));
+          }
+        } else {
+          logging.log(`File ${type} canceled.`);
+        }
+    }
+
     saveFileSucceeded = (editor: EditorState) => {
         this.filepath.set(editor.filepath);
         this.latestSaveCode.set(editor.latestSaveCode);
