@@ -271,6 +271,7 @@ class TCPConn {
     });
 
     this.socket.on('end', () => {
+      RendererBridge.reduxDispatch(runtimeDisconnect());
       this.logger.log('Runtime disconnected');
     });
 
@@ -290,6 +291,7 @@ class TCPConn {
         let decoded;
 
         switch (packet.type) {
+          // add case for MsgType.Inputs
           case MsgType.LOG:
             decoded = protos.Text.decode(packet.payload);
             RendererBridge.reduxDispatch(updateConsole(decoded.payload));
@@ -302,10 +304,25 @@ class TCPConn {
             
             RendererBridge.reduxDispatch(setLatencyValue(oneWayLatency))
             break;
-          case MsgType.CHALLENGE_DATA:
-            // TODO: Dispatch challenge outputs to redux
+          case MsgType.DEVICE_DATA:
+            try {
+              RendererBridge.reduxDispatch(infoPerMessage());
+              const sensorData: protos.Device[] = protos.DevData.decode(packet.payload).devices;
+              const peripherals: Peripheral[] = [];
+              sensorData.forEach((device) => {
+                if (device.type.toString() === '0') {
+                  device.type = 0;
+                }
+                peripherals.push({ ...device, uid: device.uid.toString() });
+              });
+              RendererBridge.reduxDispatch(updatePeripherals(peripherals));
+            }
+            catch (err) {
+              this.logger.log('Error decoding UDP');
+              this.logger.log(err);
+            }
             break;
-        }
+          }
       }
 
       this.leftoverBytes = leftoverBytes;
@@ -314,19 +331,25 @@ class TCPConn {
     /**
      * TCP Socket IPC Connections
      */
-    ipcMain.on('runModeUpdate', this.sendRunMode);
-    ipcMain.on('ipAddress', this.ipAddressListener);
-    ipcMain.on('initiateLatencyCheck', this.initiateLatencyCheck);
+    ipcMain.on('runModeUpdate', this.whenSocketReady(this.sendRunMode));
+    ipcMain.on('ipAddress', this.whenSocketReady(this.ipAddressListener));
+    ipcMain.on('initiateLatencyCheck', this.whenSocketReady(this.initiateLatencyCheck));
+    ipcMain.on('stateUpdate', this.whenSocketReady(this.sendInputs));
+    ipcMain.on('udpTunnelIpAddress', this.whenSocketReady(this.ipAddressListener));
   }
+
+  whenSocketReady = (cb: (event: IpcMainEvent, ...args: any[]) => void) => {
+    if (this.socket.pending) {
+      return (_e: IpcMainEvent, ..._args: any[]) => this.logger.log('TCP Socket not ready');
+    }
+
+    return cb;
+  };
 
   /**
    * Initiates latency check by sending first packet to Runtime
    */
-  initiateLatencyCheck = (_event: IpcMainEvent, data: protos.ITimeStamps) => {
-    if (this.socket.pending) {
-      return;
-    }
-    
+  initiateLatencyCheck = (_event: IpcMainEvent, data: protos.ITimeStamps) => {    
     const message = createPacket(data, MsgType.TIME_STAMPS);
     this.socket.write(message, () => {
       this.logger.log(`Sent timestamp data to runtime: ${JSON.stringify(data)}`);
@@ -354,10 +377,6 @@ class TCPConn {
    * Receives new run mode to send to Runtime
    */
   sendRunMode = (_event: IpcMainEvent, runModeData: protos.IRunMode) => {
-    if (this.socket.pending) {
-      return;
-    }
-
     const message = createPacket(runModeData, MsgType.RUN_MODE);
     this.socket.write(message, () => {
       this.logger.log(`Run Mode message sent: ${JSON.stringify(runModeData)}`);
@@ -365,11 +384,6 @@ class TCPConn {
   };
 
   sendDevicePreferences = (_event: IpcMainEvent, deviceData: protos.IDevData) => {
-    // TODO: Get device preference filter from UI components, then sagas
-    if (this.socket.pending) {
-      return;
-    }
-
     // TODO: Serialize uid from string -> Long type
     const message = createPacket(deviceData, MsgType.DEVICE_DATA);
     this.socket.write(message, () => {
@@ -379,10 +393,6 @@ class TCPConn {
 
   sendChallengeInputs = (_event: IpcMainEvent, textData: protos.IText) => {
     // TODO: Get challenge inputs from UI components, then sagas
-    if (this.socket.pending) {
-      return;
-    }
-
     const message = createPacket(textData, MsgType.CHALLENGE_DATA);
     this.socket.write(message, () => {
       this.logger.log(`Challenge inputs sent: ${textData.toString()}`);
@@ -391,14 +401,26 @@ class TCPConn {
 
   sendRobotStartPos = (_event: IpcMainEvent, startPosData: protos.IStartPos) => {
     // TODO: Get start pos from sagas
-    if (this.socket.pending) {
-      return;
-    }
-
     const message = createPacket(startPosData, MsgType.START_POS);
     this.socket.write(message, () => {
       this.logger.log(`Start position sent: ${startPosData.toString()}`);
     });
+  };
+
+  sendInputs = (_event: IpcMainEvent, data: protos.Input[], source: protos.Source) => {
+    if (data.length === 0) {
+      data.push(
+        protos.Input.create({
+          connected: false,
+          source
+        })
+      );
+    }
+    const message = createPacket(data, MsgType.INPUTS);
+    this.socket.write(message, () => {
+      this.logger.log(`Inputs sent: ${JSON.stringify(data)}`);
+    })
+
   };
 
   close = () => {
@@ -406,7 +428,9 @@ class TCPConn {
     ipcMain.removeListener('runModeUpdate', this.sendRunMode);
     ipcMain.removeListener('ipAddress', this.ipAddressListener);
     ipcMain.removeListener('initiateLatencyCheck', this.initiateLatencyCheck);
+    ipcMain.removeListener('stateUpdate', this.sendInputs);
   };
+
 }
 
 /**
