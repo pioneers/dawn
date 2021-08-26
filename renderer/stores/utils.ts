@@ -12,7 +12,14 @@ import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
 import { TIMEOUT, defaults, logging } from '../utils/utils';
 import { Input, Source, TimeStamps } from '../../protos/protos';
 
-export function unsavedDialog(action: string) {
+type UnsavedDialogButtonOptions = 'saveAction' | 'discardAction' | 'cancelAction';
+const unsavedDialogButtonMappings: Record<number, UnsavedDialogButtonOptions> = {
+  0: 'saveAction',
+  1: 'discardAction',
+  2: 'cancelAction'
+}
+
+export function unsavedDialog(action: string): Promise<UnsavedDialogButtonOptions> {
     return new Promise((resolve, reject) => {
       remote.dialog.showMessageBox({
         type: 'warning',
@@ -21,10 +28,10 @@ export function unsavedDialog(action: string) {
         message: `You are trying to ${action} a new file, but you have unsaved changes to
   your current one. What do you want to do?`,
       }).then((messageBoxReturnValue: MessageBoxReturnValue) => {
-        const { response } = messageBoxReturnValue;
-        // 'res' is an integer corrseponding to index in button list above.
-        if (response === 0 || response === 1 || response === 2) {
-          resolve(response);
+        const { response: responseIdx } = messageBoxReturnValue;
+        // `responseIdx` is an integer corrseponding to index in button list above.
+        if (responseIdx === 0 || responseIdx === 1 || responseIdx === 2) {
+          resolve(unsavedDialogButtonMappings[responseIdx]);
         } else {
           reject();
         }
@@ -32,7 +39,7 @@ export function unsavedDialog(action: string) {
     });
   }
 
-export function openFileDialog() {
+export function openFileDialog(): Promise<string> {
     return new Promise((resolve, reject) => {
       remote.dialog.showOpenDialog({
         filters: [{ name: 'python', extensions: ['py'] }],
@@ -49,4 +56,31 @@ export function openFileDialog() {
       });
     });
   }
+
+export function saveFileDialog(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      remote.dialog.showSaveDialog({
+        filters: [{ name: 'python', extensions: ['py'] }],
+      }).then((saveDialogReturnValue: SaveDialogReturnValue) => {
+        const { filePath } = saveDialogReturnValue;
+        // If filepath is undefined, the user did not specify a file.
+        if (filePath === undefined) {
+          reject();
+          return;
+        }
+  
+        // Automatically append .py extension if they don't have it
+        if (!filePath.endsWith('.py')) {
+          resolve(`${filePath}.py`);
+        }
+        resolve(filePath);
+      });
+    });
+  }
+
+export const createErrorCallback = (logPrefix: string) => (error: NodeJS.ErrnoException | null) => {
+  if (error !== null) {
+    console.error(`Error - ${logPrefix}: ${error}`);
+  }
+};
   

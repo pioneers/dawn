@@ -1,3 +1,4 @@
+import { ipcRenderer } from 'electron';
 import { IObservableArray, IObservableValue, observable } from 'mobx';
 import { FieldControlConfig } from '../types';
 import { RootStore } from './root';
@@ -29,9 +30,19 @@ export class FieldStore {
         this.bridgeAddress.set(data.bridgeAddress);
     }
 
-    toggleFieldControl() { // formerly FIELD_CONTROL reducer
-        this.fieldControl.set(!this.fieldControl.get()); // this is what this is supposed to do, right?
+    toggleFieldControl(status :boolean) { // formerly FIELD_CONTROL reducer
+        this.fieldControl.set(status); // this is what this is supposed to do, right?
     }
+
+    handleFieldControl = () => {
+        if (this.fieldControl.get()) {
+         this.toggleFieldControl(false);
+          ipcRenderer.send('FC_TEARDOWN');
+        } else {
+          this.toggleFieldControl(true);
+          ipcRenderer.send('FC_INITIALIZE');
+        }
+      }
 
     updateHeart() {
         this.heart.set(!this.heart.get());

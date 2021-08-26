@@ -1,4 +1,6 @@
+import { ipcRenderer } from 'electron';
 import {  IObservableValue, observable } from 'mobx'
+import { logging } from '../utils/utils';
 import { RootStore } from './root';
 
 interface TimerState {
@@ -28,6 +30,11 @@ export class TimerStore {
         this.computedTime.set(timer.computedTime)
         this.totalTime.set(timer.totalTime)
         this.stage.set(timer.stage)
+    }
+
+    timestampBounceback = () => {
+        logging.log('Timestamp Requested in Sagas');
+        ipcRenderer.send('TIMESTAMP_SEND');
     }
 }
 

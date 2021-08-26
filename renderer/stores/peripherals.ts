@@ -39,10 +39,10 @@ export class PeripheralsStore {
         const key = `${peripheral.type}_${peripheral.uid}`;
         keys.push(key);
 
-        if (key in nextPeripherals) {
-          peripheral.name = nextPeripherals[key].name; // ensures that the device keeps the name, if it was a custom name
+        if (key in this.peripheralList) {
+          peripheral.name = this.peripheralList[key].name; // ensures that the device keeps the name, if it was a custom name
         }
-        nextPeripherals[key] = { ...peripheral, uid: key };
+        this.peripheralList[key] = { ...peripheral, uid: key };
       }})
 
       this.peripheralList.keys().forEach((uid: string) => {

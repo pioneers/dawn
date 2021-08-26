@@ -1,6 +1,8 @@
+import { ipcRenderer } from 'electron';
 import fs, { readFile, writeFile } from 'fs';
 import { IObservableValue, makeAutoObservable, observable } from 'mobx'
 import { Client } from 'ssh2';
+import { Input, Source, TimeStamps } from '../../protos/protos';
 import { defaults, logging } from '../utils/utils';
 import { RootStore } from './root';
 import { createErrorCallback, openFileDialog, saveFileDialog, unsavedDialog } from './utils';
@@ -161,42 +163,39 @@ export class EditorStore {
         this.latestSaveCode.set(latestSaveCode);
     }
 
+    // combine uploadStudentCode and downloadStudentCode into one function
+    // we can maybe call the function transferStudentCode
     uploadStudentCode = () => {
         const conn = new Client();
-        const stateSlice = yield select((state: any) => ({
-          runtimeStatus: state.info.runtimeStatus,
-          ipAddress: state.info.sshAddress,
-          filepath: state.editor.filepath,
-        }));
         let port = defaults.PORT;
-        let ip = stateSlice.ipAddress;
+        let ip = this.rootStore.info.ipAddress.get();
         if (ip.includes(':')) {
           const split = ip.split(':');
           ip = split[0];
           port = Number(split[1]);
         }
-        if (stateSlice.runtimeStatus) {
-          logging.log(`Uploading ${stateSlice.filepath}`);
+        if (this.rootStore.info.runtimeStatus.get()) {
+          logging.log(`Uploading ${this.filepath.get()}`);
           const errors = yield call(() => new Promise((resolve) => {
             conn.on('error', (err: any) => {
               logging.log(err);
-              resolve('connectionError'); // #3
+              resolve('connectionError');
             });
       
             conn.on('ready', () => {
               conn.sftp((err: any, sftp: any) => {
                 if (err) {
                   logging.log(err);
-                  resolve('sftpError'); // #1
+                  resolve('sftpError');
                 }
                 sftp.fastPut(
                   stateSlice.filepath, defaults.STUDENTCODELOC,
                   (err2: any) => {
                     if (err2) {
                       logging.log(err2);
-                      resolve('fileTransmissionError'); // #2
+                      resolve('fileTransmissionError');
                     }
-                    resolve('fileTransmissionSuccess'); // #0
+                    resolve('fileTransmissionSuccess');
                   },
                 );
               });
@@ -253,4 +252,41 @@ export class EditorStore {
           }, 50);
         }
       }
+
+      initiateLatencyCheck = () => {
+        while (true) {
+          const time: number = Date.now();
+          const timestamps = new TimeStamps({
+            dawnTimestamp: time,
+            runtimeTimestamp: 0
+          });
+      
+          ipcRenderer.send('initiateLatencyCheck', timestamps);
+      
+          delay(5000);//TODO!
+        }   
+      }
+    
+      sendKeyboardConnectionStatus =() => {
+        const keyboardConnectionStatus = new Input({
+          connected: this.isKeyboardModeToggled.get(),
+          axes: [],
+          buttons: 0,
+          source: Source.KEYBOARD
+        });
+      
+        ipcRenderer.send('stateUpdate', [keyboardConnectionStatus], Source.KEYBOARD);
+      }
+
+      sendKeyboardInputs = () => {
+        const keyboard = new Input({
+          connected: true,
+          axes: [],
+          buttons: this.keyboardBitmap.get(),
+          source: Source.KEYBOARD
+        });
+      
+        ipcRenderer.send('stateUpdate', [keyboard], Source.KEYBOARD);
+      }
 }
+
