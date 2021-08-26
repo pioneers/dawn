@@ -29,7 +29,6 @@ let runtimeIP = defaults.IPADDRESS;
 enum MsgType {
   RUN_MODE = 0,
   START_POS = 1,
-  CHALLENGE_DATA = 2,
   LOG = 3,
   DEVICE_DATA = 4,
   // 5 reserved for some Shepherd msg type
@@ -123,9 +122,6 @@ function createPacket(payload: unknown, messageType: MsgType): Buffer {
       break;
     case MsgType.TIME_STAMPS:
       encodedPayload = protos.TimeStamps.encode(payload as protos.ITimeStamps).finish();
-      break;
-    case MsgType.CHALLENGE_DATA:
-      encodedPayload = protos.Text.encode(payload as protos.IText).finish();
       break;
     case MsgType.INPUTS:
       // Special case for 2021 competition where Input data is sent over tunneled TCP connection
@@ -391,14 +387,6 @@ class TCPConn {
     });
   };
 
-  sendChallengeInputs = (_event: IpcMainEvent, textData: protos.IText) => {
-    // TODO: Get challenge inputs from UI components, then sagas
-    const message = createPacket(textData, MsgType.CHALLENGE_DATA);
-    this.socket.write(message, () => {
-      this.logger.log(`Challenge inputs sent: ${textData.toString()}`);
-    });
-  }
-
   sendRobotStartPos = (_event: IpcMainEvent, startPosData: protos.IStartPos) => {
     // TODO: Get start pos from sagas
     const message = createPacket(startPosData, MsgType.START_POS);
@@ -525,14 +513,14 @@ class UDPConn {
   }
 }
 
-const RuntimeConnections: Array<UDPConn | TCPConn | UDPTunneledConn> = [];
+const RuntimeConnections: Array<TCPConn> = [];
 
 export const Runtime = {
   conns: RuntimeConnections,
   logger: new Logger('runtime', 'Runtime Debug'),
 
   setup() {
-    this.conns = [new UDPConn(this.logger), new TCPConn(this.logger), new UDPTunneledConn(this.logger)];
+    this.conns = [new TCPConn(this.logger)];
   },
 
   close() {
