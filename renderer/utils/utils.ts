@@ -92,6 +92,8 @@ export const windowInfo = {
   CONSOLEMIN: 100,
 };
 
+export const sleep = (durationMSec: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, durationMSec));
+
 export class Logger {
   log_file: fs.WriteStream;
   lastStr: string;
