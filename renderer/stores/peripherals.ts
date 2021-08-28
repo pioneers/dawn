@@ -26,6 +26,8 @@ export class PeripheralsStore {
   }
 
   updatePeripherals = (peripherals: Peripheral[]) => {
+    const keys: string[] = [];
+
     (peripherals ?? []).forEach((peripheral: Peripheral) => {
       if (peripheral.name === consts.PeripheralTypes.BatteryBuzzer) {
         const batteryParams = peripheral.params;
@@ -45,11 +47,13 @@ export class PeripheralsStore {
         this.peripheralList[key] = { ...peripheral, uid: key };
       }})
 
-      this.peripheralList.keys().forEach((uid: string) => {
+      for (let uid in this.peripheralList.keys()){
         if (keys.indexOf(uid) === -1) {
           this.peripheralList.delete(uid) // Delete old devices
         }
-      });
-    });
-  }
+      }
+    };
+
+    
+
 }
