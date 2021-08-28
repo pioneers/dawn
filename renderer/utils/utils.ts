@@ -72,6 +72,7 @@ export const defaults = {
   USERNAME: 'pi',
   PASSWORD: 'raspberry',
   IPADDRESS: '192.168.0.0',
+  DESKTOP_LOC: remote.app.getPath('desktop'),
   STUDENTCODELOC: '/home/pi/runtime/executor/studentcode.py',
   NGROK: true,
 };
