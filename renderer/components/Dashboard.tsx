@@ -1,5 +1,6 @@
 import React from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
+import { useState } from 'react';
+import { Container, Row, Col, Button } from 'react-bootstrap';
 import { Step } from 'react-joyride';
 import PeripheralList from './PeripheralList';
 import { GamepadList } from './GamepadList';
@@ -14,17 +15,37 @@ interface StateProps {
 
 //smPush={8} and smPull={4} straight up removed
 
-export const Dashboard = (props: StateProps) => (
-  <Container fluid>
-    <Row>
-      <Col md={{ order: 'last' }} sm={4}>
-        <PeripheralList connectionStatus={props.connectionStatus} runtimeStatus={props.runtimeStatus} />
-        <GamepadList />
-      </Col>
-      <Col sm={8}>
-        <EditorContainer runtimeStatus={props.runtimeStatus} />
-      </Col>
-    </Row>
-  </Container>
-);
+export const Dashboard = (props: StateProps) => {
+  const [sidebarWidth, setSidebarWidth] = useState(1);
+  const [editorWidth, setEditorWidth] = useState(11);
+
+  const handleSidebarExpand = () => {
+    if (sidebarWidth == 1) {
+      setSidebarWidth(5);
+      setEditorWidth(7);
+    } else {
+      setSidebarWidth(1);
+      setEditorWidth(11);
+    }
+  }
+
+  return (
+    <Container fluid>
+      <Row>
+        {/* <Col md={{ order: 'last' }} sm={4}>
+          <PeripheralList connectionStatus={props.connectionStatus} runtimeStatus={props.runtimeStatus} />
+          <GamepadList />
+        </Col> */}
+        <Col sm={sidebarWidth}>
+          <div>
+            <Button onClick={handleSidebarExpand}>Toggle</Button>
+          </div>
+        </Col>
+        <Col sm={editorWidth}>
+          <EditorContainer runtimeStatus={props.runtimeStatus} />
+        </Col>
+      </Row>
+    </Container>
+  )
+}
 
