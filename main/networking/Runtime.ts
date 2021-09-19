@@ -125,7 +125,7 @@ function createPacket(payload: unknown, messageType: MsgType): Buffer {
       break;
     case MsgType.INPUTS:
       // Special case for 2021 competition where Input data is sent over tunneled TCP connection
-      encodedPayload = payload as Uint8Array;
+      encodedPayload = protos.UserInputs.encode({ inputs: payload as protos.Input[] }).finish();
       break;
     default:
       console.log('ERROR: trying to create TCP Packet with unknown message type');
@@ -287,7 +287,6 @@ class TCPConn {
         let decoded;
 
         switch (packet.type) {
-          // add case for MsgType.Inputs
           case MsgType.LOG:
             decoded = protos.Text.decode(packet.payload);
             RendererBridge.reduxDispatch(updateConsole(decoded.payload));
@@ -312,7 +311,6 @@ class TCPConn {
               });
               RendererBridge.reduxDispatch(updatePeripherals(peripherals));
             } catch (err) {
-              this.logger.log('Error decoding UDP');
               this.logger.log(err);
             }
             break;
