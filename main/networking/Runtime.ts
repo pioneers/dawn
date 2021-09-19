@@ -29,11 +29,11 @@ let runtimeIP = defaults.IPADDRESS;
 enum MsgType {
   RUN_MODE = 0,
   START_POS = 1,
-  LOG = 3,
-  DEVICE_DATA = 4,
-  // 5 reserved for some Shepherd msg type
-  INPUTS = 6,
-  TIME_STAMPS = 7
+  LOG = 2,
+  DEVICE_DATA = 3,
+  // 4 reserved for some Shepherd msg type
+  INPUTS = 5,
+  TIME_STAMPS = 6
 }
 
 interface TCPPacket {
@@ -297,7 +297,6 @@ class TCPConn {
             const oneWayLatency = (Date.now() - Number(decoded.dawnTimestamp)) / 2;
 
             // TODO: we can probably do an average of n timestamps so the display doesn't change too frequently
-            
             RendererBridge.reduxDispatch(setLatencyValue(oneWayLatency))
             break;
           case MsgType.DEVICE_DATA:
@@ -328,10 +327,11 @@ class TCPConn {
      * TCP Socket IPC Connections
      */
     ipcMain.on('runModeUpdate', this.whenSocketReady(this.sendRunMode));
-    ipcMain.on('ipAddress', this.whenSocketReady(this.ipAddressListener));
     ipcMain.on('initiateLatencyCheck', this.whenSocketReady(this.initiateLatencyCheck));
     ipcMain.on('stateUpdate', this.whenSocketReady(this.sendInputs));
-    ipcMain.on('udpTunnelIpAddress', this.whenSocketReady(this.ipAddressListener));
+
+    ipcMain.on('ipAddress', this.ipAddressListener);
+    ipcMain.on('udpTunnelIpAddress', this.ipAddressListener);
   }
 
   whenSocketReady = (cb: (event: IpcMainEvent, ...args: any[]) => void) => {
