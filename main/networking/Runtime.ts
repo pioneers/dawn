@@ -45,29 +45,29 @@ interface TCPPacket {
 /** Given a data buffer, read as many TCP Packets as possible.
  *  If there are leftover bytes, return them so that they can be used in the next cycle of data.
  */
-function readPackets(
-  data: Buffer,
-  previousLeftoverBytes?: Buffer
-): { leftoverBytes: Buffer | undefined; processedTCPPackets: TCPPacket[] } {
+function readPackets(data: Buffer, previousLeftoverBytes?: Buffer): { leftoverBytes?: Buffer; processedTCPPackets: TCPPacket[] } {
+  const HEADER_NUM_BYTES = 3;
+
   const bytesToRead = Buffer.concat([previousLeftoverBytes ?? new Uint8Array(), data]);
-  let leftoverBytes;
-  let i = 0;
   const processedTCPPackets: TCPPacket[] = [];
 
-  while (i < bytesToRead.length) {
-    let header;
-    let msgType;
-    let msgLength;
+  let leftoverBytes;
+  let currentPos = 0;
+
+  while (currentPos < bytesToRead.length) {
+    let header: Buffer;
+    let msgType: number;
+    let msgLength: number;
     let payload: Buffer;
 
-    if (i + 3 <= bytesToRead.length) {
+    if (currentPos + HEADER_NUM_BYTES <= bytesToRead.length) {
       // Have enough bytes to read in 3 byte header
-      header = bytesToRead.slice(i, i + 3);
+      header = bytesToRead.slice(currentPos, currentPos + HEADER_NUM_BYTES);
       msgType = header[0];
       msgLength = (header[2] << 8) | header[1];
     } else {
       // Don't have enough bytes to read 3 byte header so we save the bytes for the next data cycle
-      leftoverBytes = bytesToRead.slice(i);
+      leftoverBytes = bytesToRead.slice(currentPos);
 
       return {
         leftoverBytes,
@@ -75,14 +75,14 @@ function readPackets(
       };
     }
 
-    i += 3;
+    currentPos += HEADER_NUM_BYTES;
 
-    if (i + msgLength <= bytesToRead.length) {
+    if (currentPos + msgLength <= bytesToRead.length) {
       // Have enough bytes to read entire payload from 1 TCP packet
-      payload = bytesToRead.slice(i, i + msgLength);
+      payload = bytesToRead.slice(currentPos, currentPos + msgLength);
     } else {
       // Don't have enough bytes to read entire payload
-      leftoverBytes = bytesToRead.slice(i);
+      leftoverBytes = bytesToRead.slice(currentPos);
 
       return {
         // Note: Need to save header so we know how many bytes to read for this packet in the next data cycle
@@ -91,10 +91,10 @@ function readPackets(
       };
     }
 
-    const newTCPPacket = { type: msgType, length: msgLength, payload: payload! };
+    const newTCPPacket = { type: msgType, length: msgLength, payload };
     processedTCPPackets.push(newTCPPacket);
 
-    i += msgLength;
+    currentPos += msgLength;
   }
 
   return {
@@ -128,7 +128,7 @@ function createPacket(payload: unknown, messageType: MsgType): Buffer {
       encodedPayload = payload as Uint8Array;
       break;
     default:
-      console.log('ERROR: trying to create TCP Packet with type LOG');
+      console.log('ERROR: trying to create TCP Packet with unknown message type');
       encodedPayload = new Uint8Array();
       break;
   }
