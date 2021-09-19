@@ -297,7 +297,7 @@ class TCPConn {
             const oneWayLatency = (Date.now() - Number(decoded.dawnTimestamp)) / 2;
 
             // TODO: we can probably do an average of n timestamps so the display doesn't change too frequently
-            RendererBridge.reduxDispatch(setLatencyValue(oneWayLatency))
+            RendererBridge.reduxDispatch(setLatencyValue(oneWayLatency));
             break;
           case MsgType.DEVICE_DATA:
             try {
@@ -311,13 +311,12 @@ class TCPConn {
                 peripherals.push({ ...device, uid: device.uid.toString() });
               });
               RendererBridge.reduxDispatch(updatePeripherals(peripherals));
-            }
-            catch (err) {
+            } catch (err) {
               this.logger.log('Error decoding UDP');
               this.logger.log(err);
             }
             break;
-          }
+        }
       }
 
       this.leftoverBytes = leftoverBytes;
@@ -345,12 +344,12 @@ class TCPConn {
   /**
    * Initiates latency check by sending first packet to Runtime
    */
-  initiateLatencyCheck = (_event: IpcMainEvent, data: protos.ITimeStamps) => {    
+  initiateLatencyCheck = (_event: IpcMainEvent, data: protos.ITimeStamps) => {
     const message = createPacket(data, MsgType.TIME_STAMPS);
     this.socket.write(message, () => {
       this.logger.log(`Sent timestamp data to runtime: ${JSON.stringify(data)}`);
-    })
-  }
+    });
+  };
 
   /**
    * IPC Connection with ConfigBox.ts' saveChanges()
@@ -407,8 +406,7 @@ class TCPConn {
     const message = createPacket(data, MsgType.INPUTS);
     this.socket.write(message, () => {
       this.logger.log(`Inputs sent: ${JSON.stringify(data)}`);
-    })
-
+    });
   };
 
   close = () => {
@@ -418,7 +416,6 @@ class TCPConn {
     ipcMain.removeListener('initiateLatencyCheck', this.initiateLatencyCheck);
     ipcMain.removeListener('stateUpdate', this.sendInputs);
   };
-
 }
 
 /**
