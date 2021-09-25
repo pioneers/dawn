@@ -68,8 +68,9 @@ const PeripheralListComponent = (props: StateProps & OwnProps) => {
       id="peripherals-panel" 
       bg={props.globalTheme === 'dark' ? 'dark' : 'light'}
       text={props.globalTheme === 'dark' ? 'light' : 'dark'}
+	  style={props.globalTheme === 'dark' ? { border: "1px solid white" } : {}}
       >
-      <Card.Header>Peripherals</Card.Header>
+      <Card.Header style={props.globalTheme === 'dark' ? {borderBottom: '1px solid white'} : {}}>Peripherals</Card.Header>
       <Card.Body style={{ padding: '0px' }}>
         <ListGroup>{panelBody}</ListGroup>
       </Card.Body>
