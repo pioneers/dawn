@@ -38,7 +38,7 @@ export const TooltipButton = (props: StateProp) => {
         disabled={props.disabled}
         id={props.id}
       >
-        <FontAwesomeIcon icon={iconDef} />
+        <FontAwesomeIcon icon={iconDef} color={props.bsStyle || "black"} />
       </Button>
     </OverlayTrigger>
   );

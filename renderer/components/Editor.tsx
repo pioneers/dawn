@@ -77,6 +77,7 @@ interface OwnProps {
   onInitiateLatencyCheck: () => void;
 }
 
+
 type Props = StateProps & OwnProps;
 
 const FONT_SIZES = [8, 12, 14, 16, 20, 24, 28];
@@ -267,6 +268,7 @@ export const Editor = (props: Props) => {
   }, [consoleHeight, onWindowResize]);
 
   const changeMarker = hasUnsavedChanges() ? '*' : '';
+  const toolTipColor: string = (props.globalTheme === 'dark' ? 'white' : 'black');
 
   return (
     <Card bg={props.globalTheme === 'dark' ? 'dark' : 'light'} text={props.globalTheme === 'dark' ? 'light' : 'dark'}>
@@ -278,19 +280,21 @@ export const Editor = (props: Props) => {
       <Card.Body>
         <Form inline>
           <ButtonGroup id="file-operations-buttons">
-            <DropdownButton variant={props.globalTheme === 'dark' ? 'outline-info' : 'primary'} title="File" size="sm" id="choose-theme">
+            <DropdownButton variant={props.globalTheme === 'dark' ? 'info' : 'primary'} title="File" size="sm" id="choose-theme">
               <Dropdown.Item onClick={props.onCreateNewFile}>New File</Dropdown.Item>
               <Dropdown.Item onClick={props.onOpenFile}>Open</Dropdown.Item>
               <Dropdown.Item onClick={_.partial(props.onSaveFile, false)}>Save</Dropdown.Item>
               <Dropdown.Item onClick={_.partial(props.onSaveFile, true)}>Save As</Dropdown.Item>
             </DropdownButton>
-            <TooltipButton id="upload" text="Upload" onClick={upload} icon="arrow-circle-up" disabled={false} />
+            <TooltipButton id="upload" text="Upload" onClick={upload} icon="arrow-circle-up" disabled={false} bsStyle={toolTipColor}/>
             <TooltipButton
               id="download"
               text="Download from Robot"
               onClick={props.onDownloadCode}
               icon="arrow-circle-down"
               disabled={!props.runtimeStatus}
+              bsStyle = {toolTipColor}
+
             />
           </ButtonGroup>
           <ButtonGroup id="code-execution-buttons">
@@ -300,10 +304,12 @@ export const Editor = (props: Props) => {
               onClick={startRobot}
               icon="play"
               disabled={isRunning || !props.runtimeStatus || props.fieldControlActivity}
+              bsStyle={toolTipColor}
+              
             />
-            <TooltipButton id="stop" text="Stop" onClick={stopRobot} icon="stop" disabled={!(isRunning)} />
+            <TooltipButton id="stop" text="Stop" onClick={stopRobot} icon="stop" disabled={!(isRunning)} bsStyle={toolTipColor}/>
             <DropdownButton
-              variant={props.globalTheme === 'dark' ? 'outline-info' : 'primary'}
+              variant={props.globalTheme === 'dark' ? 'info' : 'primary'}
               title={modeDisplay}
               size="sm"
               key="dropdown"
@@ -339,15 +345,17 @@ export const Editor = (props: Props) => {
               onClick={toggleConsole}
               icon="terminal"
               disabled={false}
-              bsStyle={isConsoleUnread ? 'danger' : ''}
+              bsStyle={isConsoleUnread ? 'danger' : toolTipColor}
             />
-            <TooltipButton id="clear-console" text="Clear Console" onClick={props.onClearConsole} icon="times" disabled={false} />
+            <TooltipButton id="clear-console" text="Clear Console" onClick={props.onClearConsole} icon="times" disabled={false} bsStyle={toolTipColor}/>
             <TooltipButton
               id="raise-console"
               text="Raise Console"
               onClick={raiseConsole}
               icon="arrow-up"
               disabled={consoleHeight > windowInfo.CONSOLEMAX}
+              bsStyle = {toolTipColor}
+
             />
             <TooltipButton
               id="lower-console"
@@ -355,8 +363,10 @@ export const Editor = (props: Props) => {
               onClick={lowerConsole}
               icon="arrow-down"
               disabled={consoleHeight < windowInfo.CONSOLEMIN}
+              bsStyle = {toolTipColor}
+
             />
-            <TooltipButton id="copy-console" text="Copy Console" onClick={copyConsole} icon="clipboard" disabled={false} />
+            <TooltipButton id="copy-console" text="Copy Console" onClick={copyConsole} icon="clipboard" disabled={false} bsStyle={toolTipColor}/>
           </ButtonGroup>
           <FormGroup>
             <InputGroup>
@@ -366,10 +376,11 @@ export const Editor = (props: Props) => {
                 onBlur={handleOnBlurFontSize}
                 onChange={handleChangeFontsize}
                 onKeyDown={handleOnKeyDownFontSize}
-                style={{ width: 32, padding: 6 }}
+                style= {props.globalTheme === 'dark' ? { width: 32, padding: 6, backgroundColor: '#353A3F', color: 'white'} : {width: 32, padding: 6}}
+                
               />
-              <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip">Text Size</Tooltip>}>
-                <DropdownButton as={ButtonGroup} title="" variant="small" id="choose-font-size">
+              <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip">Text Size </Tooltip>}>
+                <DropdownButton as={ButtonGroup} title="" size="sm" variant={props.globalTheme === 'dark' ? 'info' : 'primary'} >
                   {FONT_SIZES.map((fontSize: number) => (
                     <Dropdown.Item key={`font-size-${fontSize}`} className="dropdown-item" onClick={() => submitFontSize(fontSize)}>
                       {fontSize}
@@ -384,7 +395,7 @@ export const Editor = (props: Props) => {
               onClick={toggleKeyboardControl}
               icon="keyboard"
               disabled={false}
-              bsStyle={isKeyboardModeToggled ? 'info' : 'default'}
+              bsStyle={isKeyboardModeToggled ? 'info' : toolTipColor}
             />
           </FormGroup>
           <ButtonGroup id="editor-settings-buttons" className="form-inline">
@@ -394,6 +405,7 @@ export const Editor = (props: Props) => {
               onClick={increaseFontsize}
               icon="search-plus"
               disabled={submittedFontSize >= MAX_FONT_SIZE}
+              bsStyle={toolTipColor}
             />
             <TooltipButton
               id="decrease-font-size"
@@ -401,8 +413,10 @@ export const Editor = (props: Props) => {
               onClick={decreaseFontsize}
               icon="search-minus"
               disabled={submittedFontSize <= MIN_FONT_SIZE}
+              bsStyle = {toolTipColor}
+
             />
-            <DropdownButton variant={props.globalTheme === 'dark' ? 'outline-info' : 'primary'} title="Theme" size="sm" id="choose-theme">
+            <DropdownButton variant={props.globalTheme === 'dark' ? 'info' : 'primary'} title="Theme" size="sm" id="choose-theme">
               {themes.map((theme: string) => (
                 <Dropdown.Item active={theme === props.editorTheme} onClick={_.partial(changeTheme, theme)} key={theme}>
                   {theme}
@@ -411,7 +425,7 @@ export const Editor = (props: Props) => {
             </DropdownButton>
           </ButtonGroup>
           <FormGroup>
-            <TooltipButton id="checkLatency" text="Initiate Latency Check" onClick={checkLatency} icon="paper-plane" disabled={false} />
+            <TooltipButton id="checkLatency" text="Initiate Latency Check" onClick={checkLatency} icon="paper-plane" disabled={false} bsStyle={toolTipColor}/>
           </FormGroup>
           <FormGroup>
             <TooltipButton
@@ -432,6 +446,8 @@ export const Editor = (props: Props) => {
               }}
               icon="star"
               disabled={false}
+              bsStyle = {toolTipColor}
+
             />
           </FormGroup>
         </Form>
