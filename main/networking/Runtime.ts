@@ -1,11 +1,10 @@
-import { createSocket, Socket as UDPSocket } from 'dgram';
 import { Socket as TCPSocket } from 'net';
 import { ipcMain, IpcMainEvent } from 'electron';
 import * as protos from '../../protos/protos';
 
 import RendererBridge from '../RendererBridge';
 import { updateConsole } from '../../renderer/actions/ConsoleActions';
-import { runtimeDisconnect, infoPerMessage } from '../../renderer/actions/InfoActions';
+import { infoPerMessage } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { Logger, defaults } from '../../renderer/utils/utils';
 import { Peripheral } from '../../renderer/types';
@@ -14,8 +13,6 @@ import { setLatencyValue } from '../../renderer/actions/EditorActions';
 /**
  * Define port constants, which must match with Runtime
  */
-const UDP_SEND_PORT = 9000;
-const UDP_LISTEN_PORT = 9001;
 const DEFAULT_TCP_PORT = 8101;
 
 /**
@@ -140,102 +137,7 @@ function createPacket(payload: unknown, messageType: MsgType): Buffer {
   return Buffer.concat([msgTypeArr, msgLengthArr, encodedPayload], msgLength + 3);
 }
 
-/** Uses TCP connection to tunnel UDP messages. */
-class UDPTunneledConn {
-  /* Leftover bytes from reading 1 cycle of the TCP data buffer. */
-  leftoverBytes: Buffer | undefined;
-  logger: Logger;
-  tcpSocket: TCPSocket;
-  udpForwarder: UDPSocket;
-  ip: string;
-  port: number;
-
-  constructor(logger: Logger) {
-    this.logger = logger;
-    this.ip = defaults.IPADDRESS;
-
-    this.tcpSocket = new TCPSocket();
-
-    // Connect to most recent IP
-    setInterval(() => {
-      if (!this.tcpSocket.connecting && this.tcpSocket.pending) {
-        if (this.ip !== defaults.IPADDRESS) {
-          if (this.ip.includes(':')) {
-            const split = this.ip.split(':');
-            this.ip = split[0];
-            this.port = Number(split[1]);
-          }
-          console.log(`UDPTunneledConn: Trying to TCP connect to ${this.ip}:${this.port}`);
-          this.tcpSocket.connect(this.port, this.ip);
-        }
-      }
-    }, 1000);
-
-    this.tcpSocket.on('connect', () => {
-      this.logger.log(`UDPTunneledConn connected`);
-    });
-
-    this.tcpSocket.on('end', () => {
-      this.logger.log(`UDPTunneledConn disconnected`);
-    });
-
-    this.tcpSocket.on('error', (err: string) => {
-      this.logger.log(err);
-    });
-
-    this.tcpSocket.on('data', (data) => {
-      const { leftoverBytes, processedTCPPackets } = readPackets(data, this.leftoverBytes);
-
-      try {
-        for (const packet of processedTCPPackets) {
-          // Send to UDP Connection
-          udpForwarder.send(packet.payload, 0, packet.payload.length, UDP_LISTEN_PORT, 'localhost');
-        }
-
-        this.leftoverBytes = leftoverBytes;
-      } catch (e) {
-        this.logger.log('UDPTunneledConn udpForwarder failed to send to UDP connection: ' + String(e));
-      }
-    });
-
-    /* Bidirectional - Can send to and receive from UDP connection. */
-    const udpForwarder = createSocket({ type: 'udp4', reuseAddr: true });
-
-    udpForwarder.bind(UDP_SEND_PORT, () => {
-      console.log(`UDP forwarder receives from port ${UDP_SEND_PORT}`);
-    });
-
-    // Received a new message from UDP connection
-    udpForwarder.on('message', (msg: Uint8Array) => {
-      const message = createPacket(msg, MsgType.INPUTS);
-      this.tcpSocket.write(message);
-    });
-
-    this.udpForwarder = udpForwarder;
-
-    ipcMain.on('udpTunnelIpAddress', this.ipAddressListener);
-  }
-
-  ipAddressListener = (_event: IpcMainEvent, ipAddress: string) => {
-    if (ipAddress != this.ip) {
-      console.log(`UDPTunneledConn - Switching IP from ${this.ip} to ${ipAddress}`);
-      if (this.tcpSocket.connecting || !this.tcpSocket.pending) {
-        this.tcpSocket.end();
-      }
-      this.ip = ipAddress;
-    }
-  };
-
-  close = () => {
-    if (!this.tcpSocket.pending) {
-      this.tcpSocket.end();
-    }
-    this.udpForwarder.close();
-    ipcMain.removeListener('udpTunnelIpAddress', this.ipAddressListener);
-  };
-}
-
-class TCPConn {
+class RuntimeConnection {
   logger: Logger;
   socket: TCPSocket;
   leftoverBytes: Buffer | undefined;
@@ -267,7 +169,7 @@ class TCPConn {
     });
 
     this.socket.on('end', () => {
-      RendererBridge.reduxDispatch(runtimeDisconnect());
+      // RendererBridge.reduxDispatch(runtimeDisconnect());
       this.logger.log('Runtime disconnected');
     });
 
@@ -323,20 +225,21 @@ class TCPConn {
     /**
      * TCP Socket IPC Connections
      */
-    ipcMain.on('runModeUpdate', this.whenSocketReady(this.sendRunMode));
-    ipcMain.on('initiateLatencyCheck', this.whenSocketReady(this.initiateLatencyCheck));
-    ipcMain.on('stateUpdate', this.whenSocketReady(this.sendInputs));
+    ipcMain.on('runModeUpdate', (event: IpcMainEvent, ...args: any[]) => this.whenConnectionEstablished(this.sendRunMode, event, ...args));
+    ipcMain.on('initiateLatencyCheck', (event: IpcMainEvent, ...args: any[]) =>
+      this.whenConnectionEstablished(this.initiateLatencyCheck, event, ...args)
+    );
+    ipcMain.on('stateUpdate', (event: IpcMainEvent, ...args: any[]) => this.whenConnectionEstablished(this.sendInputs, event, ...args));
 
     ipcMain.on('ipAddress', this.ipAddressListener);
-    ipcMain.on('udpTunnelIpAddress', this.ipAddressListener);
   }
 
-  whenSocketReady = (cb: (event: IpcMainEvent, ...args: any[]) => void) => {
+  whenConnectionEstablished = (cb: (event: IpcMainEvent, ...args: any[]) => void, event: IpcMainEvent, ...args: any[]) => {
     if (this.socket.pending) {
-      return (_e: IpcMainEvent, ..._args: any[]) => this.logger.log('TCP Socket not ready');
+      return;
     }
 
-    return cb;
+    return cb(event, ...args);
   };
 
   /**
@@ -393,6 +296,7 @@ class TCPConn {
   };
 
   sendInputs = (_event: IpcMainEvent, data: protos.Input[], source: protos.Source) => {
+    console.log('went to send inputs');
     if (data.length === 0) {
       data.push(
         protos.Input.create({
@@ -416,106 +320,14 @@ class TCPConn {
   };
 }
 
-/**
- * UDPConn contains socket methods for both sending to and receiving from Runtime.
- */
-class UDPConn {
-  logger: Logger;
-  socket: UDPSocket;
-
-  constructor(logger: Logger) {
-    this.logger = logger;
-
-    this.socket = createSocket({ type: 'udp4', reuseAddr: true });
-
-    this.socket.on('error', (err: string) => {
-      this.logger.log('UDP connection error');
-      this.logger.log(err);
-    });
-
-    this.socket.on('close', () => {
-      RendererBridge.reduxDispatch(runtimeDisconnect());
-      this.logger.log('UDP connection closed');
-    });
-
-    /**
-     * Runtime UDP Message Handler.
-     * In other words, this is where we handle data that we receive from Runtime.
-     * Sets runtime connection, decodes device message, cleans UIDs from uint64, and sends sensor data array to reducer.
-     */
-    this.socket.on('message', (msg: Uint8Array) => {
-      try {
-        RendererBridge.reduxDispatch(infoPerMessage());
-        const sensorData: protos.Device[] = protos.DevData.decode(msg).devices;
-        // Need to convert protos.Device to Peripheral here because when dispatching to the renderer over IPC,
-        // some of the inner properties (i.e. device.uid which is a Long) loses its prototype, which means any
-        // data we are sending over through IPC should be serializable.
-        // https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
-        const peripherals: Peripheral[] = [];
-
-        sensorData.forEach((device) => {
-          // There is a weird bug that happens with the protobufs decoding when device.type is specifically 0
-          // where the property can be accessed but when trying to view object contents, the property doesn't exist.
-          // Below is a way to get around this problem.
-          if (device.type.toString() === '0') {
-            device.type = 0;
-          }
-
-          peripherals.push({ ...device, uid: device.uid.toString() });
-        });
-
-        RendererBridge.reduxDispatch(updatePeripherals(peripherals));
-      } catch (err) {
-        this.logger.log('Error decoding UDP');
-        this.logger.log(err);
-      }
-    });
-
-    this.socket.bind(UDP_LISTEN_PORT, 'localhost', () => {
-      this.logger.log(`UDP connection bound`);
-    });
-
-    /**
-     * UDP Send Socket IPC Connections
-     */
-    ipcMain.on('stateUpdate', this.sendInputs);
-  }
-
-  /**
-   * IPC Connection with sagas.ts' runtimeGamepads()
-   * Sends messages when Gamepad information changes
-   * or when 100 ms has passed (with 50 ms cooldown)
-   */
-  sendInputs = (_event: IpcMainEvent, data: protos.Input[], source: protos.Source) => {
-    if (data.length === 0) {
-      data.push(
-        protos.Input.create({
-          connected: false,
-          source
-        })
-      );
-    }
-
-    const message = protos.UserInputs.encode({ inputs: data }).finish();
-
-    // Change IP to use runtimeIP again after 2021 Competition
-    this.socket.send(message, UDP_SEND_PORT, 'localhost');
-  };
-
-  close() {
-    this.socket.close();
-    ipcMain.removeListener('stateUpdate', this.sendInputs);
-  }
-}
-
-const RuntimeConnections: Array<TCPConn> = [];
+const RuntimeConnections: Array<RuntimeConnection> = [];
 
 export const Runtime = {
   conns: RuntimeConnections,
   logger: new Logger('runtime', 'Runtime Debug'),
 
   setup() {
-    this.conns = [new TCPConn(this.logger)];
+    this.conns = [new RuntimeConnection(this.logger)];
   },
 
   close() {
