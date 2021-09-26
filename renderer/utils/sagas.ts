@@ -340,10 +340,10 @@ function runtimeReceiver() {
       emitter(action);
     };
     // Suscribe listener to dispatches from main process.
-    ipcRenderer.on('dispatch', listener);
+    ipcRenderer.on('reduxDispatch', listener);
     // Return an unsuscribe function.
     return () => {
-      ipcRenderer.removeListener('dispatch', listener);
+      ipcRenderer.removeListener('reduxDispatch', listener);
     };
   });
 }

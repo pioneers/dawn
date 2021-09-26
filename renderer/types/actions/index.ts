@@ -19,7 +19,7 @@ export {
   UpdateKeyboardBitmapAction
 } from './editor-actions';
 export { GamepadsActions, UpdateGamepadsAction } from './gamepads-actions';
-export { SettingsActions, ChangeFontSizeAction, ChangeThemeAction } from './settings-actions';
+export { SettingsActions, ChangeFontSizeAction, ChangeThemeAction, ToggleThemeGlobalAction } from './settings-actions';
 export {
   FieldActions,
   UpdateTimerAction,

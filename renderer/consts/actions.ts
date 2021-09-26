@@ -41,6 +41,7 @@ export enum GamepadsActionsTypes {
 export enum SettingsActionsTypes {
   CHANGE_FONT_SIZE = 'CHANGE_FONTSIZE',
   CHANGE_THEME = 'CHANGE_THEME',
+  TOGGLE_THEME_GLOBAL = 'TOGGLE_THEME_GLOBAL',
 }
 
 export enum InfoActionsTypes {

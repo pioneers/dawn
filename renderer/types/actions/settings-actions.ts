@@ -10,8 +10,13 @@ export interface ChangeThemeAction {
   theme: string;
 }
 
+export interface ToggleThemeGlobalAction {
+  type: consts.SettingsActionsTypes.TOGGLE_THEME_GLOBAL;
+  globalTheme: string;
+}
+
 export interface SettingsActions {
   changeFontSize: (newFontSize: number) => ChangeFontSizeAction;
-
   changeTheme: (theme: string) => ChangeThemeAction;
+  toggleThemeGlobal: (globalTheme: 'light' | 'dark') => ToggleThemeGlobalAction;
 }

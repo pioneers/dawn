@@ -1,5 +1,5 @@
 import React from 'react';
-import { Panel, ListGroup } from 'react-bootstrap';
+import { Card, ListGroup } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import { Gamepad } from './Gamepad';
@@ -7,6 +7,7 @@ import { Input } from '../../protos/protos';
 
 interface StateProps {
   gamepads: Input[] | undefined;
+  globalTheme: string;
 }
 
 type Props = StateProps;
@@ -27,22 +28,26 @@ const GamepadListComponent = (props: Props) => {
     );
   }
   return (
-    <Panel
-      bsStyle="primary"
+    <Card
+      bg={props.globalTheme === 'dark' ? 'dark' : 'light'}
+      text={props.globalTheme === 'dark' ? 'light' : 'dark'}
+      className="mb-4"
+      //border="primary"
       id="gamepads-panel"
     >
-      <Panel.Heading>Gamepads</Panel.Heading>
-      <Panel.Body style={{ padding: '0px' }}>
+      <Card.Header>Gamepads</Card.Header>
+      <Card.Body style={{ padding: '0px' }}>
         <ListGroup style={{ marginBottom: '5px' }}>
           {interior}
         </ListGroup>
-      </Panel.Body>
-    </Panel>
+      </Card.Body>
+    </Card>
   );
 };
 
 const mapStateToProps = (state: ApplicationState) => ({
   gamepads: state.gamepads.gamepads,
+  globalTheme: state.settings.globalTheme,
 });
 
 export const GamepadList = connect(mapStateToProps)(GamepadListComponent);
