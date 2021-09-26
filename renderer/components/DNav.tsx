@@ -117,6 +117,7 @@ const DNavComponent = (props: Props) => {
         ) : (
           ''
         )}
+        <div style={{ marginRight: '25px' }}></div>
         <Navbar.Text id="battery-indicator">
           <StatusLabel
             connectionStatus={connectionStatus}
@@ -128,6 +129,7 @@ const DNavComponent = (props: Props) => {
             fieldControlStatus={fieldControlStatus}
           />
         </Navbar.Text>
+        <div style={{ marginRight: '25px' }}></div>
         <Navbar.Text id="Latency">
           <Badge variant={getLatencyThresholdColor(props.latencyValue)}>{`Latency: ${formatLatencyValue(props.latencyValue)}`}</Badge>
         </Navbar.Text>
