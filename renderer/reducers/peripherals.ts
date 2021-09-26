@@ -30,6 +30,7 @@ export const peripherals = (state: PeripheralState = initialPeripheralState, act
       (action.peripherals ?? []).forEach((peripheral: Peripheral) => {
         if (peripheral.name === consts.PeripheralTypes.BatteryBuzzer) {
           const batteryParams = peripheral.params;
+          //since batterysafety is not included in runtimestatus, have to extract the value from params
           if (batteryParams[IS_UNSAFE] && batteryParams[IS_UNSAFE].bval) {
             nextState.batterySafety = batteryParams[IS_UNSAFE].bval!;
           }
@@ -42,6 +43,7 @@ export const peripherals = (state: PeripheralState = initialPeripheralState, act
           }
           nextPeripherals[key] = { ...peripheral, uid: key };
         }
+        //batteryLevel gets updated from runtimestatus proto
         nextState.batteryLevel = state.batteryLevel;
       });
 

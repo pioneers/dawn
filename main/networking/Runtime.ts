@@ -308,6 +308,7 @@ class TCPConn {
             break;
           case MsgType.RUNTIME_STATUS:
             decoded = protos.RuntimeStatus.decode(packet.payload);
+            //Not sure if we need to update runtimeStatus state bcs heartbeat keeps track of that already
             RendererBridge.reduxDispatch(updateCodeStatus(decoded.mode));
             RendererBridge.reduxDispatch(updateRuntimeVersion(decoded.version));
             RendererBridge.reduxDispatch(updateBattery(decoded.battery));
