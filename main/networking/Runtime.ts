@@ -157,7 +157,7 @@ class RuntimeConnection {
             ip = split[0];
             port = Number(split[1]);
           }
-          console.log(`TCPConn: Trying to TCP connect to ${ip}:${port}`);
+          console.log(`RuntimeConnection: Trying to TCP connect to ${ip}:${port}`);
           this.socket.connect(port, ip);
         }
       }
@@ -258,7 +258,7 @@ class RuntimeConnection {
    */
   ipAddressListener = (_event: IpcMainEvent, ipAddress: string) => {
     if (ipAddress != runtimeIP) {
-      console.log(`TCPConn - Switching IP from ${runtimeIP} to ${ipAddress}`);
+      console.log(`RuntimeConnection - Switching IP from ${runtimeIP} to ${ipAddress}`);
       if (this.socket.connecting || !this.socket.pending) {
         this.socket.end();
       }
@@ -296,7 +296,6 @@ class RuntimeConnection {
   };
 
   sendInputs = (_event: IpcMainEvent, data: protos.Input[], source: protos.Source) => {
-    console.log('went to send inputs');
     if (data.length === 0) {
       data.push(
         protos.Input.create({
