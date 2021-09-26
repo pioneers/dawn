@@ -33,7 +33,7 @@
     "lint": "eslint '*/**/*.ts?(x)'",
     "lintfix": "eslint '*/**/*.ts?(x)' --fix",
     "postinstall": "patch-package",
-    "build-protos": "pbjs -t static-module -w es6 -o protos-main/protos.js protos/*.proto && pbts -o protos-main/protos.d.ts protos-main/protos.js ",
+    "build-protos": "pbjs -t static-module -w es6 -o protos-main/protos.js protos-main/protos/*.proto && pbts -o protos-main/protos.d.ts protos-main/protos.js ",
     "watch": "webpack --mode development --watch --progress",
     "test": "mocha --require babel-core/register --recursive renderer/**/test/*.test.js",
     "release": "yarn build && ts-node release.ts",
