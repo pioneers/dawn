@@ -95,10 +95,10 @@ export const AppComponent = (props: Props) => {
 
   const { runtimeStatus, masterStatus, connectionStatus, isRunningCode } = props;
 
-  const bsPrefix = props.globalTheme === 'dark' ? 'text-light bg-dark ' : ''; // mind the space at the end
+  const bsPrefix = props.globalTheme === 'dark' ? 'text-light bg-dark' : '';
 
   return (
-    <div className={bsPrefix + 'mt-4'}>
+    <div className={`${bsPrefix} mt-4`.trim()}>
       <DNav
         startTour={startTour}
         runtimeStatus={runtimeStatus}

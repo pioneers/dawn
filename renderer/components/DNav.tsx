@@ -52,15 +52,15 @@ const DNavComponent = (props: Props) => {
     return `Dawn v${VERSION}`;
   };
 
-  const getLatencyThresholdColor = (latency : number) => {
+  const getLatencyThresholdColor = (latency: number) => {
     if (latency <= LOW_LATENCY_THRESHOLD_MSEC) {
-      return "success"
+      return 'success';
     } else if (latency > LOW_LATENCY_THRESHOLD_MSEC && latency < HIGH_LATENCY_THRESHOLD_MSEC) {
-      return "warning"
+      return 'warning';
     } else {
-      return "danger"
+      return 'danger';
     }
-  }
+  };
 
   const formatLatencyValue = (latency: number) => {
     if (latency > MSEC_IN_ONE_SECOND) {
@@ -69,7 +69,7 @@ const DNavComponent = (props: Props) => {
     }
 
     return `${latency} ms`;
-  }
+  };
 
   const {
     connectionStatus,
@@ -84,22 +84,11 @@ const DNavComponent = (props: Props) => {
     blueMasterTeamNumber,
     goldMasterTeamNumber,
     fieldControlStatus,
-    startTour,
+    startTour
   } = props;
 
-  /**
-   * 4.21.2021
-   * DELETE THIS COMMENT BLOCK IF THIS WORKS
-   * (lines: 98, 101) Navbar.Header replaced with: Navbar
-   * (lines: 124, 156) Navbar.Form pullRight replaced with: Navbar
-   */
-
   return (
-    <Navbar 
-      fixed={"top"} 
-      bg={props.globalTheme === 'dark' ? 'dark' : 'light'} 
-      variant={props.globalTheme === 'dark' ? 'dark' : 'light'}
-      >
+    <Navbar fixed={'top'} bg={props.globalTheme === 'dark' ? 'dark' : 'light'} variant={props.globalTheme === 'dark' ? 'dark' : 'light'}>
       <UpdateBox
         isRunningCode={isRunningCode}
         connectionStatus={connectionStatus}
@@ -109,7 +98,13 @@ const DNavComponent = (props: Props) => {
         ipAddress={ipAddress}
         hide={() => toggleUpdateModal(!showUpdateModal)}
       />
-      <ConfigBox shouldShow={showConfigModal} ipAddress={ipAddress} udpTunnelAddress={udpTunnelAddress} sshAddress={sshAddress} hide={() => toggleConfigModal(!showConfigModal)} />
+      <ConfigBox
+        shouldShow={showConfigModal}
+        ipAddress={ipAddress}
+        udpTunnelAddress={udpTunnelAddress}
+        sshAddress={sshAddress}
+        hide={() => toggleConfigModal(!showConfigModal)}
+      />
       <Navbar>
         <Navbar.Brand id="header-title">{createHeader()}</Navbar.Brand>
         <Navbar.Toggle />
@@ -134,9 +129,10 @@ const DNavComponent = (props: Props) => {
           />
         </Navbar.Text>
         <Navbar.Text id="Latency">
-          <Badge variant={getLatencyThresholdColor(props.latencyValue)}>{`Latency: ${props.latencyValue}`}</Badge>
+          <Badge variant={getLatencyThresholdColor(props.latencyValue)}>{`Latency: ${formatLatencyValue(props.latencyValue)}`}</Badge>
         </Navbar.Text>
-        <Navbar>
+        {/* Adding ml-auto aligns the nav bar to the right */}
+        <Navbar className="ml-auto">
           <ButtonToolbar>
             <ButtonGroup>
               <TooltipButton
@@ -185,7 +181,7 @@ const mapStateToProps = (state: ApplicationState) => ({
   fieldControlStatus: state.fieldStore.fieldControl,
   runtimeVersion: state.peripherals.runtimeVersion,
   latencyValue: state.editor.latencyValue,
-  globalTheme: state.settings.globalTheme,
+  globalTheme: state.settings.globalTheme
 });
 
 export const DNav = connect(mapStateToProps)(DNavComponent);

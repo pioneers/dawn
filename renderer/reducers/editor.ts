@@ -18,6 +18,7 @@ import {
   InitiateLatencyCheck,
   SetLatencyValue
 } from '../types';
+import { correctText } from '../utils/utils';
 
 type Actions =
   | EditorUpdateAction
@@ -58,7 +59,7 @@ export const editor = (state: EditorState = defaultEditorState, action: Actions)
     case consts.EditorActionsTypes.UPDATE_EDITOR:
       return {
         ...state,
-        editorCode: action.code,
+        editorCode: correctText(action.code),
       };
     case consts.EditorActionsTypes.OPEN_FILE_SUCCEEDED:
       return {
