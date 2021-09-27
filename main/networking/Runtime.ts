@@ -1,6 +1,6 @@
 import { Socket as TCPSocket } from 'net';
 import { ipcMain, IpcMainEvent } from 'electron';
-import * as protos from '../../protos/protos';
+import * as protos from '../../protos-main';
 
 import RendererBridge from '../RendererBridge';
 import { updateConsole } from '../../renderer/actions/ConsoleActions';
@@ -193,6 +193,7 @@ class RuntimeConnection {
             decoded = protos.Text.decode(packet.payload);
             RendererBridge.reduxDispatch(updateConsole(decoded.payload));
             break;
+
           case MsgType.TIME_STAMPS:
             decoded = protos.TimeStamps.decode(packet.payload);
             const oneWayLatency = (Date.now() - Number(decoded.dawnTimestamp)) / 2;
@@ -200,6 +201,7 @@ class RuntimeConnection {
             // TODO: we can probably do an average of n timestamps so the display doesn't change too frequently
             RendererBridge.reduxDispatch(setLatencyValue(oneWayLatency));
             break;
+
           case MsgType.DEVICE_DATA:
             try {
               RendererBridge.reduxDispatch(infoPerMessage());
@@ -216,6 +218,9 @@ class RuntimeConnection {
               this.logger.log(err);
             }
             break;
+
+          default:
+            this.logger.log(`Unsupported received message type: ${packet.type}`)
         }
       }
 
