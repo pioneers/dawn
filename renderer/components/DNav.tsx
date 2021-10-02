@@ -15,7 +15,6 @@ interface StateProps {
   blueMasterTeamNumber: number;
   goldMasterTeamNumber: number;
   ipAddress: string;
-  udpTunnelAddress: string;
   sshAddress: string;
   fieldControlStatus: boolean;
   latencyValue: number;
@@ -77,7 +76,6 @@ const DNavComponent = (props: Props) => {
     masterStatus,
     isRunningCode,
     ipAddress,
-    udpTunnelAddress,
     sshAddress,
     runtimeVersion,
     codeStatus,
@@ -101,7 +99,6 @@ const DNavComponent = (props: Props) => {
       <ConfigBox
         shouldShow={showConfigModal}
         ipAddress={ipAddress}
-        udpTunnelAddress={udpTunnelAddress}
         sshAddress={sshAddress}
         hide={() => toggleConfigModal(!showConfigModal)}
       />
@@ -178,7 +175,6 @@ const mapStateToProps = (state: ApplicationState) => ({
   codeStatus: state.info.studentCodeStatus,
   heart: state.fieldStore.heart,
   ipAddress: state.info.ipAddress,
-  udpTunnelAddress: state.info.udpTunnelIpAddress,
   sshAddress: state.info.sshAddress,
   fieldControlStatus: state.fieldStore.fieldControl,
   runtimeVersion: state.peripherals.runtimeVersion,

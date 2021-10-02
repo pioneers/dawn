@@ -38,7 +38,6 @@ export {
   RuntimeDisconnectAction,
   UpdateCodeStatusAction,
   IpChangeAction,
-  UDPTunnelIpChangeAction,
   SSHIpChangeAction,
   NotificationChangeAction,
 } from './info-actions';
