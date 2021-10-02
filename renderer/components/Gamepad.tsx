@@ -89,7 +89,7 @@ export const Gamepad = (props: Props) => {
               <tr>
                 <th>Value</th>
                 {_.range(NUM_GAMEPAD_AXES).map((gamepadButtonAxis: number) => (
-                  <td>{values.buttons[gamepadButtonAxis]}</td>
+                  <td>{values.axes[gamepadButtonAxis]}</td>
                 ))}
               </tr>
             </tbody>
