@@ -121,7 +121,6 @@ function createPacket(payload: unknown, messageType: MsgType): Buffer {
       encodedPayload = protos.TimeStamps.encode(payload as protos.ITimeStamps).finish();
       break;
     case MsgType.INPUTS:
-      // Special case for 2021 competition where Input data is sent over tunneled TCP connection
       encodedPayload = protos.UserInputs.encode({ inputs: payload as protos.Input[] }).finish();
       break;
     default:
@@ -207,7 +206,15 @@ class RuntimeConnection {
               RendererBridge.reduxDispatch(infoPerMessage());
               const sensorData: protos.Device[] = protos.DevData.decode(packet.payload).devices;
               const peripherals: Peripheral[] = [];
+
+              // Need to convert protos.Device to Peripheral here because when dispatching to the renderer over IPC,
+              // some of the inner properties (i.e. device.uid which is a Long) loses its prototype, which means any
+              // data we are sending over through IPC should be serializable.
+              // https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
               sensorData.forEach((device) => {
+                // There is a weird bug that happens with the protobufs decoding when device.type is specifically 0
+                // where the property can be accessed but when trying to view object contents, the property doesn't exist.
+                // Below is a way to get around this problem.
                 if (device.type.toString() === '0') {
                   device.type = 0;
                 }
@@ -310,8 +317,10 @@ class RuntimeConnection {
       );
     }
     const message = createPacket(data, MsgType.INPUTS);
-    this.socket.write(message, () => {
-      this.logger.log(`Inputs sent: ${JSON.stringify(data)}`);
+    this.socket.write(message, (err?: Error) => {
+      if (err !== undefined) {
+        this.logger.log(`Error when sending inputs: ${JSON.stringify(err)}`);
+      }
     });
   };
 
