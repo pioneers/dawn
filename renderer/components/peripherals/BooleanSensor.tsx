@@ -2,7 +2,7 @@
 import React from 'react';
 import _ from 'lodash';
 import { PeripheralTypes } from '../../consts';
-import { Param, Device } from '../../../protos/protos';
+import { Param, Device } from '../../../protos-main';
 
 /**
  * Boolean Sensor Component
