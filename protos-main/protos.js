@@ -106,7 +106,7 @@ export const Param = $root.Param = (() => {
      * @function encode
      * @memberof Param
      * @static
-     * @param {IParam} message Param message or plain object to encode
+     * @param {Param} message Param message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
@@ -131,7 +131,7 @@ export const Param = $root.Param = (() => {
      * @function encodeDelimited
      * @memberof Param
      * @static
-     * @param {IParam} message Param message or plain object to encode
+     * @param {Param} message Param message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
@@ -323,7 +323,7 @@ export const Device = $root.Device = (() => {
      * @property {string|null} [name] Device name
      * @property {number|Long|null} [uid] Device uid
      * @property {number|null} [type] Device type
-     * @property {Array.<IParam>|null} [params] Device params
+     * @property {Array.<Param>|null} [params] Device params
      */
 
     /**
@@ -368,7 +368,7 @@ export const Device = $root.Device = (() => {
 
     /**
      * Device params.
-     * @member {Array.<IParam>} params
+     * @member {Array.<Param>} params
      * @memberof Device
      * @instance
      */
@@ -391,7 +391,7 @@ export const Device = $root.Device = (() => {
      * @function encode
      * @memberof Device
      * @static
-     * @param {IDevice} message Device message or plain object to encode
+     * @param {Device} message Device message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
@@ -415,7 +415,7 @@ export const Device = $root.Device = (() => {
      * @function encodeDelimited
      * @memberof Device
      * @static
-     * @param {IDevice} message Device message or plain object to encode
+     * @param {Device} message Device message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
@@ -610,7 +610,7 @@ export const DevData = $root.DevData = (() => {
      * Properties of a DevData.
      * @exports IDevData
      * @interface IDevData
-     * @property {Array.<IDevice>|null} [devices] DevData devices
+     * @property {Array.<Device>|null} [devices] DevData devices
      */
 
     /**
@@ -631,7 +631,7 @@ export const DevData = $root.DevData = (() => {
 
     /**
      * DevData devices.
-     * @member {Array.<IDevice>} devices
+     * @member {Array.<Device>} devices
      * @memberof DevData
      * @instance
      */
@@ -654,7 +654,7 @@ export const DevData = $root.DevData = (() => {
      * @function encode
      * @memberof DevData
      * @static
-     * @param {IDevData} message DevData message or plain object to encode
+     * @param {DevData} message DevData message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
@@ -672,7 +672,7 @@ export const DevData = $root.DevData = (() => {
      * @function encodeDelimited
      * @memberof DevData
      * @static
-     * @param {IDevData} message DevData message or plain object to encode
+     * @param {DevData} message DevData message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
@@ -879,7 +879,7 @@ export const GameState = $root.GameState = (() => {
      * @function encode
      * @memberof GameState
      * @static
-     * @param {IGameState} message GameState message or plain object to encode
+     * @param {GameState} message GameState message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
@@ -896,7 +896,7 @@ export const GameState = $root.GameState = (() => {
      * @function encodeDelimited
      * @memberof GameState
      * @static
-     * @param {IGameState} message GameState message or plain object to encode
+     * @param {GameState} message GameState message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
@@ -1131,7 +1131,7 @@ export const Input = $root.Input = (() => {
      * @function encode
      * @memberof Input
      * @static
-     * @param {IInput} message Input message or plain object to encode
+     * @param {Input} message Input message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
@@ -1158,7 +1158,7 @@ export const Input = $root.Input = (() => {
      * @function encodeDelimited
      * @memberof Input
      * @static
-     * @param {IInput} message Input message or plain object to encode
+     * @param {Input} message Input message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
@@ -1366,7 +1366,7 @@ export const UserInputs = $root.UserInputs = (() => {
      * Properties of a UserInputs.
      * @exports IUserInputs
      * @interface IUserInputs
-     * @property {Array.<IInput>|null} [inputs] UserInputs inputs
+     * @property {Array.<Input>|null} [inputs] UserInputs inputs
      */
 
     /**
@@ -1387,7 +1387,7 @@ export const UserInputs = $root.UserInputs = (() => {
 
     /**
      * UserInputs inputs.
-     * @member {Array.<IInput>} inputs
+     * @member {Array.<Input>} inputs
      * @memberof UserInputs
      * @instance
      */
@@ -1410,7 +1410,7 @@ export const UserInputs = $root.UserInputs = (() => {
      * @function encode
      * @memberof UserInputs
      * @static
-     * @param {IUserInputs} message UserInputs message or plain object to encode
+     * @param {UserInputs} message UserInputs message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
@@ -1428,7 +1428,7 @@ export const UserInputs = $root.UserInputs = (() => {
      * @function encodeDelimited
      * @memberof UserInputs
      * @static
-     * @param {IUserInputs} message UserInputs message or plain object to encode
+     * @param {UserInputs} message UserInputs message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
@@ -1635,7 +1635,7 @@ export const RunMode = $root.RunMode = (() => {
      * @function encode
      * @memberof RunMode
      * @static
-     * @param {IRunMode} message RunMode message or plain object to encode
+     * @param {RunMode} message RunMode message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
@@ -1652,7 +1652,7 @@ export const RunMode = $root.RunMode = (() => {
      * @function encodeDelimited
      * @memberof RunMode
      * @static
-     * @param {IRunMode} message RunMode message or plain object to encode
+     * @param {RunMode} message RunMode message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
@@ -1881,7 +1881,7 @@ export const RuntimeStatus = $root.RuntimeStatus = (() => {
      * @function encode
      * @memberof RuntimeStatus
      * @static
-     * @param {IRuntimeStatus} message RuntimeStatus message or plain object to encode
+     * @param {RuntimeStatus} message RuntimeStatus message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
@@ -1906,7 +1906,7 @@ export const RuntimeStatus = $root.RuntimeStatus = (() => {
      * @function encodeDelimited
      * @memberof RuntimeStatus
      * @static
-     * @param {IRuntimeStatus} message RuntimeStatus message or plain object to encode
+     * @param {RuntimeStatus} message RuntimeStatus message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
@@ -2158,7 +2158,7 @@ export const StartPos = $root.StartPos = (() => {
      * @function encode
      * @memberof StartPos
      * @static
-     * @param {IStartPos} message StartPos message or plain object to encode
+     * @param {StartPos} message StartPos message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
@@ -2175,7 +2175,7 @@ export const StartPos = $root.StartPos = (() => {
      * @function encodeDelimited
      * @memberof StartPos
      * @static
-     * @param {IStartPos} message StartPos message or plain object to encode
+     * @param {StartPos} message StartPos message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
@@ -2359,7 +2359,7 @@ export const Text = $root.Text = (() => {
      * @function encode
      * @memberof Text
      * @static
-     * @param {IText} message Text message or plain object to encode
+     * @param {Text} message Text message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
@@ -2377,7 +2377,7 @@ export const Text = $root.Text = (() => {
      * @function encodeDelimited
      * @memberof Text
      * @static
-     * @param {IText} message Text message or plain object to encode
+     * @param {Text} message Text message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
@@ -2570,7 +2570,7 @@ export const TimeStamps = $root.TimeStamps = (() => {
      * @function encode
      * @memberof TimeStamps
      * @static
-     * @param {ITimeStamps} message TimeStamps message or plain object to encode
+     * @param {TimeStamps} message TimeStamps message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
@@ -2589,7 +2589,7 @@ export const TimeStamps = $root.TimeStamps = (() => {
      * @function encodeDelimited
      * @memberof TimeStamps
      * @static
-     * @param {ITimeStamps} message TimeStamps message or plain object to encode
+     * @param {TimeStamps} message TimeStamps message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */

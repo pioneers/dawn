@@ -109,16 +109,16 @@ function createPacket(payload: unknown, messageType: MsgType): Buffer {
 
   switch (messageType) {
     case MsgType.DEVICE_DATA:
-      encodedPayload = protos.DevData.encode(payload as protos.IDevData).finish();
+      encodedPayload = protos.DevData.encode(protos.DevData.create(payload as protos.IDevData)).finish();
       break;
     case MsgType.RUN_MODE:
-      encodedPayload = protos.RunMode.encode(payload as protos.IRunMode).finish();
+      encodedPayload = protos.RunMode.encode(protos.RunMode.create(payload as protos.IRunMode)).finish();
       break;
     case MsgType.START_POS:
-      encodedPayload = protos.StartPos.encode(payload as protos.IStartPos).finish();
+      encodedPayload = protos.StartPos.encode(protos.StartPos.create(payload as protos.IStartPos)).finish();
       break;
     case MsgType.TIME_STAMPS:
-      encodedPayload = protos.TimeStamps.encode(payload as protos.ITimeStamps).finish();
+      encodedPayload = protos.TimeStamps.encode(protos.TimeStamps.create(payload as protos.ITimeStamps)).finish();
       break;
     case MsgType.INPUTS:
       encodedPayload = protos.UserInputs.encode(
