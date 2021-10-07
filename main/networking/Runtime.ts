@@ -121,7 +121,9 @@ function createPacket(payload: unknown, messageType: MsgType): Buffer {
       encodedPayload = protos.TimeStamps.encode(payload as protos.ITimeStamps).finish();
       break;
     case MsgType.INPUTS:
-      encodedPayload = protos.UserInputs.encode({ inputs: payload as protos.Input[] }).finish();
+      encodedPayload = protos.UserInputs.encode(
+        protos.UserInputs.create({ inputs: payload as protos.Input[] } as protos.IUserInputs)
+      ).finish();
       break;
     default:
       console.log('ERROR: trying to create TCP Packet with unknown message type');
