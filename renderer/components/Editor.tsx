@@ -271,7 +271,7 @@ export const Editor = (props: Props) => {
   const toolTipColor: string = (props.globalTheme === 'dark' ? 'white' : 'black');
 
   return (
-    <Card bg={props.globalTheme === 'dark' ? 'dark' : 'light'} text={props.globalTheme === 'dark' ? 'light' : 'dark'}>
+    <Card bg={props.globalTheme === 'dark' ? 'dark' : 'light'} text={props.globalTheme === 'dark' ? 'light' : 'dark'} border={props.globalTheme === 'dark' ? 'light' : 'dark'}>
       <Card.Header>
         <Card.Title style={{ fontSize: '14px' }}>
           Editing: {pathToName(props.filepath) ? pathToName(props.filepath) : '[ New File ]'} {changeMarker}

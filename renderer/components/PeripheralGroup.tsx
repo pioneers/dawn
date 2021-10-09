@@ -35,12 +35,12 @@ const PeripheralGroup = (props: PGProps) => {
     return (
       <Card key={`${groupNameCleaned || 'Default'}-Card`}>
         <Card.Header>
-          <Card.Title onClick={() => setOut(!out)} style={{ fontWeight: 'bold' }}>
+          <Card.Title onClick={() => setOut(!out)} style={{ fontWeight: 'bold', color: 'black'}}>
             {groupName || 'Generic'}
           </Card.Title>
         </Card.Header>
         <Collapse in={!out}>
-          <Card.Body style={{ padding: '10px' }}>
+          <Card.Body style={{ padding: '10px', color: 'black'}}>
             {_.map(peripherals, (peripheral: Peripheral) => (
               <PeripheralComponent
                 key={peripheral.uid}

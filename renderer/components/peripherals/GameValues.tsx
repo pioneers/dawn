@@ -16,7 +16,7 @@ export const GameValues = ({
     {
       _.map(params, obj => (
         <div key={`${obj.name}-${name}-Overall`}>
-          <h4 style={{ clear: 'right', float: 'right', height: '10px' }} key={`${obj.name}-${name}`} >
+          <h4 style={{ clear: 'right', float: 'right'}} key={`${obj.name}-${name}`} >
             {obj.ival}
           </h4>
         </div>
