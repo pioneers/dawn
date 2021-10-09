@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { keyboardButtons } from '../../consts';
 
 interface Props {
@@ -10,6 +10,8 @@ interface Props {
 export const useKeyboardMode = (props: Props) => {
   const [isKeyboardModeToggled, setIsKeyboardModeToggled] = useState(false);
   const [keyboardBitmap, setKeyboardBitmap] = useState(0);
+  const keyboardBitmapRef = useRef(0);
+  keyboardBitmapRef.current = keyboardBitmap;
 
   // toggle keyboard control and add/remove listening for key presses to control robot
   const toggleKeyboardControl = () => {
@@ -25,6 +27,7 @@ export const useKeyboardMode = (props: Props) => {
     } else {
       window.removeEventListener('keydown', turnCharacterOn);
       window.removeEventListener('keyup', turnCharacterOff);
+      setKeyboardBitmap(0);
     }
 
     return () => {
@@ -39,7 +42,7 @@ export const useKeyboardMode = (props: Props) => {
 
   const updateKeyboardBitmap = useCallback((currentCharacter: string, isKeyPressed: boolean) => {
     const keyboardNum = keyboardButtons[currentCharacter] as number;
-    let newKeyboardBitmap: number = keyboardBitmap;
+    let newKeyboardBitmap: number = keyboardBitmapRef.current;
 
     const shift = bitShiftLeft(1, keyboardNum);
     const MAX_INT32_BITS = 2147483648; // 2^31
@@ -56,7 +59,7 @@ export const useKeyboardMode = (props: Props) => {
     }
 
     setKeyboardBitmap(newKeyboardBitmap);
-    props.onUpdateKeyboardBitmap(keyboardBitmap);
+    props.onUpdateKeyboardBitmap(newKeyboardBitmap);
   }, []);
 
   const turnCharacterOff = useCallback(
@@ -68,7 +71,12 @@ export const useKeyboardMode = (props: Props) => {
 
   const turnCharacterOn = useCallback(
     (e: KeyboardEvent) => {
-      updateKeyboardBitmap(e.key, true);
+      // Handle special ctrl + q edge case
+      if (e.ctrlKey && e.key === 'q') {
+        setIsKeyboardModeToggled(false);
+      } else {
+        updateKeyboardBitmap(e.key, true);
+      }
     },
     [updateKeyboardBitmap]
   );
