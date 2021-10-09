@@ -21,16 +21,16 @@ cleanerNames[PeripheralTypes.GameValues] = 'Game Values';
 cleanerNames[PeripheralTypes.PolarBear] = 'Polar Bear';
 cleanerNames[PeripheralTypes.KoalaBear] = 'Koala Bear';
 
-interface PGProps {
-    peripherals: Peripheral[],
-    groupName: string,
+interface PeripheralGroupProps {
+  peripherals: Peripheral[];
+  groupName: string;
 }
 
-const PeripheralGroup = (props: PGProps) => {
-    const [out, setOut] = useState(true); // controls toggle
+const PeripheralGroup = (props: PeripheralGroupProps) => {
+  const [out, setOut] = useState(false); // controls toggle
 
-    const { peripherals, groupName } = props;
-    const groupNameCleaned = groupName; //cleanerNames[groupName] as string;
+  const { peripherals, groupName } = props;
+  const groupNameCleaned = groupName; //cleanerNames[groupName] as string;
 
     return (
       <Card key={`${groupNameCleaned || 'Default'}-Card`}>

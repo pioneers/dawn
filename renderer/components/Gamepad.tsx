@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Button, ListGroupItem, Table } from 'react-bootstrap';
 import _ from 'lodash';
 import numeral from 'numeral';
-import { Input } from '../../protos/protos';
+import { Input } from '../../protos-main';
 
 interface OwnProps {
   gamepad: Input;
@@ -89,7 +89,7 @@ export const Gamepad = (props: Props) => {
               <tr>
                 <th>Value</th>
                 {_.range(NUM_GAMEPAD_AXES).map((gamepadButtonAxis: number) => (
-                  <td>{values.buttons[gamepadButtonAxis]}</td>
+                  <td>{values.axes[gamepadButtonAxis]}</td>
                 ))}
               </tr>
             </tbody>

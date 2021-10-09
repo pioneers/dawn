@@ -13,6 +13,9 @@ export interface IParam {
 
     /** Param bval */
     bval?: (boolean|null);
+
+    /** Param readonly */
+    readonly?: (boolean|null);
 }
 
 /** Represents a Param. */
@@ -35,6 +38,9 @@ export class Param implements IParam {
 
     /** Param bval. */
     public bval: boolean;
+
+    /** Param readonly. */
+    public readonly: boolean;
 
     /** Param val. */
     public val?: ("fval"|"ival"|"bval");
@@ -308,6 +314,110 @@ export class DevData implements IDevData {
     public toJSON(): { [k: string]: any };
 }
 
+/** State enum. */
+export enum State {
+    POISON_IVY = 0,
+    DEHYDRATION = 1,
+    HYPOTHERMIA_START = 2,
+    HYPOTHERMIA_END = 3
+}
+
+/** Properties of a GameState. */
+export interface IGameState {
+
+    /** GameState state */
+    state?: (State|null);
+}
+
+/** Represents a GameState. */
+export class GameState implements IGameState {
+
+    /**
+     * Constructs a new GameState.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: IGameState);
+
+    /** GameState state. */
+    public state: State;
+
+    /**
+     * Creates a new GameState instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns GameState instance
+     */
+    public static create(properties?: IGameState): GameState;
+
+    /**
+     * Encodes the specified GameState message. Does not implicitly {@link GameState.verify|verify} messages.
+     * @param message GameState message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: IGameState, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified GameState message, length delimited. Does not implicitly {@link GameState.verify|verify} messages.
+     * @param message GameState message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: IGameState, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a GameState message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns GameState
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): GameState;
+
+    /**
+     * Decodes a GameState message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns GameState
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): GameState;
+
+    /**
+     * Verifies a GameState message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a GameState message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns GameState
+     */
+    public static fromObject(object: { [k: string]: any }): GameState;
+
+    /**
+     * Creates a plain object from a GameState message. Also converts values to other types if specified.
+     * @param message GameState
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: GameState, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this GameState to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+}
+
+/** Source enum. */
+export enum Source {
+    GAMEPAD = 0,
+    KEYBOARD = 1
+}
+
 /** Properties of an Input. */
 export interface IInput {
 
@@ -506,19 +616,12 @@ export class UserInputs implements IUserInputs {
     public toJSON(): { [k: string]: any };
 }
 
-/** Source enum. */
-export enum Source {
-    GAMEPAD = 0,
-    KEYBOARD = 1
-}
-
 /** Mode enum. */
 export enum Mode {
     IDLE = 0,
     AUTO = 1,
     TELEOP = 2,
-    ESTOP = 3,
-    CHALLENGE = 4
+    ESTOP = 3
 }
 
 /** Properties of a RunMode. */
@@ -606,6 +709,120 @@ export class RunMode implements IRunMode {
 
     /**
      * Converts this RunMode to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+}
+
+/** Properties of a RuntimeStatus. */
+export interface IRuntimeStatus {
+
+    /** RuntimeStatus shepConnected */
+    shepConnected?: (boolean|null);
+
+    /** RuntimeStatus dawnConnected */
+    dawnConnected?: (boolean|null);
+
+    /** RuntimeStatus mode */
+    mode?: (Mode|null);
+
+    /** RuntimeStatus battery */
+    battery?: (number|null);
+
+    /** RuntimeStatus version */
+    version?: (string|null);
+}
+
+/** Represents a RuntimeStatus. */
+export class RuntimeStatus implements IRuntimeStatus {
+
+    /**
+     * Constructs a new RuntimeStatus.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: IRuntimeStatus);
+
+    /** RuntimeStatus shepConnected. */
+    public shepConnected: boolean;
+
+    /** RuntimeStatus dawnConnected. */
+    public dawnConnected: boolean;
+
+    /** RuntimeStatus mode. */
+    public mode: Mode;
+
+    /** RuntimeStatus battery. */
+    public battery: number;
+
+    /** RuntimeStatus version. */
+    public version: string;
+
+    /**
+     * Creates a new RuntimeStatus instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns RuntimeStatus instance
+     */
+    public static create(properties?: IRuntimeStatus): RuntimeStatus;
+
+    /**
+     * Encodes the specified RuntimeStatus message. Does not implicitly {@link RuntimeStatus.verify|verify} messages.
+     * @param message RuntimeStatus message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: IRuntimeStatus, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified RuntimeStatus message, length delimited. Does not implicitly {@link RuntimeStatus.verify|verify} messages.
+     * @param message RuntimeStatus message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: IRuntimeStatus, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a RuntimeStatus message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns RuntimeStatus
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): RuntimeStatus;
+
+    /**
+     * Decodes a RuntimeStatus message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns RuntimeStatus
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): RuntimeStatus;
+
+    /**
+     * Verifies a RuntimeStatus message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a RuntimeStatus message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns RuntimeStatus
+     */
+    public static fromObject(object: { [k: string]: any }): RuntimeStatus;
+
+    /**
+     * Creates a plain object from a RuntimeStatus message. Also converts values to other types if specified.
+     * @param message RuntimeStatus
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: RuntimeStatus, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this RuntimeStatus to JSON.
      * @returns JSON object
      */
     public toJSON(): { [k: string]: any };
