@@ -14,8 +14,14 @@ import { addAsyncAlert } from '../actions/AlertActions';
 import { openFileSucceeded, saveFileSucceeded } from '../actions/EditorActions';
 import { toggleFieldControl } from '../actions/FieldActions';
 import { updateGamepads } from '../actions/GamepadsActions';
+<<<<<<< HEAD
 import { defaults, logging } from '../utils/utils';
 import { Input, Source, TimeStamps } from '../../protos/protos';
+=======
+import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
+import { TIMEOUT, defaults, logging } from '../utils/utils';
+import { Input, Source, TimeStamps } from '../../protos-main';
+>>>>>>> dev
 
 let timestamp = Date.now();
 

@@ -17,6 +17,7 @@ export const Param = $root.Param = (() => {
      * @property {number|null} [fval] Param fval
      * @property {number|null} [ival] Param ival
      * @property {boolean|null} [bval] Param bval
+     * @property {boolean|null} [readonly] Param readonly
      */
 
     /**
@@ -66,6 +67,14 @@ export const Param = $root.Param = (() => {
      */
     Param.prototype.bval = false;
 
+    /**
+     * Param readonly.
+     * @member {boolean} readonly
+     * @memberof Param
+     * @instance
+     */
+    Param.prototype.readonly = false;
+
     // OneOf field names bound to virtual getters and setters
     let $oneOfFields;
 
@@ -112,6 +121,8 @@ export const Param = $root.Param = (() => {
             writer.uint32(/* id 3, wireType 0 =*/24).int32(message.ival);
         if (message.bval != null && Object.hasOwnProperty.call(message, "bval"))
             writer.uint32(/* id 4, wireType 0 =*/32).bool(message.bval);
+        if (message.readonly != null && Object.hasOwnProperty.call(message, "readonly"))
+            writer.uint32(/* id 5, wireType 0 =*/40).bool(message.readonly);
         return writer;
     };
 
@@ -157,6 +168,9 @@ export const Param = $root.Param = (() => {
                 break;
             case 4:
                 message.bval = reader.bool();
+                break;
+            case 5:
+                message.readonly = reader.bool();
                 break;
             default:
                 reader.skipType(tag & 7);
@@ -216,6 +230,9 @@ export const Param = $root.Param = (() => {
             if (typeof message.bval !== "boolean")
                 return "bval: boolean expected";
         }
+        if (message.readonly != null && message.hasOwnProperty("readonly"))
+            if (typeof message.readonly !== "boolean")
+                return "readonly: boolean expected";
         return null;
     };
 
@@ -239,6 +256,8 @@ export const Param = $root.Param = (() => {
             message.ival = object.ival | 0;
         if (object.bval != null)
             message.bval = Boolean(object.bval);
+        if (object.readonly != null)
+            message.readonly = Boolean(object.readonly);
         return message;
     };
 
@@ -255,8 +274,10 @@ export const Param = $root.Param = (() => {
         if (!options)
             options = {};
         let object = {};
-        if (options.defaults)
+        if (options.defaults) {
             object.name = "";
+            object.readonly = false;
+        }
         if (message.name != null && message.hasOwnProperty("name"))
             object.name = message.name;
         if (message.fval != null && message.hasOwnProperty("fval")) {
@@ -274,6 +295,8 @@ export const Param = $root.Param = (() => {
             if (options.oneofs)
                 object.val = "bval";
         }
+        if (message.readonly != null && message.hasOwnProperty("readonly"))
+            object.readonly = message.readonly;
         return object;
     };
 
@@ -380,7 +403,7 @@ export const Device = $root.Device = (() => {
         if (message.uid != null && Object.hasOwnProperty.call(message, "uid"))
             writer.uint32(/* id 2, wireType 0 =*/16).uint64(message.uid);
         if (message.type != null && Object.hasOwnProperty.call(message, "type"))
-            writer.uint32(/* id 3, wireType 0 =*/24).int32(message.type);
+            writer.uint32(/* id 3, wireType 0 =*/24).uint32(message.type);
         if (message.params != null && message.params.length)
             for (let i = 0; i < message.params.length; ++i)
                 $root.Param.encode(message.params[i], writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
@@ -425,7 +448,7 @@ export const Device = $root.Device = (() => {
                 message.uid = reader.uint64();
                 break;
             case 3:
-                message.type = reader.int32();
+                message.type = reader.uint32();
                 break;
             case 4:
                 if (!(message.params && message.params.length))
@@ -512,7 +535,7 @@ export const Device = $root.Device = (() => {
             else if (typeof object.uid === "object")
                 message.uid = new $util.LongBits(object.uid.low >>> 0, object.uid.high >>> 0).toNumber(true);
         if (object.type != null)
-            message.type = object.type | 0;
+            message.type = object.type >>> 0;
         if (object.params) {
             if (!Array.isArray(object.params))
                 throw TypeError(".Device.params: array expected");
@@ -787,6 +810,248 @@ export const DevData = $root.DevData = (() => {
     };
 
     return DevData;
+})();
+
+/**
+ * State enum.
+ * @exports State
+ * @enum {number}
+ * @property {number} POISON_IVY=0 POISON_IVY value
+ * @property {number} DEHYDRATION=1 DEHYDRATION value
+ * @property {number} HYPOTHERMIA_START=2 HYPOTHERMIA_START value
+ * @property {number} HYPOTHERMIA_END=3 HYPOTHERMIA_END value
+ */
+export const State = $root.State = (() => {
+    const valuesById = {}, values = Object.create(valuesById);
+    values[valuesById[0] = "POISON_IVY"] = 0;
+    values[valuesById[1] = "DEHYDRATION"] = 1;
+    values[valuesById[2] = "HYPOTHERMIA_START"] = 2;
+    values[valuesById[3] = "HYPOTHERMIA_END"] = 3;
+    return values;
+})();
+
+export const GameState = $root.GameState = (() => {
+
+    /**
+     * Properties of a GameState.
+     * @exports IGameState
+     * @interface IGameState
+     * @property {State|null} [state] GameState state
+     */
+
+    /**
+     * Constructs a new GameState.
+     * @exports GameState
+     * @classdesc Represents a GameState.
+     * @implements IGameState
+     * @constructor
+     * @param {IGameState=} [properties] Properties to set
+     */
+    function GameState(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * GameState state.
+     * @member {State} state
+     * @memberof GameState
+     * @instance
+     */
+    GameState.prototype.state = 0;
+
+    /**
+     * Creates a new GameState instance using the specified properties.
+     * @function create
+     * @memberof GameState
+     * @static
+     * @param {IGameState=} [properties] Properties to set
+     * @returns {GameState} GameState instance
+     */
+    GameState.create = function create(properties) {
+        return new GameState(properties);
+    };
+
+    /**
+     * Encodes the specified GameState message. Does not implicitly {@link GameState.verify|verify} messages.
+     * @function encode
+     * @memberof GameState
+     * @static
+     * @param {IGameState} message GameState message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    GameState.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.state != null && Object.hasOwnProperty.call(message, "state"))
+            writer.uint32(/* id 1, wireType 0 =*/8).int32(message.state);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified GameState message, length delimited. Does not implicitly {@link GameState.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof GameState
+     * @static
+     * @param {IGameState} message GameState message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    GameState.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes a GameState message from the specified reader or buffer.
+     * @function decode
+     * @memberof GameState
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {GameState} GameState
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    GameState.decode = function decode(reader, length) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.GameState();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            switch (tag >>> 3) {
+            case 1:
+                message.state = reader.int32();
+                break;
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes a GameState message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof GameState
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {GameState} GameState
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    GameState.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies a GameState message.
+     * @function verify
+     * @memberof GameState
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    GameState.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.state != null && message.hasOwnProperty("state"))
+            switch (message.state) {
+            default:
+                return "state: enum value expected";
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+                break;
+            }
+        return null;
+    };
+
+    /**
+     * Creates a GameState message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof GameState
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {GameState} GameState
+     */
+    GameState.fromObject = function fromObject(object) {
+        if (object instanceof $root.GameState)
+            return object;
+        let message = new $root.GameState();
+        switch (object.state) {
+        case "POISON_IVY":
+        case 0:
+            message.state = 0;
+            break;
+        case "DEHYDRATION":
+        case 1:
+            message.state = 1;
+            break;
+        case "HYPOTHERMIA_START":
+        case 2:
+            message.state = 2;
+            break;
+        case "HYPOTHERMIA_END":
+        case 3:
+            message.state = 3;
+            break;
+        }
+        return message;
+    };
+
+    /**
+     * Creates a plain object from a GameState message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof GameState
+     * @static
+     * @param {GameState} message GameState
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    GameState.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults)
+            object.state = options.enums === String ? "POISON_IVY" : 0;
+        if (message.state != null && message.hasOwnProperty("state"))
+            object.state = options.enums === String ? $root.State[message.state] : message.state;
+        return object;
+    };
+
+    /**
+     * Converts this GameState to JSON.
+     * @function toJSON
+     * @memberof GameState
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    GameState.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    return GameState;
+})();
+
+/**
+ * Source enum.
+ * @exports Source
+ * @enum {number}
+ * @property {number} GAMEPAD=0 GAMEPAD value
+ * @property {number} KEYBOARD=1 KEYBOARD value
+ */
+export const Source = $root.Source = (() => {
+    const valuesById = {}, values = Object.create(valuesById);
+    values[valuesById[0] = "GAMEPAD"] = 0;
+    values[valuesById[1] = "KEYBOARD"] = 1;
+    return values;
 })();
 
 export const Input = $root.Input = (() => {
@@ -1304,20 +1569,6 @@ export const UserInputs = $root.UserInputs = (() => {
 })();
 
 /**
- * Source enum.
- * @exports Source
- * @enum {number}
- * @property {number} GAMEPAD=0 GAMEPAD value
- * @property {number} KEYBOARD=1 KEYBOARD value
- */
-export const Source = $root.Source = (() => {
-    const valuesById = {}, values = Object.create(valuesById);
-    values[valuesById[0] = "GAMEPAD"] = 0;
-    values[valuesById[1] = "KEYBOARD"] = 1;
-    return values;
-})();
-
-/**
  * Mode enum.
  * @exports Mode
  * @enum {number}
@@ -1325,7 +1576,6 @@ export const Source = $root.Source = (() => {
  * @property {number} AUTO=1 AUTO value
  * @property {number} TELEOP=2 TELEOP value
  * @property {number} ESTOP=3 ESTOP value
- * @property {number} CHALLENGE=4 CHALLENGE value
  */
 export const Mode = $root.Mode = (() => {
     const valuesById = {}, values = Object.create(valuesById);
@@ -1333,7 +1583,6 @@ export const Mode = $root.Mode = (() => {
     values[valuesById[1] = "AUTO"] = 1;
     values[valuesById[2] = "TELEOP"] = 2;
     values[valuesById[3] = "ESTOP"] = 3;
-    values[valuesById[4] = "CHALLENGE"] = 4;
     return values;
 })();
 
@@ -1475,7 +1724,6 @@ export const RunMode = $root.RunMode = (() => {
             case 1:
             case 2:
             case 3:
-            case 4:
                 break;
             }
         return null;
@@ -1509,10 +1757,6 @@ export const RunMode = $root.RunMode = (() => {
         case "ESTOP":
         case 3:
             message.mode = 3;
-            break;
-        case "CHALLENGE":
-        case 4:
-            message.mode = 4;
             break;
         }
         return message;
@@ -1550,6 +1794,305 @@ export const RunMode = $root.RunMode = (() => {
     };
 
     return RunMode;
+})();
+
+export const RuntimeStatus = $root.RuntimeStatus = (() => {
+
+    /**
+     * Properties of a RuntimeStatus.
+     * @exports IRuntimeStatus
+     * @interface IRuntimeStatus
+     * @property {boolean|null} [shepConnected] RuntimeStatus shepConnected
+     * @property {boolean|null} [dawnConnected] RuntimeStatus dawnConnected
+     * @property {Mode|null} [mode] RuntimeStatus mode
+     * @property {number|null} [battery] RuntimeStatus battery
+     * @property {string|null} [version] RuntimeStatus version
+     */
+
+    /**
+     * Constructs a new RuntimeStatus.
+     * @exports RuntimeStatus
+     * @classdesc Represents a RuntimeStatus.
+     * @implements IRuntimeStatus
+     * @constructor
+     * @param {IRuntimeStatus=} [properties] Properties to set
+     */
+    function RuntimeStatus(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * RuntimeStatus shepConnected.
+     * @member {boolean} shepConnected
+     * @memberof RuntimeStatus
+     * @instance
+     */
+    RuntimeStatus.prototype.shepConnected = false;
+
+    /**
+     * RuntimeStatus dawnConnected.
+     * @member {boolean} dawnConnected
+     * @memberof RuntimeStatus
+     * @instance
+     */
+    RuntimeStatus.prototype.dawnConnected = false;
+
+    /**
+     * RuntimeStatus mode.
+     * @member {Mode} mode
+     * @memberof RuntimeStatus
+     * @instance
+     */
+    RuntimeStatus.prototype.mode = 0;
+
+    /**
+     * RuntimeStatus battery.
+     * @member {number} battery
+     * @memberof RuntimeStatus
+     * @instance
+     */
+    RuntimeStatus.prototype.battery = 0;
+
+    /**
+     * RuntimeStatus version.
+     * @member {string} version
+     * @memberof RuntimeStatus
+     * @instance
+     */
+    RuntimeStatus.prototype.version = "";
+
+    /**
+     * Creates a new RuntimeStatus instance using the specified properties.
+     * @function create
+     * @memberof RuntimeStatus
+     * @static
+     * @param {IRuntimeStatus=} [properties] Properties to set
+     * @returns {RuntimeStatus} RuntimeStatus instance
+     */
+    RuntimeStatus.create = function create(properties) {
+        return new RuntimeStatus(properties);
+    };
+
+    /**
+     * Encodes the specified RuntimeStatus message. Does not implicitly {@link RuntimeStatus.verify|verify} messages.
+     * @function encode
+     * @memberof RuntimeStatus
+     * @static
+     * @param {IRuntimeStatus} message RuntimeStatus message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    RuntimeStatus.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.shepConnected != null && Object.hasOwnProperty.call(message, "shepConnected"))
+            writer.uint32(/* id 1, wireType 0 =*/8).bool(message.shepConnected);
+        if (message.dawnConnected != null && Object.hasOwnProperty.call(message, "dawnConnected"))
+            writer.uint32(/* id 2, wireType 0 =*/16).bool(message.dawnConnected);
+        if (message.mode != null && Object.hasOwnProperty.call(message, "mode"))
+            writer.uint32(/* id 3, wireType 0 =*/24).int32(message.mode);
+        if (message.battery != null && Object.hasOwnProperty.call(message, "battery"))
+            writer.uint32(/* id 4, wireType 5 =*/37).float(message.battery);
+        if (message.version != null && Object.hasOwnProperty.call(message, "version"))
+            writer.uint32(/* id 5, wireType 2 =*/42).string(message.version);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified RuntimeStatus message, length delimited. Does not implicitly {@link RuntimeStatus.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof RuntimeStatus
+     * @static
+     * @param {IRuntimeStatus} message RuntimeStatus message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    RuntimeStatus.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes a RuntimeStatus message from the specified reader or buffer.
+     * @function decode
+     * @memberof RuntimeStatus
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {RuntimeStatus} RuntimeStatus
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    RuntimeStatus.decode = function decode(reader, length) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.RuntimeStatus();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            switch (tag >>> 3) {
+            case 1:
+                message.shepConnected = reader.bool();
+                break;
+            case 2:
+                message.dawnConnected = reader.bool();
+                break;
+            case 3:
+                message.mode = reader.int32();
+                break;
+            case 4:
+                message.battery = reader.float();
+                break;
+            case 5:
+                message.version = reader.string();
+                break;
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes a RuntimeStatus message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof RuntimeStatus
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {RuntimeStatus} RuntimeStatus
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    RuntimeStatus.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies a RuntimeStatus message.
+     * @function verify
+     * @memberof RuntimeStatus
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    RuntimeStatus.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.shepConnected != null && message.hasOwnProperty("shepConnected"))
+            if (typeof message.shepConnected !== "boolean")
+                return "shepConnected: boolean expected";
+        if (message.dawnConnected != null && message.hasOwnProperty("dawnConnected"))
+            if (typeof message.dawnConnected !== "boolean")
+                return "dawnConnected: boolean expected";
+        if (message.mode != null && message.hasOwnProperty("mode"))
+            switch (message.mode) {
+            default:
+                return "mode: enum value expected";
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+                break;
+            }
+        if (message.battery != null && message.hasOwnProperty("battery"))
+            if (typeof message.battery !== "number")
+                return "battery: number expected";
+        if (message.version != null && message.hasOwnProperty("version"))
+            if (!$util.isString(message.version))
+                return "version: string expected";
+        return null;
+    };
+
+    /**
+     * Creates a RuntimeStatus message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof RuntimeStatus
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {RuntimeStatus} RuntimeStatus
+     */
+    RuntimeStatus.fromObject = function fromObject(object) {
+        if (object instanceof $root.RuntimeStatus)
+            return object;
+        let message = new $root.RuntimeStatus();
+        if (object.shepConnected != null)
+            message.shepConnected = Boolean(object.shepConnected);
+        if (object.dawnConnected != null)
+            message.dawnConnected = Boolean(object.dawnConnected);
+        switch (object.mode) {
+        case "IDLE":
+        case 0:
+            message.mode = 0;
+            break;
+        case "AUTO":
+        case 1:
+            message.mode = 1;
+            break;
+        case "TELEOP":
+        case 2:
+            message.mode = 2;
+            break;
+        case "ESTOP":
+        case 3:
+            message.mode = 3;
+            break;
+        }
+        if (object.battery != null)
+            message.battery = Number(object.battery);
+        if (object.version != null)
+            message.version = String(object.version);
+        return message;
+    };
+
+    /**
+     * Creates a plain object from a RuntimeStatus message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof RuntimeStatus
+     * @static
+     * @param {RuntimeStatus} message RuntimeStatus
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    RuntimeStatus.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults) {
+            object.shepConnected = false;
+            object.dawnConnected = false;
+            object.mode = options.enums === String ? "IDLE" : 0;
+            object.battery = 0;
+            object.version = "";
+        }
+        if (message.shepConnected != null && message.hasOwnProperty("shepConnected"))
+            object.shepConnected = message.shepConnected;
+        if (message.dawnConnected != null && message.hasOwnProperty("dawnConnected"))
+            object.dawnConnected = message.dawnConnected;
+        if (message.mode != null && message.hasOwnProperty("mode"))
+            object.mode = options.enums === String ? $root.Mode[message.mode] : message.mode;
+        if (message.battery != null && message.hasOwnProperty("battery"))
+            object.battery = options.json && !isFinite(message.battery) ? String(message.battery) : message.battery;
+        if (message.version != null && message.hasOwnProperty("version"))
+            object.version = message.version;
+        return object;
+    };
+
+    /**
+     * Converts this RuntimeStatus to JSON.
+     * @function toJSON
+     * @memberof RuntimeStatus
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    RuntimeStatus.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    return RuntimeStatus;
 })();
 
 /**

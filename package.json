@@ -33,7 +33,7 @@
     "lint": "eslint '*/**/*.ts?(x)'",
     "lintfix": "eslint '*/**/*.ts?(x)' --fix",
     "postinstall": "patch-package",
-    "build-protos": "pbjs -t static-module -w es6 -o protos/protos.js protos/*.proto && pbts -o protos/protos.d.ts protos/protos.js ",
+    "build-protos": "pbjs -t static-module -w es6 -o protos-main/protos.js protos-main/protos/*.proto && pbts -o protos-main/protos.d.ts protos-main/protos.js ",
     "watch": "webpack --mode development --watch --progress",
     "test": "mocha --require babel-core/register --recursive renderer/**/test/*.test.js",
     "release": "yarn build && ts-node release.ts",
@@ -41,13 +41,13 @@
   },
   "betterScripts": {
     "start": {
-      "command": "mkdirp ./build/protos && cp ./protos/*.proto ./build/protos && electron build/main.js",
+      "command": "mkdirp ./build/protos && cp ./protos-main/protos/*.proto ./build/protos && electron build/main.js",
       "env": {
         "NODE_ENV": "development"
       }
     },
     "build": {
-      "command": "mkdirp ./build/protos && cp ./protos/*.proto ./build/protos && webpack --mode production --progress",
+      "command": "mkdirp ./build/protos && cp ./protos-main/protos/*.proto ./build/protos && webpack --mode production --progress",
       "env": {
         "NODE_ENV": "production"
       }
@@ -62,7 +62,7 @@
     "@types/node": "^14.0.14",
     "@types/numeral": "^0.0.28",
     "@types/react": "^16.9.43",
-    "@types/react-bootstrap": "^0.32.22",
+    "@types/react-bootstrap": "0.32.25",
     "@types/react-dom": "^16.9.8",
     "@types/react-joyride": "^2.0.5",
     "@types/react-redux": "^7.1.9",
@@ -95,7 +95,7 @@
     "file-loader": "^6.1.0",
     "fs-extra": "5.0.0",
     "jsdoc": "^3.6.6",
-    "jszip": "3.1.5",
+    "jszip": "3.7.0",
     "minimist": "1.2.3",
     "mkdirp": "^1.0.4",
     "mocha": "5.0.0",
@@ -109,17 +109,25 @@
     "zip-webpack-plugin": "3.0.0"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.35",
+    "@fortawesome/free-solid-svg-icons": "^5.15.3",
+    "@fortawesome/react-fontawesome": "^0.1.14",
     "ace-builds": "^1.4.12",
+    "bootstrap": "4.6.0",
     "bufferutil": "4.0.1",
     "create-react-class": "15.6.2",
     "electron-json-storage": "4.0.2",
+<<<<<<< HEAD
     "html-loader": "^0.5.5",
     "html-react-parser": "^1.2.4",
+=======
+    "formik": "^2.2.6",
+>>>>>>> dev
     "immutable": "3.8.2",
     "jquery": "^3.6.0",
     "json-loader": "0.5.7",
     "keymirror": "0.1.1",
-    "lodash": ">=4.17.19",
+    "lodash": ">=4.17.21",
     "mousetrap": "1.6.1",
     "numeral": "2.0.6",
     "object-assign": "4.1.1",
@@ -128,13 +136,14 @@
     "postinstall-postinstall": "^2.1.0",
     "prop-types": "15.6.0",
     "protobufjs": "^6.10.2",
+    "pwa-helpers": "^0.9.1",
     "react": "^16.13.1",
     "react-ace": "^9.1.3",
-    "react-bootstrap": "0.32.0",
+    "react-bootstrap": "^1.6.0",
     "react-dom": "^16.13.1",
     "react-immutable-proptypes": "2.1.0",
     "react-joyride": "^2.2.1",
-    "react-redux": "^7.2.1",
+    "react-redux": "^7.2.3",
     "redux": "^4.0.5",
     "redux-saga": "^1.1.3",
     "seedrandom": "2.4.3",

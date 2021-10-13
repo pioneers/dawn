@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { Navbar, ButtonToolbar, ButtonGroup, Label } from 'react-bootstrap';
+import { Navbar, ButtonToolbar, ButtonGroup, Badge } from 'react-bootstrap';
 import { ConfigBox } from './ConfigBox';
 import { UpdateBox } from './UpdateBox';
 import { StatusLabel } from './StatusLabel';
@@ -16,10 +16,10 @@ interface StateProps {
   blueMasterTeamNumber: number;
   goldMasterTeamNumber: number;
   ipAddress: string;
-  udpTunnelAddress: string;
   sshAddress: string;
   fieldControlStatus: boolean;
-  latencyValue: number
+  latencyValue: number;
+  globalTheme: string;
 }
 
 interface OwnProps {
@@ -52,15 +52,15 @@ const DNavComponent = (props: Props) => {
     return `Dawn v${VERSION}`;
   };
 
-  const getLatencyThresholdColor = (latency : number) => {
+  const getLatencyThresholdColor = (latency: number) => {
     if (latency <= LOW_LATENCY_THRESHOLD_MSEC) {
-      return "success"
+      return 'success';
     } else if (latency > LOW_LATENCY_THRESHOLD_MSEC && latency < HIGH_LATENCY_THRESHOLD_MSEC) {
-      return "warning"
+      return 'warning';
     } else {
-      return "danger"
+      return 'danger';
     }
-  }
+  };
 
   const formatLatencyValue = (latency: number) => {
     if (latency > MSEC_IN_ONE_SECOND) {
@@ -69,7 +69,7 @@ const DNavComponent = (props: Props) => {
     }
 
     return `${latency} ms`;
-  }
+  };
 
   const {
     connectionStatus,
@@ -77,18 +77,17 @@ const DNavComponent = (props: Props) => {
     masterStatus,
     isRunningCode,
     ipAddress,
-    udpTunnelAddress,
     sshAddress,
     runtimeVersion,
     codeStatus,
     blueMasterTeamNumber,
     goldMasterTeamNumber,
     fieldControlStatus,
-    startTour,
+    startTour
   } = props;
 
   return (
-    <Navbar fixedTop fluid>
+    <Navbar fixed={'top'} bg={props.globalTheme === 'dark' ? 'dark' : 'light'} variant={props.globalTheme === 'dark' ? 'dark' : 'light'}>
       <UpdateBox
         isRunningCode={isRunningCode}
         connectionStatus={connectionStatus}
@@ -98,19 +97,25 @@ const DNavComponent = (props: Props) => {
         ipAddress={ipAddress}
         hide={() => toggleUpdateModal(!showUpdateModal)}
       />
-      <ConfigBox shouldShow={showConfigModal} ipAddress={ipAddress} udpTunnelAddress={udpTunnelAddress} sshAddress={sshAddress} hide={() => toggleConfigModal(!showConfigModal)} />
-      <Navbar.Header>
+      <ConfigBox
+        shouldShow={showConfigModal}
+        ipAddress={ipAddress}
+        sshAddress={sshAddress}
+        hide={() => toggleConfigModal(!showConfigModal)}
+      />
+      <Navbar>
         <Navbar.Brand id="header-title">{createHeader()}</Navbar.Brand>
         <Navbar.Toggle />
-      </Navbar.Header>
+      </Navbar>
       <Navbar.Collapse>
         {runtimeStatus ? (
           <Navbar.Text id="runtime-version">
-            <Label bsStyle="info">{`Runtime v${runtimeVersion}: ${String(robotState[codeStatus])}`}</Label>
+            <Badge variant="info">{`Runtime v${runtimeVersion}: ${String(robotState[codeStatus])}`}</Badge>
           </Navbar.Text>
         ) : (
           ''
         )}
+        <div style={{ marginRight: '25px' }}></div>
         <Navbar.Text id="battery-indicator">
           <StatusLabel
             connectionStatus={connectionStatus}
@@ -122,10 +127,12 @@ const DNavComponent = (props: Props) => {
             fieldControlStatus={fieldControlStatus}
           />
         </Navbar.Text>
+        <div style={{ marginRight: '25px' }}></div>
         <Navbar.Text id="Latency">
-          <Label bsStyle={getLatencyThresholdColor(props.latencyValue)}>{`Latency: ${formatLatencyValue(props.latencyValue)}`}</Label>
+          <Badge variant={getLatencyThresholdColor(props.latencyValue)}>{`Latency: ${formatLatencyValue(props.latencyValue)}`}</Badge>
         </Navbar.Text>
-        <Navbar.Form pullRight>
+        {/* Adding ml-auto aligns the nav bar to the right */}
+        <Navbar className="ml-auto">
           <ButtonToolbar>
             <ButtonGroup>
               <TooltipButton
@@ -134,7 +141,7 @@ const DNavComponent = (props: Props) => {
                 bsStyle="info"
                 onClick={startTour}
                 id="tour-button"
-                glyph="info-sign"
+                icon="info-circle"
                 disabled={false}
               />
               <TooltipButton
@@ -143,7 +150,7 @@ const DNavComponent = (props: Props) => {
                 bsStyle="info"
                 onClick={() => toggleConfigModal(!showConfigModal)}
                 id="update-address-button"
-                glyph="transfer"
+                icon="exchange-alt"
                 disabled={false}
               />
               <TooltipButton
@@ -153,7 +160,7 @@ const DNavComponent = (props: Props) => {
                 onClick={() => toggleUpdateModal(!showUpdateModal)}
                 disabled={!runtimeStatus}
                 id="update-software-button"
-                glyph="cloud-upload"
+                icon="cloud-upload-alt"
               />
               <TooltipButton
                 placement="bottom"
@@ -166,7 +173,7 @@ const DNavComponent = (props: Props) => {
               />
             </ButtonGroup>
           </ButtonToolbar>
-        </Navbar.Form>
+        </Navbar>
       </Navbar.Collapse>
     </Navbar>
   );
@@ -178,11 +185,11 @@ const mapStateToProps = (state: ApplicationState) => ({
   codeStatus: state.info.studentCodeStatus,
   heart: state.fieldStore.heart,
   ipAddress: state.info.ipAddress,
-  udpTunnelAddress: state.info.udpTunnelIpAddress,
   sshAddress: state.info.sshAddress,
   fieldControlStatus: state.fieldStore.fieldControl,
   runtimeVersion: state.peripherals.runtimeVersion,
-  latencyValue: state.editor.latencyValue
+  latencyValue: state.editor.latencyValue,
+  globalTheme: state.settings.globalTheme
 });
 
 export const DNav = connect(mapStateToProps)(DNavComponent);
