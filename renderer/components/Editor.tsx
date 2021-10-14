@@ -216,8 +216,22 @@ export const Editor = (props: Props) => {
     setEditorHeight(newEditorHeight);
   };
 
-  const upload = () => {
-    const { filepath } = props;
+  turnCharacterOff = (e: KeyboardEvent) => {
+    // NOT THE ACTION updateKeyboardBitmap. THIS IS A LOCAL FUNCTION
+    this.updateKeyboardBitmap(e.key, false);
+  }
+
+  turnCharacterOn = (e: KeyboardEvent) => {
+    // Handle special ctrl + q edge case
+    if (e.ctrlKey && e.key === 'q') {
+      this.props.onUpdateKeyboardModeToggle(false);
+    } else {
+      this.updateKeyboardBitmap(e.key, true);
+    }
+  }
+
+  upload = () => {
+    const { filepath } = this.props;
     if (filepath === '') {
       props.onAlertAdd('Not Working on a File', 'Please save first');
       logging.log('Upload: Not Working on File');

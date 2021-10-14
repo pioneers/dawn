@@ -62,11 +62,11 @@ export const ConfigBoxComponent = (props: Props) => {
       if (err) {
         logging.log(err);
       }
-    })
+    });
 
     const newConfig = {
       stationNumber: stationNumber,
-      bridgeAddress: fcAddress,
+      bridgeAddress: fcAddress
     };
     props.onFCUpdate(newConfig);
     setOriginalStationNumber(stationNumber);
@@ -86,7 +86,7 @@ export const ConfigBoxComponent = (props: Props) => {
 
   const handleSSHIpChange = (e: React.FormEvent<FormControlElement>) => {
     setSSHAddress(e.currentTarget.value);
-  }
+  };
 
   const handleFcChange = (e: React.FormEvent<FormControlElement>) => {
     setFCAddress(e.currentTarget.value);
@@ -108,7 +108,9 @@ export const ConfigBoxComponent = (props: Props) => {
     if (defaults.NGROK) {
       return false;
     }
-    return getValidationState(ipAddress) === 'error' || getValidationState(fcAddress) === 'error' || (stationNumber < 0 && stationNumber > 4);
+    return (
+      getValidationState(ipAddress) === 'error' || getValidationState(fcAddress) === 'error' || (stationNumber < 0 && stationNumber > 4)
+    );
   };
 
   useEffect(() => {
@@ -182,12 +184,31 @@ export const ConfigBoxComponent = (props: Props) => {
                 <Form.Control.Feedback />
             </Form.Group>
 
+            {defaults.NGROK ? (
             <p>Field Control Settings</p>
             <Form.Group controlId="fcAddress">
                 <Form.Label>Field Control IP Address</Form.Label>
                 <Form.Control type="text" value={fcAddress} placeholder="i.e. 192.168.100.13" onChange={handleFcChange} isValid={isValidationState(ipAddress)} />
                 <Form.Control.Feedback />
             </Form.Group>
+            ): null}
+
+{defaults.NGROK ? (
+            <FormGroup controlId="fcAddress" validationState={getValidationState(fcAddress)}>
+              <ControlLabel>Overlay URL</ControlLabel>
+              <FormControl type="text" value={fcAddress} placeholder="https://92309a8s09.ngrok.io" onChange={handleFcChange} />
+              <FormControl.Feedback />
+            </FormGroup>
+          ) : null}
+
+          <p>Field Control Settings</p>
+          {!defaults.NGROK ? (
+            <FormGroup controlId="fcAddress" validationState={getValidationState(fcAddress)}>
+              <ControlLabel>Field Control IP Address</ControlLabel>
+              <FormControl type="text" value={fcAddress} placeholder="i.e. 192.168.100.13" onChange={handleFcChange} />
+              <FormControl.Feedback />
+            </FormGroup>
+          ) : null}
 
             <Form.Group controlId="stationNumber">
                 <Form.Label>Field Control Station Number</Form.Label>
@@ -220,7 +241,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 
 const mapStateToProps = (state: ApplicationState) => ({
   stationNumber: state.fieldStore.stationNumber,
-  fcAddress: state.fieldStore.bridgeAddress,
+  fcAddress: state.fieldStore.bridgeAddress
 });
 
 export const ConfigBox = connect(mapStateToProps, mapDispatchToProps)(ConfigBoxComponent);

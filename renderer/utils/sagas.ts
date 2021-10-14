@@ -7,16 +7,21 @@
 import fs, { readFile, writeFile } from 'fs';
 import _ from 'lodash';
 import { eventChannel } from 'redux-saga';
-import { all, call, cps, delay, fork, put, race, select, take, takeEvery } from 'redux-saga/effects';
+import { all, call, cps, delay, fork, put, select, take, takeEvery } from 'redux-saga/effects';
 import { Client } from 'ssh2';
 import { ipcRenderer, OpenDialogReturnValue, SaveDialogReturnValue, MessageBoxReturnValue, remote } from 'electron';
 import { addAsyncAlert } from '../actions/AlertActions';
 import { openFileSucceeded, saveFileSucceeded } from '../actions/EditorActions';
 import { toggleFieldControl } from '../actions/FieldActions';
 import { updateGamepads } from '../actions/GamepadsActions';
+<<<<<<< HEAD
+import { defaults, logging } from '../utils/utils';
+import { Input, Source, TimeStamps } from '../../protos/protos';
+=======
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
 import { TIMEOUT, defaults, logging } from '../utils/utils';
 import { Input, Source, TimeStamps } from '../../protos-main';
+>>>>>>> dev
 
 let timestamp = Date.now();
 
@@ -194,31 +199,6 @@ function* dragFile(action: any) {
   }
 }
 
-/**
- * This saga acts as a "heartbeat" to check whether we are still receiving
- * updates from Runtime.
- *
- * NOTE that this is different from whether or not the Runtime connection
- * is still alive.
- */
-function* runtimeHeartbeat() {
-  while (true) {
-    // Start a race between a delay and receiving an UPDATE_STATUS action from
-    // runtime. Only the winner will have a value.
-    const result = yield race({
-      update: take('PER_MESSAGE'),
-      timeout: delay(TIMEOUT)
-    });
-
-    // If update wins, we assume we are connected, otherwise disconnected.
-    if (result.update) {
-      yield put(runtimeConnect());
-    } else {
-      yield put(runtimeDisconnect());
-    }
-  }
-}
-
 const _timestamps: Array<number | null> = [0, 0, 0, 0];
 
 function _needToUpdate(newGamepads: (Gamepad | null)[]): boolean {
@@ -290,7 +270,7 @@ function* sendKeyboardConnectionStatus() {
 
 function* sendKeyboardInputs() {
   const currEditorState = yield select(editorState);
-
+  
   const keyboard = new Input({
     connected: true,
     axes: [],
@@ -646,7 +626,6 @@ export default function* rootSaga() {
     takeEvery('TIMESTAMP_CHECK', timestampBounceback),
     takeEvery('UPDATE_KEYBOARD_BITMAP', sendKeyboardInputs),
     takeEvery('UPDATE_IS_KEYBOARD_MODE_TOGGLED', sendKeyboardConnectionStatus),
-    fork(runtimeHeartbeat),
     fork(runtimeGamepads),
     fork(runtimeSaga),
     fork(initiateLatencyCheck)
@@ -662,7 +641,6 @@ export {
   editorSavedState,
   saveFileDialog,
   saveFile,
-  runtimeHeartbeat,
   gamepadsState,
   updateMainProcess,
   runtimeReceiver,

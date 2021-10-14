@@ -7,6 +7,10 @@ const modules = {
       use: ['style-loader', 'css-loader'],
     },
     {
+      test: /\.html$/i,
+      loader: 'html-loader'
+    },
+    {
       test: /\.(png|jpe?g|gif)$/i,
       use: ['file-loader'],
     },
@@ -14,15 +18,6 @@ const modules = {
       test: /\.(ts|tsx)?$/,
       exclude: /node_modules/,
       use: [{ loader: 'ts-loader' }]
-    },
-    {
-      test: /\.js$/,
-      exclude: [/node_modules/, /protos/],
-      enforce: 'pre',
-      loader: 'eslint-loader',
-      options: {
-        formatter: require('eslint/lib/cli-engine/formatters/stylish')
-      },
     },
     {
       test: /\.js$/,
@@ -42,6 +37,18 @@ export default [
     output: {
       path: path.join(__dirname, 'build'),
       filename: 'bundle.js',
+    },
+    target: 'electron-renderer',
+    module: modules,
+  },
+  {
+    entry: './renderer/components/video-feed/index.tsx',
+    resolve: {
+      extensions: ['.tsx', '.ts', '.js'],
+    },
+    output: {
+      path: path.join(__dirname, 'build'),
+      filename: "videofeed.js",
     },
     target: 'electron-renderer',
     module: modules,

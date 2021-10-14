@@ -67,6 +67,13 @@ const DebugMenu: MenuItemConstructorOptions = {
         });
       },
     },
+
+    {
+      label: 'Toggle Videofeed DevTools',
+      click() {
+        RendererBridge.toggleWindowDevtools('video_feed');
+      },
+    },
   ],
 };
 

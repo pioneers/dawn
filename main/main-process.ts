@@ -61,6 +61,8 @@ export default function showAPI() {
 }
 
 app.on('ready', () => {
+  let videoWindow: BrowserWindow | null = null;
+
   Runtime.setup();
   ipcMain.on('FC_CONFIG_CHANGE', FCObject.changeFCInfo);
   ipcMain.on('FC_INITIALIZE', initializeFC);
@@ -72,6 +74,31 @@ app.on('ready', () => {
       enableRemoteModule: true
     }
   });
+
+  ipcMain.on('SHOW_VIDEO_FEED', () => {
+    if (!videoWindow) {
+      videoWindow = new BrowserWindow({
+        webPreferences: {
+          nodeIntegration: true,
+          enableRemoteModule: true,
+        },
+        width: 1000,
+        height: 700,
+      });
+      RendererBridge.registerWindow('video_feed', videoWindow);
+      videoWindow.on('closed', () => {
+        videoWindow = null;
+      });
+      videoWindow.maximize();
+      videoWindow.loadURL(`file://${__dirname}/../static/video-feed/video.html`);
+      videoWindow.webContents.on('dom-ready', () => RendererBridge.dispatch('video_feed', 'shepherdScoreboardServerIpAddress', FCObject.bridgeAddress))
+      videoWindow.on('ready-to-show', () => {
+        if (videoWindow) {
+          videoWindow.show();
+        }
+      });
+    }
+  })
 
   // Binding for the main process to inject into Redux workflow
   RendererBridge.registerWindow('main', mainWindow);
