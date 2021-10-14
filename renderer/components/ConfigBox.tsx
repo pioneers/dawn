@@ -8,7 +8,6 @@ import { defaults, getValidationState, logging, isValidationState } from '../uti
 import { updateFieldControl } from '../actions/FieldActions';
 import { ipChange, sshIpChange } from '../actions/InfoActions';
 import storage from 'electron-json-storage';
-import { Formik } from 'formik';
 
 interface Config {
   stationNumber: number;
@@ -36,7 +35,6 @@ interface OwnProps {
 type Props = StateProps & DispatchProps & OwnProps;
 type FormControlElement = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 
-
 export const ConfigBoxComponent = (props: Props) => {
   const [ipAddress, setIPAddress] = useState(props.ipAddress);
   const [sshAddress, setSSHAddress] = useState(props.sshAddress);
@@ -62,11 +60,11 @@ export const ConfigBoxComponent = (props: Props) => {
       if (err) {
         logging.log(err);
       }
-    })
+    });
 
     const newConfig = {
       stationNumber: stationNumber,
-      bridgeAddress: fcAddress,
+      bridgeAddress: fcAddress
     };
     props.onFCUpdate(newConfig);
     setOriginalStationNumber(stationNumber);
@@ -86,7 +84,7 @@ export const ConfigBoxComponent = (props: Props) => {
 
   const handleSSHIpChange = (e: React.FormEvent<FormControlElement>) => {
     setSSHAddress(e.currentTarget.value);
-  }
+  };
 
   const handleFcChange = (e: React.FormEvent<FormControlElement>) => {
     setFCAddress(e.currentTarget.value);
@@ -108,7 +106,9 @@ export const ConfigBoxComponent = (props: Props) => {
     if (defaults.NGROK) {
       return false;
     }
-    return getValidationState(ipAddress) === 'error' || getValidationState(fcAddress) === 'error' || (stationNumber < 0 && stationNumber > 4);
+    return (
+      getValidationState(ipAddress) === 'error' || getValidationState(fcAddress) === 'error' || (stationNumber < 0 && stationNumber > 4)
+    );
   };
 
   useEffect(() => {
@@ -152,57 +152,72 @@ export const ConfigBoxComponent = (props: Props) => {
   const { shouldShow } = props;
 
   return (
-      // TODO: Figure out formik stuff
-      <Formik
-    //   validationSchema={schema}
-      onSubmit={console.log}
-      initialValues={{
-        
-      }}
-    >
-        <Modal show={shouldShow} onHide={handleClose} animation={false}>
-        <Form action="" onSubmit={saveChanges}>
-            <Modal.Header closeButton>
-            <Modal.Title>Dawn Configuration</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-            <p>
-                Make sure only one computer (running instance of Dawn) is attempting to connect to the robot at a time! (i.e. not trying to
-                connect to the same IP Address)
-            </p>
-            <Form.Group controlId="ipAddress">
-                <Form.Label>IP Address</Form.Label>
-                <Form.Control type="text" value={ipAddress} placeholder="i.e. 192.168.100.13" onChange={handleIpChange} isValid={isValidationState(ipAddress)} />
-                <Form.Control.Feedback />
-            </Form.Group>
+    <Modal show={shouldShow} onHide={handleClose} animation={false}>
+      <Form action="" onSubmit={saveChanges}>
+        <Modal.Header closeButton>
+          <Modal.Title>Dawn Configuration</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            Make sure only one computer (running instance of Dawn) is attempting to connect to the robot at a time! (i.e. not trying to
+            connect to the same IP Address)
+          </p>
+          <Form.Group controlId="ipAddress">
+            <Form.Label>IP Address</Form.Label>
+            <Form.Control
+              type="text"
+              value={ipAddress}
+              placeholder="i.e. 192.168.100.13"
+              onChange={handleIpChange}
+              isValid={isValidationState(ipAddress)}
+            />
+            <Form.Control.Feedback />
+          </Form.Group>
 
-            <Form.Group controlId="ipAddress">
-                <Form.Label>SSH Address</Form.Label>
-                <Form.Control type="text" value={sshAddress} placeholder="i.e. 192.168.100.13" onChange={handleSSHIpChange} isValid={isValidationState(ipAddress)} />
-                <Form.Control.Feedback />
-            </Form.Group>
+          <Form.Group controlId="ipAddress">
+            <Form.Label>SSH Address</Form.Label>
+            <Form.Control
+              type="text"
+              value={sshAddress}
+              placeholder="i.e. 192.168.100.13"
+              onChange={handleSSHIpChange}
+              isValid={isValidationState(ipAddress)}
+            />
+            <Form.Control.Feedback />
+          </Form.Group>
 
-            <p>Field Control Settings</p>
-            <Form.Group controlId="fcAddress">
-                <Form.Label>Field Control IP Address</Form.Label>
-                <Form.Control type="text" value={fcAddress} placeholder="i.e. 192.168.100.13" onChange={handleFcChange} isValid={isValidationState(ipAddress)} />
-                <Form.Control.Feedback />
-            </Form.Group>
+          <p>Field Control Settings</p>
+          <Form.Group controlId="fcAddress">
+            <Form.Label>Field Control IP Address</Form.Label>
+            <Form.Control
+              type="text"
+              value={fcAddress}
+              placeholder="i.e. 192.168.100.13"
+              onChange={handleFcChange}
+              isValid={isValidationState(ipAddress)}
+            />
+            <Form.Control.Feedback />
+          </Form.Group>
 
-            <Form.Group controlId="stationNumber">
-                <Form.Label>Field Control Station Number</Form.Label>
-                <Form.Control type="number" value={stationNumber} placeholder="An integer from 0 to 4" onChange={handleStationChange} isValid={stationNumber >= 0 && stationNumber <= 4}/>
-                <Form.Control.Feedback />
-            </Form.Group>
-            </Modal.Body>
-            <Modal.Footer>
-            <Button type="submit" variant="primary" disabled={disableUploadUpdate()}>
-                Update
-            </Button>
-            </Modal.Footer>
-        </Form>
-        </Modal>
-    </Formik>
+          <Form.Group controlId="stationNumber">
+            <Form.Label>Field Control Station Number</Form.Label>
+            <Form.Control
+              type="number"
+              value={stationNumber}
+              placeholder="An integer from 0 to 4"
+              onChange={handleStationChange}
+              isValid={stationNumber >= 0 && stationNumber <= 4}
+            />
+            <Form.Control.Feedback />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button type="submit" variant="primary" disabled={disableUploadUpdate()}>
+            Update
+          </Button>
+        </Modal.Footer>
+      </Form>
+    </Modal>
   );
 };
 
@@ -220,7 +235,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 
 const mapStateToProps = (state: ApplicationState) => ({
   stationNumber: state.fieldStore.stationNumber,
-  fcAddress: state.fieldStore.bridgeAddress,
+  fcAddress: state.fieldStore.bridgeAddress
 });
 
 export const ConfigBox = connect(mapStateToProps, mapDispatchToProps)(ConfigBoxComponent);
