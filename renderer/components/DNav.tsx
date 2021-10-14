@@ -168,7 +168,7 @@ const DNavComponent = (props: Props) => {
                 bsStyle="info"
                 onClick={() => ipcRenderer.send('SHOW_VIDEO_FEED')}
                 id="show-video-feed-button"
-                glyph="play"
+                icon="play"
                 disabled={false}
               />
             </ButtonGroup>

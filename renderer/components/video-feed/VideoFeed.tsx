@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import OvenPlayer from 'ovenplayer';
 import { keyboardButtons } from '../../consts/keyboard-buttons';
-import { Input, Source } from '../../../protos/protos';
+import { Input, Source } from '../../../protos-main';
 import { ipcRenderer } from 'electron';
 
 import '../../../static/video-feed/video-feed.css';
@@ -138,7 +138,7 @@ export const VideoFeed = () => {
           id="toggleKeyboardControl"
           onClick={toggleKeyboardControl}
           disabled={false}
-          bsStyle={isKeyboardModeToggled ? 'info' : 'default'}
+          variant={isKeyboardModeToggled ? 'info' : 'default'}
           style={{ marginRight: '10px' }}
         >
           Toggle Keyboard Control Mode

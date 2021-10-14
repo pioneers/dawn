@@ -171,7 +171,7 @@ class RuntimeConnection {
     });
 
     this.socket.on('end', () => {
-      // RendererBridge.reduxDispatch(runtimeDisconnect());
+      RendererBridge.reduxDispatch(runtimeDisconnect());
       this.logger.log('Runtime disconnected');
     });
 
