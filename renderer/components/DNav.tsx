@@ -7,6 +7,7 @@ import { StatusLabel } from './StatusLabel';
 import { TooltipButton } from './TooltipButton';
 import { VERSION } from '../consts';
 import { robotState } from '../utils/utils';
+import {useDispatch} from 'react-redux';
 
 interface StateProps {
   runtimeVersion: string;
@@ -41,8 +42,13 @@ const MSEC_IN_ONE_SECOND = 1000;
  * State controls toggling UpdateBox and ConfigBox
  */
 const DNavComponent = (props: Props) => {
+  const dispatch = useDispatch()
+  
   const [showUpdateModal, toggleUpdateModal] = useState(false);
   const [showConfigModal, toggleConfigModal] = useState(false);
+  const toggleDarkMode = () => {
+    dispatch({type: 'TOGGLE_THEME_GLOBAL'});
+  }
 
   const createHeader = () => {
     if (props.fieldControlStatus) {
@@ -134,6 +140,15 @@ const DNavComponent = (props: Props) => {
         <Navbar className="ml-auto">
           <ButtonToolbar>
             <ButtonGroup>
+            <TooltipButton
+              placement="bottom"
+              text="Toggle Dark Mode"
+              bsStyle="info"
+              onClick={toggleDarkMode}
+              disabled={false}
+              id="toggle-dark-mode"
+              icon="moon"
+              />
               <TooltipButton
                 placement="bottom"
                 text="Tour"
@@ -161,6 +176,7 @@ const DNavComponent = (props: Props) => {
                 id="update-software-button"
                 icon="cloud-upload-alt"
               />
+              
             </ButtonGroup>
           </ButtonToolbar>
         </Navbar>
