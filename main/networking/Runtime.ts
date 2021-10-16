@@ -190,22 +190,22 @@ class RuntimeConnection {
       for (const packet of processedTCPPackets) {
         let decoded;
 
-        switch (packet.type) {
-          case MsgType.LOG:
-            decoded = protos.Text.decode(packet.payload);
-            RendererBridge.reduxDispatch(updateConsole(decoded.payload));
-            break;
+        try {
+          switch (packet.type) {
+            case MsgType.LOG:
+              decoded = protos.Text.decode(packet.payload);
+              RendererBridge.reduxDispatch(updateConsole(decoded.payload));
+              break;
 
-          case MsgType.TIME_STAMPS:
-            decoded = protos.TimeStamps.decode(packet.payload);
-            const oneWayLatency = (Date.now() - Number(decoded.dawnTimestamp)) / 2;
+            case MsgType.TIME_STAMPS:
+              decoded = protos.TimeStamps.decode(packet.payload);
+              const oneWayLatency = (Date.now() - Number(decoded.dawnTimestamp)) / 2;
 
-            // TODO: we can probably do an average of n timestamps so the display doesn't change too frequently
-            RendererBridge.reduxDispatch(setLatencyValue(oneWayLatency));
-            break;
+              // TODO: we can probably do an average of n timestamps so the display doesn't change too frequently
+              RendererBridge.reduxDispatch(setLatencyValue(oneWayLatency));
+              break;
 
-          case MsgType.DEVICE_DATA:
-            try {
+            case MsgType.DEVICE_DATA:
               RendererBridge.reduxDispatch(infoPerMessage());
               const sensorData: protos.Device[] = protos.DevData.decode(packet.payload).devices;
               const peripherals: Peripheral[] = [];
@@ -224,17 +224,17 @@ class RuntimeConnection {
                 peripherals.push({ ...device, uid: device.uid.toString() });
               });
               RendererBridge.reduxDispatch(updatePeripherals(peripherals));
-            } catch (err) {
-              this.logger.log(err);
-            }
-            break;
+              break;
 
-          default:
-            this.logger.log(`Unsupported received message type: ${packet.type}`)
+            default:
+              this.logger.log(`Unsupported received message type: ${packet.type}`);
+          }
+        } catch (err) {
+          this.logger.log(err);
         }
-      }
 
-      this.leftoverBytes = leftoverBytes;
+        this.leftoverBytes = leftoverBytes;
+      }
     });
 
     /**
