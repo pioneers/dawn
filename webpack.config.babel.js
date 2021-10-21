@@ -60,13 +60,25 @@ export default [
     },
     output: {
       path: path.join(__dirname, 'build'),
-      filename: 'main.js',
+      filename: 'main.js'
     },
     target: 'electron-main',
     node: {
       __dirname: false,
-      __filename: false,
+      __filename: false
     },
-    module: modules,
+    module: modules
   },
+  {
+    entry: './fake-runtime/FakeRuntime.ts',
+    resolve: {
+      extensions: ['.tsx', '.ts', '.js']
+    },
+    node: {
+      __dirname: false,
+      __filename: false,
+      net: 'empty'
+    },
+    module: modules
+  }
 ];
