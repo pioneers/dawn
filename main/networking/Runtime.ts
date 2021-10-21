@@ -6,7 +6,6 @@ import RendererBridge from '../RendererBridge';
 import { updateConsole } from '../../renderer/actions/ConsoleActions';
 import { runtimeDisconnect, infoPerMessage, updateCodeStatus } from '../../renderer/actions/InfoActions';
 import { updateBattery, updatePeripherals, updateRuntimeVersion } from '../../renderer/actions/PeripheralActions';
-import { infoPerMessage } from '../../renderer/actions/InfoActions';
 import { Logger, defaults } from '../../renderer/utils/utils';
 import { Peripheral } from '../../renderer/types';
 import { setLatencyValue } from '../../renderer/actions/EditorActions';
@@ -27,13 +26,12 @@ let runtimeIP = defaults.IPADDRESS;
 enum MsgType {
   RUN_MODE = 0,
   START_POS = 1,
-  CHALLENGE_DATA = 2,
-  LOG = 3,
-  DEVICE_DATA = 4,
+  LOG = 2,
+  DEVICE_DATA = 3,
   // 5 reserved for some Shepherd msg type
-  INPUTS = 6,
-  TIME_STAMPS = 7,
-  RUNTIME_STATUS = 8
+  INPUTS = 5,
+  TIME_STAMPS = 6,
+  RUNTIME_STATUS = 7
 }
 
 interface TCPPacket {
