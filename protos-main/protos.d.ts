@@ -151,7 +151,7 @@ export class Device implements IDevice {
     public type: number;
 
     /** Device params. */
-    public params: IParam[];
+    public params: Param[];
 
     /**
      * Creates a new Device instance using the specified properties.
@@ -241,7 +241,7 @@ export class DevData implements IDevData {
     constructor(properties?: IDevData);
 
     /** DevData devices. */
-    public devices: IDevice[];
+    public devices: Device[];
 
     /**
      * Creates a new DevData instance using the specified properties.
@@ -543,7 +543,7 @@ export class UserInputs implements IUserInputs {
     constructor(properties?: IUserInputs);
 
     /** UserInputs inputs. */
-    public inputs: IInput[];
+    public inputs: Input[];
 
     /**
      * Creates a new UserInputs instance using the specified properties.
