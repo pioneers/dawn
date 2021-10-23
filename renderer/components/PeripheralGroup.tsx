@@ -33,14 +33,14 @@ const PeripheralGroup = (props: PeripheralGroupProps) => {
   const groupNameCleaned = groupName; //cleanerNames[groupName] as string;
 
     return (
-      <Card key={`${groupNameCleaned || 'Default'}-Card`}>
+      <Card key={`${groupNameCleaned || 'Default'}-Card`} bg="secondary" style={{backgroundColor: '#353a3f'}}>
         <Card.Header>
           <Card.Title onClick={() => setOut(!out)} style={{ fontWeight: 'bold', color: 'black'}}>
             {groupName || 'Generic'}
           </Card.Title>
         </Card.Header>
         <Collapse in={!out}>
-          <Card.Body style={{ padding: '10px', color: 'black'}}>
+          <Card.Body style={{ padding: '10px'}}>
             {_.map(peripherals, (peripheral: Peripheral) => (
               <PeripheralComponent
                 key={peripheral.uid}
@@ -48,6 +48,8 @@ const PeripheralGroup = (props: PeripheralGroupProps) => {
                 name={peripheral.name}
                 type={peripheral.type}
                 params={peripheral.params}
+                background=''
+                color=''
               />
             ))}
           </Card.Body>
