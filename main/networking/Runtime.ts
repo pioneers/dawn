@@ -232,9 +232,8 @@ class RuntimeConnection {
         } catch (err) {
           this.logger.log(err);
         }
-
-        this.leftoverBytes = leftoverBytes;
       }
+      this.leftoverBytes = leftoverBytes;
     });
 
     /**

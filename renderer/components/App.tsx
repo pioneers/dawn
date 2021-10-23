@@ -4,6 +4,7 @@ import { remote, ipcRenderer } from 'electron';
 import * as electronJSONStorage from 'electron-json-storage';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
+import smalltalk from 'smalltalk';
 import { Dashboard } from './Dashboard';
 import { DNav } from './DNav';
 import { joyrideSteps } from './JoyrideSteps';
@@ -19,6 +20,12 @@ type ElectronJSONStorage = typeof electronJSONStorage;
 library.add(fas);
 
 const storage = remote.require('electron-json-storage') as ElectronJSONStorage;
+
+interface AlertType {
+  heading: string;
+  message: string;
+  id: number;
+}
 
 interface StateProps {
   connectionStatus: boolean;
@@ -40,6 +47,21 @@ export const AppComponent = (props: Props) => {
   const [steps, changeSteps] = useState<Array<Step>>([]);
   const [tourRunning, changeTourRunning] = useState(false);
   startLog();
+
+  useEffect(() => {
+    const latestAlert = props.asyncAlerts[props.asyncAlerts.length - 1] as AlertType | undefined;
+
+    if (latestAlert !== undefined) {
+      smalltalk.alert(latestAlert.heading, latestAlert.message).then(
+        () => {
+          props.onAlertDone(latestAlert.id);
+        },
+        () => {
+          props.onAlertDone(latestAlert.id);
+        }
+      );
+    }
+  }, [props.asyncAlerts])
 
   useEffect(() => {
     addSteps(joyrideSteps);
