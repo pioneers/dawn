@@ -24,6 +24,7 @@ cleanerNames[PeripheralTypes.KoalaBear] = 'Koala Bear';
 interface PeripheralGroupProps {
   peripherals: Peripheral[];
   groupName: string;
+  globalTheme: string;
 }
 
 const PeripheralGroup = (props: PeripheralGroupProps) => {
@@ -31,11 +32,12 @@ const PeripheralGroup = (props: PeripheralGroupProps) => {
 
   const { peripherals, groupName } = props;
   const groupNameCleaned = groupName; //cleanerNames[groupName] as string;
+  const bsTheme = props.globalTheme;
 
     return (
-      <Card key={`${groupNameCleaned || 'Default'}-Card`} bg="secondary" style={{backgroundColor: '#353a3f'}}>
+      <Card key={`${groupNameCleaned || 'Default'}-Card`} bg={bsTheme}>
         <Card.Header>
-          <Card.Title onClick={() => setOut(!out)} style={{ fontWeight: 'bold', color: 'black'}}>
+          <Card.Title onClick={() => setOut(!out)} style={{ fontWeight: 'bold'}}>
             {groupName || 'Generic'}
           </Card.Title>
         </Card.Header>
@@ -48,8 +50,8 @@ const PeripheralGroup = (props: PeripheralGroupProps) => {
                 name={peripheral.name}
                 type={peripheral.type}
                 params={peripheral.params}
-                background=''
-                color=''
+                background={props.globalTheme === 'dark' ? '#353a3f' : 'white'}
+                color=""
               />
             ))}
           </Card.Body>
