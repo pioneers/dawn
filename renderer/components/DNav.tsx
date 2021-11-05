@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Navbar, ButtonToolbar, ButtonGroup, Badge } from 'react-bootstrap';
 import { ConfigBox } from './ConfigBox';
@@ -7,7 +7,8 @@ import { StatusLabel } from './StatusLabel';
 import { TooltipButton } from './TooltipButton';
 import { VERSION } from '../consts';
 import { robotState } from '../utils/utils';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
+import storage from 'electron-json-storage';
 
 interface StateProps {
   runtimeVersion: string;
@@ -46,7 +47,12 @@ const DNavComponent = (props: Props) => {
   
   const [showUpdateModal, toggleUpdateModal] = useState(false);
   const [showConfigModal, toggleConfigModal] = useState(false);
+  let currentGlobalTheme: string = useSelector((state: ApplicationState) => state.settings.globalTheme);
   const toggleDarkMode = () => {
+    currentGlobalTheme = ((currentGlobalTheme == 'light' ? 'dark' : 'light'))
+    storage.set('globalTheme', { currentGlobalTheme }, (err: any) => {
+      if (err) console.log(err);
+    });
     dispatch({type: 'TOGGLE_THEME_GLOBAL'});
   }
 
@@ -75,6 +81,13 @@ const DNavComponent = (props: Props) => {
 
     return `${latency} ms`;
   };
+
+  useEffect(() => {
+    storage.get('globalTheme', (err: any, data: any) => {
+      if (err) console.log(err);
+      console.log(data);
+    });
+  }, [])
 
   const {
     connectionStatus,
