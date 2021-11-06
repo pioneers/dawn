@@ -85,7 +85,9 @@ const DNavComponent = (props: Props) => {
   useEffect(() => {
     storage.get('globalTheme', (err: any, data: any) => {
       if (err) console.log(err);
-      console.log(data);
+      if (data?.currentGlobalTheme == "dark") {
+        dispatch({type: 'TOGGLE_THEME_GLOBAL'});
+      }
     });
   }, [])
 
