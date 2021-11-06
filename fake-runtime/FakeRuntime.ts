@@ -1,17 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /*
- * Fake Runtime is not handled by webpack like most of the other JS code but instead
- * will be run "as is" as a child-process of the rest of the application.
- * See DebugMenu.js for handling FakeRuntime within Dawn
+ * Fake Runtime is run as a child-process of the rest of the application.
+ * See DebugMenu.js for handling FakeRuntime within Dawn.
  */
 
 /* eslint-disable camelcase */
 import { DevData, IParam, IDevice, IDevData } from '../protos-main';
-import { createSocket, Socket as UDPSocket } from 'dgram';
-import { createServer, Server as TCPServer } from 'net';
+import { createServer, Server as TCPServer, Socket as TCPSocket } from 'net';
 
 const TCP_PORT = 8101;
-const UDP_SEND_PORT = 9001;
-const UDP_LISTEN_PORT = 9000;
 const MSG_INTERVAL_MSEC = 50;
 
 const randomFloat = (min: number, max: number) => (max - min) * Math.random() + min;
@@ -19,7 +16,7 @@ const sensor = (name: string, type: number, params: IParam[], uid: number): IDev
   name,
   type,
   params,
-  uid,
+  uid
 });
 
 const param = (name: string, type: string, value: any): IParam => ({
@@ -35,27 +32,18 @@ const print = (output: string) => {
 };
 
 class FakeRuntime {
-  sendSocket: UDPSocket;
-  listenSocket: UDPSocket;
   tcpServer: TCPServer;
 
   constructor() {
-    this.sendSocket = createSocket({ type: 'udp4', reuseAddr: true });
-    this.listenSocket = createSocket({ type: 'udp4', reuseAddr: true });
-
-    this.listenSocket.on('message', (_msg: any) => {
-      // TODO: Handle UDP gamepad recv
-    });
-    this.listenSocket.bind(UDP_LISTEN_PORT);
-
     this.tcpServer = createServer((_c: any) => {
       print('client connected');
     });
     this.tcpServer.listen(TCP_PORT, () => {
       print('server bound');
-    })
-
-    setInterval(this.onInterval, MSG_INTERVAL_MSEC);
+    });
+    this.tcpServer.on('connection', (socket: TCPSocket) => {
+      setInterval(() => this.sendDeviceData(socket), MSG_INTERVAL_MSEC);
+    });
   }
 
   generateFakeData = () => {
@@ -71,7 +59,7 @@ class FakeRuntime {
           [
             param('Val 1', 'float', randomFloat(-100, 100)),
             param('Val 2', 'float', randomFloat(-100, 100)),
-            param('Val 3', 'float', randomFloat(-100, 100)),
+            param('Val 3', 'float', randomFloat(-100, 100))
           ],
           104
         ),
@@ -80,15 +68,26 @@ class FakeRuntime {
         // Special Cases handled in dawn/renderer/reducers/peripherals.js
         // sensor('Ignored', 5, [param('major', 'int', 1), param('minor', 'int', 2), param('patch', 'int', 3)], -1),
         // sensor('Ignored', 5, [param('is_unsafe', 'bool', Math.random() < 0.5), param('v_batt', 'float', randomFloat(0, 15))], 0),
-      ],
+      ]
     };
-  }
+  };
 
-  onInterval = () => {
+  sendDeviceData = (socket: TCPSocket) => {
     const fakeData: IDevData = this.generateFakeData();
-    this.sendSocket.send(DevData.encode(fakeData).finish(), UDP_SEND_PORT, 'localhost');
+    const encodedPayload = DevData.encode(fakeData).finish();
+
+    const msgLength = Buffer.byteLength(encodedPayload);
+    const msgLengthArr = new Uint8Array([msgLength & 0x00ff, msgLength & 0xff00]); // Assuming little-endian byte order, since runs on x64
+    const msgTypeArr = new Uint8Array([3]); // msg type 3 for DevData
+    const packet = Buffer.concat([msgTypeArr, msgLengthArr, encodedPayload], msgLength + 3);
+
+    socket.write(packet, (err?: Error) => {
+      if (err !== undefined) {
+        console.log('Err', err);
+      }
+    });
     // TODO: Handle TCP writes to console
-  }
+  };
 }
 
 new FakeRuntime();
