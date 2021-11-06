@@ -3,6 +3,14 @@ import fs from 'fs';
 
 export const TIMEOUT = 5000;
 
+// @todo: better naming of this function - currently only used for preprocessing editor code
+export const correctText = (text: string): string => {
+  text = text.normalize('NFD');
+  text = text.replace(/[”“]/g, '"');
+  text = text.replace(/[‘’]/g, "'");
+  return text.replace(/[^\x00-\x7F]/g, ''); // eslint-disable-line no-control-regex
+};
+
 export const pathToName = (filepath: string) => {
   if (filepath !== null && filepath !== '') {
     if (process.platform === 'win32') {
