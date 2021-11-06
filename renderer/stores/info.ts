@@ -12,16 +12,14 @@ export class InfoStore {
   rootStore: typeof RootStore;
 
   ipAddress: IObservableValue<string> = observable.box(defaults.IPADDRESS);
-  udpTunnelIpAddress: IObservableValue<string> = observable.box(defaults.IPADDRESS);
   sshAddress: IObservableValue<string> = observable.box(defaults.IPADDRESS);
   studentCodeStatus: IObservableValue<number> = observable.box(robotState.IDLE);
   isRunningCode: IObservableValue<boolean> = observable.box(false);
   connectionStatus: IObservableValue<boolean> = observable.box(false);
   runtimeStatus: IObservableValue<boolean> = observable.box(false);
-  masterStatus: IObservableValue<boolean> = observable.box(false);
-  notificationHold: IObservableValue<number> = observable.box(0);
-  fieldControlDirective: IObservableValue<number> = observable.box(robotState.TELEOP);
-  fieldControlActivity: IObservableValue<boolean> = observable.box(false);
+  notificationHold: IObservableValue<number> = observable.box(0); // TODO: not sure what this is
+  fieldControlDirective: IObservableValue<number> = observable.box(robotState.TELEOP); // TODO: not sure what this is
+  fieldControlActivity: IObservableValue<boolean> = observable.box(false); // TODO: not sure what this is
 
   constructor(rootStore: typeof RootStore) {
     this.rootStore = rootStore;
@@ -45,10 +43,6 @@ export class InfoStore {
     this.studentCodeStatus.set(robotState.IDLE);
   };
 
-  masterRobot = () => {
-    this.masterStatus.set(true);
-  };
-
   codeStatus = (codeStatus: number) => {
     ipcRenderer.send('runModeUpdate', { mode: codeStatus });
     this.studentCodeStatus.set(codeStatus);
@@ -57,11 +51,6 @@ export class InfoStore {
   ipChange = (address: string) => {
     ipcRenderer.send('ipAddress', address);
     this.ipAddress.set(address);
-  };
-
-  udpTunnelIpChange = (address: string) => {
-    ipcRenderer.send('udpTunnelIpAddress', address);
-    this.udpTunnelIpAddress.set(address);
   };
 
   sshIpChange = (address: string) => {

@@ -5,7 +5,7 @@ export class ConsoleStore {
   rootStore: typeof RootStore;
 
   showConsole = observable.box(false);
-  consoleData: IObservableArray = observable.array([], {deep: false});
+  consoleData: IObservableArray<string> = observable.array([], { deep: false });
   disableScroll = observable.box(false);
   consoleUnread = observable.box(false);
 

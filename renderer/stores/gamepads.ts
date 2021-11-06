@@ -84,30 +84,4 @@ export class GamepadsStore {
   updateMainProcess = () => {
     ipcRenderer.send('stateUpdate', this.gamepads, Source.GAMEPAD);
   }
-
-  /**
- * This saga acts as a "heartbeat" to check whether we are still receiving
- * updates from Runtime.
- *
- * NOTE that this is different from whether or not the Runtime connection
- * is still alive.
- */
-runtimeHeartbeat = () => {
-  while (true) {
-    // Start a race between a delay and receiving an UPDATE_STATUS action from
-    // runtime. Only the winner will have a value.
-    const result = yield race({
-      update: take('PER_MESSAGE'),
-      timeout: delay(TIMEOUT)
-    });
-
-    // If update wins, we assume we are connected, otherwise disconnected.
-    if (result.update) {
-      this.rootStore.info.runtimeConnect();
-    } else {
-      this.rootStore.info.runtimeDisconnect();
-    }
-  }
-}
-
 }

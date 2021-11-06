@@ -12,7 +12,7 @@ const rng = seedrandom('alertseed');
 export class AlertStore {
   rootStore: typeof RootStore;
 
-  alertState: IObservableArray<AsyncAlert> = observable([]);
+  alertState: IObservableArray<AsyncAlert> = observable.array([], { deep: false });
 
   constructor(rootStore: typeof RootStore) {
     this.rootStore = rootStore;
@@ -30,6 +30,6 @@ export class AlertStore {
   };
 
   removeAsyncAlert = (id: number) => {
-    this.alertState.filter((el: AsyncAlert) => el.id !== id); //This line is not redlining. Use array.replace?
+    this.alertState.filter((el: AsyncAlert) => el.id !== id);
   };
 }

@@ -2,7 +2,7 @@ import { ipcRenderer, remote} from 'electron';
 import fs from 'fs';
 import { IObservableValue, observable } from 'mobx';
 import { Client, SFTPWrapper } from 'ssh2';
-import { Input, Source, TimeStamps } from '../../protos/protos';
+import { Input, Source, TimeStamps } from '../../protos-main';
 import { defaults, logging, sleep } from '../utils/utils';
 import { RootStore } from './root';
 import { createErrorCallback, openFileDialog, saveFileDialog, unsavedDialog } from './utils';
@@ -29,7 +29,7 @@ export class EditorStore {
     this.rootStore = rootStore;
   }
 
-  updateEditor = (editor: EditorState) => {
+  updateEditorCode = (editor: EditorState) => {
     this.editorCode.set(editor.editorCode);
   };
 
@@ -152,6 +152,7 @@ export class EditorStore {
         } catch (e) {
           logging.log('Failure to Drag File In');
         }
+        break;
       default: {
         logging.log('Drag File Operation Canceled');
       }
