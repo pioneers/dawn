@@ -46,7 +46,11 @@ export const ConfigBoxComponent = (props: Props) => {
   const [originalSSHAddress, setOriginalSSHAddress] = useState(props.sshAddress);
   const [originalStationNumber, setOriginalStationNumber] = useState(props.stationNumber);
   const [originalFCAddress, setOriginalFCAddress] = useState(props.fcAddress);
-
+  const [updateDisabled, setUpdateDisabled] = useState(false);
+  useEffect(() => {
+    const isDisabled = getValidationState(ipAddress) === 'error' || getValidationState(sshAddress) === 'error' || getValidationState(fcAddress) === 'error' || (stationNumber < 0 || stationNumber > 4);
+    setUpdateDisabled(isDisabled);
+  }, [ipAddress, sshAddress, fcAddress, stationNumber])
   const saveChanges = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -102,13 +106,6 @@ export const ConfigBoxComponent = (props: Props) => {
     setFCAddress(originalFCAddress);
     setSSHAddress(originalSSHAddress);
     props.hide();
-  };
-
-  const disableUploadUpdate = () => {
-    if (defaults.NGROK) {
-      return false;
-    }
-    return getValidationState(ipAddress) === 'error' || getValidationState(ssh) === 'error' || (stationNumber < 0 && stationNumber > 4);
   };
 
   useEffect(() => {
@@ -200,7 +197,7 @@ export const ConfigBoxComponent = (props: Props) => {
 
             <Form.Group controlId="stationNumber">
                 <Form.Label>Field Control Station Number</Form.Label>
-                <Form.Control type="number" value={stationNumber} placeholder="An integer from 0 to 4" onChange={handleStationChange} isValid={stationNumber >= 0 && stationNumber <= 4} isInvalid={stationNumber < 0 && stationNumber > 4}/>
+                <Form.Control type="number" value={stationNumber} placeholder="An integer from 0 to 4" onChange={handleStationChange} isValid={stationNumber >= 0 && stationNumber <= 4} isInvalid={stationNumber < 0 || stationNumber > 4}/>
                 <Form.Control.Feedback type='invalid'>
                 Invalid Station Number. Try Again
               </Form.Control.Feedback>
@@ -208,7 +205,7 @@ export const ConfigBoxComponent = (props: Props) => {
             </Form.Group>
             </Modal.Body>
             <Modal.Footer>
-            <Button type="submit" variant="primary" disabled={disableUploadUpdate()}>
+            <Button type="submit" variant="primary" disabled={updateDisabled}>
                 Update
             </Button>
             </Modal.Footer>

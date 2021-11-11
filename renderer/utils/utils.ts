@@ -29,9 +29,6 @@ export const getValidationState = (testIPAddress: string) => {
   if (testIPAddress === 'localhost') {
     return 'warning';
   }
-  if (defaults.NGROK) {
-    return 'warning'; // Don't care about regex for ngrok IPs
-  }
   return 'error';
 };
 
