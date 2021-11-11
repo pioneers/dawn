@@ -8,7 +8,6 @@ import { defaults, getValidationState, logging, isValidationState } from '../uti
 import { updateFieldControl } from '../actions/FieldActions';
 import { ipChange, sshIpChange } from '../actions/InfoActions';
 import storage from 'electron-json-storage';
-import { Formik } from 'formik';
 
 interface Config {
   stationNumber: number;
@@ -47,10 +46,7 @@ export const ConfigBoxComponent = (props: Props) => {
   const [originalStationNumber, setOriginalStationNumber] = useState(props.stationNumber);
   const [originalFCAddress, setOriginalFCAddress] = useState(props.fcAddress);
   const [updateDisabled, setUpdateDisabled] = useState(false);
-  useEffect(() => {
-    const isDisabled = getValidationState(ipAddress) === 'error' || getValidationState(sshAddress) === 'error' || getValidationState(fcAddress) === 'error' || (stationNumber < 0 || stationNumber > 4);
-    setUpdateDisabled(isDisabled);
-  }, [ipAddress, sshAddress, fcAddress, stationNumber])
+
   const saveChanges = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -146,18 +142,15 @@ export const ConfigBoxComponent = (props: Props) => {
     });
   }, []);
 
+  useEffect(() => {
+    const isDisabled = getValidationState(ipAddress) === 'error' || getValidationState(sshAddress) === 'error' || getValidationState(fcAddress) === 'error' || (stationNumber < 0 || stationNumber > 4);
+    setUpdateDisabled(isDisabled);
+  }, [ipAddress, sshAddress, fcAddress, stationNumber])
+
   const { shouldShow } = props;
 
   return (
-      // TODO: Figure out formik stuff
-      <Formik
-    //   validationSchema={schema}
-      onSubmit={console.log}
-      initialValues={{
-        
-      }}
-    >
-        <Modal show={shouldShow} onHide={handleClose} animation={false}>
+	<Modal show={shouldShow} onHide={handleClose} animation={false}>
         <Form action="" onSubmit={saveChanges}>
             <Modal.Header closeButton>
             <Modal.Title>Dawn Configuration</Modal.Title>
@@ -210,8 +203,7 @@ export const ConfigBoxComponent = (props: Props) => {
             </Button>
             </Modal.Footer>
         </Form>
-        </Modal>
-    </Formik>
+	</Modal>
   );
 };
 
