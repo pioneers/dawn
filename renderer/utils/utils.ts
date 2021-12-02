@@ -22,8 +22,10 @@ export const pathToName = (filepath: string) => {
 };
 
 const IPV4_REGEX = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}$/;
+const localhost_REGEX = /^(localhost(\:\d+)?$)/;
+const local_REGEX = /^([A-z0-9]+.local(\:\d+)?)$/;
 export const getValidationState = (testIPAddress: string) => {
-  if (IPV4_REGEX.test(testIPAddress)) {
+  if (IPV4_REGEX.test(testIPAddress) || localhost_REGEX.test(testIPAddress) || local_REGEX.test(testIPAddress)) {
     return 'success';
   }
   if (testIPAddress === 'localhost') {
@@ -33,7 +35,7 @@ export const getValidationState = (testIPAddress: string) => {
 };
 
 export const isValidationState = (testIPAddress: string) => {
-    if (IPV4_REGEX.test(testIPAddress)) {
+    if (getValidationState(testIPAddress) !== 'error') {
         return true;
     }
     return false;
