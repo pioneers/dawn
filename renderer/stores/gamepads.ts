@@ -1,9 +1,9 @@
 import { makeAutoObservable } from 'mobx';
 import { RootStore } from './root';
-import { Input, Source } from '../../protos/protos';
+import { Input, Source } from '../../protos-main';
 import _ from 'lodash';
 import { ipcRenderer } from 'electron';
-import { logging } from '../utils/utils';
+import { logging, sleep } from '../utils/utils';
 
 export class GamepadsStore {
   rootStore: typeof RootStore;
@@ -16,14 +16,14 @@ export class GamepadsStore {
   }
 
   updateGamepads(newGamepads: Input[]) {
-	this.gamepads = newGamepads;
+    this.gamepads = newGamepads;
   }
 
   _needToUpdate = (newGamepads: (Gamepad | null)[]): boolean => {
     const _timestamps: Array<number | null> = [0, 0, 0, 0];
 
     return _.some(newGamepads, (gamepad, index) => {
-      if (gamepad != null && (gamepad.timestamp > (_timestamps[index] ?? 0))) {
+      if (gamepad != null && gamepad.timestamp > (_timestamps[index] ?? 0)) {
         _timestamps[index] = gamepad.timestamp;
         return true;
       } else if (gamepad == null && _timestamps[index] != null) {
@@ -32,9 +32,9 @@ export class GamepadsStore {
       }
       return false;
     });
-  }
+  };
 
-  runtimeGamepads = () => {
+  runtimeGamepads = async () => {
     let timestamp = Date.now();
 
     if (!this.rootStore.editor.isKeyboardModeToggled) {
@@ -45,29 +45,29 @@ export class GamepadsStore {
         if (this._needToUpdate(newGamepads) || Date.now() - timestamp > 100) {
           const formattedGamepads = this.formatGamepads(newGamepads);
           this.updateGamepads(formattedGamepads);
-  
+
           // Send gamepad data to Runtime.
           if (_.some(newGamepads) || Date.now() - timestamp > 100) {
             timestamp = Date.now();
             this.updateMainProcess();
           }
         }
-        yield delay(50); // wait 50 ms before updating again. TODO!!!!
+        await sleep(50); // wait 50 ms before updating again
       }
     }
-  }
+  };
 
   formatGamepads = (newGamepads: (Gamepad | null)[]): Input[] => {
-    let formattedGamepads: Input[] = [];
+    const formattedGamepads: Input[] = [];
     // Currently there is a bug on windows where navigator.getGamepads()
     // returns a second, 'ghost' gamepad even when only one is connected.
     // The filter on 'mapping' filters out the ghost gamepad.
     _.forEach(_.filter(newGamepads, { mapping: 'standard' }), (gamepad: Gamepad | null, indexGamepad: number) => {
       if (gamepad) {
-        let bitmap: number = 0;
+        let bitmap = 0;
         gamepad.buttons.forEach((button, index) => {
           if (button.pressed) {
-            bitmap |= (1 << index);
+            bitmap |= 1 << index;
           }
         });
         formattedGamepads[indexGamepad] = new Input({
@@ -79,9 +79,9 @@ export class GamepadsStore {
       }
     });
     return formattedGamepads;
-  }
+  };
 
   updateMainProcess = () => {
     ipcRenderer.send('stateUpdate', this.gamepads, Source.GAMEPAD);
-  }
+  };
 }

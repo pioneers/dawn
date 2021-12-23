@@ -5,7 +5,15 @@ import { Client, SFTPWrapper } from 'ssh2';
 import { Input, Source, TimeStamps } from '../../protos-main';
 import { defaults, logging, sleep } from '../utils/utils';
 import { RootStore } from './root';
-import { createErrorCallback, openFileDialog, saveFileDialog, unsavedDialog } from './utils';
+import {
+  createErrorCallback,
+  openFileDialog,
+  saveFileDialog,
+  transferFile,
+  unsavedDialog,
+  UnsavedDialogActions,
+  UnsavedDialogActionsOptions
+} from './utils';
 
 interface EditorState {
   latencyValue: number;
@@ -29,20 +37,20 @@ export class EditorStore {
     this.rootStore = rootStore;
   }
 
-  updateEditorCode = (editor: EditorState) => {
-    this.editorCode.set(editor.editorCode);
+  updateEditorCode = (editorCode: string) => {
+    this.editorCode.set(editorCode);
   };
 
-  updateKeyboardBitmap = (editor: EditorState) => {
-    this.keyboardBitmap.set(editor.keyboardBitmap);
+  updateKeyboardBitmap = (keyboardBitmap: number) => {
+    this.keyboardBitmap.set(keyboardBitmap);
   };
 
-  setLatencyValue = (editor: EditorState) => {
-    this.latencyValue.set(editor.latencyValue);
+  setLatencyValue = (latencyValue: number) => {
+    this.latencyValue.set(latencyValue);
   };
 
-  updateIsKeyboardModeToggled = (editor: EditorState) => {
-    this.isKeyboardModeToggled.set(editor.isKeyboardModeToggled);
+  updateIsKeyboardModeToggled = (isKeyboardModeToggled: boolean) => {
+    this.isKeyboardModeToggled.set(isKeyboardModeToggled);
   };
 
   // Filesystem for editor
@@ -70,6 +78,11 @@ export class EditorStore {
     if (saveAs === true || !this.filepath) {
       try {
         filepath = await saveFileDialog();
+
+        if (filepath === undefined) {
+          return;
+        }
+
         this.writeCodeToFile(filepath, code);
       } catch (e) {
         logging.log('No filename specified, file not saved.');
@@ -83,10 +96,16 @@ export class EditorStore {
     const LOG_PREFIX = 'openFile:';
 
     const action = actionType === 'OPEN_FILE' ? 'open' : 'create';
-    let chosenAction = 'discardAction';
+    let chosenAction: UnsavedDialogActionsOptions | undefined = 'discardAction';
 
     if (this.editorCode.get() !== this.latestSaveCode.get()) {
       chosenAction = await unsavedDialog(action);
+
+      if (chosenAction === undefined) {
+        return;
+      };
+
+
       if (chosenAction === 'saveAction') {
         await this.saveFile({
           saveAs: false
@@ -126,10 +145,15 @@ export class EditorStore {
 
     const code = this.editorCode.get();
     const savedCode = this.latestSaveCode.get();
-    let chosenAction = 'discardAction';
+    let chosenAction: UnsavedDialogActionsOptions | undefined = 'discardAction';
 
     if (code !== savedCode) {
       chosenAction = await unsavedDialog(action);
+
+      if (chosenAction === undefined) {
+        return;
+      }
+
       if (chosenAction === 'saveAction') {
         await this.saveFile({
           saveAs: false
@@ -172,106 +196,6 @@ export class EditorStore {
       return;
     }
 
-    logging.log(`Uploading ${this.filepath.get()}`);
-
-    const conn = new Client();
-
-    const errors = await new Promise((resolve) => {
-      let port = defaults.PORT;
-      let ip = this.rootStore.info.ipAddress.get();
-      if (ip.includes(':')) {
-        const split = ip.split(':');
-        ip = split[0];
-        port = Number(split[1]);
-      }
-
-      conn.on('error', (err: any) => {
-        logging.log(err);
-        resolve('connectionError');
-      });
-
-      conn
-        .on('ready', () => {
-          conn.sftp((err: Error | undefined, sftp: SFTPWrapper) => {
-            if (err) {
-              logging.log(err);
-              resolve('sftpError');
-            }
-
-            let transferMethod;
-            let srcPath;
-            let destPath;
-
-            switch (transferType) {
-              case 'download':
-                transferMethod = sftp.fastGet;
-                srcPath = defaults.STUDENTCODELOC;
-                destPath = `${defaults.DESKTOP_LOC}/robotCode.py`
-                break;
-
-              case 'upload':
-                transferMethod = sftp.fastPut;
-                srcPath = this.filepath.get();
-                destPath = defaults.STUDENTCODELOC;
-                break;
-
-              default:
-                return;
-            }
-
-            transferMethod(srcPath, destPath, (err2: any) => {
-              if (err2) {
-                logging.log(err2);
-                resolve('fileTransmissionError');
-              }
-              resolve('fileTransmissionSuccess');
-            });
-          });
-        })
-        .connect({
-          debug: (input: any) => {
-            logging.log(input);
-          },
-          host: ip,
-          port,
-          username: defaults.USERNAME,
-          password: defaults.PASSWORD
-        });
-    });
-
-    switch (errors) {
-      case 'fileTransmissionSuccess': {
-        // @todo: split between download and upload
-        this.rootStore.alert.addAsyncAlert('Upload Success', 'File Uploaded Successfully');
-        break;
-      }
-      case 'sftpError': {
-        this.rootStore.alert.addAsyncAlert('Upload Issue', 'SFTP session could not be initiated');
-        break;
-      }
-      case 'fileTransmissionError': {
-        this.rootStore.alert.addAsyncAlert('Upload Issue', 'File failed to be transmitted');
-        break;
-      }
-      case 'connectionError': {
-        this.rootStore.alert.addAsyncAlert('Upload Issue', 'Robot could not be connected');
-        break;
-      }
-      default: {
-        this.rootStore.alert.addAsyncAlert('Upload Issue', 'Unknown Error');
-        break;
-      }
-    }
-    setTimeout(() => {
-      conn.end();
-    }, 50);
-  };
-
-  // combine uploadStudentCode and downloadStudentCode into one function
-  // we can maybe call the function transferStudentCode
-  // NOTE: remove after transferStudentCode is done
-  uploadStudentCode = () => {
-    const conn = new Client();
     let port = defaults.PORT;
     let ip = this.rootStore.info.ipAddress.get();
     if (ip.includes(':')) {
@@ -279,70 +203,39 @@ export class EditorStore {
       ip = split[0];
       port = Number(split[1]);
     }
-    if (this.rootStore.info.runtimeStatus.get()) {
-      logging.log(`Uploading ${this.filepath.get()}`);
-      const errors = yield call(
-        () =>
-          new Promise((resolve) => {
-            conn.on('error', (err: any) => {
-              logging.log(err);
-              resolve('connectionError');
-            });
 
-            conn
-              .on('ready', () => {
-                conn.sftp((err: any, sftp: any) => {
-                  if (err) {
-                    logging.log(err);
-                    resolve('sftpError');
-                  }
-                  sftp.fastPut(stateSlice.filepath, defaults.STUDENTCODELOC, (err2: any) => {
-                    if (err2) {
-                      logging.log(err2);
-                      resolve('fileTransmissionError');
-                    }
-                    resolve('fileTransmissionSuccess');
-                  });
-                });
-              })
-              .connect({
-                debug: (input: any) => {
-                  logging.log(input);
-                },
-                host: ip,
-                port,
-                username: defaults.USERNAME,
-                password: defaults.PASSWORD
-              });
-          })
-      );
+    const response = await transferFile({ localFilePath: this.filepath.get(), port, ip, transferType });
 
-      switch (errors) {
-        case 'fileTransmissionSuccess': {
-          this.rootStore.alert.addAsyncAlert('Upload Success', 'File Uploaded Successfully');
-          break;
-        }
-        case 'sftpError': {
-          this.rootStore.alert.addAsyncAlert('Upload Issue', 'SFTP session could not be initiated');
-          break;
-        }
-        case 'fileTransmissionError': {
-          this.rootStore.alert.addAsyncAlert('Upload Issue', 'File failed to be transmitted');
-          break;
-        }
-        case 'connectionError': {
-          this.rootStore.alert.addAsyncAlert('Upload Issue', 'Robot could not be connected');
-          break;
-        }
-        default: {
-          this.rootStore.alert.addAsyncAlert('Upload Issue', 'Unknown Error');
-          break;
-        }
+    const transferTypeHumanString = { download: 'Download', upload: 'Upload' }[transferType];
+
+    switch (response) {
+      case 'fileTransmissionSuccess': {
+        // @todo: split between download and upload
+        this.rootStore.alert.addAsyncAlert(`${transferTypeHumanString} Success`, `File ${transferTypeHumanString}ed Successfully`);
+        break;
       }
-      setTimeout(() => {
-        conn.end();
-      }, 50);
+      case 'sftpError': {
+        this.rootStore.alert.addAsyncAlert(`${transferTypeHumanString} Issue`, 'SFTP session could not be initiated');
+        break;
+      }
+      case 'fileTransmissionError': {
+        this.rootStore.alert.addAsyncAlert(`${transferTypeHumanString} Issue`, 'File failed to be transmitted');
+        break;
+      }
+      case 'connectionError': {
+        this.rootStore.alert.addAsyncAlert(`${transferTypeHumanString} Issue`, 'Robot could not be connected');
+        break;
+      }
+      default: {
+        this.rootStore.alert.addAsyncAlert(`${transferTypeHumanString} Issue`, 'Unknown Error');
+        break;
+      }
     }
+
+    // TODO: need timeout?
+    // setTimeout(() => {
+    //   conn.end();
+    // }, 50);
   };
 
   initiateLatencyCheck = async () => {
