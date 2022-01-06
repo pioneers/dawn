@@ -15,6 +15,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { Observer } from 'mobx-react';
 import { useStores } from '../hooks';
+import { ipcChannels } from '../../shared';
 
 type ElectronJSONStorage = typeof electronJSONStorage;
 
@@ -46,7 +47,7 @@ export const AppComponent = (props: Props) => {
 
   useEffect(() => {
     addSteps(joyrideSteps);
-    ipcRenderer.on('start-interactive-tour', () => {
+    ipcRenderer.on(ipcChannels.START_INTERACTIVE_TOUR, () => {
       startTour();
     });
     storage.has('firstTime', (hasErr: any, hasKey: any) => {

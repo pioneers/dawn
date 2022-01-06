@@ -1,6 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import { RootStore } from './root';
 import { Input, Source } from '../../protos-main';
+import { ipcChannels } from '../../shared';
 import _ from 'lodash';
 import { ipcRenderer } from 'electron';
 import { logging, sleep } from '../utils/utils';
@@ -82,6 +83,6 @@ export class GamepadsStore {
   };
 
   updateMainProcess = () => {
-    ipcRenderer.send('stateUpdate', this.gamepads, Source.GAMEPAD);
+    ipcRenderer.send(ipcChannels.STATE_UPDATE, this.gamepads, Source.GAMEPAD);
   };
 }

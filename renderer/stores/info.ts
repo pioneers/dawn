@@ -1,5 +1,6 @@
 import { ipcRenderer } from 'electron';
 import { IObservableValue, observable } from 'mobx';
+import { ipcChannels } from '../../shared';
 import { robotState, defaults } from '../utils/utils';
 import { RootStore } from './root';
 
@@ -44,12 +45,12 @@ export class InfoStore {
   };
 
   codeStatus = (codeStatus: number) => {
-    ipcRenderer.send('runModeUpdate', { mode: codeStatus });
+    ipcRenderer.send(ipcChannels.RUN_MODE_UPDATE, { mode: codeStatus });
     this.studentCodeStatus.set(codeStatus);
   };
 
   ipChange = (address: string) => {
-    ipcRenderer.send('ipAddress', address);
+    ipcRenderer.send(ipcChannels.IP_ADDRESS, address);
     this.ipAddress.set(address);
   };
 

@@ -1,4 +1,4 @@
-import { ipcRenderer, remote} from 'electron';
+import { ipcRenderer, remote } from 'electron';
 import fs from 'fs';
 import { IObservableValue, observable } from 'mobx';
 import { Client, SFTPWrapper } from 'ssh2';
@@ -103,8 +103,7 @@ export class EditorStore {
 
       if (chosenAction === undefined) {
         return;
-      };
-
+      }
 
       if (chosenAction === 'saveAction') {
         await this.saveFile({
@@ -246,7 +245,7 @@ export class EditorStore {
         runtimeTimestamp: 0
       });
 
-      ipcRenderer.send('initiateLatencyCheck', timestamps);
+      ipcRenderer.send(ipcChannels.INITIATE_LATENCY_CHECK, timestamps);
 
       await sleep(5000);
     }
@@ -260,7 +259,7 @@ export class EditorStore {
       source: Source.KEYBOARD
     });
 
-    ipcRenderer.send('stateUpdate', [keyboardConnectionStatus], Source.KEYBOARD);
+    ipcRenderer.send(ipcChannels.STATE_UPDATE, [keyboardConnectionStatus], Source.KEYBOARD);
   };
 
   sendKeyboardInputs = () => {
@@ -271,6 +270,6 @@ export class EditorStore {
       source: Source.KEYBOARD
     });
 
-    ipcRenderer.send('stateUpdate', [keyboard], Source.KEYBOARD);
+    ipcRenderer.send(ipcChannels.STATE_UPDATE, [keyboard], Source.KEYBOARD);
   };
 }
