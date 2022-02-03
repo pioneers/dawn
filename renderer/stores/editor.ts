@@ -7,21 +7,18 @@ import { defaults, logging, sleep } from '../utils/utils';
 import { RootStore } from './root';
 import {
   createErrorCallback,
+  createTask,
   openFileDialog,
   saveFileDialog,
   transferFile,
-  unsavedDialog,
+  openUnsavedFileDialog,
   UnsavedDialogActions,
-  UnsavedDialogActionsOptions
+  UnsavedDialogButtonOptions
 } from './utils';
+import { ipcChannels } from '../../shared';
 
-interface EditorState {
-  latencyValue: number;
-  filepath: string;
-  latestSaveCode: string;
-  editorCode: string;
-  keyboardBitmap: number;
-  isKeyboardModeToggled: boolean;
+interface SaveFile {
+  saveAs?: boolean;
 }
 
 export class EditorStore {
@@ -70,12 +67,13 @@ export class EditorStore {
     this.saveFileSucceeded({ latestSaveCode: code, filepath });
   };
 
-  saveFile = async ({ saveAs }: { saveAs: boolean }) => {
+  saveFile = async (args: SaveFile = {}) => {
+    const shouldSaveFile = args.saveAs ?? false;
     let filepath = this.filepath.get();
     const code = this.editorCode.get();
     // If the action is a "save as" OR there is no filepath (ie, a new file)
     // then we open the save file dialog so the user can specify a filename before saving.
-    if (saveAs === true || !this.filepath) {
+    if (shouldSaveFile || !this.filepath) {
       try {
         filepath = await saveFileDialog();
 
@@ -92,14 +90,13 @@ export class EditorStore {
     }
   };
 
-  openFile = async ({ actionType }: { actionType: string }) => {
+  openFile = async ({ action }: { action: UnsavedDialogActions }) => {
     const LOG_PREFIX = 'openFile:';
 
-    const action = actionType === 'OPEN_FILE' ? 'open' : 'create';
-    let chosenAction: UnsavedDialogActionsOptions | undefined = 'discardAction';
+    let chosenAction: UnsavedDialogButtonOptions | undefined = 'discardAction';
 
     if (this.editorCode.get() !== this.latestSaveCode.get()) {
-      chosenAction = await unsavedDialog(action);
+      chosenAction = await openUnsavedFileDialog(action);
 
       if (chosenAction === undefined) {
         return;
@@ -139,106 +136,112 @@ export class EditorStore {
     }
   };
 
-  dragFile = async (action: any) => {
-    const LOG_PREFIX = 'dragFile:';
+  dragFile = createTask({
+    config: { taskId: 'dragFile' },
+    implementation: async (filepath: string) => {
+      const LOG_PREFIX = 'dragFile:';
 
-    const code = this.editorCode.get();
-    const savedCode = this.latestSaveCode.get();
-    let chosenAction: UnsavedDialogActionsOptions | undefined = 'discardAction';
+      const code = this.editorCode.get();
+      const savedCode = this.latestSaveCode.get();
+      let chosenAction: UnsavedDialogButtonOptions | undefined = 'discardAction';
 
-    if (code !== savedCode) {
-      chosenAction = await unsavedDialog(action);
+      if (code !== savedCode) {
+        chosenAction = await openUnsavedFileDialog('open');
 
-      if (chosenAction === undefined) {
-        return;
-      }
-
-      if (chosenAction === 'saveAction') {
-        await this.saveFile({
-          saveAs: false
-        });
-      }
-    }
-
-    switch (chosenAction) {
-      case 'saveAction':
-      case 'discardAction':
-        try {
-          const { filepath } = action;
-          fs.readFile(filepath, (error: NodeJS.ErrnoException | null, data: Buffer) => {
-            if (error === null) {
-              this.openFileSucceeded(data.toString(), filepath);
-            }
-
-            console.error(`Error - ${LOG_PREFIX}: ${error}`);
-          });
-        } catch (e) {
-          logging.log('Failure to Drag File In');
+        if (chosenAction === undefined) {
+          return;
         }
-        break;
-      default: {
-        logging.log('Drag File Operation Canceled');
+
+        if (chosenAction === 'saveAction') {
+          await this.saveFile({
+            saveAs: false
+          });
+        }
+      }
+
+      switch (chosenAction) {
+        case 'saveAction':
+        case 'discardAction':
+          try {
+            fs.readFile(filepath, (error: NodeJS.ErrnoException | null, data: Buffer) => {
+              if (error === null) {
+                this.openFileSucceeded(data.toString(), filepath);
+              }
+
+              console.error(`Error - ${LOG_PREFIX}: ${error}`);
+            });
+          } catch (e) {
+            logging.log('Failure to Drag File In');
+          }
+          break;
+        default: {
+          logging.log('Drag File Operation Canceled');
+        }
       }
     }
-  };
+  });
 
   saveFileSucceeded = ({ filepath, latestSaveCode }: { filepath: string; latestSaveCode: string }) => {
     this.filepath.set(filepath);
     this.latestSaveCode.set(latestSaveCode);
   };
 
-  transferStudentCode = async (transferType: 'download' | 'upload') => {
-    const isRuntimeConnected = this.rootStore.info.runtimeStatus.get();
+  transferStudentCode = createTask({
+    config: { taskId: 'transferStudentCode' },
+    implementation: async (transferType: 'download' | 'upload') => {
+      const isRuntimeConnected = this.rootStore.info.runtimeStatus.get();
 
-    if (!isRuntimeConnected) {
-      logging.log(`Runtime not connected - could not ${transferType} student code`);
-      return;
+      if (!isRuntimeConnected) {
+        logging.log(`Runtime not connected - could not ${transferType} student code`);
+        return;
+      }
+
+      let port = defaults.PORT;
+      let ip = this.rootStore.info.ipAddress.get();
+      if (ip.includes(':')) {
+        const split = ip.split(':');
+        ip = split[0];
+        port = Number(split[1]);
+      }
+
+      const response = await transferFile({ localFilePath: this.filepath.get(), port, ip, transferType });
+
+      const transferTypeHumanString = { download: 'Download', upload: 'Upload' }[transferType];
+
+      switch (response) {
+        case 'fileTransmissionSuccess': {
+          // @todo: split between download and upload
+          this.rootStore.alert.addAsyncAlert(`${transferTypeHumanString} Success`, `File ${transferTypeHumanString}ed Successfully`);
+          break;
+        }
+        case 'sftpError': {
+          this.rootStore.alert.addAsyncAlert(`${transferTypeHumanString} Issue`, 'SFTP session could not be initiated');
+          break;
+        }
+        case 'fileTransmissionError': {
+          this.rootStore.alert.addAsyncAlert(`${transferTypeHumanString} Issue`, 'File failed to be transmitted');
+          break;
+        }
+        case 'connectionError': {
+          this.rootStore.alert.addAsyncAlert(`${transferTypeHumanString} Issue`, 'Robot could not be connected');
+          break;
+        }
+        default: {
+          this.rootStore.alert.addAsyncAlert(`${transferTypeHumanString} Issue`, 'Unknown Error');
+          break;
+        }
+      }
+
+      // TODO: need timeout?
+      // setTimeout(() => {
+      //   conn.end();
+      // }, 50);
     }
+  });
 
-    let port = defaults.PORT;
-    let ip = this.rootStore.info.ipAddress.get();
-    if (ip.includes(':')) {
-      const split = ip.split(':');
-      ip = split[0];
-      port = Number(split[1]);
-    }
-
-    const response = await transferFile({ localFilePath: this.filepath.get(), port, ip, transferType });
-
-    const transferTypeHumanString = { download: 'Download', upload: 'Upload' }[transferType];
-
-    switch (response) {
-      case 'fileTransmissionSuccess': {
-        // @todo: split between download and upload
-        this.rootStore.alert.addAsyncAlert(`${transferTypeHumanString} Success`, `File ${transferTypeHumanString}ed Successfully`);
-        break;
-      }
-      case 'sftpError': {
-        this.rootStore.alert.addAsyncAlert(`${transferTypeHumanString} Issue`, 'SFTP session could not be initiated');
-        break;
-      }
-      case 'fileTransmissionError': {
-        this.rootStore.alert.addAsyncAlert(`${transferTypeHumanString} Issue`, 'File failed to be transmitted');
-        break;
-      }
-      case 'connectionError': {
-        this.rootStore.alert.addAsyncAlert(`${transferTypeHumanString} Issue`, 'Robot could not be connected');
-        break;
-      }
-      default: {
-        this.rootStore.alert.addAsyncAlert(`${transferTypeHumanString} Issue`, 'Unknown Error');
-        break;
-      }
-    }
-
-    // TODO: need timeout?
-    // setTimeout(() => {
-    //   conn.end();
-    // }, 50);
-  };
-
-  initiateLatencyCheck = async () => {
-    while (true) {
+  initiateLatencyCheck = createTask({
+    config: { taskId: 'initiateLatencyCheck', refreshIntervalMsec: 5000 },
+    implementation: () => {
       const time: number = Date.now();
       const timestamps = new TimeStamps({
         dawnTimestamp: time,
@@ -246,30 +249,34 @@ export class EditorStore {
       });
 
       ipcRenderer.send(ipcChannels.INITIATE_LATENCY_CHECK, timestamps);
-
-      await sleep(5000);
     }
-  };
+  });
 
-  sendKeyboardConnectionStatus = () => {
-    const keyboardConnectionStatus = new Input({
-      connected: this.isKeyboardModeToggled.get(),
-      axes: [],
-      buttons: 0,
-      source: Source.KEYBOARD
-    });
+  sendKeyboardConnectionStatus = createTask({
+    config: { taskId: 'sendKeyboardConnectionStatus' },
+    implementation: () => {
+      const keyboardConnectionStatus = new Input({
+        connected: this.isKeyboardModeToggled.get(),
+        axes: [],
+        buttons: 0,
+        source: Source.KEYBOARD
+      });
 
-    ipcRenderer.send(ipcChannels.STATE_UPDATE, [keyboardConnectionStatus], Source.KEYBOARD);
-  };
+      ipcRenderer.send(ipcChannels.STATE_UPDATE, [keyboardConnectionStatus], Source.KEYBOARD);
+    }
+  });
 
-  sendKeyboardInputs = () => {
-    const keyboard = new Input({
-      connected: true,
-      axes: [],
-      buttons: this.keyboardBitmap.get(),
-      source: Source.KEYBOARD
-    });
+  sendKeyboardInputs = createTask({
+    config: { taskId: 'sendKeyboardInputs' },
+    implementation: () => {
+      const keyboard = new Input({
+        connected: true,
+        axes: [],
+        buttons: this.keyboardBitmap.get(),
+        source: Source.KEYBOARD
+      });
 
-    ipcRenderer.send(ipcChannels.STATE_UPDATE, [keyboard], Source.KEYBOARD);
-  };
+      ipcRenderer.send(ipcChannels.STATE_UPDATE, [keyboard], Source.KEYBOARD);
+    }
+  });
 }

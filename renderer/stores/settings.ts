@@ -6,7 +6,7 @@ export class SettingsStore {
 
   fontSize: IObservableValue<number> = observable.box(14);
   editorTheme: IObservableValue<string> = observable.box('tomorrow');
-  globalTheme: IObservableValue<string> = observable.box('light');
+  globalTheme = observable.box<'light' | 'dark'>('light');
 
   constructor(rootStore: typeof RootStore) {
     this.rootStore = rootStore;
