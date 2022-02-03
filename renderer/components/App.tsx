@@ -43,7 +43,7 @@ export const AppComponent = (props: Props) => {
   const [tourRunning, changeTourRunning] = useState(false);
   startLog();
 
-  const{info, settings, fieldStore} = useStores()
+  const { info, settings, fieldStore } = useStores();
 
   useEffect(() => {
     addSteps(joyrideSteps);
@@ -101,9 +101,7 @@ export const AppComponent = (props: Props) => {
 
   return (
     <div className={`${bsPrefix} mt-4`.trim()}>
-      <DNav
-        startTour={startTour}
-      />
+      <DNav startTour={startTour} />
       <Joyride
         steps={steps}
         continuous={true}
@@ -119,12 +117,7 @@ export const AppComponent = (props: Props) => {
         }}
       />
       <div style={{ height: '35px', marginBottom: '21px' }} />
-      <Observer>{() =>
-      <Dashboard
-        {...props}
-        addSteps={addSteps}
-        isRunningCode={info.isRunningCode}
-      />}</Observer>
+      <Observer>{() => <Dashboard {...props} addSteps={addSteps} isRunningCode={info.isRunningCode} />}</Observer>
     </div>
   );
 };

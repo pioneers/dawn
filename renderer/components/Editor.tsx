@@ -36,7 +36,7 @@ import 'ace-builds/src-noconflict/theme-terminal';
 import { ConsoleOutput } from './ConsoleOutput';
 import { TooltipButton } from './TooltipButton';
 import { AUTOCOMPLETION_LIST, MAX_FONT_SIZE, MIN_FONT_SIZE, ROBOT_STAFF_CODE } from '../consts';
-import { useConsole, useFontResizer, useKeyboardMode } from '../hooks';
+import { useConsole, useFontResizer, useKeyboardMode, useStores } from '../hooks';
 import { correctText, pathToName, robotState, logging, windowInfo } from '../utils/utils';
 
 const { dialog } = remote;
@@ -77,7 +77,7 @@ interface OwnProps {
   onInitiateLatencyCheck: () => void;
 }
 
-type Props = StateProps & OwnProps;
+type Props = {}; // StateProps & OwnProps;
 
 const FONT_SIZES = [8, 12, 14, 16, 20, 24, 28];
 
@@ -109,9 +109,11 @@ export const Editor = (props: Props) => {
     submitFontSize
   } = useFontResizer();
 
+  const { editor, settings } = useStores();
+
   const { isKeyboardModeToggled, toggleKeyboardControl } = useKeyboardMode({
-    onUpdateKeyboardBitmap: props.onUpdateKeyboardBitmap,
-    onUpdateKeyboardModeToggle: props.onUpdateKeyboardModeToggle
+    onUpdateKeyboardBitmap: editor.updateKeyboardBitmap,
+    onUpdateKeyboardModeToggle: editor.updateIsKeyboardModeToggled
   });
 
   let CodeEditor: AceEditor;
@@ -149,14 +151,15 @@ export const Editor = (props: Props) => {
       if (err) {
         logging.log(err);
       } else if (!_.isEmpty(data)) {
-        props.onChangeTheme(data.theme ?? 'github');
+        settings.changeTheme(data.theme ?? 'github');
       }
     });
 
-    function beforeUnload(event: any) {
+    function beforeUnload(event: BeforeUnloadEvent) {
       // If there are unsaved changes and the user tries to close Dawn,
       // check if they want to save their changes first.
       if (hasUnsavedChanges()) {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         dialog
           .showMessageBox(currentWindow, {
             type: 'warning',
@@ -173,7 +176,7 @@ export const Editor = (props: Props) => {
             if (clickedId.response === 0) {
               // FIXME: Figure out a way to make Save and Close, well, close.
               event.returnValue = false;
-              props.onSaveFile();
+              editor.saveFile(); // TODO: figure out how to remove promise dependency
             } else if (clickedId.response === 2) {
               event.returnValue = false;
             }
@@ -190,7 +193,7 @@ export const Editor = (props: Props) => {
 
     window.addEventListener('drop', (e: DragEvent) => {
       e.preventDefault();
-      props.onDragFile(e.dataTransfer?.files?.[0].path ?? '');
+      editor.dragFile(e.dataTransfer?.files?.[0].path ?? '');
       return false;
     });
 
@@ -201,7 +204,7 @@ export const Editor = (props: Props) => {
   }, []);
 
   const checkLatency = () => {
-    props.onInitiateLatencyCheck();
+    editor.initiateLatencyCheck.run();
   };
 
   const insertRobotStaffCode = () => {
@@ -301,7 +304,7 @@ export const Editor = (props: Props) => {
               icon="play"
               disabled={isRunning || !props.runtimeStatus || props.fieldControlActivity}
             />
-            <TooltipButton id="stop" text="Stop" onClick={stopRobot} icon="stop" disabled={!(isRunning)} />
+            <TooltipButton id="stop" text="Stop" onClick={stopRobot} icon="stop" disabled={!isRunning} />
             <DropdownButton
               variant={props.globalTheme === 'dark' ? 'outline-info' : 'primary'}
               title={modeDisplay}
@@ -450,13 +453,7 @@ export const Editor = (props: Props) => {
           editorProps={{ $blockScrolling: Infinity }}
           readOnly={isKeyboardModeToggled}
         />
-        <ConsoleOutput
-          toggleConsole={toggleConsole}
-          show={isConsoleOpen}
-          height={consoleHeight}
-          output={consoleData}
-          disableScroll={props.disableScroll}
-        />
+        <ConsoleOutput toggleConsole={toggleConsole} show={isConsoleOpen} height={consoleHeight} output={consoleData} />
       </Card.Body>
     </Card>
   );

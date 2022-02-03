@@ -15,7 +15,7 @@ export function ConsoleOutput(props: Props) {
   let outerDiv: HTMLDivElement | HTMLPreElement | null;
   const { show, output } = props;
 
-  const {console} = useStores();
+  const { console } = useStores();
 
   const prevOutputRef = useRef([] as string[]);
   const prevOutput = prevOutputRef.current;
@@ -28,7 +28,7 @@ export function ConsoleOutput(props: Props) {
   });
 
   const scrollToBottom = () => {
-    if (!console.disableScroll) {
+    if (!console.disableScroll.get()) {
       if (outerDiv !== null) {
         outerDiv.scrollTop = outerDiv.scrollHeight;
       }
