@@ -240,12 +240,7 @@ export const Editor = (props: Props) => {
 
     props.onUploadCode();
   };
-
-  
-  const saveAndUpload = () => {
-    props.onSaveFile();
-    upload();
-  } 
+ 
 
   const startRobot = () => {
     setIsRunning(true);
@@ -293,7 +288,6 @@ export const Editor = (props: Props) => {
               <Dropdown.Item onClick={_.partial(props.onSaveFile, true)}>Save As</Dropdown.Item>
             </DropdownButton>
             <TooltipButton id="upload" text="Upload" onClick={upload} icon="arrow-circle-up" disabled={false} bsStyle={toolTipColor}/>
-            <TooltipButton id="save-and-upload" text="Save and Upload" onClick={saveAndUpload} icon="angle-double-up" disabled={false} bsStyle={toolTipColor}/>
             <TooltipButton
               id="download"
               text="Download from Robot"
