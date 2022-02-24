@@ -34,8 +34,8 @@ export class EditorStore {
     this.rootStore = rootStore;
   }
 
-  updateEditorCode = (editorCode: string) => {
-    this.editorCode.set(editorCode);
+  updateEditorCode = (newEditorCode: string) => {
+    this.editorCode.set(newEditorCode);
   };
 
   updateKeyboardBitmap = (keyboardBitmap: number) => {
@@ -90,7 +90,7 @@ export class EditorStore {
     }
   };
 
-  openFile = async ({ action }: { action: UnsavedDialogActions }) => {
+  openFile = async (action: UnsavedDialogActions) => {
     const LOG_PREFIX = 'openFile:';
 
     let chosenAction: UnsavedDialogButtonOptions | undefined = 'discardAction';

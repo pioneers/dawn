@@ -44,7 +44,7 @@ export class InfoStore {
     this.studentCodeStatus.set(robotState.IDLE);
   };
 
-  codeStatus = (codeStatus: number) => {
+  updateStudentCodeStatus = (codeStatus: number) => {
     ipcRenderer.send(ipcChannels.RUN_MODE_UPDATE, { mode: codeStatus });
     this.studentCodeStatus.set(codeStatus);
   };
