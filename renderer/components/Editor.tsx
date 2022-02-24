@@ -16,6 +16,7 @@ import { Ace } from 'ace-builds';
 import { remote } from 'electron';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
+import { Observer } from 'mobx-react';
 
 // React-ace extensions and modes
 import 'ace-builds/src-noconflict/ext-language_tools';
@@ -273,11 +274,15 @@ export const Editor = (props: Props) => {
 
   return (
     <Card bg={props.globalTheme === 'dark' ? 'dark' : 'light'} text={props.globalTheme === 'dark' ? 'light' : 'dark'}>
-      <Card.Header>
-        <Card.Title style={{ fontSize: '14px' }}>
-          Editing: {pathToName(props.filepath) ? pathToName(props.filepath) : '[ New File ]'} {changeMarker}
-        </Card.Title>
-      </Card.Header>
+      <Observer>
+        {() => (
+          <Card.Header>
+            <Card.Title style={{ fontSize: '14px' }}>
+              Editing: {pathToName(editor.filepath.get()) ? pathToName(editor.filepath.get()) : '[ New File ]'} {changeMarker}
+            </Card.Title>
+          </Card.Header>
+        )}
+      </Observer>
       <Card.Body>
         <Form inline>
           <ButtonGroup id="file-operations-buttons">
@@ -456,5 +461,62 @@ export const Editor = (props: Props) => {
         <ConsoleOutput toggleConsole={toggleConsole} show={isConsoleOpen} height={consoleHeight} output={consoleData} />
       </Card.Body>
     </Card>
+  );
+};
+
+const FileOperationButtons = () => {
+  const { alert, editor, info, settings } = useStores();
+
+  const upload = () => {
+    const filepath = editor.filepath.get();
+
+    if (filepath === '') {
+      alert.addAsyncAlert('Not Working on a File', 'Please save first');
+      logging.log('Upload: Not Working on File');
+      return;
+    }
+    if (hasUnsavedChanges()) {
+      alert.addAsyncAlert('Unsaved File', 'Please save first');
+      logging.log('Upload: Not Working on Saved File');
+      return;
+    }
+    if (correctText(props.editorCode) !== props.editorCode) {
+      props.onAlertAdd(
+        'Invalid characters detected',
+        "Your code has non-ASCII characters, which won't work on the robot. " + 'Please remove them and try again.'
+      );
+      logging.log('Upload: Non-ASCII Issue');
+      return;
+    }
+
+    props.onUploadCode();
+  };
+
+  return (
+    <Observer>
+      {() => (
+        <ButtonGroup id="file-operations-buttons">
+          <DropdownButton
+            variant={settings.globalTheme.get() === 'dark' ? 'outline-info' : 'primary'}
+            title="File"
+            size="sm"
+            id="choose-theme"
+          >
+            <Dropdown.Item onClick={() => editor.openFile('create')}>New File</Dropdown.Item>
+            <Dropdown.Item onClick={() => editor.openFile('open')}>Open</Dropdown.Item>
+            <Dropdown.Item onClick={() => editor.saveFile()}>Save</Dropdown.Item>
+            <Dropdown.Item onClick={() => editor.saveFile({ saveAs: true })}>Save As</Dropdown.Item>
+          </DropdownButton>
+          <TooltipButton id="upload" text="Upload" onClick={upload} icon="arrow-circle-up" disabled={false} />
+          <TooltipButton
+            id="download"
+            text="Download from Robot"
+            onClick={() => editor.transferStudentCode.run('download')}
+            icon="arrow-circle-down"
+            disabled={!info.runtimeStatus.get()}
+          />
+        </ButtonGroup>
+      )}
+    </Observer>
   );
 };
