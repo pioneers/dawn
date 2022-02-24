@@ -9,6 +9,8 @@ import { updateFieldControl } from '../actions/FieldActions';
 import { ipChange, sshIpChange } from '../actions/InfoActions';
 import storage from 'electron-json-storage';
 import { Formik } from 'formik';
+import { useStores } from '../hooks';
+import { Observer } from 'mobx-react';
 
 interface Config {
   stationNumber: number;
@@ -33,30 +35,32 @@ interface OwnProps {
   hide: () => void;
 }
 
-type Props = StateProps & DispatchProps & OwnProps;
+type Props = DispatchProps & OwnProps;
 type FormControlElement = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 
-
+// TODO: lots of changes to be done here
 export const ConfigBoxComponent = (props: Props) => {
-  const [ipAddress, setIPAddress] = useState(props.ipAddress);
-  const [sshAddress, setSSHAddress] = useState(props.sshAddress);
-  const [fcAddress, setFCAddress] = useState(props.fcAddress);
-  const [stationNumber, setStationNumber] = useState(props.stationNumber);
-  const [originalIPAddress, setOriginalIPAddress] = useState(props.ipAddress);
-  const [originalSSHAddress, setOriginalSSHAddress] = useState(props.sshAddress);
-  const [originalStationNumber, setOriginalStationNumber] = useState(props.stationNumber);
-  const [originalFCAddress, setOriginalFCAddress] = useState(props.fcAddress);
+
+  const {info, fieldStore} = useStores();
+
+  const [ipAddress, setIPAddress] = useState(info.ipAddress);
+  const [sshAddress, setSSHAddress] = useState(info.sshAddress);
+  const [fcAddress, setFCAddress] = useState(props.fcAddress); //TODO
+  const [stationNumber, setStationNumber] = useState(fieldStore.stationNumber);
+  const [originalIPAddress, setOriginalIPAddress] = useState(info.ipAddress);
+  const [originalSSHAddress, setOriginalSSHAddress] = useState(info.sshAddress);
+  const [originalStationNumber, setOriginalStationNumber] = useState(fieldStore.stationNumber);
+  const [originalFCAddress, setOriginalFCAddress] = useState(props.fcAddress); //TODO
 
   const saveChanges = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    props.onIPChange(ipAddress);
-    setOriginalIPAddress(ipAddress);
+    info.ipChange(ipAddress);
     storage.set('ipAddress', { ipAddress }, (err: any) => {
       if (err) logging.log(err);
     });
 
-    props.onSSHAddressChange(sshAddress);
+    info.sshIpChange(sshAddress);
     setOriginalSSHAddress(sshAddress);
     storage.set('sshAddress', { sshAddress }, (err: any) => {
       if (err) {
@@ -68,7 +72,7 @@ export const ConfigBoxComponent = (props: Props) => {
       stationNumber: stationNumber,
       bridgeAddress: fcAddress,
     };
-    props.onFCUpdate(newConfig);
+    fieldStore.updateFCConfig(newConfig);
     setOriginalStationNumber(stationNumber);
     setOriginalFCAddress(fcAddress);
 
@@ -118,7 +122,7 @@ export const ConfigBoxComponent = (props: Props) => {
       } else if (!_.isEmpty(data)) {
         const ipAddress = (data as { ipAddress: string | undefined }).ipAddress ?? defaults.IPADDRESS;
 
-        props.onIPChange(ipAddress);
+        info.ipChange(ipAddress);
         setIPAddress(ipAddress);
         setOriginalIPAddress(ipAddress);
       }
@@ -130,7 +134,7 @@ export const ConfigBoxComponent = (props: Props) => {
       } else if (!_.isEmpty(data)) {
         const sshAddress = (data as { sshAddress: string | undefined }).sshAddress ?? defaults.IPADDRESS;
 
-        props.onSSHAddressChange(sshAddress);
+        info.sshIpChange(sshAddress);
         setSSHAddress(sshAddress);
         setOriginalSSHAddress(sshAddress);
       }

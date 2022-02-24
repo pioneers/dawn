@@ -4,6 +4,7 @@
 import RendererBridge from '../RendererBridge';
 import showAPI from '../main-process';
 import { MenuItemConstructorOptions } from 'electron';
+import { ipcChannels } from '../../shared';
 
 const HelpMenu: MenuItemConstructorOptions = {
   label: 'Help',
@@ -11,7 +12,7 @@ const HelpMenu: MenuItemConstructorOptions = {
     {
       label: 'Interactive Tutorial',
       click() {
-        RendererBridge.dispatch('main', 'start-interactive-tour');
+        RendererBridge.dispatch('main', ipcChannels.START_INTERACTIVE_TOUR);
       },
       accelerator: 'CommandOrControl+T',
     },

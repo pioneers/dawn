@@ -1,6 +1,7 @@
 import { Socket as TCPSocket } from 'net';
 import { ipcMain, IpcMainEvent } from 'electron';
 import * as protos from '../../protos-main';
+import { ipcChannels } from '../../shared';
 
 import RendererBridge from '../RendererBridge';
 import { updateConsole } from '../../renderer/actions/ConsoleActions';
@@ -227,7 +228,7 @@ class RuntimeConnection {
             break;
 
           default:
-            this.logger.log(`Unsupported received message type: ${packet.type}`)
+            this.logger.log(`Unsupported received message type: ${packet.type}`);
         }
       }
 
@@ -237,13 +238,17 @@ class RuntimeConnection {
     /**
      * TCP Socket IPC Connections
      */
-    ipcMain.on('runModeUpdate', (event: IpcMainEvent, ...args: any[]) => this.whenConnectionEstablished(this.sendRunMode, event, ...args));
-    ipcMain.on('initiateLatencyCheck', (event: IpcMainEvent, ...args: any[]) =>
+    ipcMain.on(ipcChannels.RUN_MODE_UPDATE, (event: IpcMainEvent, ...args: any[]) =>
+      this.whenConnectionEstablished(this.sendRunMode, event, ...args)
+    );
+    ipcMain.on(ipcChannels.INITIATE_LATENCY_CHECK, (event: IpcMainEvent, ...args: any[]) =>
       this.whenConnectionEstablished(this.initiateLatencyCheck, event, ...args)
     );
-    ipcMain.on('stateUpdate', (event: IpcMainEvent, ...args: any[]) => this.whenConnectionEstablished(this.sendInputs, event, ...args));
+    ipcMain.on(ipcChannels.STATE_UPDATE, (event: IpcMainEvent, ...args: any[]) =>
+      this.whenConnectionEstablished(this.sendInputs, event, ...args)
+    );
 
-    ipcMain.on('ipAddress', this.ipAddressListener);
+    ipcMain.on(ipcChannels.IP_ADDRESS, this.ipAddressListener);
   }
 
   whenConnectionEstablished = (cb: (event: IpcMainEvent, ...args: any[]) => void, event: IpcMainEvent, ...args: any[]) => {
@@ -326,10 +331,10 @@ class RuntimeConnection {
 
   close = () => {
     this.socket.end();
-    ipcMain.removeListener('runModeUpdate', this.sendRunMode);
-    ipcMain.removeListener('ipAddress', this.ipAddressListener);
-    ipcMain.removeListener('initiateLatencyCheck', this.initiateLatencyCheck);
-    ipcMain.removeListener('stateUpdate', this.sendInputs);
+    ipcMain.removeListener(ipcChannels.RUN_MODE_UPDATE, this.sendRunMode);
+    ipcMain.removeListener(ipcChannels.IP_ADDRESS, this.ipAddressListener);
+    ipcMain.removeListener(ipcChannels.INITIATE_LATENCY_CHECK, this.initiateLatencyCheck);
+    ipcMain.removeListener(ipcChannels.STATE_UPDATE, this.sendInputs);
   };
 }
 

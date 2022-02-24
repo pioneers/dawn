@@ -36,18 +36,27 @@ export const getValidationState = (testIPAddress: string) => {
 };
 
 export const isValidationState = (testIPAddress: string) => {
-    if (IPV4_REGEX.test(testIPAddress)) {
-        return true;
-    }
-    return false;
-}
+  if (IPV4_REGEX.test(testIPAddress)) {
+    return true;
+  }
+  return false;
+};
 
 export const uploadStatus = {
   RECEIVED: 0,
   SENT: 1,
-  ERROR: 2,
+  ERROR: 2
 };
 
+export enum RobotState {
+  IDLE = 0,
+  AUTONOMOUS = 1,
+  TELEOP = 2,
+  SIMULATION = 3
+}
+
+// TODO: remove
+/** @deprecated */
 export const robotState = {
   IDLE: 0,
   IDLESTR: 'Idle',
@@ -58,7 +67,23 @@ export const robotState = {
   TELEOP: 2,
   TELEOPSTR: 'Tele-Operated',
   2: 'Tele-Operated',
-  SIMSTR: 'Simulation',
+  SIMSTR: 'Simulation'
+};
+
+export const getRobotStateReadableString = (robotState: RobotState) => {
+  switch (robotState) {
+    case RobotState.IDLE:
+      return 'Idle';
+
+    case RobotState.AUTONOMOUS:
+      return 'Autonomous';
+
+    case RobotState.TELEOP:
+      return 'Tele-Operatorated';
+
+    case RobotState.SIMULATION:
+      return 'Simulation';
+  }
 };
 
 // TODO: Synchronize this and the above state
@@ -72,7 +97,7 @@ export const runtimeState = {
   TELEOP: 3,
   3: 'Tele-Operated',
   AUTONOMOUS: 4,
-  4: 'Autonomous',
+  4: 'Autonomous'
 };
 
 export const defaults = {
@@ -80,15 +105,16 @@ export const defaults = {
   USERNAME: 'pi',
   PASSWORD: 'raspberry',
   IPADDRESS: '192.168.0.0',
+  DESKTOP_LOC: remote.app.getPath('desktop'),
   STUDENTCODELOC: '/home/pi/runtime/executor/studentcode.py',
-  NGROK: true,
+  NGROK: true
 };
 
 export const timings = {
   AUTO: 30,
   IDLE: 5,
   TELEOP: 120,
-  SEC: 1000,
+  SEC: 1000
 };
 
 export const windowInfo = {
@@ -97,8 +123,10 @@ export const windowInfo = {
   CONSOLEPAD: 40,
   CONSOLESTART: 250,
   CONSOLEMAX: 350,
-  CONSOLEMIN: 100,
+  CONSOLEMIN: 100
 };
+
+export const sleep = (durationMSec: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, durationMSec));
 
 export class Logger {
   log_file: fs.WriteStream;
@@ -121,15 +149,21 @@ export class Logger {
     this.lastStr = '';
   }
 
-  log = (output: string) => {
-    console.log(output);
-    this._write(output, `\n[${(new Date()).toString()}]`);
-  }
-  debug = (output: string) => {
-    this._write(output, `\n[${(new Date()).toString()} DEBUG]`);
-  }
+  debug = (message?: any, ...optionalParams: any[]) => {
+    console.debug(message, optionalParams);
+    this._write(`[${new Date().toString()} DEBUG]`, `${message} ${optionalParams}`);
+  };
 
-  _write = (output: string, prefix: string) => {
+  error = (message?: any, ...optionalParams: any[]) => {
+    console.error(message, optionalParams);
+  };
+
+  log = (message?: any, ...optionalParams: any[]) => {
+    console.log(message, optionalParams);
+    this._write('[${(new Date()).toString()}]', `${message} ${optionalParams}`);
+  };
+
+  _write = (prefix: string, output: any) => {
     output = String(output);
     if (output !== this.lastStr) {
       this.log_file.write(`${prefix} ${output}`);
@@ -137,7 +171,7 @@ export class Logger {
     } else {
       // this.log_file.write('*');
     }
-  }
+  };
 }
 
 export let logging: Logger; // eslint-disable-line import/no-mutable-exports

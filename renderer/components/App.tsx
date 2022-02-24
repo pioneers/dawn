@@ -13,6 +13,9 @@ import { logging, startLog } from '../utils/utils';
 import { FieldControlConfig } from '../types';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { fas } from '@fortawesome/free-solid-svg-icons';
+import { Observer } from 'mobx-react';
+import { useStores } from '../hooks';
+import { ipcChannels } from '../../shared';
 
 type ElectronJSONStorage = typeof electronJSONStorage;
 
@@ -30,7 +33,6 @@ interface StateProps {
 }
 
 interface DispatchProps {
-  onAlertDone: (id: number) => void;
   onFCUpdate: (param: FieldControlConfig) => void;
 }
 
@@ -41,9 +43,11 @@ export const AppComponent = (props: Props) => {
   const [tourRunning, changeTourRunning] = useState(false);
   startLog();
 
+  const { info, settings, fieldStore } = useStores();
+
   useEffect(() => {
     addSteps(joyrideSteps);
-    ipcRenderer.on('start-interactive-tour', () => {
+    ipcRenderer.on(ipcChannels.START_INTERACTIVE_TOUR, () => {
       startTour();
     });
     storage.has('firstTime', (hasErr: any, hasKey: any) => {
@@ -67,7 +71,7 @@ export const AppComponent = (props: Props) => {
         return;
       }
       const fieldControlConfig = data as FieldControlConfig;
-      props.onFCUpdate(fieldControlConfig);
+      fieldStore.updateFCConfig(fieldControlConfig);
       ipcRenderer.send('FC_CONFIG_CHANGE', fieldControlConfig);
     });
   }, []);
@@ -93,19 +97,11 @@ export const AppComponent = (props: Props) => {
     }
   };
 
-  const { runtimeStatus, masterStatus, connectionStatus, isRunningCode } = props;
-
   const bsPrefix = props.globalTheme === 'dark' ? 'text-light bg-dark' : '';
 
   return (
     <div className={`${bsPrefix} mt-4`.trim()}>
-      <DNav
-        startTour={startTour}
-        runtimeStatus={runtimeStatus}
-        masterStatus={masterStatus}
-        connectionStatus={connectionStatus}
-        isRunningCode={isRunningCode}
-      />
+      <DNav startTour={startTour} />
       <Joyride
         steps={steps}
         continuous={true}
@@ -121,13 +117,7 @@ export const AppComponent = (props: Props) => {
         }}
       />
       <div style={{ height: '35px', marginBottom: '21px' }} />
-      <Dashboard
-        {...props}
-        addSteps={addSteps}
-        connectionStatus={connectionStatus}
-        runtimeStatus={runtimeStatus}
-        isRunningCode={isRunningCode}
-      />
+      <Observer>{() => <Dashboard {...props} addSteps={addSteps} isRunningCode={info.isRunningCode} />}</Observer>
     </div>
   );
 };
@@ -143,9 +133,6 @@ const mapStateToProps = (state: ApplicationState) => ({
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  onAlertDone: (id: number) => {
-    dispatch(removeAsyncAlert(id));
-  },
   onFCUpdate: (param: FieldControlConfig) => {
     dispatch(updateFieldControl(param));
   }

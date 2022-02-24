@@ -5,6 +5,7 @@
 
 import _ from 'lodash';
 import { BrowserWindow } from "electron";
+import { ipcChannels } from '../shared';
 
 type SingleOrArray<T> = T | T[];
 
@@ -58,7 +59,7 @@ class RendererBridge {
         const registeredWindow = this.registeredWindows[key];
 
         // Special case for dispatching Redux since we can only dispatch one action at a time
-        if (channel === 'reduxDispatch') {
+        if (channel === ipcChannels.REDUX_DISPATCH) {
           data = data[0];
         }
 
@@ -75,7 +76,7 @@ class RendererBridge {
    * Redux actions to the main window to avoid large refactors from the current usage of this method.
    */
   reduxDispatch = (action: any, windowKeys: SingleOrArray<string> | 'all' | 'main' = 'main') => {
-    this.dispatch(windowKeys, 'reduxDispatch', action);
+    this.dispatch(windowKeys, ipcChannels.REDUX_DISPATCH, action);
   };
 };
 

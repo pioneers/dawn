@@ -1,4 +1,5 @@
 import { ipcRenderer } from 'electron';
+import { ipcChannels } from '../../shared';
 import { robotState, defaults } from '../utils/utils';
 import * as consts from '../consts';
 import {
@@ -10,7 +11,7 @@ import {
   IpChangeAction,
   SSHIpChangeAction,
   UpdateRobotAction,
-  NotificationChangeAction,
+  NotificationChangeAction
 } from '../types';
 
 type Actions =
@@ -47,7 +48,7 @@ const initialInfoState = {
   masterStatus: false,
   notificationHold: 0,
   fieldControlDirective: robotState.TELEOP,
-  fieldControlActivity: false,
+  fieldControlActivity: false
 };
 
 export const info = (state: InfoState = initialInfoState, action: Actions): InfoState => {
@@ -55,56 +56,56 @@ export const info = (state: InfoState = initialInfoState, action: Actions): Info
     case consts.InfoActionsTypes.PER_MESSAGE:
       return {
         ...state,
-        connectionStatus: true,
+        connectionStatus: true
       };
     case consts.InfoActionsTypes.NOTIFICATION_CHANGE:
       return {
         ...state,
-        notificationHold: action.notificationHold,
+        notificationHold: action.notificationHold
       };
     case consts.InfoActionsTypes.RUNTIME_CONNECT:
       return {
         ...state,
-        runtimeStatus: true,
+        runtimeStatus: true
       };
     case consts.InfoActionsTypes.RUNTIME_DISCONNECT:
       return {
         ...state,
         runtimeStatus: false,
         connectionStatus: false,
-        studentCodeStatus: robotState.IDLE,
+        studentCodeStatus: robotState.IDLE
       };
     case consts.InfoActionsTypes.MASTER_ROBOT:
       return {
         ...state,
-        masterStatus: true,
+        masterStatus: true
       };
     case consts.InfoActionsTypes.CODE_STATUS:
-      ipcRenderer.send('runModeUpdate', { mode: action.studentCodeStatus });
+      ipcRenderer.send(ipcChannels.RUN_MODE_UPDATE, { mode: action.studentCodeStatus });
       return {
         ...state,
-        studentCodeStatus: action.studentCodeStatus,
+        studentCodeStatus: action.studentCodeStatus
       };
     case consts.InfoActionsTypes.IP_CHANGE:
-      ipcRenderer.send('ipAddress', action.ipAddress);
+      ipcRenderer.send(ipcChannels.IP_ADDRESS, action.ipAddress);
       return {
         ...state,
-        ipAddress: action.ipAddress,
+        ipAddress: action.ipAddress
       };
     case consts.InfoActionsTypes.SSH_IP_CHANGE:
       return {
         ...state,
         sshAddress: action.ipAddress
-      }
+      };
     case consts.FieldActionsTypes.UPDATE_ROBOT: {
-      const stateChange = (action.autonomous) ? robotState.AUTONOMOUS : robotState.TELEOP;
-      const codeStatus = (!action.enabled) ? robotState.IDLE : stateChange;
+      const stateChange = action.autonomous ? robotState.AUTONOMOUS : robotState.TELEOP;
+      const codeStatus = !action.enabled ? robotState.IDLE : stateChange;
       return {
         ...state,
         fieldControlDirective: stateChange,
         fieldControlActivity: action.enabled,
         // eslint-disable-next-line no-nested-ternary
-        studentCodeStatus: codeStatus,
+        studentCodeStatus: codeStatus
       };
     }
     default:
