@@ -15,5 +15,6 @@ node_modules
 *~
 
 # Dawn build
+dist/
 build/
 dawn-packaged/
