@@ -5,6 +5,7 @@ import * as protos from '../../protos-main';
 import RendererBridge from '../RendererBridge';
 import { updateConsole } from '../../renderer/actions/ConsoleActions';
 import { infoPerMessage } from '../../renderer/actions/InfoActions';
+import { runtimeConnect, runtimeDisconnect } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { Logger, defaults } from '../../renderer/utils/utils';
 import { Peripheral } from '../../renderer/types';
@@ -140,13 +141,14 @@ class RuntimeConnection {
   logger: Logger;
   socket: TCPSocket;
   leftoverBytes: Buffer | undefined;
+  connectionInterval: ReturnType<typeof setInterval>;
 
   constructor(logger: Logger) {
     this.logger = logger;
     this.socket = new TCPSocket();
 
     // Connect to most recent IP
-    setInterval(() => {
+    this.connectionInterval = setInterval(() => {
       if (!this.socket.connecting && this.socket.pending) {
         if (runtimeIP !== defaults.IPADDRESS) {
           let port = DEFAULT_TCP_PORT;
@@ -164,11 +166,12 @@ class RuntimeConnection {
 
     this.socket.on('connect', () => {
       this.logger.log('Runtime connected');
+      RendererBridge.reduxDispatch(runtimeConnect());
       this.socket.write(new Uint8Array([1])); // Runtime needs first byte to be 1 to recognize client as Dawn (instead of Shepherd)
     });
 
     this.socket.on('end', () => {
-      // RendererBridge.reduxDispatch(runtimeDisconnect());
+      RendererBridge.reduxDispatch(runtimeDisconnect());
       this.logger.log('Runtime disconnected');
     });
 
@@ -187,22 +190,22 @@ class RuntimeConnection {
       for (const packet of processedTCPPackets) {
         let decoded;
 
-        switch (packet.type) {
-          case MsgType.LOG:
-            decoded = protos.Text.decode(packet.payload);
-            RendererBridge.reduxDispatch(updateConsole(decoded.payload));
-            break;
+        try {
+          switch (packet.type) {
+            case MsgType.LOG:
+              decoded = protos.Text.decode(packet.payload);
+              RendererBridge.reduxDispatch(updateConsole(decoded.payload));
+              break;
 
-          case MsgType.TIME_STAMPS:
-            decoded = protos.TimeStamps.decode(packet.payload);
-            const oneWayLatency = (Date.now() - Number(decoded.dawnTimestamp)) / 2;
+            case MsgType.TIME_STAMPS:
+              decoded = protos.TimeStamps.decode(packet.payload);
+              const oneWayLatency = (Date.now() - Number(decoded.dawnTimestamp)) / 2;
 
-            // TODO: we can probably do an average of n timestamps so the display doesn't change too frequently
-            RendererBridge.reduxDispatch(setLatencyValue(oneWayLatency));
-            break;
+              // TODO: we can probably do an average of n timestamps so the display doesn't change too frequently
+              RendererBridge.reduxDispatch(setLatencyValue(oneWayLatency));
+              break;
 
-          case MsgType.DEVICE_DATA:
-            try {
+            case MsgType.DEVICE_DATA:
               RendererBridge.reduxDispatch(infoPerMessage());
               const sensorData: protos.Device[] = protos.DevData.decode(packet.payload).devices;
               const peripherals: Peripheral[] = [];
@@ -221,16 +224,15 @@ class RuntimeConnection {
                 peripherals.push({ ...device, uid: device.uid.toString() });
               });
               RendererBridge.reduxDispatch(updatePeripherals(peripherals));
-            } catch (err) {
-              this.logger.log(err);
-            }
-            break;
+              break;
 
-          default:
-            this.logger.log(`Unsupported received message type: ${packet.type}`)
+            default:
+              this.logger.log(`Unsupported received message type: ${packet.type}`);
+          }
+        } catch (err) {
+          this.logger.log(err);
         }
       }
-
       this.leftoverBytes = leftoverBytes;
     });
 

@@ -20,7 +20,7 @@ class FCInternals {
   }
 
   init() {
-    this.socket = io(`http://${this.bridgeAddress}:7000`);
+    this.socket = io.connect(this.bridgeAddress);
     this.socket.on('connect', () => {
       this.logger.log('Connected to Field Control Socket');
       this.socket!.on('robot_state', (data: any) => {
@@ -76,6 +76,7 @@ export const FCObject = {
 
     if (arg.bridgeAddress !== null) {
       FCObject.bridgeAddress = arg.bridgeAddress;
+      RendererBridge.dispatch('video_feed', 'shepherdScoreboardServerIpAddress', arg.bridgeAddress);
     }
   },
 };
