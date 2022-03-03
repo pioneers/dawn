@@ -86,7 +86,12 @@ const DNavComponent = (props: Props) => {
   } = props;
 
   return (
-    <Navbar fixed={'top'} style={{zIndex:0}} bg={props.globalTheme === 'dark' ? 'dark' : 'light'} variant={props.globalTheme === 'dark' ? 'dark' : 'light'}>
+    <Navbar
+      fixed={'top'}
+      style={{ zIndex: 0 }}
+      bg={props.globalTheme === 'dark' ? 'dark' : 'light'}
+      variant={props.globalTheme === 'dark' ? 'dark' : 'light'}
+    >
       <UpdateBox
         isRunningCode={isRunningCode}
         connectionStatus={connectionStatus}
