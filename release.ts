@@ -60,16 +60,15 @@ async function pack(args: Args) {
     return;
   }
 
+  // If appPath is a boolean, then we assume package for platform already exists, so no need to do anything
+  const appPathsToZip = appPaths.filter((appPath) => typeof appPath == 'string') as string[];
+
   map(
-    appPaths,
-    async (appPath: string | boolean) => {
-      if (appPath == true) {
-        // Package for platform already exists, so no need to do anything
-        return;
-      }
+    appPathsToZip,
+    async (appPath: string) => {
       console.log(`Zipping ${appPath}`);
 
-      await zip(appPath as string);
+      await zip(appPath);
     },
     { concurrency: appPaths.length }
   );
