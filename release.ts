@@ -56,21 +56,23 @@ async function pack(args: Args) {
   // Should zip the packages for each platform by default
   const shouldZip = args.shouldZip ?? true;
 
-  if (shouldZip) {
-    map(
-      appPaths,
-      async (appPath: string | boolean) => {
-        if (appPath == true) {
-          // Package for platform already exists, so no need to do anything
-          return;
-        }
-        console.log(`Zipping ${appPath}`);
-
-        await zip(appPath as string);
-      },
-      { concurrency: appPaths.length }
-    );
+  if (!shouldZip) {
+    return;
   }
+
+  map(
+    appPaths,
+    async (appPath: string | boolean) => {
+      if (appPath == true) {
+        // Package for platform already exists, so no need to do anything
+        return;
+      }
+      console.log(`Zipping ${appPath}`);
+
+      await zip(appPath as string);
+    },
+    { concurrency: appPaths.length }
+  );
 }
 
 pack(minimist(process.argv.slice(2))).then(() => console.log('Packaging Done'));
