@@ -14,7 +14,7 @@ interface Args extends minimist.ParsedArgs {
 }
 
 async function zip(srcPath: string) {
-  const theZipper = archiver('zip', { zlib: { level: 9 }}); // level 9 uses max compression
+  const theZipper = archiver('zip', { zlib: { level: 9 } }); // level 9 uses max compression
   const outputZipFilePath = `${srcPath}.zip`;
   const output = fs.createWriteStream(outputZipFilePath);
 
@@ -57,15 +57,19 @@ async function pack(args: Args) {
   const shouldZip = args.shouldZip ?? true;
 
   if (shouldZip) {
-    map(appPaths, async (appPath: string | boolean) => {
-      if (appPath == true) {
-        // Package for platform already exists, so no need to do anything
-        return;
-      }
-      console.log(`Zipping ${appPath}`);
+    map(
+      appPaths,
+      async (appPath: string | boolean) => {
+        if (appPath == true) {
+          // Package for platform already exists, so no need to do anything
+          return;
+        }
+        console.log(`Zipping ${appPath}`);
 
-      await zip(appPath as string);
-    });
+        await zip(appPath as string);
+      },
+      { concurrency: appPaths.length }
+    );
   }
 }
 
