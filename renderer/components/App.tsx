@@ -1,10 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Joyride, { Step } from 'react-joyride';
 import { remote, ipcRenderer } from 'electron';
 import * as electronJSONStorage from 'electron-json-storage';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
-import smalltalk from 'smalltalk';
 import { Dashboard } from './Dashboard';
 import { DNav } from './DNav';
 import { joyrideSteps } from './JoyrideSteps';
@@ -21,19 +20,12 @@ library.add(fas);
 
 const storage = remote.require('electron-json-storage') as ElectronJSONStorage;
 
-// TODO: synchronize below type with AsyncAlerts Redux state
-interface Alert {
-  heading?: string;
-  message?: string;
-  id: number;
-}
-
 interface StateProps {
   connectionStatus: boolean;
   runtimeStatus: boolean;
   masterStatus: boolean;
   isRunningCode: boolean;
-  asyncAlerts: Array<Alert>;
+  asyncAlerts: Array<Object>;
   globalTheme: string;
 }
 
@@ -47,8 +39,6 @@ type Props = StateProps & DispatchProps;
 export const AppComponent = (props: Props) => {
   const [steps, changeSteps] = useState<Array<Step>>([]);
   const [tourRunning, changeTourRunning] = useState(false);
-
-  const { asyncAlerts } = props;
   startLog();
 
   useEffect(() => {
@@ -81,27 +71,6 @@ export const AppComponent = (props: Props) => {
       ipcRenderer.send('FC_CONFIG_CHANGE', fieldControlConfig);
     });
   }, []);
-
-  const updateAlert = useCallback(
-    (latestAlert: Alert) => {
-      smalltalk.alert(latestAlert.heading, latestAlert.message).then(
-        () => {
-          props.onAlertDone(latestAlert.id);
-        },
-        () => {
-          props.onAlertDone(latestAlert.id);
-        }
-      );
-    },
-    [props]
-  );
-
-  useEffect(() => {
-    const latestAlert = asyncAlerts[asyncAlerts.length - 1] as Alert;
-    if (latestAlert !== undefined) {
-      updateAlert(latestAlert);
-    }
-  }, [asyncAlerts, updateAlert]);
 
   const addSteps = (newSteps: Array<Step>) => {
     if (!Array.isArray(newSteps)) {
