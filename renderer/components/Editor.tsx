@@ -200,10 +200,6 @@ export const Editor = (props: Props) => {
     };
   }, []);
 
-  const checkLatency = () => {
-    props.onInitiateLatencyCheck();
-  };
-
   const insertRobotStaffCode = () => {
     props.onEditorUpdate(ROBOT_STAFF_CODE);
   };
@@ -410,9 +406,6 @@ export const Editor = (props: Props) => {
               ))}
             </DropdownButton>
           </ButtonGroup>
-          <FormGroup>
-            <TooltipButton id="checkLatency" text="Initiate Latency Check" onClick={checkLatency} icon="paper-plane" disabled={false} />
-          </FormGroup>
           <FormGroup>
             <TooltipButton
               id="staffCodeButton"

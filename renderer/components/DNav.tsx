@@ -32,9 +32,6 @@ interface OwnProps {
 
 type Props = StateProps & OwnProps;
 
-const LOW_LATENCY_THRESHOLD_MSEC = 200;
-const HIGH_LATENCY_THRESHOLD_MSEC = 300;
-const MSEC_IN_ONE_SECOND = 1000;
 
 /**
  * 3 Icons at the top right of Dawn: Tour, RobotIP, Upload
@@ -49,25 +46,6 @@ const DNavComponent = (props: Props) => {
       return `Dawn FC v${VERSION} ${props.heart ? '+' : '-'}`;
     }
     return `Dawn v${VERSION}`;
-  };
-
-  const getLatencyThresholdColor = (latency: number) => {
-    if (latency <= LOW_LATENCY_THRESHOLD_MSEC) {
-      return 'success';
-    } else if (latency > LOW_LATENCY_THRESHOLD_MSEC && latency < HIGH_LATENCY_THRESHOLD_MSEC) {
-      return 'warning';
-    } else {
-      return 'danger';
-    }
-  };
-
-  const formatLatencyValue = (latency: number) => {
-    if (latency > MSEC_IN_ONE_SECOND) {
-      latency = latency / MSEC_IN_ONE_SECOND;
-      return `${latency} sec`;
-    }
-
-    return `${latency} ms`;
   };
 
   const {
@@ -132,9 +110,6 @@ const DNavComponent = (props: Props) => {
           />
         </Navbar.Text>
         <div style={{ marginRight: '25px' }}></div>
-        <Navbar.Text id="Latency">
-          <Badge variant={getLatencyThresholdColor(props.latencyValue)}>{`Latency: ${formatLatencyValue(props.latencyValue)}`}</Badge>
-        </Navbar.Text>
         {/* Adding ml-auto aligns the nav bar to the right */}
         <Navbar className="ml-auto">
           <ButtonToolbar>
