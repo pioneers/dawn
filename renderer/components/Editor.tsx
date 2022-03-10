@@ -368,7 +368,7 @@ export const Editor = (props: Props) => {
                 onChange={handleChangeFontsize}
                 onKeyDown={handleOnKeyDownFontSize}
                 style={{ width: 32, padding: 6 }}
-              /> 
+              />
               <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip">Text Size</Tooltip>}>
                 <DropdownButton as={ButtonGroup} title="" variant="small" id="choose-font-size">
                   {FONT_SIZES.map((fontSize: number) => (
