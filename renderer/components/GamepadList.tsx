@@ -32,7 +32,6 @@ const GamepadListComponent = (props: Props) => {
       bg={props.globalTheme === 'dark' ? 'dark' : 'light'}
       text={props.globalTheme === 'dark' ? 'light' : 'dark'}
       className="mb-4"
-      //border="primary"
       id="gamepads-panel"
 	  style={props.globalTheme === 'dark' ? { border: "1px solid white" } : {}}
     >
