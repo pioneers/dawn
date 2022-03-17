@@ -58,7 +58,7 @@ export class Param implements IParam {
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encode(message: IParam, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encode(message: Param, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
      * Encodes the specified Param message, length delimited. Does not implicitly {@link Param.verify|verify} messages.
@@ -66,7 +66,7 @@ export class Param implements IParam {
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encodeDelimited(message: IParam, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encodeDelimited(message: Param, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
      * Decodes a Param message from the specified reader or buffer.
@@ -129,7 +129,7 @@ export interface IDevice {
     type?: (number|null);
 
     /** Device params */
-    params?: (IParam[]|null);
+    params?: (Param[]|null);
 }
 
 /** Represents a Device. */
@@ -166,7 +166,7 @@ export class Device implements IDevice {
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encode(message: IDevice, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encode(message: Device, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
      * Encodes the specified Device message, length delimited. Does not implicitly {@link Device.verify|verify} messages.
@@ -174,7 +174,7 @@ export class Device implements IDevice {
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encodeDelimited(message: IDevice, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encodeDelimited(message: Device, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
      * Decodes a Device message from the specified reader or buffer.
@@ -228,7 +228,7 @@ export class Device implements IDevice {
 export interface IDevData {
 
     /** DevData devices */
-    devices?: (IDevice[]|null);
+    devices?: (Device[]|null);
 }
 
 /** Represents a DevData. */
@@ -256,7 +256,7 @@ export class DevData implements IDevData {
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encode(message: IDevData, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encode(message: DevData, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
      * Encodes the specified DevData message, length delimited. Does not implicitly {@link DevData.verify|verify} messages.
@@ -264,7 +264,7 @@ export class DevData implements IDevData {
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encodeDelimited(message: IDevData, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encodeDelimited(message: DevData, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
      * Decodes a DevData message from the specified reader or buffer.
@@ -354,7 +354,7 @@ export class GameState implements IGameState {
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encode(message: IGameState, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encode(message: GameState, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
      * Encodes the specified GameState message, length delimited. Does not implicitly {@link GameState.verify|verify} messages.
@@ -362,7 +362,7 @@ export class GameState implements IGameState {
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encodeDelimited(message: IGameState, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encodeDelimited(message: GameState, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
      * Decodes a GameState message from the specified reader or buffer.
@@ -468,7 +468,7 @@ export class Input implements IInput {
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encode(message: IInput, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encode(message: Input, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
      * Encodes the specified Input message, length delimited. Does not implicitly {@link Input.verify|verify} messages.
@@ -476,7 +476,7 @@ export class Input implements IInput {
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encodeDelimited(message: IInput, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encodeDelimited(message: Input, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
      * Decodes an Input message from the specified reader or buffer.
@@ -530,7 +530,7 @@ export class Input implements IInput {
 export interface IUserInputs {
 
     /** UserInputs inputs */
-    inputs?: (IInput[]|null);
+    inputs?: (Input[]|null);
 }
 
 /** Represents a UserInputs. */
@@ -558,7 +558,7 @@ export class UserInputs implements IUserInputs {
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encode(message: IUserInputs, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encode(message: UserInputs, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
      * Encodes the specified UserInputs message, length delimited. Does not implicitly {@link UserInputs.verify|verify} messages.
@@ -566,7 +566,7 @@ export class UserInputs implements IUserInputs {
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encodeDelimited(message: IUserInputs, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encodeDelimited(message: UserInputs, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
      * Decodes a UserInputs message from the specified reader or buffer.
@@ -656,7 +656,7 @@ export class RunMode implements IRunMode {
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encode(message: IRunMode, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encode(message: RunMode, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
      * Encodes the specified RunMode message, length delimited. Does not implicitly {@link RunMode.verify|verify} messages.
@@ -664,7 +664,7 @@ export class RunMode implements IRunMode {
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encodeDelimited(message: IRunMode, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encodeDelimited(message: RunMode, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
      * Decodes a RunMode message from the specified reader or buffer.
@@ -770,7 +770,7 @@ export class RuntimeStatus implements IRuntimeStatus {
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encode(message: IRuntimeStatus, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encode(message: RuntimeStatus, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
      * Encodes the specified RuntimeStatus message, length delimited. Does not implicitly {@link RuntimeStatus.verify|verify} messages.
@@ -778,7 +778,7 @@ export class RuntimeStatus implements IRuntimeStatus {
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encodeDelimited(message: IRuntimeStatus, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encodeDelimited(message: RuntimeStatus, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
      * Decodes a RuntimeStatus message from the specified reader or buffer.
@@ -866,7 +866,7 @@ export class StartPos implements IStartPos {
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encode(message: IStartPos, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encode(message: StartPos, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
      * Encodes the specified StartPos message, length delimited. Does not implicitly {@link StartPos.verify|verify} messages.
@@ -874,7 +874,7 @@ export class StartPos implements IStartPos {
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encodeDelimited(message: IStartPos, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encodeDelimited(message: StartPos, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
      * Decodes a StartPos message from the specified reader or buffer.
@@ -956,7 +956,7 @@ export class Text implements IText {
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encode(message: IText, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encode(message: Text, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
      * Encodes the specified Text message, length delimited. Does not implicitly {@link Text.verify|verify} messages.
@@ -964,7 +964,7 @@ export class Text implements IText {
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encodeDelimited(message: IText, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encodeDelimited(message: Text, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
      * Decodes a Text message from the specified reader or buffer.
@@ -1052,7 +1052,7 @@ export class TimeStamps implements ITimeStamps {
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encode(message: ITimeStamps, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encode(message: TimeStamps, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
      * Encodes the specified TimeStamps message, length delimited. Does not implicitly {@link TimeStamps.verify|verify} messages.
@@ -1060,7 +1060,7 @@ export class TimeStamps implements ITimeStamps {
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encodeDelimited(message: ITimeStamps, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encodeDelimited(message: TimeStamps, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
      * Decodes a TimeStamps message from the specified reader or buffer.
