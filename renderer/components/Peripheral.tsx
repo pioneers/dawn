@@ -34,7 +34,7 @@ export const Peripheral = (props: OwnProps) => {
   const ActualPeripheral = typesToComponents[props.type] || GenericPeripheral;
 
   return (
-    <ListGroupItem style={{ padding: '0px 0px 15px 0px', border: 'none', backgroundColor: props.background, color: props.color}}>
+    <ListGroupItem style={{ padding: '0px 0px 15px 0px', border: 'none', backgroundColor: props.backgroundColor, color: props.textColor}}>
       <ActualPeripheral{...props} />
     </ListGroupItem>
   );
