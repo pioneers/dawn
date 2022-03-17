@@ -76,7 +76,6 @@ interface OwnProps {
   onUpdateKeyboardModeToggle: (isKeyboardToggled: boolean) => void;
 }
 
-
 type Props = StateProps & OwnProps;
 
 const FONT_SIZES = [8, 12, 14, 16, 20, 24, 28];
