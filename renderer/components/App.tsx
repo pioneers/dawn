@@ -40,7 +40,6 @@ export const AppComponent = (props: Props) => {
   const [steps, changeSteps] = useState<Array<Step>>([]);
   const [tourRunning, changeTourRunning] = useState(false);
   startLog();
-
   useEffect(() => {
     addSteps(joyrideSteps);
     ipcRenderer.on('start-interactive-tour', () => {
@@ -86,9 +85,8 @@ export const AppComponent = (props: Props) => {
     changeTourRunning(true);
   };
 
-  const joyrideCallback = (action: { type: string }) => {
-    // Confirm this still works
-    if (action.type === 'finished') {
+  const joyrideCallback = (obj: { action: string }) => {
+    if (obj.action === 'reset') {
       changeTourRunning(false);
     }
   };
