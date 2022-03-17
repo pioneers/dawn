@@ -74,7 +74,6 @@ interface OwnProps {
   onUploadCode: () => void;
   onUpdateKeyboardBitmap: (keyboardBitmap: number) => void;
   onUpdateKeyboardModeToggle: (isKeyboardToggled: boolean) => void;
-  onInitiateLatencyCheck: () => void;
 }
 
 
@@ -200,10 +199,6 @@ export const Editor = (props: Props) => {
       window.removeEventListener('resize', onWindowResize);
     };
   }, []);
-
-  const checkLatency = () => {
-    props.onInitiateLatencyCheck();
-  };
 
   const insertRobotStaffCode = () => {
     props.onEditorUpdate(ROBOT_STAFF_CODE);
@@ -425,9 +420,7 @@ export const Editor = (props: Props) => {
               ))}
             </DropdownButton>
           </ButtonGroup>
-          <FormGroup>
-            <TooltipButton id="checkLatency" text="Initiate Latency Check" onClick={checkLatency} icon="paper-plane" disabled={false} bsStyle={toolTipColor}/>
-          </FormGroup>
+          
           <FormGroup>
             <TooltipButton
               id="staffCodeButton"

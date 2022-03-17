@@ -15,7 +15,6 @@ import {
   UploadCodeAction,
   UpdateIsKeyboardModeToggledAction,
   UpdateKeyboardBitmapAction,
-  InitiateLatencyCheck,
   SetLatencyValue
 } from '../types';
 import { correctText } from '../utils/utils';
@@ -33,7 +32,6 @@ type Actions =
   | UploadCodeAction
   | UpdateIsKeyboardModeToggledAction
   | UpdateKeyboardBitmapAction
-  | InitiateLatencyCheck
   | SetLatencyValue;
 
 interface EditorState {
