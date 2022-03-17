@@ -83,7 +83,7 @@
     "bluebird": "^3.7.2",
     "chai": "4.1.2",
     "css-loader": "^4.3.0",
-    "electron": ">=7.2.4",
+    "electron": ">=11.5.0",
     "electron-devtools-installer": "^3.1.1",
     "electron-packager": "^15.2.0",
     "eslint": "^7.5.0",
