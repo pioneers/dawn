@@ -146,7 +146,7 @@
     "seedrandom": "2.4.3",
     "smalltalk": "^4.0.6",
     "socket.io-client": "^2.3.0",
-    "ssh2": "^0.8.9",
+    "ssh2": "^1.4.0",
     "superagent": "3.8.2",
     "ts-node": "^9.0.0",
     "utf-8-validate": "^5.0.2",
