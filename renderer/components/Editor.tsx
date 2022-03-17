@@ -234,7 +234,6 @@ export const Editor = (props: Props) => {
 
     props.onUploadCode();
   };
- 
 
   const startRobot = () => {
     setIsRunning(true);
