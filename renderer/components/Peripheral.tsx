@@ -21,7 +21,7 @@ interface OwnProps {
   type: number;
   params: Param[];
   backgroundColor: string;
-  color: string;
+  textColor: string;
 }
 
 /**
