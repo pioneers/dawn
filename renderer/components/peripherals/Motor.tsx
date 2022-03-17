@@ -18,7 +18,7 @@ export const Motor = ({ uid, params }: Device) => (
     {
       _.map(params, obj => ( // TODO: Figure out if a ProgressBar is useful
         <div key={`${obj.name}-${uid}-Overall`}>
-          <h4 style={{ clear: 'right', float: 'right'}} key={`${obj.name}-${uid}`}>
+          <h4 style={{ clear: 'right', float: 'right', height: '50px'}} key={`${obj.name}-${uid}`}>
             {`${obj.name}: ${numeral(obj.fval).format('+0.00')}`}
 
           </h4>

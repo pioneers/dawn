@@ -30,7 +30,7 @@ export const BooleanSensor = ({
     {
       _.map(params, obj => (
         <div key={`${obj.name}-${uid}-Overall`}>
-          <h4 style={{ clear: 'right', float: 'right'}} key={`${obj.name}-${uid}`}>
+          <h4 style={{ clear: 'right', float: 'right', height: '10px'}} key={`${obj.name}-${uid}`}>
             {`${obj.name}: ${formatBoolean(type, obj)}`}
           </h4>
         </div>
