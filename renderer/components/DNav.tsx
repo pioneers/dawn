@@ -191,7 +191,6 @@ const DNavComponent = (props: Props) => {
                 id="update-software-button"
                 icon="cloud-upload-alt"
               />
-              
             </ButtonGroup>
           </ButtonToolbar>
         </Navbar>
