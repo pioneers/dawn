@@ -367,6 +367,7 @@ export const Editor = (props: Props) => {
           <FormGroup>
             <InputGroup>
               <FormControl
+                type="number"
                 value={String(onChangeFontSize ?? submittedFontSize).replace(/^0/, '')}
                 size="sm"
                 onBlur={handleOnBlurFontSize}
