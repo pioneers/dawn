@@ -104,36 +104,41 @@ function readPackets(data: Buffer, previousLeftoverBytes?: Buffer): { leftoverBy
  * Create TCP packet header and prepend to
  * payload to send to Runtime.
  */
-function createPacket(payload: unknown, messageType: MsgType): Buffer {
+function createPacket(payload: unknown, messageType: MsgType): Buffer | null {
   let encodedPayload: Uint8Array;
 
-  switch (messageType) {
-    case MsgType.DEVICE_DATA:
-      encodedPayload = protos.DevData.encode(payload as protos.IDevData).finish();
-      break;
-    case MsgType.RUN_MODE:
-      encodedPayload = protos.RunMode.encode(payload as protos.IRunMode).finish();
-      break;
-    case MsgType.START_POS:
-      encodedPayload = protos.StartPos.encode(payload as protos.IStartPos).finish();
-      break;
-    case MsgType.TIME_STAMPS:
-      encodedPayload = protos.TimeStamps.encode(payload as protos.ITimeStamps).finish();
-      break;
-    case MsgType.INPUTS:
-      encodedPayload = protos.UserInputs.encode({ inputs: payload as protos.Input[] }).finish();
-      break;
-    default:
-      console.log('ERROR: trying to create TCP Packet with unknown message type');
-      encodedPayload = new Uint8Array();
-      break;
+  try {
+    switch (messageType) {
+      case MsgType.DEVICE_DATA:
+        encodedPayload = protos.DevData.encode(payload as protos.IDevData).finish();
+        break;
+      case MsgType.RUN_MODE:
+        encodedPayload = protos.RunMode.encode(payload as protos.IRunMode).finish();
+        break;
+      case MsgType.START_POS:
+        encodedPayload = protos.StartPos.encode(payload as protos.IStartPos).finish();
+        break;
+      case MsgType.TIME_STAMPS:
+        encodedPayload = protos.TimeStamps.encode(payload as protos.ITimeStamps).finish();
+        break;
+      case MsgType.INPUTS:
+        encodedPayload = protos.UserInputs.encode({ inputs: payload as protos.Input[] }).finish();
+        break;
+      default:
+        console.log('ERROR: trying to create TCP Packet with unknown message type');
+        encodedPayload = new Uint8Array();
+        break;
+    }
+
+    const msgLength = Buffer.byteLength(encodedPayload);
+    const msgLengthArr = new Uint8Array([msgLength & 0x00ff, msgLength & 0xff00]); // Assuming little-endian byte order, since runs on x64
+    const msgTypeArr = new Uint8Array([messageType]);
+
+    return Buffer.concat([msgTypeArr, msgLengthArr, encodedPayload], msgLength + 3);
+  } catch (err) {
+    console.log(err);
+    return null;
   }
-
-  const msgLength = Buffer.byteLength(encodedPayload);
-  const msgLengthArr = new Uint8Array([msgLength & 0x00ff, msgLength & 0xff00]); // Assuming little-endian byte order, since runs on x64
-  const msgTypeArr = new Uint8Array([messageType]);
-
-  return Buffer.concat([msgTypeArr, msgLengthArr, encodedPayload], msgLength + 3);
 }
 
 class RuntimeConnection {
@@ -189,16 +194,24 @@ class RuntimeConnection {
 
         switch (packet.type) {
           case MsgType.LOG:
-            decoded = protos.Text.decode(packet.payload);
-            RendererBridge.reduxDispatch(updateConsole(decoded.payload));
+            try {
+              decoded = protos.Text.decode(packet.payload);
+              RendererBridge.reduxDispatch(updateConsole(decoded.payload));
+            } catch (err) {
+              this.logger.log(err);
+            }
             break;
 
           case MsgType.TIME_STAMPS:
-            decoded = protos.TimeStamps.decode(packet.payload);
-            const oneWayLatency = (Date.now() - Number(decoded.dawnTimestamp)) / 2;
+            try {
+              decoded = protos.TimeStamps.decode(packet.payload);
+              const oneWayLatency = (Date.now() - Number(decoded.dawnTimestamp)) / 2;
 
-            // TODO: we can probably do an average of n timestamps so the display doesn't change too frequently
-            RendererBridge.reduxDispatch(setLatencyValue(oneWayLatency));
+              // TODO: we can probably do an average of n timestamps so the display doesn't change too frequently
+              RendererBridge.reduxDispatch(setLatencyValue(oneWayLatency));
+            } catch (err) {
+              this.logger.log(err);
+            }
             break;
 
           case MsgType.DEVICE_DATA:
@@ -227,7 +240,7 @@ class RuntimeConnection {
             break;
 
           default:
-            this.logger.log(`Unsupported received message type: ${packet.type}`)
+            this.logger.log(`Unsupported received message type: ${packet.type}`);
         }
       }
 
@@ -254,12 +267,20 @@ class RuntimeConnection {
     return cb(event, ...args);
   };
 
+  sendMessage = (message: Buffer | null, cb?: ((err?: Error | undefined) => void) | undefined) => {
+    if (message == null) {
+      return;
+    }
+
+    this.socket.write(message, cb);
+  };
+
   /**
    * Initiates latency check by sending first packet to Runtime
    */
   initiateLatencyCheck = (_event: IpcMainEvent, data: protos.ITimeStamps) => {
     const message = createPacket(data, MsgType.TIME_STAMPS);
-    this.socket.write(message, () => {
+    this.sendMessage(message, () => {
       this.logger.log(`Sent timestamp data to runtime: ${JSON.stringify(data)}`);
     });
   };
@@ -286,7 +307,7 @@ class RuntimeConnection {
    */
   sendRunMode = (_event: IpcMainEvent, runModeData: protos.IRunMode) => {
     const message = createPacket(runModeData, MsgType.RUN_MODE);
-    this.socket.write(message, () => {
+    this.sendMessage(message, () => {
       this.logger.log(`Run Mode message sent: ${JSON.stringify(runModeData)}`);
     });
   };
@@ -294,7 +315,7 @@ class RuntimeConnection {
   sendDevicePreferences = (_event: IpcMainEvent, deviceData: protos.IDevData) => {
     // TODO: Serialize uid from string -> Long type
     const message = createPacket(deviceData, MsgType.DEVICE_DATA);
-    this.socket.write(message, () => {
+    this.sendMessage(message, () => {
       this.logger.log(`Device preferences sent: ${deviceData.toString()}`);
     });
   };
@@ -302,7 +323,7 @@ class RuntimeConnection {
   sendRobotStartPos = (_event: IpcMainEvent, startPosData: protos.IStartPos) => {
     // TODO: Get start pos from sagas
     const message = createPacket(startPosData, MsgType.START_POS);
-    this.socket.write(message, () => {
+    this.sendMessage(message, () => {
       this.logger.log(`Start position sent: ${startPosData.toString()}`);
     });
   };
@@ -317,7 +338,7 @@ class RuntimeConnection {
       );
     }
     const message = createPacket(data, MsgType.INPUTS);
-    this.socket.write(message, (err?: Error) => {
+    this.sendMessage(message, (err?: Error) => {
       if (err !== undefined) {
         this.logger.log(`Error when sending inputs: ${JSON.stringify(err)}`);
       }
