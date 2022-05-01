@@ -7,11 +7,13 @@ import { AddAsyncAlertAction, RemoveAsyncAlertAction } from '../types';
 
 type Actions = AddAsyncAlertAction | RemoveAsyncAlertAction;
 
-type AsyncAlertsState = Array<{
-  id?: number;
+interface Alert {
+  id: number;
   heading?: string;
   message?: string;
-}>;
+}
+
+type AsyncAlertsState = Array<Alert>;
 
 const initialState: AsyncAlertsState = [];
 
@@ -23,8 +25,8 @@ export const asyncAlerts = (state: AsyncAlertsState = initialState, action: Acti
         {
           id: action.id,
           heading: action.heading,
-          message: action.message,
-        },
+          message: action.message
+        }
       ];
     case consts.AlertActionsTypes.REMOVE_ASYNC_ALERT:
       return state.filter((el: { id?: number }) => el.id !== action.id);
