@@ -24,6 +24,7 @@ cleanerNames[PeripheralTypes.KoalaBear] = 'Koala Bear';
 interface PeripheralGroupProps {
   peripherals: Peripheral[];
   groupName: string;
+  globalTheme: string;
 }
 
 const PeripheralGroup = (props: PeripheralGroupProps) => {
@@ -31,29 +32,32 @@ const PeripheralGroup = (props: PeripheralGroupProps) => {
 
   const { peripherals, groupName } = props;
   const groupNameCleaned = groupName; //cleanerNames[groupName] as string;
+  const bsTheme = props.globalTheme;
 
-  return (
-    <Card key={`${groupNameCleaned || 'Default'}-Card`}>
-      <Card.Header>
-        <Card.Title onClick={() => setOut(!out)} style={{ fontWeight: 'bold' }}>
-          {groupName || 'Generic'}
-        </Card.Title>
-      </Card.Header>
-      <Collapse in={!out}>
-        <Card.Body style={{ padding: '10px' }}>
-          {_.map(peripherals, (peripheral: Peripheral) => (
-            <PeripheralComponent
-              key={peripheral.uid}
-              uid={peripheral.uid}
-              name={peripheral.name}
-              type={peripheral.type}
-              params={peripheral.params}
-            />
-          ))}
-        </Card.Body>
-      </Collapse>
-    </Card>
-  );
-};
+    return (
+      <Card key={`${groupNameCleaned || 'Default'}-Card`} bg={bsTheme}>
+        <Card.Header>
+          <Card.Title onClick={() => setOut(!out)} style={{ fontWeight: 'bold'}}>
+            {groupName || 'Generic'}
+          </Card.Title>
+        </Card.Header>
+        <Collapse in={!out}>
+          <Card.Body style={{ padding: '10px'}}>
+            {_.map(peripherals, (peripheral: Peripheral) => (
+              <PeripheralComponent
+                key={peripheral.uid}
+                uid={peripheral.uid}
+                name={peripheral.name}
+                type={peripheral.type}
+                params={peripheral.params}
+                background={props.globalTheme === 'dark' ? '#353a3f' : 'white'}
+                color=""
+              />
+            ))}
+          </Card.Body>
+        </Collapse>
+      </Card>
+    )
+}
 
 export default PeripheralGroup;

@@ -38,7 +38,7 @@ const getParamValue = (param: Param) => {
 const ParamComponent = React.memo(
   (props: ParamComponentProps) => (
     <div key={`${props.param.name}-${props.uid}-Overall`}>
-      <h4 style={{ clear: 'right', float: 'right', height: '10px' }} key={`${props.param.name}-${props.uid}`}>
+      <h4 style={{ clear: 'right', float: 'right' , height: '10px'}} key={`${props.param.name}-${props.uid}`}>
         {`${props.param.name}: ${getParamValue(props.param)}`}
       </h4>
     </div>

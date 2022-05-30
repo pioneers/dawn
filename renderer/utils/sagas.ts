@@ -16,7 +16,7 @@ import { toggleFieldControl } from '../actions/FieldActions';
 import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
 import { TIMEOUT, defaults, logging } from '../utils/utils';
-import { Input, Source, TimeStamps } from '../../protos-main';
+import { Input, Source } from '../../protos-main';
 
 let timestamp = Date.now();
 
@@ -258,20 +258,6 @@ function formatGamepads(newGamepads: (Gamepad | null)[]): Input[] {
   return formattedGamepads;
 }
 
-function* initiateLatencyCheck() {
-  while (true) {
-    const time: number = Date.now();
-    const timestamps = new TimeStamps({
-      dawnTimestamp: time,
-      runtimeTimestamp: 0
-    });
-
-    ipcRenderer.send('initiateLatencyCheck', timestamps);
-
-    yield delay(5000);
-  }
-  
-}
 /*
  Send an update to Runtime indicating whether keyboard mode is on/off
 */
@@ -649,7 +635,6 @@ export default function* rootSaga() {
     fork(runtimeHeartbeat),
     fork(runtimeGamepads),
     fork(runtimeSaga),
-    fork(initiateLatencyCheck)
   ]);
 }
 

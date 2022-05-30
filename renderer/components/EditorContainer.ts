@@ -7,7 +7,6 @@ import {
   dragFile,
   createNewFile,
   downloadCode,
-  initiateLatencyCheck,
   uploadCode,
   updateKeyboardBitmap,
   updateIsKeyboardModeToggled
@@ -86,9 +85,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   onUpdateKeyboardModeToggle: (isKeyboardToggled: boolean) => {
     dispatch(updateIsKeyboardModeToggled(isKeyboardToggled));
   },
-  onInitiateLatencyCheck: () => {
-    dispatch(initiateLatencyCheck())
-  }
+  
 });
 
 export const EditorContainer = connect(mapStateToProps, mapDispatchToProps)(Editor);

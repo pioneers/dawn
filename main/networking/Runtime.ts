@@ -238,9 +238,7 @@ class RuntimeConnection {
      * TCP Socket IPC Connections
      */
     ipcMain.on('runModeUpdate', (event: IpcMainEvent, ...args: any[]) => this.whenConnectionEstablished(this.sendRunMode, event, ...args));
-    ipcMain.on('initiateLatencyCheck', (event: IpcMainEvent, ...args: any[]) =>
-      this.whenConnectionEstablished(this.initiateLatencyCheck, event, ...args)
-    );
+    
     ipcMain.on('stateUpdate', (event: IpcMainEvent, ...args: any[]) => this.whenConnectionEstablished(this.sendInputs, event, ...args));
 
     ipcMain.on('ipAddress', this.ipAddressListener);
@@ -252,16 +250,6 @@ class RuntimeConnection {
     }
 
     return cb(event, ...args);
-  };
-
-  /**
-   * Initiates latency check by sending first packet to Runtime
-   */
-  initiateLatencyCheck = (_event: IpcMainEvent, data: protos.ITimeStamps) => {
-    const message = createPacket(data, MsgType.TIME_STAMPS);
-    this.socket.write(message, () => {
-      this.logger.log(`Sent timestamp data to runtime: ${JSON.stringify(data)}`);
-    });
   };
 
   /**
@@ -328,7 +316,6 @@ class RuntimeConnection {
     this.socket.end();
     ipcMain.removeListener('runModeUpdate', this.sendRunMode);
     ipcMain.removeListener('ipAddress', this.ipAddressListener);
-    ipcMain.removeListener('initiateLatencyCheck', this.initiateLatencyCheck);
     ipcMain.removeListener('stateUpdate', this.sendInputs);
   };
 }
