@@ -8,7 +8,6 @@ import { defaults, getValidationState, logging, isValidationState } from '../uti
 import { updateFieldControl } from '../actions/FieldActions';
 import { ipChange, sshIpChange } from '../actions/InfoActions';
 import storage from 'electron-json-storage';
-import { Formik } from 'formik';
 
 interface Config {
   stationNumber: number;
@@ -46,6 +45,7 @@ export const ConfigBoxComponent = (props: Props) => {
   const [originalSSHAddress, setOriginalSSHAddress] = useState(props.sshAddress);
   const [originalStationNumber, setOriginalStationNumber] = useState(props.stationNumber);
   const [originalFCAddress, setOriginalFCAddress] = useState(props.fcAddress);
+  const [updateDisabled, setUpdateDisabled] = useState(false);
 
   const saveChanges = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -104,13 +104,6 @@ export const ConfigBoxComponent = (props: Props) => {
     props.hide();
   };
 
-  const disableUploadUpdate = () => {
-    if (defaults.NGROK) {
-      return false;
-    }
-    return getValidationState(ipAddress) === 'error' || getValidationState(fcAddress) === 'error' || (stationNumber < 0 && stationNumber > 4);
-  };
-
   useEffect(() => {
     storage.get('ipAddress', (err: any, data: object) => {
       if (err) {
@@ -149,18 +142,15 @@ export const ConfigBoxComponent = (props: Props) => {
     });
   }, []);
 
+  useEffect(() => {
+    const isDisabled = getValidationState(ipAddress) === 'error' || getValidationState(sshAddress) === 'error' || getValidationState(fcAddress) === 'error' || (stationNumber < 0 || stationNumber > 4);
+    setUpdateDisabled(isDisabled);
+  }, [ipAddress, sshAddress, fcAddress, stationNumber])
+
   const { shouldShow } = props;
 
   return (
-      // TODO: Figure out formik stuff
-      <Formik
-    //   validationSchema={schema}
-      onSubmit={console.log}
-      initialValues={{
-        
-      }}
-    >
-        <Modal show={shouldShow} onHide={handleClose} animation={false}>
+	<Modal show={shouldShow} onHide={handleClose} animation={false}>
         <Form action="" onSubmit={saveChanges}>
             <Modal.Header closeButton>
             <Modal.Title>Dawn Configuration</Modal.Title>
@@ -172,37 +162,48 @@ export const ConfigBoxComponent = (props: Props) => {
             </p>
             <Form.Group controlId="ipAddress">
                 <Form.Label>IP Address</Form.Label>
-                <Form.Control type="text" value={ipAddress} placeholder="i.e. 192.168.100.13" onChange={handleIpChange} isValid={isValidationState(ipAddress)} />
-                <Form.Control.Feedback />
+                <Form.Control type="text" value={ipAddress} placeholder="i.e. 192.168.100.13" onChange={handleIpChange} isValid={isValidationState(ipAddress)} isInvalid={!isValidationState(ipAddress)}/>
+                <Form.Control.Feedback type='invalid'>
+                Invalid Address. Try Again
+              </Form.Control.Feedback>
+              <Form.Control.Feedback>Valid Address!</Form.Control.Feedback>
             </Form.Group>
 
-            <Form.Group controlId="ipAddress">
+            <Form.Group controlId="Address">
                 <Form.Label>SSH Address</Form.Label>
-                <Form.Control type="text" value={sshAddress} placeholder="i.e. 192.168.100.13" onChange={handleSSHIpChange} isValid={isValidationState(ipAddress)} />
-                <Form.Control.Feedback />
+                <Form.Control type="text" value={sshAddress} placeholder="i.e. 192.168.100.13" onChange={handleSSHIpChange} isValid={isValidationState(sshAddress)} isInvalid={!isValidationState(sshAddress)}/>
+                <Form.Control.Feedback type='invalid'>
+                Invalid Address. Try Again
+              </Form.Control.Feedback>
+              <Form.Control.Feedback>Valid Address!</Form.Control.Feedback>
             </Form.Group>
 
             <p>Field Control Settings</p>
             <Form.Group controlId="fcAddress">
                 <Form.Label>Field Control IP Address</Form.Label>
-                <Form.Control type="text" value={fcAddress} placeholder="i.e. 192.168.100.13" onChange={handleFcChange} isValid={isValidationState(ipAddress)} />
-                <Form.Control.Feedback />
+                <Form.Control type="text" value={fcAddress} placeholder="i.e. 192.168.100.13" onChange={handleFcChange} isValid={isValidationState(fcAddress)} isInvalid={!isValidationState(fcAddress)}/>
+                <Form.Control.Feedback type='invalid'>
+                Invalid Address. Try Again
+              </Form.Control.Feedback>
+              <Form.Control.Feedback>Valid Address!</Form.Control.Feedback>
             </Form.Group>
 
             <Form.Group controlId="stationNumber">
                 <Form.Label>Field Control Station Number</Form.Label>
-                <Form.Control type="number" value={stationNumber} placeholder="An integer from 0 to 4" onChange={handleStationChange} isValid={stationNumber >= 0 && stationNumber <= 4}/>
-                <Form.Control.Feedback />
+                <Form.Control type="number" value={stationNumber} placeholder="An integer from 0 to 4" onChange={handleStationChange} isValid={stationNumber >= 0 && stationNumber <= 4} isInvalid={stationNumber < 0 || stationNumber > 4}/>
+                <Form.Control.Feedback type='invalid'>
+                Invalid Station Number. Try Again
+              </Form.Control.Feedback>
+              <Form.Control.Feedback>Valid Station Number!</Form.Control.Feedback>
             </Form.Group>
             </Modal.Body>
             <Modal.Footer>
-            <Button type="submit" variant="primary" disabled={disableUploadUpdate()}>
+            <Button type="submit" variant="primary" disabled={updateDisabled}>
                 Update
             </Button>
             </Modal.Footer>
         </Form>
-        </Modal>
-    </Formik>
+	</Modal>
   );
 };
 
@@ -210,8 +211,8 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   onIPChange: (ipAddress: string) => {
     dispatch(ipChange(ipAddress));
   },
-  onSSHAddressChange: (ipAddress: string) => {
-    dispatch(sshIpChange(ipAddress));
+  onSSHAddressChange: (sshAddress: string) => {
+    dispatch(sshIpChange(sshAddress));
   },
   onFCUpdate: (config: Config) => {
     dispatch(updateFieldControl(config));

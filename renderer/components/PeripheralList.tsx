@@ -18,7 +18,7 @@ interface StateProps {
   globalTheme: string;
 }
 
-const handleAccordion = (devices: Peripheral[]) => {
+const handleAccordion = (devices: Peripheral[], globalTheme: string) => {
   const peripheralGroups: { [peripheralName: string]: Peripheral[] } = {};
 
   // Filter and group peripherals by name (type)
@@ -40,7 +40,7 @@ const handleAccordion = (devices: Peripheral[]) => {
         key={`${groupNameCleaned || 'Default'}-Accordion`}
         id={`${groupNameCleaned || 'Default'}-Accordion`}
       >
-        <PeripheralGroup groupName={groupName} peripherals={peripheralGroups[groupName]}/>
+        <PeripheralGroup groupName={groupName} peripherals={peripheralGroups[groupName]} globalTheme={globalTheme} />
       </CardGroup>
     );
   });
@@ -59,7 +59,7 @@ const PeripheralListComponent = (props: StateProps & OwnProps) => {
   if (errorMsg) {
     panelBody = <p className="panelText">{errorMsg}</p>;
   } else {
-    panelBody = handleAccordion(Object.values(props.peripheralList));
+    panelBody = handleAccordion(Object.values(props.peripheralList), props.globalTheme);
   }
 
   return (
@@ -68,8 +68,9 @@ const PeripheralListComponent = (props: StateProps & OwnProps) => {
       id="peripherals-panel" 
       bg={props.globalTheme === 'dark' ? 'dark' : 'light'}
       text={props.globalTheme === 'dark' ? 'light' : 'dark'}
+	  style={props.globalTheme === 'dark' ? { border: "1px solid white" } : {}}
       >
-      <Card.Header>Peripherals</Card.Header>
+      <Card.Header style={props.globalTheme === 'dark' ? {borderBottom: '1px solid white'} : {}}>Peripherals</Card.Header>
       <Card.Body style={{ padding: '0px' }}>
         <ListGroup>{panelBody}</ListGroup>
       </Card.Body>

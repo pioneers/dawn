@@ -15,14 +15,6 @@ const DawnMenu: MenuItemConstructorOptions = {
         app.quit();
       },
     },
-    { // this should be a button in the UI instead of a context menu
-      label: 'Dark/Light Theme',
-      click() {
-        RendererBridge.reduxDispatch({
-          type: 'TOGGLE_THEME_GLOBAL',
-        });
-      }
-    },
     {
       label: 'Field Control Mode',
       click() {

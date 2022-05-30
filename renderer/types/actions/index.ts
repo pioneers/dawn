@@ -12,7 +12,6 @@ export {
   DeleteFileAction,
   CreateNewFileAction,
   DownloadCodeAction,
-  InitiateLatencyCheck,
   SetLatencyValue,
   UploadCodeAction,
   UpdateIsKeyboardModeToggledAction,

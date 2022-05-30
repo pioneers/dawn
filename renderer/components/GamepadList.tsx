@@ -32,10 +32,10 @@ const GamepadListComponent = (props: Props) => {
       bg={props.globalTheme === 'dark' ? 'dark' : 'light'}
       text={props.globalTheme === 'dark' ? 'light' : 'dark'}
       className="mb-4"
-      //border="primary"
       id="gamepads-panel"
+	  style={props.globalTheme === 'dark' ? { border: "1px solid white" } : {}}
     >
-      <Card.Header>Gamepads</Card.Header>
+      <Card.Header style={props.globalTheme === 'dark' ? {borderBottom: '1px solid white'} : {}}>Gamepads</Card.Header>
       <Card.Body style={{ padding: '0px' }}>
         <ListGroup style={{ marginBottom: '5px' }}>
           {interior}
