@@ -132,7 +132,7 @@
     "patch-package": "^6.2.2",
     "postinstall-postinstall": "^2.1.0",
     "prop-types": "15.6.0",
-    "protobufjs": "^6.10.2",
+    "protobufjs": "^6.11.3",
     "pwa-helpers": "^0.9.1",
     "react": "^16.13.1",
     "react-ace": "^9.1.3",
