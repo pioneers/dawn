@@ -50,8 +50,8 @@ const PeripheralGroup = (props: PeripheralGroupProps) => {
                 name={peripheral.name}
                 type={peripheral.type}
                 params={peripheral.params}
-                background={props.globalTheme === 'dark' ? '#353a3f' : 'white'}
-                color=""
+                backgroundColor={props.globalTheme === 'dark' ? '#353a3f' : 'white'}
+                textColor=""
               />
             ))}
           </Card.Body>
