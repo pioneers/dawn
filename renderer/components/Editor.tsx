@@ -238,6 +238,10 @@ export const Editor = (props: Props) => {
   const startRobot = () => {
     setIsRunning(true);
     props.onUpdateCodeStatus(mode);
+    
+    if (!isKeyboardModeToggled) {
+      toggleKeyboardControl();
+    }
   };
 
   const stopRobot = () => {

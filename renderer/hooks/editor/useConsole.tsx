@@ -27,7 +27,7 @@ export const useConsole = ({ onToggled, isOpenOnStart = false, initialHeight = w
 
   const toggleConsole = () => {
     setIsConsoleOpen(!isConsoleOpen);
-
+    
     onToggled?.();
   };
 
