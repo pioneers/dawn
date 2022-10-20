@@ -84,7 +84,7 @@ export const Editor = (props: Props) => {
   const [editorHeight, setEditorHeight] = useState('0px');
   const [mode, setMode] = useState(robotState.TELEOP);
   const [modeDisplay, setModeDisplay] = useState(robotState.TELEOPSTR);
-  const [isRunning, setIsRunning] = useState(false);
+  // const [isRunning, setIsRunning] = useState(false);
 
   const onConsoleToggle = () => {
     // Resize since the console overlaps with the editor, but enough time for console changes
@@ -236,7 +236,7 @@ export const Editor = (props: Props) => {
   };
 
   const startRobot = () => {
-    setIsRunning(true);
+    // setIsRunning(true);
     props.onUpdateCodeStatus(mode);
     
     if (!isKeyboardModeToggled) {
@@ -245,9 +245,12 @@ export const Editor = (props: Props) => {
   };
 
   const stopRobot = () => {
-    setIsRunning(false);
+    // setIsRunning(false);
     setModeDisplay(mode === robotState.AUTONOMOUS ? robotState.AUTOSTR : robotState.TELEOPSTR);
     props.onUpdateCodeStatus(robotState.IDLE);
+    if (isKeyboardModeToggled) {
+      toggleKeyboardControl()
+    }
   };
 
   const hasUnsavedChanges = () => {
@@ -301,11 +304,11 @@ export const Editor = (props: Props) => {
               text="Run"
               onClick={startRobot}
               icon="play"
-              disabled={isRunning || !props.runtimeStatus || props.fieldControlActivity}
+              disabled={isKeyboardModeToggled || !props.runtimeStatus || props.fieldControlActivity}
               bsStyle={toolTipColor}
               
             />
-            <TooltipButton id="stop" text="Stop" onClick={stopRobot} icon="stop" disabled={!(isRunning)} bsStyle={toolTipColor}/>
+            <TooltipButton id="stop" text="Stop" onClick={stopRobot} icon="stop" disabled={!(isKeyboardModeToggled)} bsStyle={toolTipColor}/>
             <DropdownButton
               variant={props.globalTheme === 'dark' ? 'info' : 'primary'}
               title={modeDisplay}
@@ -389,10 +392,10 @@ export const Editor = (props: Props) => {
               </OverlayTrigger>
             </InputGroup>
             <TooltipButton
-              id="toggleKeyboardControl"
-              text="Toggle Keyboard Control Mode"
-              onClick={toggleKeyboardControl}
-              icon="keyboard"
+              id="keyboardOrController"
+              text="Select for Controller input"
+              onClick={()=>{}}
+              icon="gamepad"
               disabled={false}
               bsStyle={isKeyboardModeToggled ? 'info' : toolTipColor}
             />

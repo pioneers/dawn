@@ -20,6 +20,7 @@ export const useKeyboardMode = (props: Props) => {
   };
 
   useEffect(() => {
+    // const result: any = useSelector(selector: Function, equalityFn?: Function)
     if (isKeyboardModeToggled) {
       // We need passive true so that we are able to remove the event listener when we are not in Keyboard Control mode
       window.addEventListener('keydown', turnCharacterOn, { passive: true });
