@@ -4,24 +4,24 @@ import { keyboardButtons } from '../../consts';
 
 interface Props {
   onUpdateKeyboardBitmap: (keyboardBitMap: number) => void;
-  onUpdateKeyboardModeToggle: (isKeyboardModeToggled: boolean) => void;
+  onUpdateIsRunning: (isRunning: boolean) => void;
 }
 
 export const useKeyboardMode = (props: Props) => {
-  const [isKeyboardModeToggled, setIsKeyboardModeToggled] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
   const [keyboardBitmap, setKeyboardBitmap] = useState(0);
   const keyboardBitmapRef = useRef(0);
   keyboardBitmapRef.current = keyboardBitmap;
 
   // toggle keyboard control and add/remove listening for key presses to control robot
-  const toggleKeyboardControl = () => {
-    setIsKeyboardModeToggled(!isKeyboardModeToggled);
-    props.onUpdateKeyboardModeToggle(!isKeyboardModeToggled);
+  const toggleIsRunning = () => {
+    setIsRunning(!isRunning);
+    props.onUpdateIsRunning(!isRunning);
   };
 
   useEffect(() => {
     // const result: any = useSelector(selector: Function, equalityFn?: Function)
-    if (isKeyboardModeToggled) {
+    if (isRunning) {
       // We need passive true so that we are able to remove the event listener when we are not in Keyboard Control mode
       window.addEventListener('keydown', turnCharacterOn, { passive: true });
       window.addEventListener('keyup', turnCharacterOff, { passive: true });
@@ -35,7 +35,7 @@ export const useKeyboardMode = (props: Props) => {
       window.removeEventListener('keydown', turnCharacterOn);
       window.removeEventListener('keyup', turnCharacterOff);
     };
-  }, [isKeyboardModeToggled]);
+  }, [isRunning]);
 
   const bitShiftLeft = (value: number, numPositions: number) => {
     return value * Math.pow(2, numPositions);
@@ -74,7 +74,7 @@ export const useKeyboardMode = (props: Props) => {
     (e: KeyboardEvent) => {
       // Handle special ctrl + q edge case
       if (e.ctrlKey && e.key === 'q') {
-        setIsKeyboardModeToggled(false);
+        setIsRunning(false);
       } else {
         updateKeyboardBitmap(e.key, true);
       }
@@ -82,5 +82,5 @@ export const useKeyboardMode = (props: Props) => {
     [updateKeyboardBitmap]
   );
 
-  return { isKeyboardModeToggled, keyboardBitmap, toggleKeyboardControl };
+  return { isRunning, keyboardBitmap, toggleIsRunning };
 };

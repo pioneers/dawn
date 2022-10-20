@@ -73,7 +73,7 @@ interface OwnProps {
   onDownloadCode: () => void;
   onUploadCode: () => void;
   onUpdateKeyboardBitmap: (keyboardBitmap: number) => void;
-  onUpdateKeyboardModeToggle: (isKeyboardToggled: boolean) => void;
+  onUpdateIsRunning: (isRunningToggled: boolean) => void;
 }
 
 type Props = StateProps & OwnProps;
@@ -108,9 +108,9 @@ export const Editor = (props: Props) => {
     submitFontSize
   } = useFontResizer();
 
-  const { isKeyboardModeToggled, toggleKeyboardControl } = useKeyboardMode({
+  const { isRunning, toggleIsRunning } = useKeyboardMode({
     onUpdateKeyboardBitmap: props.onUpdateKeyboardBitmap,
-    onUpdateKeyboardModeToggle: props.onUpdateKeyboardModeToggle
+    onUpdateIsRunning: props.onUpdateIsRunning
   });
 
   let CodeEditor: AceEditor;
@@ -239,8 +239,8 @@ export const Editor = (props: Props) => {
     // setIsRunning(true);
     props.onUpdateCodeStatus(mode);
     
-    if (!isKeyboardModeToggled) {
-      toggleKeyboardControl();
+    if (!isRunning) {
+      toggleIsRunning();
     }
   };
 
@@ -248,8 +248,8 @@ export const Editor = (props: Props) => {
     // setIsRunning(false);
     setModeDisplay(mode === robotState.AUTONOMOUS ? robotState.AUTOSTR : robotState.TELEOPSTR);
     props.onUpdateCodeStatus(robotState.IDLE);
-    if (isKeyboardModeToggled) {
-      toggleKeyboardControl()
+    if (isRunning) {
+      toggleIsRunning()
     }
   };
 
@@ -304,11 +304,11 @@ export const Editor = (props: Props) => {
               text="Run"
               onClick={startRobot}
               icon="play"
-              disabled={isKeyboardModeToggled || !props.runtimeStatus || props.fieldControlActivity}
+              disabled={isRunning || !props.runtimeStatus || props.fieldControlActivity}
               bsStyle={toolTipColor}
               
             />
-            <TooltipButton id="stop" text="Stop" onClick={stopRobot} icon="stop" disabled={!(isKeyboardModeToggled)} bsStyle={toolTipColor}/>
+            <TooltipButton id="stop" text="Stop" onClick={stopRobot} icon="stop" disabled={!(isRunning)} bsStyle={toolTipColor}/>
             <DropdownButton
               variant={props.globalTheme === 'dark' ? 'info' : 'primary'}
               title={modeDisplay}
@@ -397,7 +397,7 @@ export const Editor = (props: Props) => {
               onClick={()=>{}}
               icon="gamepad"
               disabled={false}
-              bsStyle={isKeyboardModeToggled ? 'info' : toolTipColor}
+              bsStyle={isRunning ? 'info' : toolTipColor}
             />
           </FormGroup>
           <ButtonGroup id="editor-settings-buttons" className="form-inline">
@@ -464,7 +464,7 @@ export const Editor = (props: Props) => {
           value={props.editorCode}
           onChange={props.onEditorUpdate}
           editorProps={{ $blockScrolling: Infinity }}
-          readOnly={isKeyboardModeToggled}
+          readOnly={isRunning}
         />
         <ConsoleOutput
           toggleConsole={toggleConsole}

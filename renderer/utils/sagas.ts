@@ -112,7 +112,7 @@ const editorState = (state: ApplicationState) => ({
   filepath: state.editor.filepath,
   code: state.editor.editorCode,
   keyboardBitmap: state.editor.keyboardBitmap,
-  isKeyboardModeToggled: state.editor.isKeyboardModeToggled
+  isRunning: state.editor.isRunning
 });
 
 function* saveFile(action: any) {
@@ -265,7 +265,7 @@ function* sendKeyboardConnectionStatus() {
   const currEditorState = yield select(editorState);
 
   const keyboardConnectionStatus = new Input({
-    connected: currEditorState.isKeyboardModeToggled,
+    connected: currEditorState.isRunning,
     axes: [],
     buttons: 0,
     source: Source.KEYBOARD
@@ -295,7 +295,7 @@ function* runtimeGamepads() {
 
   const currEditorState = yield select(editorState)
 
-  if (!currEditorState.isKeyboardModeToggled) {
+  if (!currEditorState.isRunning) {
     while (true) {
       // navigator.getGamepads always returns a reference to the same object. This
       // confuses redux, so we use assignIn to clone to a new object each time.

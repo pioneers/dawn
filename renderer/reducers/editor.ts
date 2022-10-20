@@ -40,7 +40,7 @@ interface EditorState {
   latestSaveCode: string;
   editorCode: string;
   keyboardBitmap: number;
-  isKeyboardModeToggled: boolean;
+  isRunning: boolean;
 }
 
 const defaultEditorState = {
@@ -48,7 +48,7 @@ const defaultEditorState = {
   latestSaveCode: '',
   editorCode: '',
   keyboardBitmap: 0,
-  isKeyboardModeToggled: false,
+  isRunning: false,
   latencyValue: 0
 };
 
@@ -85,7 +85,7 @@ export const editor = (state: EditorState = defaultEditorState, action: Actions)
     case consts.EditorActionsTypes.UPDATE_IS_KEYBOARD_MODE_TOGGLED:
       return {
         ...state,
-        isKeyboardModeToggled: action.isKeyboardToggled,
+        isRunning: action.isRunningToggled,
       };
     default:
       return state;

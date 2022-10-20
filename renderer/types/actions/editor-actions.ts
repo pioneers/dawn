@@ -54,7 +54,7 @@ export interface UpdateKeyboardBitmapAction {
 
 export interface UpdateIsKeyboardModeToggledAction {
   type: consts.EditorActionsTypes.UPDATE_IS_KEYBOARD_MODE_TOGGLED;
-  isKeyboardToggled: boolean;
+  isRunningToggled: boolean;
 }
 
 export interface SetLatencyValue {
@@ -85,7 +85,7 @@ export interface EditorActions {
 
   updateKeyboardBitmap: (keyboardBitmap: number) => UpdateKeyboardBitmapAction;
 
-  updateIsKeyboardModeToggled: (isKeyboardToggled: boolean) => UpdateIsKeyboardModeToggledAction;
+  updateIsRunning: (isRunningToggled: boolean) => UpdateIsKeyboardModeToggledAction;
 
   setLatencyValue: (latencyValue: number) => SetLatencyValue;
 }
