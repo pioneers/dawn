@@ -7,6 +7,7 @@ import { Input } from '../../protos-main';
 interface OwnProps {
   gamepad: Input;
   index: number;
+  globalTheme: string;
 }
 
 type Props = OwnProps;
@@ -49,8 +50,8 @@ export const Gamepad = (props: Props) => {
   const values = roundedValues();
 
   return (
-    <ListGroupItem>
-      <div style={{ overflow: 'auto', width: '100%' }}>
+    <ListGroupItem style={{ backgroundColor: props.globalTheme === 'dark' ? '#353a3f' : 'white' }}>
+      <div style={{ overflow: 'auto', width: '100%'}}>
         <span style={{ float: 'left' }}>{renderHeader()}</span>
         <Button type="button" size="sm" onClick={() => setModal(true)} style={{ float: 'right' }}>
           Details

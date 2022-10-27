@@ -17,7 +17,7 @@ const GamepadListComponent = (props: Props) => {
   if (_.some(props.gamepads, (gamepad: Input) => gamepad !== undefined)) {
     interior = _.map(
       props.gamepads,
-      (gamepad: Input, index: string) => <Gamepad key={index} index={parseInt(index, 10)} gamepad={gamepad} />,
+      (gamepad: Input, index: string) => <Gamepad key={index} index={parseInt(index, 10)} gamepad={gamepad} globalTheme={props.globalTheme}/>,
     );
   } else {
     interior = (
@@ -36,8 +36,8 @@ const GamepadListComponent = (props: Props) => {
 	  style={props.globalTheme === 'dark' ? { border: "1px solid white" } : {}}
     >
       <Card.Header style={props.globalTheme === 'dark' ? {borderBottom: '1px solid white'} : {}}>Gamepads</Card.Header>
-      <Card.Body style={{ padding: '0px' }}>
-        <ListGroup style={{ marginBottom: '5px' }}>
+      <Card.Body style={{ padding: '0px'}}>
+        <ListGroup style={{ marginBottom: '5px'}}>
           {interior}
         </ListGroup>
       </Card.Body>
