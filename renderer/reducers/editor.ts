@@ -13,7 +13,7 @@ import {
   CreateNewFileAction,
   DownloadCodeAction,
   UploadCodeAction,
-  UpdateIsKeyboardModeToggledAction,
+  UpdateIsRunningToggledAction,
   UpdateKeyboardBitmapAction,
   SetLatencyValue
 } from '../types';
@@ -30,7 +30,7 @@ type Actions =
   | CreateNewFileAction
   | DownloadCodeAction
   | UploadCodeAction
-  | UpdateIsKeyboardModeToggledAction
+  | UpdateIsRunningToggledAction
   | UpdateKeyboardBitmapAction
   | SetLatencyValue;
 
@@ -82,7 +82,7 @@ export const editor = (state: EditorState = defaultEditorState, action: Actions)
         ...state,
         latencyValue: action.latencyValue,
       };
-    case consts.EditorActionsTypes.UPDATE_IS_KEYBOARD_MODE_TOGGLED:
+    case consts.EditorActionsTypes.UPDATE_IS_RUNNING_TOGGLED:
       return {
         ...state,
         isRunning: action.isRunningToggled,

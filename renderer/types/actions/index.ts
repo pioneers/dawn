@@ -14,7 +14,7 @@ export {
   DownloadCodeAction,
   SetLatencyValue,
   UploadCodeAction,
-  UpdateIsKeyboardModeToggledAction,
+  UpdateIsRunningToggledAction,
   UpdateKeyboardBitmapAction
 } from './editor-actions';
 export { GamepadsActions, UpdateGamepadsAction } from './gamepads-actions';

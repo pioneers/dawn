@@ -631,7 +631,7 @@ export default function* rootSaga() {
     takeEvery('TOGGLE_FIELD_CONTROL', handleFieldControl),
     takeEvery('TIMESTAMP_CHECK', timestampBounceback),
     takeEvery('UPDATE_KEYBOARD_BITMAP', sendKeyboardInputs),
-    takeEvery('UPDATE_IS_KEYBOARD_MODE_TOGGLED', sendKeyboardConnectionStatus),
+    takeEvery('UPDATE_IS_RUNNING_TOGGLED', sendKeyboardConnectionStatus),
     fork(runtimeHeartbeat),
     fork(runtimeGamepads),
     fork(runtimeSaga),

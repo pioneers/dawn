@@ -52,8 +52,8 @@ export interface UpdateKeyboardBitmapAction {
   keyboardBitmap: number;
 }
 
-export interface UpdateIsKeyboardModeToggledAction {
-  type: consts.EditorActionsTypes.UPDATE_IS_KEYBOARD_MODE_TOGGLED;
+export interface UpdateIsRunningToggledAction {
+  type: consts.EditorActionsTypes.UPDATE_IS_RUNNING_TOGGLED;
   isRunningToggled: boolean;
 }
 
@@ -85,7 +85,7 @@ export interface EditorActions {
 
   updateKeyboardBitmap: (keyboardBitmap: number) => UpdateKeyboardBitmapAction;
 
-  updateIsRunning: (isRunningToggled: boolean) => UpdateIsKeyboardModeToggledAction;
+  updateIsRunning: (isRunningToggled: boolean) => UpdateIsRunningToggledAction;
 
   setLatencyValue: (latencyValue: number) => SetLatencyValue;
 }

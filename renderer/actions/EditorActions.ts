@@ -54,7 +54,7 @@ export const updateKeyboardBitmap: EditorActions['updateKeyboardBitmap'] = (keyb
 });
 
 export const updateIsRunning: EditorActions['updateIsRunning'] = (isRunningToggled: boolean) => ({
-  type: consts.EditorActionsTypes.UPDATE_IS_KEYBOARD_MODE_TOGGLED,
+  type: consts.EditorActionsTypes.UPDATE_IS_RUNNING_TOGGLED,
   isRunningToggled
 });
 
