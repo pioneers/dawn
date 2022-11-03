@@ -88,7 +88,7 @@ export const AppComponent = (props: Props) => {
 
   const joyrideCallback = (action: { type: string }) => {
     // Confirm this still works
-    if (action.type === 'finished') {
+    if (action.type === 'tour:end') {
       changeTourRunning(false);
     }
   };
