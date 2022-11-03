@@ -391,14 +391,7 @@ export const Editor = (props: Props) => {
                 </DropdownButton>
               </OverlayTrigger>
             </InputGroup>
-            <TooltipButton
-              id="keyboardOrController"
-              text="Select for Controller input"
-              onClick={()=>{}}
-              icon="gamepad"
-              disabled={false}
-              bsStyle={isRunning ? 'info' : toolTipColor}
-            />
+            
           </FormGroup>
           <ButtonGroup id="editor-settings-buttons" className="form-inline">
             <TooltipButton
