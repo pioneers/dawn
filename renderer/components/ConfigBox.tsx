@@ -97,6 +97,16 @@ export const ConfigBoxComponent = (props: Props) => {
     setSSHAddress("[REMOVE to Reconnect]" + sshAddress );
   }
 
+  const resetItems = () => {
+    setIPAddress(ipAddress.replace("[REMOVE to Reconnect]", ""));
+    setSSHAddress(sshAddress.replace("[REMOVE to Reconnect]", ""));  
+    props.hide(); 
+  }
+
+  const canReconnect = () => {
+    return ipAddress.includes("[REMOVE to Reconnect]") && sshAddress.includes("[REMOVE to Reconnect]");
+  }
+
   const handleStationChange = (e: React.FormEvent<FormControlElement>) => {
     setStationNumber(parseInt(e.currentTarget.value));
   };
@@ -203,11 +213,14 @@ export const ConfigBoxComponent = (props: Props) => {
             </Form.Group>
             </Modal.Body>
             <Modal.Footer>
+            <Button type="submit" variant="success" disabled={!canReconnect()} onClick={resetItems}>
+                Reconnect
+            </Button>
             <Button type="submit" variant="danger" disabled={updateDisabled} onClick={clearItems}>
                 Disconnect
             </Button>
             <Button type="submit" variant="primary" disabled={updateDisabled}>
-                Update
+                Save
             </Button>
             </Modal.Footer>
         </Form>
