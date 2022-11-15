@@ -91,6 +91,11 @@ export const ConfigBoxComponent = (props: Props) => {
   const handleFcChange = (e: React.FormEvent<FormControlElement>) => {
     setFCAddress(e.currentTarget.value);
   };
+  
+  const clearItems = () => {
+    setIPAddress("[REMOVE to Reconnect]" + ipAddress);
+    setSSHAddress("[REMOVE to Reconnect]" + sshAddress );
+  }
 
   const handleStationChange = (e: React.FormEvent<FormControlElement>) => {
     setStationNumber(parseInt(e.currentTarget.value));
@@ -198,6 +203,9 @@ export const ConfigBoxComponent = (props: Props) => {
             </Form.Group>
             </Modal.Body>
             <Modal.Footer>
+            <Button type="submit" variant="danger" disabled={updateDisabled} onClick={clearItems}>
+                Disconnect
+            </Button>
             <Button type="submit" variant="primary" disabled={updateDisabled}>
                 Update
             </Button>
