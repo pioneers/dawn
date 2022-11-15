@@ -236,8 +236,15 @@ export const Editor = (props: Props) => {
   };
 
   const startRobot = () => {
-    setIsRunning(true);
-    props.onUpdateCodeStatus(mode);
+    setIsRunning(!isRunning);
+    if (isRunning) {
+      setRunText("Stop")
+      props.onUpdateCodeStatus(mode)
+    } else {
+      setRunText("Run")
+      setModeDisplay(mode === robotState.AUTONOMOUS ? robotState.AUTOSTR : robotState.TELEOPSTR);
+      props.onUpdateCodeStatus(robotState.IDLE);
+    }
   };
 
   const stopRobot = () => {
@@ -263,6 +270,7 @@ export const Editor = (props: Props) => {
 
   const changeMarker = hasUnsavedChanges() ? '*' : '';
   const toolTipColor: string = (props.globalTheme === 'dark' ? 'white' : 'black');
+  const [runText, setRunText] = useState("Run")
 
   return (
     <Card bg={props.globalTheme === 'dark' ? 'dark' : 'light'} text={props.globalTheme === 'dark' ? 'light' : 'dark'} border={props.globalTheme === 'dark' ? 'light' : 'dark'}>
@@ -294,14 +302,14 @@ export const Editor = (props: Props) => {
           <ButtonGroup id="code-execution-buttons">
             <TooltipButton
               id="run"
-              text="Run"
+              text={runText}
               onClick={startRobot}
               icon="play"
               disabled={isRunning || !props.runtimeStatus || props.fieldControlActivity}
               bsStyle={toolTipColor}
               
             />
-            <TooltipButton id="stop" text="Stop" onClick={stopRobot} icon="stop" disabled={!(isRunning)} bsStyle={toolTipColor}/>
+            
             <DropdownButton
               variant={props.globalTheme === 'dark' ? 'info' : 'primary'}
               title={modeDisplay}
