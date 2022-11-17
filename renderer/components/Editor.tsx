@@ -304,12 +304,10 @@ export const Editor = (props: Props) => {
               id="run"
               text={runText}
               onClick={startRobot}
-              icon="play"
-              disabled={isRunning || !props.runtimeStatus || props.fieldControlActivity}
+              icon={!isRunning ? "play" : "stop"}
+              disabled={false}
               bsStyle={toolTipColor}
-              
             />
-            
             <DropdownButton
               variant={props.globalTheme === 'dark' ? 'info' : 'primary'}
               title={modeDisplay}
