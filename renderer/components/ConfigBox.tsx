@@ -92,7 +92,7 @@ export const ConfigBoxComponent = (props: Props) => {
     setFCAddress(e.currentTarget.value);
   };
   
-  const clearItems = () => {
+  const updateItems = () => {
     setIPAddress("[REMOVE to Reconnect]" + ipAddress);
     setSSHAddress("[REMOVE to Reconnect]" + sshAddress );
   }
@@ -216,7 +216,7 @@ export const ConfigBoxComponent = (props: Props) => {
             <Button type="submit" variant="success" disabled={!canReconnect()} onClick={resetItems}>
                 Reconnect
             </Button>
-            <Button type="submit" variant="danger" disabled={updateDisabled} onClick={clearItems}>
+            <Button type="submit" variant="danger" disabled={updateDisabled} onClick={updateItems}>
                 Disconnect
             </Button>
             <Button type="submit" variant="primary" disabled={updateDisabled}>
