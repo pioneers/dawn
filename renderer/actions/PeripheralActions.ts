@@ -11,3 +11,13 @@ export const peripheralRename: PeripheralActions['peripheralRename'] = (uid: num
   id: uid,
   name: newName,
 });
+
+export const updateRuntimeVersion: PeripheralActions['updateRuntimeVersion'] = (version: string) => ({
+  type: consts.PeripheralActionsTypes.UPDATE_RUNTIME_VERSION,
+  version: version,
+})
+
+export const updateBattery: PeripheralActions['updateBattery'] = (battery: number) => ({
+  type: consts.PeripheralActionsTypes.UPDATE_BATTERY,
+  battery: battery,
+})

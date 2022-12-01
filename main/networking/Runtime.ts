@@ -4,8 +4,8 @@ import * as protos from '../../protos-main';
 
 import RendererBridge from '../RendererBridge';
 import { updateConsole } from '../../renderer/actions/ConsoleActions';
-import { infoPerMessage } from '../../renderer/actions/InfoActions';
-import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
+import { runtimeDisconnect, infoPerMessage, updateCodeStatus } from '../../renderer/actions/InfoActions';
+import { updateBattery, updatePeripherals, updateRuntimeVersion } from '../../renderer/actions/PeripheralActions';
 import { Logger, defaults } from '../../renderer/utils/utils';
 import { Peripheral } from '../../renderer/types';
 import { setLatencyValue } from '../../renderer/actions/EditorActions';
@@ -28,9 +28,10 @@ enum MsgType {
   START_POS = 1,
   LOG = 2,
   DEVICE_DATA = 3,
-  // 4 reserved for some Shepherd msg type
+  // 5 reserved for some Shepherd msg type
   INPUTS = 5,
-  TIME_STAMPS = 6
+  TIME_STAMPS = 6,
+  RUNTIME_STATUS = 7
 }
 
 interface TCPPacket {
@@ -214,7 +215,12 @@ class RuntimeConnection {
               this.logger.log(err);
             }
             break;
-
+          case MsgType.RUNTIME_STATUS:
+            decoded = protos.RuntimeStatus.decode(packet.payload);
+            //Not sure if we need to update runtimeStatus state bcs heartbeat keeps track of that already
+            RendererBridge.reduxDispatch(updateCodeStatus(decoded.mode));
+            RendererBridge.reduxDispatch(updateRuntimeVersion(decoded.version));
+            RendererBridge.reduxDispatch(updateBattery(decoded.battery));
           case MsgType.DEVICE_DATA:
             try {
               RendererBridge.reduxDispatch(infoPerMessage());

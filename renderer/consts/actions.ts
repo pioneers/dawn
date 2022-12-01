@@ -13,6 +13,8 @@ export enum ConsoleActionsTypes {
 export enum PeripheralActionsTypes {
   UPDATE_PERIPHERALS = 'UPDATE_PERIPHERALS',
   PERIPHERAL_RENAME = 'PERIPHERAL_RENAME',
+  UPDATE_RUNTIME_VERSION = 'UPDATE_RUNTIME_VERSION',
+  UPDATE_BATTERY = 'UPDATE_BATTERY',
 }
 
 export enum EditorActionsTypes {

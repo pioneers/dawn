@@ -12,8 +12,22 @@ export interface PeripheralRenameAction {
   name: string;
 }
 
+export interface UpdateRuntimeVersionAction {
+  type: consts.PeripheralActionsTypes.UPDATE_RUNTIME_VERSION;
+  version: string;
+}
+
+export interface UpdateBatteryAction {
+  type:consts.PeripheralActionsTypes.UPDATE_BATTERY;
+  battery: number;
+}
+
 export interface PeripheralActions {
   updatePeripherals: (sensors: Peripheral[]) => UpdatePeripheralsAction;
 
   peripheralRename: (uid: number, newName: string) => PeripheralRenameAction;
+
+  updateRuntimeVersion: (version: string) => UpdateRuntimeVersionAction;
+
+  updateBattery: (battery: number) => UpdateBatteryAction;
 }
