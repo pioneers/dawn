@@ -77,10 +77,10 @@ export const runtimeState = {
 
 export const defaults = {
   PORT: 22,
-  USERNAME: 'pi',
-  PASSWORD: 'raspberry',
+  USERNAME: 'ubuntu',
+  PASSWORD: 'potato',
   IPADDRESS: '192.168.0.0',
-  STUDENTCODELOC: '/home/pi/runtime/executor/studentcode.py',
+  STUDENTCODELOC: '/home/ubuntu/runtime/executor/studentcode.py',
   NGROK: true,
 };
 
